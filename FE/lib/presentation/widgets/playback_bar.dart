@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../providers/global_providers.dart';
 import './expanded_playbackscreen.dart';
+import '../pages/playlist/playlist_screen.dart';
 
 class PlaybackBar extends StatelessWidget {
   final PlaybackState playbackState;
@@ -51,7 +52,7 @@ class PlaybackBar extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    playbackState.currentSongId ?? "노래 제목",
+                    playbackState.currentTrackId ?? "노래 제목",
                     style: const TextStyle(color: Colors.white, fontSize: 14),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -78,6 +79,12 @@ class PlaybackBar extends StatelessWidget {
               icon: const Icon(Icons.queue_music, color: Colors.white),
               onPressed: () {
                 // 재생목록 보기 로직 추가
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PlaylistScreen(),
+                  ),
+                );
               },
             ),
           ],
@@ -96,8 +103,9 @@ class ExpandedPlaybackScreenWrapper extends StatelessWidget {
     // PlaybackState, onToggle 등은 실제 앱에서는 전역 상태로 전달해야 함.
     // 여기서는 예시로 placeholder 값을 사용함.
     final playbackState = PlaybackState(
-      currentSongId: "노래 제목",
+      currentTrackId: "노래 제목",
       isPlaying: true,
+      trackTitle: "노래 제목",
     );
 
     return ExpandedPlaybackScreen(

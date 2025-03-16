@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../data/models/track.dart';
 
 // Bottom Navigation 전역 상태
 class BottomNavState extends StateNotifier<int> {
@@ -14,24 +15,30 @@ final bottomNavProvider = StateNotifierProvider<BottomNavState, int>((ref) {
 
 // 재생 상태 전역 관리
 class PlaybackState {
-  final String? currentSongId;
+  final String? currentTrackId; // ✅ 기존 currentSongId → currentTrackId로 변경
+  final String trackTitle;
   final bool isPlaying;
 
-  PlaybackState({this.currentSongId, this.isPlaying = false});
+  PlaybackState({
+    this.currentTrackId,
+    required this.trackTitle,
+    this.isPlaying = false,
+  });
 
-  PlaybackState copyWith({String? currentSongId, bool? isPlaying}) {
+  PlaybackState copyWith({String? currentTrackId, bool? isPlaying}) {
     return PlaybackState(
-      currentSongId: currentSongId ?? this.currentSongId,
+      currentTrackId: currentTrackId ?? this.currentTrackId,
+      trackTitle: this.trackTitle,
       isPlaying: isPlaying ?? this.isPlaying,
     );
   }
 }
 
 class PlaybackNotifier extends StateNotifier<PlaybackState> {
-  PlaybackNotifier() : super(PlaybackState());
+  PlaybackNotifier() : super(PlaybackState(trackTitle: ''));
 
   void play(String songId) {
-    state = state.copyWith(currentSongId: songId, isPlaying: true);
+    state = state.copyWith(currentTrackId: songId, isPlaying: true);
   }
 
   void pause() {
@@ -48,3 +55,5 @@ final playbackProvider = StateNotifierProvider<PlaybackNotifier, PlaybackState>(
     return PlaybackNotifier();
   },
 );
+
+final playlistProvider = StateProvider<List<Track>>((ref) => []);

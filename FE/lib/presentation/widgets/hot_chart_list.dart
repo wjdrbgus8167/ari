@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../data/models/song.dart';
+import '../../data/models/track.dart' as ari;
 
 class HotChartList extends StatefulWidget {
-  final List<Song> songs;
+  final List<ari.Track> songs;
   const HotChartList({Key? key, required this.songs}) : super(key: key);
 
   @override
@@ -40,7 +40,10 @@ class _HotChartListState extends State<HotChartList> {
             (startIndex + itemsPerPage) > widget.songs.length
                 ? widget.songs.length
                 : (startIndex + itemsPerPage);
-        final List<Song> pageSongs = widget.songs.sublist(startIndex, endIndex);
+        final List<ari.Track> pageTitles = widget.songs.sublist(
+          startIndex,
+          endIndex,
+        );
 
         return Transform.translate(
           offset: const Offset(-10, 0), // 왼쪽으로 4px 이동
@@ -49,7 +52,7 @@ class _HotChartListState extends State<HotChartList> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children:
-                  pageSongs.asMap().entries.map((entry) {
+                  pageTitles.asMap().entries.map((entry) {
                     final localIndex = entry.key;
                     final song = entry.value;
                     final globalIndex = startIndex + localIndex;
@@ -65,7 +68,7 @@ class _HotChartListState extends State<HotChartList> {
 
 class _ChartItem extends StatelessWidget {
   final int rank;
-  final Song song;
+  final ari.Track song;
 
   const _ChartItem({Key? key, required this.rank, required this.song})
     : super(key: key);
@@ -119,7 +122,7 @@ class _ChartItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  song.title,
+                  song.trackTitle,
                   style: const TextStyle(color: Colors.white, fontSize: 14),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

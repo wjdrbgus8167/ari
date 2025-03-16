@@ -25,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final allLatestAlbums = MockData.getLatestAlbums();
     final allPopularAlbums = MockData.getPopularAlbums();
     final popularPlaylists = MockData.getPopularPlaylists();
-    final hot20Songs = MockData.getHot20Songs();
+    final hot20Titles = MockData.getHot20Titles();
 
     // 유틸 함수 filterAlbumsByGenre 사용
     final filteredLatestAlbums = filterAlbumsByGenre(
@@ -108,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 20),
             // HOT 50 섹션
             _buildSectionHeader("HOT 50"),
-            SizedBox(height: 410, child: HotChartList(songs: hot20Songs)),
+            SizedBox(height: 410, child: HotChartList(songs: hot20Titles)),
           ],
         ),
       ),
