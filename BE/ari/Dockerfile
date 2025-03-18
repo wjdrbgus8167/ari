@@ -15,7 +15,7 @@ FROM openjdk:17-alpine
 WORKDIR /app
 
 # 빌드된 JAR 파일 복사
-COPY --from=builder /build/build/libs/*.jar app.jar
+COPY --from=builder /build/build/libs/ari-0.0.1-SNAPSHOT.jar app.jar
 
 # 로그 디렉토리 생성
 RUN mkdir -p /app/logs
