@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../widgets/album_section_header.dart';
-import '../../widgets/album_horizontal_list.dart';
-import '../../widgets/playlist_horizontal_list.dart';
+import '../../widgets/album/album_section_header.dart';
+import '../../widgets/album/album_horizontal_list.dart';
+import '../../widgets/playlist/playlist_horizontal_list.dart';
 import '../../widgets/hot_chart_list.dart';
 import '../../../core/utils/genre_utils.dart';
 import '../../widgets/home_section.dart';
@@ -25,7 +25,7 @@ class HomeScreen extends ConsumerWidget {
       ),
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 30),
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 30),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

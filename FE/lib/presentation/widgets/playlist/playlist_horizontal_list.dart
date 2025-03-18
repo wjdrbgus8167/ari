@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../data/models/playlist.dart';
+import '../../../data/models/playlist.dart';
 import 'playlist_card.dart';
 
 class PlaylistHorizontalList extends StatelessWidget {
