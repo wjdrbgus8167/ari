@@ -1,3 +1,5 @@
+import 'package:ari/presentation/pages/sign_up/on_boarding.dart';
+import 'package:ari/presentation/pages/sign_up/sign_up_screen.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -115,6 +117,10 @@ class LoginScreen extends StatelessWidget {
                 ),
                 onPressed: () {
                   // 구글 로그인 로직 구현
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const AdditionalInfoPage()),
+                  );
                 },
                 label: const Text(
                   '구글 계정으로 로그인하기',
@@ -123,7 +129,6 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 40),
-            // 회원가입 링크
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -133,7 +138,10 @@ class LoginScreen extends StatelessWidget {
                 ),
                 GestureDetector(
                   onTap: () {
-                    // 회원가입 화면 이동 로직 구현
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const SignUpScreen()),
+                    );
                   },
                   child: const Text(
                     '회원가입 하기',

@@ -1,3 +1,4 @@
+import 'package:ari/presentation/viewmodels/sign_up_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/models/track.dart';
 import '../presentation/viewmodels/home_viewmodel.dart';
@@ -69,4 +70,9 @@ final homeViewModelProvider = StateNotifierProvider<HomeViewModel, HomeState>(
 final listeningQueueProvider =
     StateNotifierProvider<ListeningQueueViewModel, ListeningQueueState>(
       (ref) => ListeningQueueViewModel(),
+    );
+
+final signUpViewModelProvider =
+    StateNotifierProvider<SignUpViewModel, SignUpState>(
+      (ref) => SignUpViewModel(),
     );
