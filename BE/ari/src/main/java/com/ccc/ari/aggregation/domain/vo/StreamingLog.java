@@ -1,4 +1,4 @@
-package com.ccc.ari.aggregation.domain;
+package com.ccc.ari.aggregation.domain.vo;
 
 import lombok.Getter;
 
