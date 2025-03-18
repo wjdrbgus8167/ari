@@ -1,3 +1,4 @@
+import 'package:ari/presentation/viewmodels/album_detail_viewmodel.dart';
 import 'package:ari/presentation/viewmodels/sign_up_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/models/track.dart';
@@ -67,4 +68,8 @@ final homeViewModelProvider = StateNotifierProvider<HomeViewModel, HomeState>(
 
 final signUpViewModelProvider = StateNotifierProvider<SignUpViewModel, SignUpState>(
   (ref) => SignUpViewModel(),
+);
+
+final albumDetailViewModelProvider = StateNotifierProvider<AlbumDetailViewModel, AlbumDetailState>(
+  (ref) => AlbumDetailViewModel(),
 );
