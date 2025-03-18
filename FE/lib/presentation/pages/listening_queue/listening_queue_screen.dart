@@ -5,7 +5,7 @@ import '../../viewmodels/listening_queue_viewmodel.dart';
 import '../../widgets/listening_queue/listening_queue_appbar.dart';
 import '../../widgets/listening_queue/track_count_bar.dart';
 import '../../widgets/listening_queue/track_list_tile.dart';
-import '../../../data/models/track.dart';
+import '../../widgets/listening_queue/bottom_sheet_options.dart';
 
 class ListeningQueueScreen extends ConsumerWidget {
   const ListeningQueueScreen({Key? key}) : super(key: key);
@@ -50,7 +50,7 @@ class ListeningQueueScreen extends ConsumerWidget {
                         final track = state.filteredPlaylist[index];
                         final isSelected = state.selectedTracks.contains(track);
                         return Dismissible(
-                          key: ValueKey(track.id), // 고유한 키 사용
+                          key: ValueKey(track.id),
                           direction: DismissDirection.endToStart,
                           background: Container(
                             color: Colors.red,
@@ -76,7 +76,7 @@ class ListeningQueueScreen extends ConsumerWidget {
                                 backgroundColor: Colors.transparent,
                                 builder:
                                     (context) =>
-                                        _buildBottomSheet(context, track),
+                                        BottomSheetOptions(track: track),
                               );
                             },
                             child: TrackListTile(
@@ -140,131 +140,6 @@ class ListeningQueueScreen extends ConsumerWidget {
           ],
         );
       },
-    );
-  }
-
-  Widget _buildBottomSheet(BuildContext context, Track track) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      clipBehavior: Clip.antiAlias,
-      decoration: const BoxDecoration(
-        color: Color(0xFF282828),
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 상단 트랙 정보 영역
-          Container(
-            width: double.infinity,
-            height: 50,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // 커버 이미지
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    image: DecorationImage(
-                      image: NetworkImage(
-                        track.coverUrl ??
-                            'assets/images/default_album_cover.png',
-                      ),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                // 트랙 제목과 아티스트
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        track.trackTitle,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Text(
-                        track.artist,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                // 좋아요 버튼 (예시)
-                IconButton(
-                  icon: const Icon(Icons.favorite_border, color: Colors.white),
-                  onPressed: () {
-                    // 좋아요 버튼 동작 추후에 구현
-                  },
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-          ListTile(
-            title: const Text(
-              '앨범으로 이동',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontFamily: 'Pretendard',
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-            onTap: () {
-              // 앨범으로 이동하는 로직
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            title: const Text(
-              '트랙 정보로 이동',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontFamily: 'Pretendard',
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-            onTap: () {
-              // 트랙 정보로 이동하는 로직
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            title: const Text(
-              '아티스트 채널로 이동',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontFamily: 'Pretendard',
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-            onTap: () {
-              // 아티스트 채널로 이동하는 로직
-              Navigator.pop(context);
-            },
-          ),
-        ],
-      ),
     );
   }
 }
