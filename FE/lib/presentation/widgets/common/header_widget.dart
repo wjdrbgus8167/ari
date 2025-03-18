@@ -57,7 +57,7 @@ class HeaderWidget extends StatelessWidget {
       height: 56,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.black,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -70,9 +70,10 @@ class HeaderWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // 로고
-          const Text(
-            "음악 스트리밍",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Image.asset(
+            'assets/images/logo.png',
+            height: 32, // 로고 높이 조정
+            fit: BoxFit.contain,
           ),
           // 마이페이지 아이콘
           IconButton(
@@ -90,7 +91,7 @@ class HeaderWidget extends StatelessWidget {
       height: 56,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.black,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -117,7 +118,7 @@ class HeaderWidget extends StatelessWidget {
       height: 56,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.black,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
