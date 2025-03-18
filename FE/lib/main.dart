@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'presentation/pages/home/home_screen.dart';
-import 'presentation/widgets/global_bottom_widget.dart';
+import 'presentation/widgets/common/global_bottom_widget.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));

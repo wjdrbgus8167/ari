@@ -1,34 +1,30 @@
-import 'package:ari/data/models/album.dart';
+/// 장르 Enum
+enum Genre { all, hiphop, jazz, band, rnb, acoustic }
 
-/// 한글 장르명을 영어로 매핑하는 함수
-String mapGenre(String genre) {
-  switch (genre) {
-    case "재즈":
-      return "jazz";
-    case "힙합":
-      return "hiphop";
-    case "밴드":
-      return "band";
-    case "알앤비":
-      return "rnb";
-    case "어쿠스틱":
-      return "acoustic";
-    case "전체":
-      return "전체";
-    default:
-      return genre;
+/// `Genre` → 한글 변환
+extension GenreExtension on Genre {
+  String get displayName {
+    switch (this) {
+      case Genre.hiphop:
+        return "힙합";
+      case Genre.jazz:
+        return "재즈";
+      case Genre.band:
+        return "밴드";
+      case Genre.rnb:
+        return "알앤비";
+      case Genre.acoustic:
+        return "어쿠스틱";
+      case Genre.all:
+        return "전체";
+    }
   }
 }
 
-/// 선택된 장르에 따라 앨범 리스트를 필터링하는 함수
-List<Album> filterAlbumsByGenre(List<Album> albums, String selectedGenre) {
-  if (selectedGenre == "전체") {
-    return albums;
-  }
-  return albums
-      .where(
-        (album) =>
-            album.genre.toLowerCase() == mapGenre(selectedGenre).toLowerCase(),
-      )
-      .toList();
+///`String` → `Genre` 변환
+Genre getGenreFromDisplayName(String name) {
+  return Genre.values.firstWhere(
+    (g) => g.displayName == name,
+    orElse: () => Genre.all,
+  );
 }

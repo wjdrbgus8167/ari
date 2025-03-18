@@ -1,41 +1,21 @@
 import 'package:flutter/material.dart';
-import '../login/login_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../widgets/album_section_header.dart';
 import '../../widgets/album_horizontal_list.dart';
 import '../../widgets/playlist_horizontal_list.dart';
 import '../../widgets/hot_chart_list.dart';
-import '../../../dummy_data/mock_data.dart';
 import '../../../core/utils/genre_utils.dart';
+import '../../widgets/home_section.dart';
+import '../../widgets/login_prompt.dart';
+import '../../../providers/global_providers.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  final List<String> genres = ["전체", "힙합", "재즈", "밴드", "알앤비", "어쿠스틱"];
-
-  String selectedGenreLatest = "전체";
-  String selectedGenrePopular = "전체";
-
-  @override
-  Widget build(BuildContext context) {
-    final allLatestAlbums = MockData.getLatestAlbums();
-    final allPopularAlbums = MockData.getPopularAlbums();
-    final popularPlaylists = MockData.getPopularPlaylists();
-    final hot20Titles = MockData.getHot20Titles();
-
-    // 유틸 함수 filterAlbumsByGenre 사용
-    final filteredLatestAlbums = filterAlbumsByGenre(
-      allLatestAlbums,
-      selectedGenreLatest,
-    );
-    final filteredPopularAlbums = filterAlbumsByGenre(
-      allPopularAlbums,
-      selectedGenrePopular,
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final homeState = ref.watch(homeViewModelProvider);
+    final homeViewModel = ref.read(homeViewModelProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(
@@ -49,80 +29,42 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // "로그인해주세요 >" 버튼
             const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.only(left: 16),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const LoginScreen(),
-                      ),
-                    );
-                  },
-                  child: const Text(
-                    '로그인해주세요 >',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600, // semibold
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            const LoginPrompt(),
             const SizedBox(height: 16),
-            // 최신 앨범 섹션
+
+            // ✅ 최신 앨범 섹션
             AlbumSectionHeader(
               title: "최신 앨범",
-              currentGenre: selectedGenreLatest,
-              genres: genres,
-              onGenreSelected: (genre) {
-                setState(() {
-                  selectedGenreLatest = genre;
-                });
-              },
+              currentGenre: homeState.selectedGenreLatest.displayName,
+              genres: Genre.values.map((g) => g.displayName).toList(),
+              onGenreSelected: homeViewModel.updateGenreLatest,
             ),
-            AlbumHorizontalList(albums: filteredLatestAlbums),
+            AlbumHorizontalList(albums: homeState.filteredLatestAlbums),
             const SizedBox(height: 20),
-            // 인기 앨범 섹션
+
+            // ✅ 인기 앨범 섹션
             AlbumSectionHeader(
               title: "인기 앨범",
-              currentGenre: selectedGenrePopular,
-              genres: genres,
-              onGenreSelected: (genre) {
-                setState(() {
-                  selectedGenrePopular = genre;
-                });
-              },
+              currentGenre: homeState.selectedGenrePopular.displayName,
+              genres: Genre.values.map((g) => g.displayName).toList(),
+              onGenreSelected: homeViewModel.updateGenrePopular,
             ),
-            AlbumHorizontalList(albums: filteredPopularAlbums),
+            AlbumHorizontalList(albums: homeState.filteredPopularAlbums),
             const SizedBox(height: 20),
-            // 인기 플레이리스트 섹션
-            _buildSectionHeader("인기 플레이리스트"),
-            PlaylistHorizontalList(playlists: popularPlaylists),
-            const SizedBox(height: 20),
-            // HOT 50 섹션
-            _buildSectionHeader("HOT 50"),
-            SizedBox(height: 410, child: HotChartList(songs: hot20Titles)),
-          ],
-        ),
-      ),
-    );
-  }
 
-  Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 0, 8),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-          color: Colors.white,
-          fontWeight: FontWeight.w600,
+            // ✅ 인기 플레이리스트 섹션
+            const HomeSectionHeader(title: "인기 플레이리스트"),
+            PlaylistHorizontalList(playlists: homeState.popularPlaylists),
+            const SizedBox(height: 20),
+
+            // ✅ HOT 50 섹션
+            const HomeSectionHeader(title: "HOT 50"),
+            SizedBox(
+              height: 410,
+              child: HotChartList(songs: homeState.hot50Titles),
+            ),
+          ],
         ),
       ),
     );

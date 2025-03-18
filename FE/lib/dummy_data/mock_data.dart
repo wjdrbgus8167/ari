@@ -1,9 +1,68 @@
-// services/mock_data.dart
 import '../data/models/album.dart';
 import '../data/models/track.dart';
 import '../data/models/playlist.dart';
 
 class MockData {
+  static List<Track> getListeningQueue() {
+    return [
+      Track(
+        id: 'track1',
+        trackTitle: 'Too Bad (feat. Anders)',
+        artist: 'G-DRAGON',
+        composer: 'G-DRAGON',
+        lyricist: 'G-DRAGON',
+        albumId: 'album1',
+        trackFileUrl: 'https://example.com/song1.mp3',
+        lyrics: '가사 내용 1',
+        coverUrl: 'https://example.com/cover1.jpg',
+      ),
+      Track(
+        id: 'track2',
+        trackTitle: 'Love Scenario',
+        artist: 'iKON',
+        composer: 'B.I, Bobby',
+        lyricist: 'B.I, Bobby',
+        albumId: 'album2',
+        trackFileUrl: 'https://example.com/song2.mp3',
+        lyrics: '가사 내용 2',
+        coverUrl: 'https://example.com/cover2.jpg',
+      ),
+      Track(
+        id: 'track3',
+        trackTitle: 'Dynamite',
+        artist: 'BTS',
+        composer: 'David Stewart',
+        lyricist: 'Jessica Agombar',
+        albumId: 'album3',
+        trackFileUrl: 'https://example.com/song3.mp3',
+        lyrics: '가사 내용 3',
+        coverUrl: 'https://example.com/cover3.jpg',
+      ),
+      Track(
+        id: 'track4',
+        trackTitle: 'Hype Boy',
+        artist: 'NewJeans',
+        composer: '250',
+        lyricist: 'Minji, Danielle',
+        albumId: 'album4',
+        trackFileUrl: 'https://example.com/song4.mp3',
+        lyrics: '가사 내용 4',
+        coverUrl: 'https://example.com/cover4.jpg',
+      ),
+      Track(
+        id: 'track5',
+        trackTitle: 'LALISA',
+        artist: 'LISA',
+        composer: 'Teddy Park',
+        lyricist: 'Teddy Park, Bekuh Boom',
+        albumId: 'album5',
+        trackFileUrl: 'https://example.com/song5.mp3',
+        lyrics: '가사 내용 5',
+        coverUrl: 'https://example.com/cover5.jpg',
+      ),
+    ];
+  }
+
   static List<Album> getLatestAlbums() {
     return [
       Album(
@@ -253,7 +312,7 @@ class MockData {
     ];
   }
 
-  static List<Track> getHot20Titles() {
+  static List<Track> getHot50Titles() {
     return [
       Track(
         id: 'song1',

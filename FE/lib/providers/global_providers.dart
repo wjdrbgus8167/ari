@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/models/track.dart';
+import '../presentation/viewmodels/home_viewmodel.dart';
 
 // Bottom Navigation 전역 상태
 class BottomNavState extends StateNotifier<int> {
@@ -57,3 +58,8 @@ final playbackProvider = StateNotifierProvider<PlaybackNotifier, PlaybackState>(
 );
 
 final playlistProvider = StateProvider<List<Track>>((ref) => []);
+
+/// ✅ **Provider 설정 (Riverpod)**
+final homeViewModelProvider = StateNotifierProvider<HomeViewModel, HomeState>(
+  (ref) => HomeViewModel(),
+);
