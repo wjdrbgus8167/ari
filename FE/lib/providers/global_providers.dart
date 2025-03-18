@@ -1,3 +1,4 @@
+import 'package:ari/presentation/viewmodels/sign_up_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/models/track.dart';
 import '../presentation/viewmodels/home_viewmodel.dart';
@@ -62,4 +63,8 @@ final playlistProvider = StateProvider<List<Track>>((ref) => []);
 /// ✅ **Provider 설정 (Riverpod)**
 final homeViewModelProvider = StateNotifierProvider<HomeViewModel, HomeState>(
   (ref) => HomeViewModel(),
+);
+
+final signUpViewModelProvider = StateNotifierProvider<SignUpViewModel, SignUpState>(
+  (ref) => SignUpViewModel(),
 );
