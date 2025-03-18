@@ -1,3 +1,4 @@
+import 'package:ari/presentation/routes/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../widgets/album_section_header.dart';
@@ -8,9 +9,10 @@ import '../../../core/utils/genre_utils.dart';
 import '../../widgets/home_section.dart';
 import '../../widgets/login_prompt.dart';
 import '../../../providers/global_providers.dart';
+import '../../widgets/common/header_widget.dart';
 
 class HomeScreen extends ConsumerWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -18,21 +20,24 @@ class HomeScreen extends ConsumerWidget {
     final homeViewModel = ref.read(homeViewModelProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        centerTitle: true,
-        title: Image.asset('assets/images/logo.png', height: 40),
-      ),
       backgroundColor: Colors.black,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 30),
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 30),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ✅ 메인 페이지 헤더 적용
+            HeaderWidget(
+              type: HeaderType.main,
+              onMyPagePressed: () {
+                // 마이페이지 이동
+                Navigator.of(context).pushNamed(AppRoutes.myPage);
+              },
+            ),
+
             const SizedBox(height: 8),
             const LoginPrompt(),
             const SizedBox(height: 16),
-
             // ✅ 최신 앨범 섹션
             AlbumSectionHeader(
               title: "최신 앨범",
@@ -42,7 +47,6 @@ class HomeScreen extends ConsumerWidget {
             ),
             AlbumHorizontalList(albums: homeState.filteredLatestAlbums),
             const SizedBox(height: 20),
-
             // ✅ 인기 앨범 섹션
             AlbumSectionHeader(
               title: "인기 앨범",
@@ -52,12 +56,10 @@ class HomeScreen extends ConsumerWidget {
             ),
             AlbumHorizontalList(albums: homeState.filteredPopularAlbums),
             const SizedBox(height: 20),
-
             // ✅ 인기 플레이리스트 섹션
             const HomeSectionHeader(title: "인기 플레이리스트"),
             PlaylistHorizontalList(playlists: homeState.popularPlaylists),
             const SizedBox(height: 20),
-
             // ✅ HOT 50 섹션
             const HomeSectionHeader(title: "HOT 50"),
             SizedBox(
@@ -70,4 +72,3 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 }
-
