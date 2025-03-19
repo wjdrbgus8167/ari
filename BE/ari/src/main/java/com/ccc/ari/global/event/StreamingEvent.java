@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.time.Instant;
 
 @Getter
-public class TrackPlayEvent {
+public class StreamingEvent {
 
     private Integer trackId;
     private String trackTitle;
@@ -20,7 +20,7 @@ public class TrackPlayEvent {
     private Instant timestamp;
 
     @Builder
-    public TrackPlayEvent(Integer trackId,String trackTitle, Integer albumId, String albumTitle
+    public StreamingEvent(Integer trackId, String trackTitle, Integer albumId, String albumTitle
             , Integer genreId, String genreName, String artist, Integer memberId, String nickname
             , Instant timestamp) {
 

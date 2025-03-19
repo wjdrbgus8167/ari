@@ -1,6 +1,6 @@
 package com.ccc.ari.global.event.producer;
 
-import com.ccc.ari.global.event.TrackPlayEvent;
+import com.ccc.ari.global.event.StreamingEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class KafkaProducerService {
 
-    private final KafkaTemplate<String, TrackPlayEvent> kafkaTemplate;
-    private static final String TOPIC = "track-play-event";
+    private final KafkaTemplate<String, StreamingEvent> kafkaTemplate;
+    private static final String TOPIC = "streaming-event";
 
-    public void sendTrackPlayEvent(TrackPlayEvent trackPlayEvent) {
-        kafkaTemplate.send(TOPIC, trackPlayEvent);
+    public void sendTrackPlayEvent(StreamingEvent streamingEvent) {
+        kafkaTemplate.send(TOPIC, streamingEvent);
     }
 }
