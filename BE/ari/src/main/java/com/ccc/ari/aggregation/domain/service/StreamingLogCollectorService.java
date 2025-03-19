@@ -2,6 +2,7 @@ package com.ccc.ari.aggregation.domain.service;
 
 import com.ccc.ari.aggregation.domain.vo.AggregationPeriod;
 import com.ccc.ari.aggregation.domain.vo.StreamingLog;
+import com.ccc.ari.global.event.StreamingEvent;
 import org.springframework.kafka.annotation.KafkaListener;
 
 /**
@@ -34,7 +35,7 @@ public class StreamingLogCollectorService {
 
         // TODO: 추후 인증 구현 시 필드 검증 로직을 추가하겠습니다.
         return new StreamingLog(event.getTimestamp(),
-                                event.getMemberId(), event.getMemberNickname(),
+                                event.getMemberId(), event.getNickname(),
                                 event.getTrackId(), event.getTrackTitle());
     }
 }
