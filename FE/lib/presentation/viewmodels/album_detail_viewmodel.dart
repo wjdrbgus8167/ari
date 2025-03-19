@@ -7,24 +7,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class AlbumDetailState {
   final bool isLoading;
   final String? errorMessage;
-  final AlbumDetail? albumDetail;
+  final Album? album;
 
   AlbumDetailState({
     this.isLoading = false,
     this.errorMessage,
-    this.albumDetail,
+    this.album,
   });
 
   // 상태 복사 메서드
   AlbumDetailState copyWith({
     bool? isLoading,
     String? errorMessage,
-    AlbumDetail? albumDetail,
+    Album? album,
   }) {
     return AlbumDetailState(
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage ?? this.errorMessage,
-      albumDetail: albumDetail ?? this.albumDetail,
+      album: album ?? this.album,
     );
   }
 }
@@ -35,23 +35,43 @@ class AlbumDetailViewModel extends StateNotifier<AlbumDetailState> {
 
   AlbumDetailViewModel({
     required this.getAlbumDetail,
-  }) : super(AlbumDetailState());
+  }) : super(AlbumDetailState(errorMessage: null)); // 명시적으로 null로 초기화
 
-  // 앨범 상세 정보 로드
   // 앨범 상세 정보 로드
   Future<void> loadAlbumDetail(int albumId) async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
-
+    // 안전하게 상태 업데이트
+    state = AlbumDetailState(
+      isLoading: true,
+      errorMessage: null,
+      album: state.album,
+    );
+    
+    print("왔었니1?");
+    // 디버깅 시 안전하게 접근
+    print("errorMessage: ${state.errorMessage?.toString() ?? 'null'}");
+    
     try {
-      final albumDetail = await getAlbumDetail.execute(albumId);
-      state = state.copyWith(
+      final album = await getAlbumDetail.execute(albumId);
+      print(album.id);
+      
+      // 안전하게 상태 업데이트
+      state = AlbumDetailState(
         isLoading: false,
-        albumDetail: albumDetail,
+        errorMessage: null,
+        album: album,
       );
+      
+      print("Album comments: ${state.album?.comments}");
+      print("Error message: ${state.errorMessage?.toString() ?? 'null'}");
+      print("종료");
     } catch (e) {
-      state = state.copyWith(
+      print("Error: ${e.toString()}");
+      
+      // 안전하게 상태 업데이트
+      state = AlbumDetailState(
         isLoading: false,
         errorMessage: e.toString(),
+        album: state.album,
       );
     }
   }

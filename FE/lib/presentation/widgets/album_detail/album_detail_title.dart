@@ -1,7 +1,24 @@
 import 'package:flutter/material.dart';
 
 class AlbumDetailTitle extends StatelessWidget {
-  const AlbumDetailTitle({super.key});
+  final String title;
+  final String artist;
+  final int viewCount;
+  final int commentCount;
+  final double rating;
+  final String genre;
+  final String releaseDate;
+  
+  const AlbumDetailTitle({
+    super.key,
+    required this.title,
+    required this.artist,
+    required this.viewCount,
+    required this.commentCount,
+    required this.rating,
+    required this.genre,
+    required this.releaseDate,
+  });
   
   @override
   Widget build(BuildContext context) {
@@ -9,15 +26,15 @@ class AlbumDetailTitle extends StatelessWidget {
       width: 360,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
       clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(),
+      decoration: const BoxDecoration(),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            'AFTER HOURS',
-            style: TextStyle(
+            title,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 40,
               fontFamily: 'Pretendard',
@@ -26,8 +43,8 @@ class AlbumDetailTitle extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            'THE WEEKND',
-            style: TextStyle(
+            artist,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 20,
               fontFamily: 'Pretendard',
@@ -35,213 +52,203 @@ class AlbumDetailTitle extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          Container(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: 46.50,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    width: 12.50,
-                                    height: 12.50,
-                                    clipBehavior: Clip.antiAlias,
-                                    decoration: BoxDecoration(),
-                                    child: Stack(),
-                                  ),
-                                  const SizedBox(width: 3),
-                                  Text(
-                                    '2,040',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontFamily: 'Helvetica',
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 7),
-                      Container(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: 15,
-                              height: 15,
-                              clipBehavior: Clip.antiAlias,
-                              decoration: BoxDecoration(),
-                              child: Stack(),
-                            ),
-                            const SizedBox(width: 3),
-                            Text(
-                              '188',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontFamily: 'Helvetica',
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 7),
-                      Container(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: 64,
-                              height: 8,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Container(width: 12, height: 12, child: Stack()),
-                                  const SizedBox(width: 2),
-                                  Container(width: 12, height: 12, child: Stack()),
-                                  const SizedBox(width: 2),
-                                  Container(width: 12, height: 12, child: Stack()),
-                                  const SizedBox(width: 2),
-                                  Container(width: 12, height: 12, child: Stack()),
-                                  const SizedBox(width: 2),
-                                  Container(
-                                    width: 7.50,
-                                    height: 18,
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment(0.00, 0.50),
-                                        end: Alignment(1.00, 0.50),
-                                        colors: [Color(0xFFDE85FC), Color(0xFFC78BF8), Color(0xFFC78BF8), Color(0xFF8A4FFF)],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 5),
-                            Container(
-                              width: 12,
-                              height: 7,
-                              child: Stack(
-                                children: [
-                                  Positioned(
-                                    left: 0,
-                                    top: -1.50,
-                                    child: Text(
-                                      '4.9',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 8,
-                                        fontFamily: 'Pretendard',
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // 뷰 카운트
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 하트 아이콘 (뷰 카운트 부분에)
+                  Container(
+                    width: 12.5,
+                    height: 12.5,
+                    child: Icon(
+                      Icons.favorite_border,
+                      color: Colors.white,
+                      size: 12.5,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 7),
-                Container(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 2),
-                        clipBehavior: Clip.antiAlias,
-                        decoration: ShapeDecoration(
-                          color: Colors.white.withOpacity(0),
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(width: 0.50, color: Color(0xFF989595)),
-                            borderRadius: BorderRadius.circular(20),
+                  const SizedBox(width: 3),
+                  Text(
+                    viewCount.toString(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontFamily: 'Helvetica',
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 7),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 댓글 카운트
+                  Container(
+                    width: 15,
+                    height: 15,
+                    child: Icon(
+                      Icons.chat_bubble_outline,
+                      color: Colors.white,
+                      size: 15,
+                    ),
+                  ),
+                  const SizedBox(width: 3),
+                  Text(
+                    commentCount.toString(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontFamily: 'Helvetica',
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 7),
+              
+              // 평점
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    height: 8,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 12,
+                          height: 12,
+                          child: Icon(
+                            Icons.star,
+                            color: Color(0xFF8A4FFF),
+                            size: 12,
                           ),
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              '재즈',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontFamily: 'Apple SD Gothic Neo',
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 5),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 2),
-                        clipBehavior: Clip.antiAlias,
-                        decoration: ShapeDecoration(
-                          color: Colors.white.withOpacity(0),
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(width: 0.50, color: Color(0xFF989595)),
-                            borderRadius: BorderRadius.circular(20),
+                        const SizedBox(width: 2),
+                        Container(
+                          width: 12,
+                          height: 12,
+                          child: Icon(
+                            Icons.star,
+                            color: Color(0xFF8A4FFF),
+                            size: 12,
                           ),
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              '2025.02.25',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontFamily: 'Apple SD Gothic Neo',
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
+                        const SizedBox(width: 2),
+                        Container(
+                          width: 12,
+                          height: 12,
+                          child: Icon(
+                            Icons.star,
+                            color: Color(0xFF8A4FFF),
+                            size: 12,
+                          ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 2),
+                        Container(
+                          width: 12,
+                          height: 12,
+                          child: Icon(
+                            Icons.star,
+                            color: Color(0xFF8A4FFF),
+                            size: 12,
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                        Container(
+                          width: 12,
+                          height: 12,
+                          child: Icon(
+                            Icons.star,
+                            color: Color(0xFF8A4FFF),
+                            size: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                  SizedBox(
+                    width: 12,
+                    height: 7,
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          left: 0,
+                          top: -1.5,
+                          child: Text(
+                            rating.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 8,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          
+          // 장르 및 발매일
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 2),
+                clipBehavior: Clip.antiAlias,
+                decoration: ShapeDecoration(
+                  color: Colors.white.withOpacity(0),
+                  shape: RoundedRectangleBorder(
+                    side: const BorderSide(width: 0.50, color: Color(0xFF989595)),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                 ),
-              ],
-            ),
+                child: Text(
+                  genre,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontFamily: 'Apple SD Gothic Neo',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 5),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 2),
+                clipBehavior: Clip.antiAlias,
+                decoration: ShapeDecoration(
+                  color: Colors.white.withOpacity(0),
+                  shape: RoundedRectangleBorder(
+                    side: const BorderSide(width: 0.50, color: Color(0xFF989595)),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: Text(
+                  releaseDate,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontFamily: 'Apple SD Gothic Neo',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

@@ -1,3 +1,4 @@
+import 'package:ari/presentation/pages/album/album_detail_screen.dart';
 import 'package:flutter/material.dart';
 import '../pages/home/home_screen.dart';
 import '../pages/mypage/mypage_screen.dart';
@@ -20,7 +21,11 @@ class AppRouter {
       
       case AppRoutes.myPage:
         return MaterialPageRoute(builder: (_) => const MyPageScreen());
-        
+
+      case AppRoutes.album:
+        print("라우터");
+        print(1);
+        return MaterialPageRoute(builder: (_) => AlbumDetailScreen(albumId: 1));
       // 여기에 경로 더 추가하십시오잉
       
       default:

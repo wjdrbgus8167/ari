@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 class AlbumDetailCommentHeader extends StatelessWidget {
-  const AlbumDetailCommentHeader({super.key});
+  final int commentCount;
+  
+  const AlbumDetailCommentHeader({
+    super.key,
+    required this.commentCount,
+  });
   
   @override
   Widget build(BuildContext context) {
@@ -25,7 +30,7 @@ class AlbumDetailCommentHeader extends StatelessWidget {
                 SizedBox(
                   width: 267,
                   child: Text(
-                    '댓글 188',
+                    '댓글 $commentCount',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,

@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 class AlbumDetailCover extends StatelessWidget {
-  const AlbumDetailCover({super.key});
+  final String coverImage;
+  
+  const AlbumDetailCover({
+    super.key,
+    required this.coverImage,
+  });
   
   @override
   Widget build(BuildContext context) {
@@ -18,7 +23,7 @@ class AlbumDetailCover extends StatelessWidget {
               height: 320,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('assets/images/default_album_cover.png'),
+                  image: AssetImage(coverImage),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -32,7 +37,7 @@ class AlbumDetailCover extends StatelessWidget {
               height: 320,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('assets/images/default_album_cover.png'),
+                  image: AssetImage(coverImage),
                   fit: BoxFit.cover,
                 ),
               ),
