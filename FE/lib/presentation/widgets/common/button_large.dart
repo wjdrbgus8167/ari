@@ -87,7 +87,8 @@ class ButtonLarge extends StatelessWidget {
   }
 }
 
-/// 버튼 변형 예시
+/// 참고
+/// 버튼 변형(사용) 예시
 class PrimaryButtonLarge extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
@@ -110,7 +111,7 @@ class PrimaryButtonLarge extends StatelessWidget {
       text: text,
       onPressed: onPressed,
       backgroundColor:
-          Colors.white, // 앱의 주 색상을 사용하려면 Theme.of(context).primaryColor로 변경
+          Colors.white, // 주 색깔을 사용하려면 Theme.of(context).primaryColor로
       textColor: Colors.black,
       isEnabled: isEnabled,
       isLoading: isLoading,
