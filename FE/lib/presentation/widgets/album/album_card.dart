@@ -1,3 +1,5 @@
+import 'package:ari/presentation/pages/album/album_detail_screen.dart';
+import 'package:ari/presentation/routes/app_router.dart';
 import 'package:flutter/material.dart';
 import '../common/media_card.dart';
 import '../../../data/models/album.dart';
@@ -14,6 +16,11 @@ class AlbumCard extends StatelessWidget {
       subtitle: album.artist,
       onTap: () {
         // 앨범 상세 페이지로 이동하는 로직 구현
+        Navigator.pushNamed(
+          context,
+          AppRoutes.album,
+          arguments: {'albumId': 1}
+        );
       },
     );
   }
