@@ -15,11 +15,13 @@ public class TrackPlayEvent {
     private Integer genreId;
     private String genreName;
     private String artist;
+    private Integer memberId;
+    private String nickname;
     private Instant timestamp;
 
     @Builder
     public TrackPlayEvent(Integer trackId,String trackTitle, Integer albumId, String albumTitle
-            , Integer genreId, String genreName, String artist
+            , Integer genreId, String genreName, String artist, Integer memberId, String nickname
             , Instant timestamp) {
 
         this.trackId = trackId;
@@ -29,6 +31,8 @@ public class TrackPlayEvent {
         this.genreId = genreId;
         this.genreName = genreName;
         this.artist = artist;
+        this.memberId = memberId;
+        this.nickname = nickname;
         this.timestamp = timestamp;
     }
 }
