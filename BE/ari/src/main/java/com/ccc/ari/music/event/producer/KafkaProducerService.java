@@ -1,4 +1,4 @@
-package com.ccc.ari.global.event.producer;
+package com.ccc.ari.music.event.producer;
 
 import com.ccc.ari.global.event.StreamingEvent;
 import lombok.RequiredArgsConstructor;
