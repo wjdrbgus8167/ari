@@ -9,8 +9,7 @@ public interface BlockChainClient {
      * 주어진 CID와 머클 루트를 블록체인에 커밋한다.
      *
      * @param cid IPFS에서 반환된 CID
-     * @param merkleRoot IPFS에서 반환된 머클 루트
      * @return 트랜잭션 해시 혹은 커밋 결과 식별자
      */
-    String commitAggregatedData(String cid, String merkleRoot);
+    String commitAggregatedData(String cid);
 }
