@@ -1,48 +1,31 @@
 import 'package:ari/domain/entities/track.dart';
 import 'package:ari/domain/entities/album_comment.dart';
-
-class AlbumSummary {
+class Album {
   final int id;
   final String title;
   final String artist;
-  final String coverImageUrl;
-
-  const AlbumSummary({
-    required this.id,
-    required this.title,
-    required this.artist,
-    required this.coverImageUrl,
-  });
-}
-
-class AlbumDetail {
-  final String id;
-  final String title;
-  final String artist;
-  final String coverImageUrl;
-  final String releaseDate;
-  final String genre;
-  final String? description;
-  final int playCount;
+  final String description;
   final int likeCount;
+  final String genre;
+  final int commentCount;
   final double rating;
-  final bool isLiked;
-  final List<Track> tracks;
+  final String releaseDate;
+  final String coverImageUrl;
   final List<AlbumComment> comments;
+  final List<Track> tracks;
 
-  const AlbumDetail({
+  Album({
     required this.id,
     required this.title,
     required this.artist,
-    required this.coverImageUrl,
-    required this.releaseDate,
+    required this.description,
+    required this.likeCount,
     required this.genre,
+    required this.commentCount,
+    required this.rating,
+    required this.releaseDate,
+    required this.coverImageUrl,
     required this.comments,
-    this.description,
     required this.tracks,
-    this.playCount = 0,
-    this.likeCount = 0,
-    this.rating = 0.0,
-    this.isLiked = false,
   });
 }

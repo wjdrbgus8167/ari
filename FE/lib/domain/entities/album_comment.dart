@@ -1,9 +1,9 @@
 class AlbumComment {
   /// 댓글의 고유 식별자
-  final String id;
+  final int id;
   
-  /// 댓글이 달린 트랙의 ID
-  final String albumId;
+  /// 댓글이 달린 앨범의의 ID
+  final int albumId;
   
   /// 댓글 작성자의 닉네임
   final String nickname;
@@ -17,13 +17,16 @@ class AlbumComment {
   /// 댓글 작성 날짜 및 시간 (ISO 8601 형식)
   final String createdAt;
 
+  final String userAvatar;
+
   /// 댓글 생성자
-  const AlbumComment ({
+  const AlbumComment({
       required this.id,
       required this.albumId,
       required this.nickname,
       required this.content,
       required this.contentTimestamp,
       required this.createdAt,
+      required this.userAvatar,
   });
 }

@@ -1,8 +1,10 @@
 import 'package:ari/domain/entities/track_comment.dart';
+class TrackSummary {
+}
 
 class Track {
-  final String id;
-  final String albumId;
+  final int id;
+  final int albumId;
   final String trackTitle;
   final String artistName;
   final String lyric;

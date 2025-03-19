@@ -1,29 +1,17 @@
 class TrackComment {
-  /// 댓글의 고유 식별자
-  final String id;
-  
-  /// 댓글이 달린 트랙의 ID
-  final String trackId;
-  
-  /// 댓글 작성자의 닉네임
+  final int id;
+  final int trackId;
   final String nickname;
-  
-  /// 댓글 내용
   final String content;
-  
-  /// 댓글이 달린 트랙의 시간 위치 (예: "01:25")
-  final String contentTimestamp;
-  
-  /// 댓글 작성 날짜 및 시간 (ISO 8601 형식)
-  final String createdAt;
+  final String timestamp; // 트랙 내 타임스탬프 (예: "01:25")
+  final DateTime createdAt; // 코멘트 생성 시간
 
-  /// 댓글 생성자
-  const TrackComment({
+  TrackComment({
     required this.id,
     required this.trackId,
     required this.nickname,
     required this.content,
-    required this.contentTimestamp,
+    required this.timestamp,
     required this.createdAt,
   });
 }
