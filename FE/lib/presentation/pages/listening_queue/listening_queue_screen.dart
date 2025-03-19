@@ -1,125 +1,93 @@
+import 'package:ari/providers/global_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../dummy_data/mock_data.dart';
-import '../../../data/models/track.dart';
+import '../../viewmodels/listening_queue_viewmodel.dart';
+import '../../widgets/listening_queue/listening_queue_appbar.dart';
+import '../../widgets/listening_queue/track_count_bar.dart';
+import '../../widgets/listening_queue/track_list_tile.dart';
+import '../../widgets/listening_queue/bottom_sheet_options.dart';
 
-class ListeningQueueScreen extends ConsumerStatefulWidget {
+class ListeningQueueScreen extends ConsumerWidget {
   const ListeningQueueScreen({Key? key}) : super(key: key);
 
   @override
-  _ListeningQueueScreenState createState() => _ListeningQueueScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(listeningQueueProvider);
+    final viewModel = ref.read(listeningQueueProvider.notifier);
 
-class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
-  final TextEditingController _searchController = TextEditingController();
-  List<Track> _filteredPlaylist = [];
-  late List<Track> _playlist;
-
-  @override
-  void initState() {
-    super.initState();
-    _playlist = MockData.getListeningQueue();
-    _filteredPlaylist = _playlist;
-  }
-
-  /// ✅ **검색 기능**
-  void _filterTracks(String query) {
-    setState(() {
-      if (query.isEmpty) {
-        _filteredPlaylist = _playlist;
-      } else {
-        _filteredPlaylist =
-            _playlist
-                .where(
-                  (track) =>
-                      track.trackTitle.toLowerCase().contains(
-                        query.toLowerCase(),
-                      ) ||
-                      track.artist.toLowerCase().contains(query.toLowerCase()),
-                )
-                .toList();
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       body: Column(
         children: [
-          // ✅ AppBar 커스텀 (검색 버튼 추가)
-          _buildCustomAppBar(),
-
-          // ✅ 위쪽 간격 추가
+          ListeningQueueAppBar(
+            onBack: () => Navigator.pop(context),
+            onSearch: () => _showSearchDialog(context, viewModel),
+          ),
           const SizedBox(height: 20),
-
-          // ✅ AppBar 아래 곡 개수 표시
-          _buildTrackCountBar(_filteredPlaylist.length),
-
-          // ✅ 재생목록 리스트
+          TrackCountBar(
+            trackCount: state.filteredPlaylist.length,
+            selectedTracks: state.selectedTracks,
+            onToggleSelectAll: viewModel.toggleSelectAll,
+            onAddToPlaylist: () {
+              for (var track in state.selectedTracks) {
+                print("추가할 트랙: ${track.trackTitle}");
+              }
+            },
+          ),
           Expanded(
             child:
-                _filteredPlaylist.isEmpty
+                state.filteredPlaylist.isEmpty
                     ? const Center(
                       child: Text(
                         "재생목록이 없습니다.",
                         style: TextStyle(color: Colors.white70, fontSize: 18),
                       ),
                     )
-                    : ListView.builder(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      itemCount: _filteredPlaylist.length,
+                    : ReorderableListView.builder(
+                      onReorder: viewModel.reorderTracks,
+                      itemCount: state.filteredPlaylist.length,
                       itemBuilder: (context, index) {
-                        final track = _filteredPlaylist[index];
-                        return ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 5,
-                          ),
-                          leading: ClipRRect(
-                            borderRadius: BorderRadius.circular(5),
-                            child: Image.network(
-                              track.coverUrl ?? '',
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Image.asset(
-                                  'assets/images/default_album_cover.png',
-                                  width: 50,
-                                  height: 50,
-                                  fit: BoxFit.cover,
-                                );
-                              },
-                            ),
-                          ),
-                          title: Text(
-                            track.trackTitle,
-                            style: const TextStyle(
+                        final track = state.filteredPlaylist[index];
+                        final isSelected = state.selectedTracks.contains(track);
+                        return Dismissible(
+                          key: ValueKey(track.id),
+                          direction: DismissDirection.endToStart,
+                          background: Container(
+                            color: Colors.red,
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: const Icon(
+                              Icons.delete,
                               color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
-                          subtitle: Text(
-                            track.artist,
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 14,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          trailing: const Icon(
-                            Icons.drag_handle, // 🔄 선 세 개짜리 아이콘
-                            color: Colors.white70,
-                          ),
-                          onTap: () {
-                            print("${track.trackTitle} 선택됨!");
+                          onDismissed: (direction) {
+                            viewModel.removeTrack(track);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("${track.trackTitle} 삭제됨"),
+                              ),
+                            );
                           },
+                          child: GestureDetector(
+                            onLongPress: () {
+                              showModalBottomSheet(
+                                context: context,
+                                backgroundColor: Colors.transparent,
+                                builder:
+                                    (context) =>
+                                        BottomSheetOptions(track: track),
+                              );
+                            },
+                            child: TrackListTile(
+                              key: ValueKey(track.id),
+                              track: track,
+                              isSelected: isSelected,
+                              onToggleSelection:
+                                  () => viewModel.toggleTrackSelection(track),
+                              onTap: () => print("${track.trackTitle} 선택됨!"),
+                            ),
+                          ),
                         );
                       },
                     ),
@@ -129,108 +97,11 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
     );
   }
 
-  /// ✅ **커스텀 AppBar (검색 버튼 추가)**
-  Widget _buildCustomAppBar() {
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(60),
-      child: Container(
-        width: double.infinity,
-        height: 60,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: ShapeDecoration(
-          shape: RoundedRectangleBorder(
-            side: const BorderSide(width: 0.5, color: Color(0xFFD9D9D9)),
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                // ✅ 긴 글자가 잘리지 않도록 `FittedBox` 적용
-                SizedBox(
-                  width: 80, // 충분한 공간 확보
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: const Text(
-                      '재생목록',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w700,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 20), // 간격 추가
-                SizedBox(
-                  width: 110,
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: const Text(
-                      '플레이리스트',
-                      style: TextStyle(
-                        color: Color(0xFF989595), // 회색 (비활성화)
-                        fontSize: 20,
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w700,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            // 🔍 검색 버튼 추가
-            IconButton(
-              icon: const Icon(Icons.search, color: Colors.white),
-              onPressed: () {
-                _showSearchDialog(context);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// ✅ **트랙 개수 표시 바**
-  Widget _buildTrackCountBar(int trackCount) {
-    return Container(
-      width: double.infinity,
-      height: 35,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            width: 15,
-            height: 15,
-            decoration: ShapeDecoration(
-              shape: const OvalBorder(
-                side: BorderSide(width: 1, color: Color(0xFF989595)),
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Text(
-            '$trackCount곡',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 15,
-              fontFamily: 'Pretendard',
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// ✅ **검색 다이얼로그**
-  void _showSearchDialog(BuildContext context) {
+  void _showSearchDialog(
+    BuildContext context,
+    ListeningQueueViewModel viewModel,
+  ) {
+    final TextEditingController searchController = TextEditingController();
     showDialog(
       context: context,
       builder: (context) {
@@ -238,7 +109,7 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
           backgroundColor: Colors.black,
           title: const Text("곡 검색", style: TextStyle(color: Colors.white)),
           content: TextField(
-            controller: _searchController,
+            controller: searchController,
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
               hintText: "곡 제목 또는 아티스트 입력",
@@ -252,13 +123,13 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            onChanged: _filterTracks,
+            onChanged: viewModel.filterTracks,
           ),
           actions: [
             TextButton(
               onPressed: () {
-                _searchController.clear();
-                _filterTracks('');
+                searchController.clear();
+                viewModel.filterTracks('');
                 Navigator.pop(context);
               },
               child: const Text(

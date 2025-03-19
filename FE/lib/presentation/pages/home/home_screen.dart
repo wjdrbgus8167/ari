@@ -1,9 +1,9 @@
 import 'package:ari/presentation/routes/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../widgets/album_section_header.dart';
-import '../../widgets/album_horizontal_list.dart';
-import '../../widgets/playlist_horizontal_list.dart';
+import '../../widgets/album/album_section_header.dart';
+import '../../widgets/album/album_horizontal_list.dart';
+import '../../widgets/playlist/playlist_horizontal_list.dart';
 import '../../widgets/hot_chart_list.dart';
 import '../../../core/utils/genre_utils.dart';
 import '../../widgets/home_section.dart';

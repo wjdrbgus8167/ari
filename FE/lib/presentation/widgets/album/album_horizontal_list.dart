@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../data/models/album.dart';
+import '../../../data/models/album.dart';
 import 'album_card.dart';
 
 class AlbumHorizontalList extends StatelessWidget {
