@@ -13,6 +13,6 @@ public class KafkaProducerService {
     private static final String TOPIC = "streaming-event";
 
     public void sendTrackPlayEvent(StreamingEvent streamingEvent) {
-        kafkaTemplate.send(TOPIC, streamingEvent);
+        kafkaTemplate.send(TOPIC, "user-" + streamingEvent.getMemberId(), streamingEvent);
     }
 }
