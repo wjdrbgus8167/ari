@@ -1,30 +1,24 @@
 import 'package:flutter/material.dart';
-import '../../../providers/global_providers.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../providers/playback_state_provider.dart';
+import '../../../core/services/audio_service.dart';
 import '../playback/expanded_playbackscreen.dart';
-import '../../pages/listening_queue/listening_queue_screen.dart';
 
-class PlaybackBar extends StatelessWidget {
-  final PlaybackState playbackState;
-  final VoidCallback onToggle;
-
-  const PlaybackBar({
-    Key? key,
-    required this.playbackState,
-    required this.onToggle,
-  }) : super(key: key);
+class PlaybackBar extends ConsumerWidget {
+  const PlaybackBar({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final playbackState = ref.watch(playbackProvider);
+    final audioService = ref.read(audioServiceProvider); // ✅ AudioService 가져오기
+
     return GestureDetector(
-      // 재생바 탭 시 확장된 재생창 모달 띄우기
       onTap: () {
         showModalBottomSheet(
           context: context,
-          isScrollControlled: true, // 전체 화면 모달
+          isScrollControlled: true,
           backgroundColor: Colors.transparent,
-          builder:
-              (context) =>
-                  const SizedBox.expand(child: ExpandedPlaybackScreenWrapper()),
+          builder: (context) => const ExpandedPlaybackScreen(),
         );
       },
       child: Container(
@@ -32,7 +26,6 @@ class PlaybackBar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(
           children: [
-            // 앨범 커버 왼쪽 패딩 포함
             Padding(
               padding: const EdgeInsets.only(left: 8),
               child: ClipRRect(
@@ -46,19 +39,18 @@ class PlaybackBar extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            // 노래 제목과 아티스트
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    playbackState.currentTrackId ?? "노래 제목",
+                    playbackState.currentTrackId,
                     style: const TextStyle(color: Colors.white, fontSize: 14),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    "아티스트 이름",
+                    playbackState.trackTitle,
                     style: const TextStyle(color: Colors.white70, fontSize: 12),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -66,54 +58,18 @@ class PlaybackBar extends StatelessWidget {
                 ],
               ),
             ),
-            // 재생 버튼
             IconButton(
               icon: Icon(
                 playbackState.isPlaying ? Icons.pause : Icons.play_arrow,
                 color: Colors.white,
               ),
-              onPressed: onToggle,
-            ),
-            // 재생목록 아이콘
-            IconButton(
-              icon: const Icon(Icons.queue_music, color: Colors.white),
               onPressed: () {
-                // 재생목록 보기 로직 추가
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ListeningQueueScreen(),
-                  ),
-                );
+                audioService.togglePlay(ref); // ✅ 수정된 togglePlay 호출
               },
             ),
           ],
         ),
       ),
-    );
-  }
-}
-
-// 래퍼 위젯: ExpandedPlaybackScreen을 Scaffold가 없는 상태로 감싸줌
-class ExpandedPlaybackScreenWrapper extends StatelessWidget {
-  const ExpandedPlaybackScreenWrapper({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    // PlaybackState, onToggle 등은 실제 앱에서는 전역 상태로 전달해야 함.
-    // 여기서는 예시로 placeholder 값을 사용함.
-    final playbackState = PlaybackState(
-      currentTrackId: "노래 제목",
-      isPlaying: true,
-      trackTitle: "노래 제목",
-    );
-
-    return ExpandedPlaybackScreen(
-      playbackState: playbackState,
-      onToggle: () {
-        // 토글 로직 예시
-        Navigator.pop(context);
-      },
     );
   }
 }

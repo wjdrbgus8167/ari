@@ -1,27 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../providers/playback_state_provider.dart';
 
-class PlaybackControls extends StatelessWidget {
-  final VoidCallback onToggle;
+class PlaybackControls extends ConsumerWidget {
+  final VoidCallback onToggle; // 재생/일시정지 콜백
 
   const PlaybackControls({Key? key, required this.onToggle}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isPlaying = ref.watch(playbackProvider).isPlaying;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       color: Colors.black.withOpacity(0.6),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 🔵 재생 진행 바
           Slider(
             value: 0.3,
             onChanged: (value) {},
             activeColor: Colors.white,
             inactiveColor: Colors.white38,
           ),
-
-          // 🔵 현재 시간 / 전체 시간 표시
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
@@ -38,10 +39,7 @@ class PlaybackControls extends StatelessWidget {
               ],
             ),
           ),
-
           const SizedBox(height: 8),
-
-          // 🔵 재생 컨트롤 (셔플, 이전, 재생/정지, 다음, 반복)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -61,9 +59,12 @@ class PlaybackControls extends StatelessWidget {
                 ),
                 onPressed: () {},
               ),
+              // 재생 상태에 따라 아이콘 변경 (재생 중이면 pause, 아니면 play)
               IconButton(
-                icon: const Icon(
-                  Icons.play_circle_filled,
+                icon: Icon(
+                  isPlaying
+                      ? Icons.pause_circle_filled
+                      : Icons.play_circle_filled,
                   color: Colors.white,
                   size: 64,
                 ),
@@ -83,7 +84,6 @@ class PlaybackControls extends StatelessWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 12),
         ],
       ),
