@@ -38,6 +38,17 @@ spring:
         spring.json.trusted.packages: "*"
         spring.json.value.default.type: "com.ccc.ari.global.event.StreamingEvent"
 
+  # S3 설정 추가
+  cloud:
+    aws:
+      credentials:
+        access-key: ${AWS_ACCESS_KEY}
+        secret-key: ${AWS_SECRET_KEY}
+      region:
+        static: ap-northeast-2
+      s3:
+        bucket: ${AWS_S3_BUCKET_NAME}
+
 # 서버 포트 설정
 server:
   port: 8080
