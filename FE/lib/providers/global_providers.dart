@@ -1,3 +1,7 @@
+import 'package:ari/data/datasources/album_remote_datasource.dart';
+import 'package:ari/data/repositories/album_repository.dart';
+import 'package:ari/domain/repositories/album_repository.dart';
+import 'package:ari/domain/usecases/album_detail_usecase.dart';
 import 'package:ari/presentation/viewmodels/album_detail_viewmodel.dart';
 import 'package:ari/presentation/viewmodels/sign_up_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -77,7 +81,26 @@ final signUpViewModelProvider =
     StateNotifierProvider<SignUpViewModel, SignUpState>(
       (ref) => SignUpViewModel(),
     );
-final albumDetailViewModelProvider = 
-  StateNotifierProvider<AlbumDetailViewModel, AlbumDetailState>(
-    (ref) => AlbumDetailViewModel(),
-  );
+
+// 데이터 소스 Provider
+final albumDataSourceProvider = Provider((ref) {
+  return AlbumMockDataSourceImpl(); // 필요한 경우 파라미터 전달
+});
+
+// 리포지토리 Provider
+final albumRepositoryProvider = Provider((ref) {
+  final dataSource = ref.watch(albumDataSourceProvider);
+  return AlbumRepositoryImpl(dataSource: dataSource);
+});
+
+// UseCase Provider
+final getAlbumDetailProvider = Provider((ref) {
+  final repository = ref.watch(albumRepositoryProvider);
+  return GetAlbumDetail(repository);
+});
+
+// ViewModel Provider
+final albumDetailViewModelProvider = StateNotifierProvider<AlbumDetailViewModel, AlbumDetailState>((ref) {
+  final getAlbumDetail = ref.watch(getAlbumDetailProvider);
+  return AlbumDetailViewModel(getAlbumDetail: getAlbumDetail);
+});
