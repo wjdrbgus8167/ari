@@ -1,19 +1,26 @@
-import 'package:ari/presentation/pages/album/album_detail_screen.dart';
 import 'package:flutter/material.dart';
-import '../../data/models/album.dart';
 
-class AlbumCard extends StatelessWidget {
-  final Album album;
-  const AlbumCard({Key? key, required this.album}) : super(key: key);
+class MediaCard extends StatelessWidget {
+  final String imageUrl;
+  final String title;
+  final String? subtitle; // 부제목이 필요한 경우 (예: 앨범의 아티스트)
+  final VoidCallback? onTap;
+
+  const MediaCard({
+    Key? key,
+    required this.imageUrl,
+    required this.title,
+    this.subtitle,
+    this.onTap,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // 네트워크 URL이 비어있지 않다면 Image.network를 사용하고,
-    // 에러 발생 시 기본 asset 이미지를 표시합니다.
+    // imageUrl이 비어있지 않으면 네트워크 이미지, 아니면 기본 에셋 이미지를 사용
     Widget imageWidget;
-    if (album.coverUrl.isNotEmpty) {
+    if (imageUrl.isNotEmpty) {
       imageWidget = Image.network(
-        album.coverUrl,
+        imageUrl,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
           return Image.asset(
@@ -30,21 +37,14 @@ class AlbumCard extends StatelessWidget {
     }
 
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => AlbumDetailPage(),
-          ),
-        );
-      },
+      onTap: onTap,
       child: Container(
         width: 140,
         margin: const EdgeInsets.symmetric(horizontal: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // AspectRatio 위젯을 사용해 이미지 영역을 정사각형(1:1)으로 고정
+            // 이미지 영역: 정사각형 (1:1 비율)
             AspectRatio(
               aspectRatio: 1,
               child: ClipRRect(
@@ -53,21 +53,24 @@ class AlbumCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
+            // 제목
             Text(
-              album.title,
+              title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(color: Colors.white),
             ),
-            Text(
-              album.artist,
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+            // 부제목 (있다면)
+            if (subtitle != null)
+              Text(
+                subtitle!,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
           ],
         ),
-      )
+      ),
     );
   }
 }

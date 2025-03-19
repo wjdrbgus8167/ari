@@ -1,0 +1,20 @@
+import 'package:flutter/material.dart';
+import '../common/media_card.dart';
+import '../../../data/models/album.dart';
+
+class AlbumCard extends StatelessWidget {
+  final Album album;
+  const AlbumCard({Key? key, required this.album}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MediaCard(
+      imageUrl: album.coverUrl,
+      title: album.title,
+      subtitle: album.artist,
+      onTap: () {
+        // 앨범 상세 페이지로 이동하는 로직 구현
+      },
+    );
+  }
+}
