@@ -23,8 +23,8 @@ class CommonBottomNav extends StatelessWidget {
         currentIndex: currentIndex,
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.grey,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
+        showSelectedLabels: false, // 라벨 표시 x
+        showUnselectedLabels: false, // 라벨 표시 x
         selectedFontSize: 12,
         unselectedFontSize: 12,
         elevation: 0,
@@ -42,8 +42,8 @@ class CommonBottomNav extends StatelessWidget {
             label: '음악 서랍',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle_outlined),
-            activeIcon: Icon(Icons.account_circle),
+            icon: Icon(Icons.recent_actors_outlined),
+            activeIcon: Icon(Icons.recent_actors),
             label: '나의 채널',
           ),
         ],
