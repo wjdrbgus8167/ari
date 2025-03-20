@@ -5,6 +5,7 @@ import com.ccc.ari.chart.domain.vo.ChartEntry;
 import com.ccc.ari.chart.domain.vo.ChartPeriod;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.List;
 
 @Component
@@ -46,10 +47,12 @@ public class ChartDocumentMapper {
                         entry.getTrackId(),
                         entry.getTrackTitle(),
                         entry.getRank(),
-                        entry.getStreamCount()))
+                        entry.getStreamCount(),
+                        entry.getArtist(),
+                        entry.getCoverImageUrl()))
                 .toList();
 
         // 차트 객체 생성
-        return new Chart(period, entries);
+        return new Chart(period, entries, Instant.now());
     }
 }
