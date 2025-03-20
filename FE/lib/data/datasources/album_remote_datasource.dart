@@ -36,7 +36,7 @@ class AlbumMockDataSourceImpl implements AlbumDataSource {
       "commentCount": 188,
       "rating": 4.9,
       "releaseDate": "2020-03-20",
-      "coverImageUrl": "assets/images/after_hours_cover.png",
+      "coverImageUrl": 'assets/images/default_album_cover.png',
       "comments": [
         {
           "id": 1,

@@ -10,11 +10,8 @@ class AlbumRepositoryImpl implements AlbumRepository {
 
    @override
   Future<Album> getAlbumDetail(int albumId) async {
-    print("레포1");
     final albumJson = await dataSource.getAlbumDetail(albumId);
-    print("레포2");
     final albumModel = AlbumDetailModel.fromJson(albumJson);
-    print("레포3");
     return albumModel;
   }
 }

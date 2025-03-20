@@ -23,8 +23,6 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const MyPageScreen());
 
       case AppRoutes.album:
-        print("라우터");
-        print(1);
         return MaterialPageRoute(builder: (_) => AlbumDetailScreen(albumId: 1));
       // 여기에 경로 더 추가하십시오잉
       
