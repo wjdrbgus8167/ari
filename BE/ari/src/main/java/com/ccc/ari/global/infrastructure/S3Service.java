@@ -1,5 +1,8 @@
 package com.ccc.ari.global.infrastructure;
 
+import com.ccc.ari.global.error.ApiException;
+import com.ccc.ari.global.error.ErrorCode;
+import io.awspring.cloud.s3.S3Exception;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,7 +28,8 @@ public class S3Service {
     /**
      * S3에 파일 업로드 (파일 경로는 외부에서 결정)
      */
-    public String uploadFileToS3(MultipartFile file, String filePath) throws IOException {
+    public String uploadFileToS3(MultipartFile file, String filePath) throws ApiException {
+        try{
         s3Client.putObject(
                 PutObjectRequest.builder()
                         .bucket(bucketName)
@@ -35,7 +39,11 @@ public class S3Service {
                 RequestBody.fromInputStream(file.getInputStream(), file.getSize())
         );
         return getFileUrl(filePath);
+        }catch (S3Exception | IOException e){
+            throw new ApiException(ErrorCode.S3_UPLOAD_ERROR);
+        }
     }
+
 
     /**
      * S3 파일 URL 생성

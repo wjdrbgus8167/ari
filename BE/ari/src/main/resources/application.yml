@@ -1,4 +1,9 @@
 spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100000MB  # 개별 파일당 최대 크기
+      max-request-size: 100000MB  # 한 번의 요청에서 전체 업로드 가능한 크기
   # MySQL 설정
   datasource:
     url: ${MYSQL_URL}
@@ -7,7 +12,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:
