@@ -41,7 +41,9 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
           child: Column(
             children: [
               // 트랙 헤더 위젯
-              HeaderWidget(type: HeaderType.backWithTitle),
+              SafeArea(
+                child: HeaderWidget(type: HeaderType.backWithTitle),
+              ),
               const TrackHeader(
                 albumName: 'AFTER HOURS',
                 trackTitle: 'ALONE AGAIN',
