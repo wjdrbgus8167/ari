@@ -6,6 +6,7 @@ import 'package:ari/presentation/widgets/album_detail/album_detail_cover.dart';
 import 'package:ari/presentation/widgets/album_detail/album_detail_description.dart';
 import 'package:ari/presentation/widgets/album_detail/album_detail_title.dart';
 import 'package:ari/presentation/widgets/album_detail/album_detail_track_list.dart';
+import 'package:ari/presentation/widgets/common/header_widget.dart';
 import 'package:ari/providers/global_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,9 +26,7 @@ class AlbumDetailScreen extends ConsumerStatefulWidget {
 class _AlbumDetailScreenState extends ConsumerState<AlbumDetailScreen> {
   @override
   void initState() {
-    print("스크린1");
     super.initState();
-    print("스크린2");
     // 화면이 로드될 때 앨범 데이터 가져오기
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(albumDetailViewModelProvider.notifier).loadAlbumDetail(widget.albumId);
@@ -39,15 +38,6 @@ class _AlbumDetailScreenState extends ConsumerState<AlbumDetailScreen> {
     // 앨범 데이터 상태 가져오기
     final albumDetailState = ref.watch(albumDetailViewModelProvider);
     print(albumDetailState.album?.artist);
-    print("앨범 필드 타입 확인:");
-    print("title: ${albumDetailState.album!.title.runtimeType}");
-    print("artist: ${albumDetailState.album!.artist.runtimeType}");
-    print("coverImageUrl: ${albumDetailState.album!.coverImageUrl.runtimeType}");
-    print("likeCount: ${albumDetailState.album!.likeCount.runtimeType}");
-    print("commentCount: ${albumDetailState.album!.commentCount.runtimeType}");
-    print("rating: ${albumDetailState.album!.rating.runtimeType}");
-    print("genre: ${albumDetailState.album!.genre.runtimeType}");
-    print("releaseDate: ${albumDetailState.album==null}");
     return Scaffold(
       body: SingleChildScrollView(
         child: Container( 
@@ -59,7 +49,6 @@ class _AlbumDetailScreenState extends ConsumerState<AlbumDetailScreen> {
               )
             : albumDetailState.errorMessage != null
               ? (() {
-                print("에러 메시지 출력 시작: ${albumDetailState.errorMessage?.runtimeType}");
                 return Center(
                   child: Text(
                     'Error: ${albumDetailState.errorMessage}', 
@@ -72,7 +61,9 @@ class _AlbumDetailScreenState extends ConsumerState<AlbumDetailScreen> {
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
+                    spacing: 10,
                     children: [
+                      HeaderWidget(type: HeaderType.backWithTitle),
                       AlbumDetailCover(coverImage: albumDetailState.album?.coverImageUrl ?? '기본 이미지 URL'),
                       AlbumDetailTitle(
                         title: albumDetailState.album!.title,

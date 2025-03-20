@@ -23,7 +23,6 @@ class AlbumDetailTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 360,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
       clipBehavior: Clip.antiAlias,
       decoration: const BoxDecoration(),
@@ -56,10 +55,14 @@ class AlbumDetailTitle extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
+            spacing: 7,
             children: [
               // 뷰 카운트
               Row(
                 mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                spacing: 3,
                 children: [
                   // 하트 아이콘 (뷰 카운트 부분에)
                   Container(
@@ -114,85 +117,30 @@ class AlbumDetailTitle extends StatelessWidget {
               // 평점
               Row(
                 mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center, // 가운데 정렬
+                crossAxisAlignment: CrossAxisAlignment.center, // 수직 가운데 정렬
                 children: [
-                  SizedBox(
-                    height: 8,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 12,
-                          height: 12,
-                          child: Icon(
-                            Icons.star,
-                            color: Color(0xFF8A4FFF),
-                            size: 12,
-                          ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(5, (index) => 
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 1),
+                        child: Icon(
+                          Icons.star,
+                          color: Color(0xFF8A4FFF),
+                          size: 12,
                         ),
-                        const SizedBox(width: 2),
-                        Container(
-                          width: 12,
-                          height: 12,
-                          child: Icon(
-                            Icons.star,
-                            color: Color(0xFF8A4FFF),
-                            size: 12,
-                          ),
-                        ),
-                        const SizedBox(width: 2),
-                        Container(
-                          width: 12,
-                          height: 12,
-                          child: Icon(
-                            Icons.star,
-                            color: Color(0xFF8A4FFF),
-                            size: 12,
-                          ),
-                        ),
-                        const SizedBox(width: 2),
-                        Container(
-                          width: 12,
-                          height: 12,
-                          child: Icon(
-                            Icons.star,
-                            color: Color(0xFF8A4FFF),
-                            size: 12,
-                          ),
-                        ),
-                        const SizedBox(width: 2),
-                        Container(
-                          width: 12,
-                          height: 12,
-                          child: Icon(
-                            Icons.star,
-                            color: Color(0xFF8A4FFF),
-                            size: 12,
-                          ),
-                        ),
-                      ],
+                      )
                     ),
                   ),
                   const SizedBox(width: 5),
-                  SizedBox(
-                    width: 12,
-                    height: 7,
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          left: 0,
-                          top: -1.5,
-                          child: Text(
-                            rating.toString(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 8,
-                              fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ),
-                      ],
+                  Text(
+                    rating.toString(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 8,
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ],

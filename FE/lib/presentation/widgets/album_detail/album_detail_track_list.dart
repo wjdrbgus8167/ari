@@ -10,29 +10,53 @@ class AlbumDetailTrackList extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
-    print(tracks);
     return Container(
-      width: 320,
-      padding: EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(),
-      child: Wrap(
-        spacing: 10, // 가로 간격
-        runSpacing: 10, // 세로 간격 
-        alignment: WrapAlignment.center,
-        children: tracks.map((track) => 
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+      clipBehavior: Clip.antiAlias,
+      decoration: const BoxDecoration(),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Container(
-            child: Text(
-              track,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontFamily: 'Pretendard',
-                fontWeight: FontWeight.w400,
-              ),
+            width: double.infinity,
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 10,
+              runSpacing: 10,
+              children: tracks.asMap().entries.map((entry) {
+                int index = entry.key;  // 인덱스 (0부터 시작)
+                String track = entry.value;
+                return Text(
+                  '${index + 1}. $track',  // 숫자와 track을 결합
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontFamily: 'Pretendard',
+                    fontWeight: FontWeight.w400,
+                  )
+                );
+              }).toList(),
             ),
-          )
-        ).toList(),
+          ),
+        ],
       ),
     );
   }
 }
+  //   return Container(
+  //     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+  //     clipBehavior: Clip.antiAlias,
+  //     decoration: BoxDecoration(),
+  //     width: double.infinity,
+  //     child: Wrap(
+  //       alignment: WrapAlignment.center,
+  //       runAlignment: WrapAlignment.center,
+  //       spacing: 10,
+  //       runSpacing: 10,
+        
+  //     ),
+  //   );
+  // }

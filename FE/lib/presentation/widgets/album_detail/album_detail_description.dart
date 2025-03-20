@@ -21,7 +21,6 @@ class AlbumDetailDescription extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 320,
             child: Text(
               '앨범 소개',
               style: TextStyle(
@@ -34,7 +33,6 @@ class AlbumDetailDescription extends StatelessWidget {
           ),
           SizedBox(height: 19),
           SizedBox(
-            width: 320,
             child: Text(
               description,
               style: TextStyle(

@@ -12,112 +12,91 @@ class AlbumDetailComments extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 320,
+      width: 360,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+      clipBehavior: Clip.antiAlias,
+      decoration: const BoxDecoration(),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 30,
+                height: 30,
+                clipBehavior: Clip.antiAlias,
+                decoration: ShapeDecoration(
+                  image: const DecorationImage(
+                    image: NetworkImage("https://placehold.co/30x30"),
+                    fit: BoxFit.cover,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    side: const BorderSide(width: 0.50),
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              const Text(
+                '앨범이 좋으면 소화기를 부는 남자',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
           Container(
+            width: double.infinity,
+            height: 35,
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Container(
-                  width: 30,
-                  height: 30,
-                  clipBehavior: Clip.antiAlias,
-                  decoration: ShapeDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage(""),
-                      fit: BoxFit.cover,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(width: 0.50),
-                      borderRadius: BorderRadius.circular(50),
+                const SizedBox(
+                  child: Text(
+                    '댓글 작성',
+                    style: TextStyle(
+                      color: Color(0xFFD9D9D9),
+                      fontSize: 11,
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
-                Text(
-                  comment.nickname,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.w400,
+                Container(
+                  transform: Matrix4.identity()..translate(0.0, 0.0)..rotateZ(1.57),
+                  width: 35,
+                  height: 35,
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage("https://placehold.co/35x15"),
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 10),
           Container(
             width: double.infinity,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  height: 35,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Container(
-                          width: double.infinity,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: 303,
-                                child: Text(
-                                  comment.content,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                    fontFamily: 'Pretendard',
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 5),
-                              Container(
-                                width: 15,
-                                height: 15,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: NetworkImage("https://placehold.co/15x15"),
-                                    fit: BoxFit.contain,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: 318,
-                        decoration: ShapeDecoration(
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(
-                              width: 1,
-                              strokeAlign: BorderSide.strokeAlignCenter,
-                              color: Color(0xFF838282),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+            decoration: const ShapeDecoration(
+              shape: RoundedRectangleBorder(
+                side: BorderSide(
+                  width: 1,
+                  strokeAlign: BorderSide.strokeAlignCenter,
+                  color: Color(0xFF838282),
                 ),
-              ],
+              ),
             ),
           ),
         ],
