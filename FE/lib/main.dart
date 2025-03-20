@@ -5,6 +5,7 @@ import 'presentation/pages/home/home_screen.dart';
 import 'presentation/widgets/common/global_bottom_widget.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -17,7 +18,6 @@ class MyApp extends StatelessWidget {
       title: 'Ari',
       theme: ThemeData.dark(),
       home: const GlobalBottomWidget(child: HomeScreen()),
-      // 네임드 라우트
       onGenerateRoute: AppRouter.generateRoute,
     );
   }

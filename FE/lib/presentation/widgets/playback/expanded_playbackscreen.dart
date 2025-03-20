@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
-import '../../../providers/global_providers.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../providers/playback_state_provider.dart';
+import '../../../core/services/audio_service.dart';
 import 'playback_info.dart';
 import 'playback_controls.dart';
 import '../lyrics/lyrics_view.dart';
 
-class ExpandedPlaybackScreen extends StatelessWidget {
-  final PlaybackState playbackState;
-  final VoidCallback onToggle;
-
-  const ExpandedPlaybackScreen({
-    Key? key,
-    required this.playbackState,
-    required this.onToggle,
-  }) : super(key: key);
+class ExpandedPlaybackScreen extends ConsumerWidget {
+  const ExpandedPlaybackScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final playbackState = ref.watch(playbackProvider);
+    final audioService = ref.read(audioServiceProvider); // ✅ 추가
+
     return DraggableScrollableSheet(
       initialChildSize: 1.0,
       minChildSize: 1.0,
@@ -23,15 +21,12 @@ class ExpandedPlaybackScreen extends StatelessWidget {
       builder: (context, scrollController) {
         return Stack(
           children: [
-            // 🔹 배경 이미지 (앨범 커버)
             Positioned.fill(
               child: Image.asset(
                 'assets/images/default_album_cover.png',
                 fit: BoxFit.cover,
               ),
             ),
-
-            // 🔹 좋아요 버튼 (오른쪽 상단)
             Positioned(
               top: 40,
               right: 16,
@@ -44,19 +39,17 @@ class ExpandedPlaybackScreen extends StatelessWidget {
                 onPressed: () {},
               ),
             ),
-
-            // 🔹 노래 정보 (제목 & 아티스트)
             const Positioned(top: 40, left: 16, child: PlaybackInfo()),
-
-            // 🔹 재생 인터페이스
             Positioned(
               left: 0,
               right: 0,
               bottom: 40,
-              child: PlaybackControls(onToggle: onToggle),
+              child: PlaybackControls(
+                onToggle: () {
+                  audioService.togglePlay(ref); // ✅ 수정된 togglePlay 호출
+                },
+              ),
             ),
-
-            // 🔹 가사 보기 버튼
             Positioned(
               left: 0,
               right: 0,
@@ -64,7 +57,9 @@ class ExpandedPlaybackScreen extends StatelessWidget {
               child: LyricsView(
                 albumCoverUrl: 'assets/images/default_album_cover.png',
                 trackTitle: playbackState.trackTitle,
-                onToggle: onToggle,
+                onToggle: () {
+                  Navigator.pop(context);
+                },
               ),
             ),
           ],

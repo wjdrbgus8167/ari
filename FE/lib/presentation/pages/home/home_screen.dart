@@ -27,14 +27,16 @@ class HomeScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ✅ 메인 페이지 헤더 적용
-            HeaderWidget(
-              type: HeaderType.main,
-              onMyPagePressed: () {
-                // 마이페이지 이동
-                Navigator.of(context).pushNamed(AppRoutes.myPage);
-              },
+            //SafeArea 위젯으로 감싸기(모바일 환경에서 맨위의 바와 겹치는거 방지지)
+            SafeArea(
+              child: HeaderWidget(
+                type: HeaderType.main,
+                onMyPagePressed: () {
+                  // 마이페이지 이동
+                  Navigator.of(context).pushNamed(AppRoutes.myPage);
+                },
+              ),
             ),
-
             const SizedBox(height: 8),
             const LoginPrompt(),
             const SizedBox(height: 16),
