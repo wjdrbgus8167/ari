@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../providers/playback_state_provider.dart';
+import '../../../providers/playback/playback_state_provider.dart';
 import '../../../core/services/audio_service.dart';
 import 'playback_info.dart';
 import 'playback_controls.dart';

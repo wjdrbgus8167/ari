@@ -66,7 +66,7 @@ class HomeScreen extends ConsumerWidget {
             const HomeSectionHeader(title: "HOT 50"),
             SizedBox(
               height: 410,
-              child: HotChartList(songs: homeState.hot50Titles),
+              child: HotChartList(tracks: homeState.hot50Titles),
             ),
           ],
         ),

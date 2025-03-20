@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../providers/playback_state_provider.dart';
-import '../../../providers/playback_progress_provider.dart';
+import '../../../providers/playback/playback_state_provider.dart';
+import '../../../providers/playback/playback_progress_provider.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/constants/app_colors.dart';
 import '../playback/expanded_playbackscreen.dart';

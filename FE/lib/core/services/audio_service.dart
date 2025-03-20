@@ -1,6 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../providers/playback_state_provider.dart';
+import '../../providers/playback/playback_state_provider.dart';
 
 /// 오디오 재생 관련 기능을 제공하는 싱글톤 클래스입니다.
 class AudioService {
