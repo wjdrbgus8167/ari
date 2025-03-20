@@ -1,0 +1,14 @@
+import 'package:ari/domain/entities/album.dart';
+import 'package:ari/domain/repositories/album_repository.dart';
+
+class GetAlbumDetail {
+  final AlbumRepository repository;
+
+  GetAlbumDetail(this.repository);
+
+  /// 앨범 상세 정보를 가져오는 유스케이스
+  /// [albumId]: 조회할 앨범의 ID
+  Future<Album> execute(int albumId) async {
+    return await repository.getAlbumDetail(albumId);
+  }
+}
