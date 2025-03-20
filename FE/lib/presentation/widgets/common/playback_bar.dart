@@ -1,119 +1,140 @@
 import 'package:flutter/material.dart';
-import '../../../providers/global_providers.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../providers/playback_state_provider.dart';
+import '../../../providers/playback_progress_provider.dart'; // 새로 추가한 프로바이더들
+import '../../../core/services/audio_service.dart';
+import '../../../core/constants/app_colors.dart';
 import '../playback/expanded_playbackscreen.dart';
 import '../../pages/listening_queue/listening_queue_screen.dart';
 
-class PlaybackBar extends StatelessWidget {
-  final PlaybackState playbackState;
-  final VoidCallback onToggle;
-
-  const PlaybackBar({
-    Key? key,
-    required this.playbackState,
-    required this.onToggle,
-  }) : super(key: key);
+class PlaybackBar extends ConsumerWidget {
+  const PlaybackBar({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final playbackState = ref.watch(playbackProvider);
+    final audioService = ref.read(audioServiceProvider);
+
     return GestureDetector(
-      // 재생바 탭 시 확장된 재생창 모달 띄우기
       onTap: () {
         showModalBottomSheet(
           context: context,
-          isScrollControlled: true, // 전체 화면 모달
+          isScrollControlled: true,
           backgroundColor: Colors.transparent,
-          builder:
-              (context) =>
-                  const SizedBox.expand(child: ExpandedPlaybackScreenWrapper()),
+          builder: (context) => const ExpandedPlaybackScreen(),
         );
       },
-      child: Container(
-        color: Colors.grey[850],
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Row(
-          children: [
-            // 앨범 커버 왼쪽 패딩 포함
-            Padding(
-              padding: const EdgeInsets.only(left: 8),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: Image.asset(
-                  'assets/images/default_album_cover.png',
-                  width: 40,
-                  height: 40,
-                  fit: BoxFit.cover,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            color: Colors.grey[850],
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: Image.asset(
+                      'assets/images/default_album_cover.png',
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            // 노래 제목과 아티스트
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    playbackState.currentTrackId ?? "노래 제목",
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        playbackState.currentTrackId,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        playbackState.trackTitle,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
-                  Text(
-                    "아티스트 이름",
-                    style: const TextStyle(color: Colors.white70, fontSize: 12),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                ),
+                IconButton(
+                  icon: Icon(
+                    playbackState.isPlaying ? Icons.pause : Icons.play_arrow,
+                    color: Colors.white,
                   ),
-                ],
-              ),
+                  onPressed: () {
+                    audioService.togglePlay(ref);
+                  },
+                ),
+                // 재생목록 아이콘
+                IconButton(
+                  icon: const Icon(Icons.queue_music, color: Colors.white),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ListeningQueueScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
-            // 재생 버튼
-            IconButton(
-              icon: Icon(
-                playbackState.isPlaying ? Icons.pause : Icons.play_arrow,
-                color: Colors.white,
-              ),
-              onPressed: onToggle,
-            ),
-            // 재생목록 아이콘
-            IconButton(
-              icon: const Icon(Icons.queue_music, color: Colors.white),
-              onPressed: () {
-                // 재생목록 보기 로직 추가
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ListeningQueueScreen(),
+          ),
+          // 음악 재생 진행바
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final maxWidth = constraints.maxWidth;
+              // 현재 재생 위치와 전체 길이 가져오기
+              final position = ref
+                  .watch(playbackPositionProvider)
+                  .maybeWhen(data: (pos) => pos, orElse: () => Duration.zero);
+              final duration = ref
+                  .watch(playbackDurationProvider)
+                  .maybeWhen(
+                    data: (dur) => dur ?? Duration.zero,
+                    orElse: () => Duration.zero,
+                  );
+              double progressFraction = 0;
+              if (duration.inMilliseconds > 0) {
+                progressFraction =
+                    position.inMilliseconds / duration.inMilliseconds;
+                if (progressFraction > 1) progressFraction = 1;
+              }
+              return Container(
+                width: maxWidth,
+                height: 2,
+                decoration: const BoxDecoration(
+                  color: Colors.white24, // 진행바 배경색
+                ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    width: maxWidth * progressFraction,
+                    height: 2,
+                    decoration: const BoxDecoration(
+                      gradient: AppColors.purpleGradientHorizontal,
+                    ),
                   ),
-                );
-              },
-            ),
-          ],
-        ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
-    );
-  }
-}
-
-// 래퍼 위젯: ExpandedPlaybackScreen을 Scaffold가 없는 상태로 감싸줌
-class ExpandedPlaybackScreenWrapper extends StatelessWidget {
-  const ExpandedPlaybackScreenWrapper({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    // PlaybackState, onToggle 등은 실제 앱에서는 전역 상태로 전달해야 함.
-    // 여기서는 예시로 placeholder 값을 사용함.
-    final playbackState = PlaybackState(
-      currentTrackId: "노래 제목",
-      isPlaying: true,
-      trackTitle: "노래 제목",
-    );
-
-    return ExpandedPlaybackScreen(
-      playbackState: playbackState,
-      onToggle: () {
-        // 토글 로직 예시
-        Navigator.pop(context);
-      },
     );
   }
 }

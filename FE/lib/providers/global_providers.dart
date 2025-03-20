@@ -53,12 +53,6 @@ class PlaybackNotifier extends StateNotifier<PlaybackState> {
   }
 }
 
-final playbackProvider = StateNotifierProvider<PlaybackNotifier, PlaybackState>(
-  (ref) {
-    return PlaybackNotifier();
-  },
-);
-
 final playlistProvider = StateProvider<List<Track>>((ref) => []);
 
 // HomeViewModel 전역 상태
