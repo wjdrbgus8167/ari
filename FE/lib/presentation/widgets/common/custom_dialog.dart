@@ -209,3 +209,98 @@ class CustomDialog extends StatelessWidget {
     );
   }
 }
+
+
+// 확장 메서드(다이얼로그 쉽게 호출 가능)
+// 원본 클래스 수정하지 않아도 기능 확장 가능
+
+extension CustomDialogExtension on BuildContext {
+  // 커스텀 다이얼로그
+  Future<bool?> showCustomDialog({
+    required String title,
+    String? content,
+    Widget? customContent,
+    String confirmText = '확인',
+    String cancelText = '취소',
+    Color confirmButtonColor = Colors.blue,
+    Color cancelButtonColor = Colors.grey,
+    Color textColor = Colors.black87,
+    VoidCallback? onConfirm,
+    VoidCallback? onCancel,
+    bool singleButtonMode = false,
+  }) {
+    return showDialog<bool>(
+      context: this,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return CustomDialog(
+          title: title,
+          content: content,
+          customContent: customContent,
+          confirmText: confirmText,
+          cancelText: cancelText,
+          confirmButtonColor: confirmButtonColor,
+          cancelButtonColor: cancelButtonColor,
+          textColor: textColor,
+          onConfirm: onConfirm,
+          onCancel: onCancel,
+          singleButtonMode: singleButtonMode,
+        );
+      },
+    );
+  }
+
+  // 확인만 있는 간단한 다이얼로그
+  Future<void> showAlertDialog({
+    required String title,
+    required String content,
+    String confirmText = '확인',
+    Color confirmButtonColor = Colors.blue,
+    VoidCallback? onConfirm,
+  }) {
+    return showDialog<void>(
+      context: this,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return CustomDialog(
+          title: title,
+          content: content,
+          confirmText: confirmText,
+          confirmButtonColor: confirmButtonColor,
+          onConfirm: onConfirm,
+          singleButtonMode: true,
+        );
+      },
+    );
+  }
+
+  // 확인/취소가 있는 다이얼로그
+  Future<bool?> showConfirmDialog({
+    required String title,
+    required String content,
+    String confirmText = '확인',
+    String cancelText = '취소',
+    Color confirmButtonColor = Colors.blue,
+    Color cancelButtonColor = Colors.grey,
+    VoidCallback? onConfirm,
+    VoidCallback? onCancel,
+  }) {
+    return showDialog<bool>(
+      context: this,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return CustomDialog(
+          title: title,
+          content: content,
+          confirmText: confirmText,
+          cancelText: cancelText,
+          confirmButtonColor: confirmButtonColor,
+          cancelButtonColor: cancelButtonColor,
+          onConfirm: onConfirm,
+          onCancel: onCancel,
+          singleButtonMode: false,
+        );
+      },
+    );
+  }
+}
