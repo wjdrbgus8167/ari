@@ -1,4 +1,4 @@
-package com.ccc.ari.aggregation.application;
+package com.ccc.ari.aggregation.application.service;
 
 import com.ccc.ari.aggregation.application.repository.StreamingLogRepository;
 import com.ccc.ari.aggregation.domain.service.StreamingLogCollectorService;
