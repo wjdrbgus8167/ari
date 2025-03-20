@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 /**
  * AggregationOnChainService는 AggregatedData를 기반으로
  * IPFS에 스트리밍 집계 데이터를 저장하고,
- * 해당 데이터의 CID와 머클 루트를 블록체인에 커밋하는 도메인 서비스입니다.
+ * 해당 데이터의 CID를 블록체인에 커밋하는 도메인 서비스입니다.
  */
 @RequiredArgsConstructor
 public class AggregationOnChainService {
@@ -22,7 +22,7 @@ public class AggregationOnChainService {
 
     /**
      * AggregatedData를 직렬화하여 IPFS에 저장하고,
-     * 반환된 CID와 머클 루트를 블록체인에 커밋합니다.
+     * 반환된 CID를 블록체인에 커밋합니다.
      *
      * @param aggregatedData 집계 결과 Aggregate Root
      * @return 트랜잭션 해시
@@ -32,12 +32,12 @@ public class AggregationOnChainService {
         String jsonData = aggregatedData.toJson();
         logger.info("AggregatedData JSON 직렬화: {}", jsonData);
 
-        // 2. IPFS에 데이터를 저장하고, CID와 머클 루트를 포함하는 IpfsResponse를 획득
+        // 2. IPFS에 데이터를 저장하고, CID를 포함하는 IpfsResponse를 획득
         IpfsResponse ipfsResponse = ipfsClient.save(jsonData);
-        logger.info("IPFS 데이터 저장 완료 CID: {} Merkle Root: {}", ipfsResponse.getCid(), ipfsResponse.getMerkleRoot());
+        logger.info("IPFS 데이터 저장 완료 CID: {}", ipfsResponse.getCid());
 
-        // 3. 획득한 CID와 머클 루트를 블록체인에 커밋
-        String txHash = blockChainClient.commitAggregatedData(ipfsResponse.getCid(), ipfsResponse.getMerkleRoot());
+        // 3. 획득한 CID를 블록체인에 커밋
+        String txHash = blockChainClient.commitAggregatedData(ipfsResponse.getCid());
         logger.info("CID, Merkle Root Blockchain에 커밋 완료 Transaction Hash: {}", txHash);
 
         return txHash;

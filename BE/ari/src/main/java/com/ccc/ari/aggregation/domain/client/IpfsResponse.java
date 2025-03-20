@@ -7,13 +7,10 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public class IpfsResponse {
     private final String cid;
-    private final String merkleRoot;
 
     @Override
     public String toString() {
         return "IpfsResponse{" +
-                "cid='" + cid + '\'' +
-                ", merkleRoot='" + merkleRoot + '\'' +
-                '}';
+                "cid='" + cid + '\'' + "}";
     }
 }
