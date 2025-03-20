@@ -4,6 +4,7 @@ import com.ccc.ari.member.domain.member.MemberEntity;
 import com.ccc.ari.music.domain.genre.GenreEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -47,4 +48,17 @@ public class AlbumEntity {
   @JoinColumn(name = "genre_id")
   private GenreEntity genre;
 
+  @Builder
+  public AlbumEntity(Integer albumId,String albumTitle,LocalDateTime releasedAt,String coverImageUrl,String description
+          ,Integer albumLikeCount,MemberEntity member,GenreEntity genre) {
+    this.albumId = albumId;
+    this.albumTitle = albumTitle;
+    this.releasedAt = releasedAt;
+    this.coverImageUrl = coverImageUrl;
+    this.description = description;
+    this.albumLikeCount = albumLikeCount;
+    this.member = member;
+    this.genre = genre;
+
+  }
 }
