@@ -7,12 +7,14 @@ import com.ccc.ari.aggregation.domain.client.IpfsResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * AggregationOnChainService는 AggregatedData를 기반으로
  * IPFS에 스트리밍 집계 데이터를 저장하고,
  * 해당 데이터의 CID를 블록체인에 커밋하는 도메인 서비스입니다.
  */
+@Service
 @RequiredArgsConstructor
 public class AggregationOnChainService {
 
