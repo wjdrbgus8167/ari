@@ -1,3 +1,4 @@
+import 'package:ari/presentation/routes/app_router.dart';
 import 'package:flutter/material.dart';
 import '../../../data/models/track.dart';
 
@@ -105,8 +106,13 @@ class BottomSheetOptions extends StatelessWidget {
         ),
       ),
       onTap: () {
-        // 각 옵션에 맞는 이동 로직 추가
+        // 바텀시트 닫기
         Navigator.pop(context);
+        // "앨범으로 이동" 옵션 선택 시 앨범 상세 페이지로 이동
+        if (title == '앨범으로 이동') {
+          Navigator.pushNamed(context, AppRoutes.album);
+        }
+        // 다른 옵션에 대해서는 필요한 네비게이션 로직 추가 가능
       },
     );
   }

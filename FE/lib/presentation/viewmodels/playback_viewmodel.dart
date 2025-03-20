@@ -12,7 +12,7 @@ class PlaybackState {
   });
 
   PlaybackState copyWith({
-    String? currentTrackId,
+    int? currentTrackId,
     String? trackTitle,
     bool? isPlaying,
   }) {
