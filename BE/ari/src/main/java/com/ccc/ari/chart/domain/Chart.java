@@ -17,13 +17,13 @@ public class Chart {
     private final List<ChartEntry> entries;
     private final Instant createdAt;
 
-    public Chart(ChartPeriod period, List<ChartEntry> entries) {
+    public Chart(ChartPeriod period, List<ChartEntry> entries, Instant createdAt) {
         if (entries.size() > 50) {
             throw new IllegalArgumentException("차트에는 최대 50개의 트랙만 포함될 수 있습니다.");
         }
         this.period = period;
         this.entries = List.copyOf(entries); // 불변 리스트로 저장
-        this.createdAt = Instant.now();
+        this.createdAt = createdAt;
     }
 
     @Override
