@@ -1,14 +1,15 @@
 package com.ccc.ari.aggregation.domain.service;
 
-import com.ccc.ari.aggregation.domain.vo.AggregationPeriod;
 import com.ccc.ari.aggregation.domain.vo.StreamingLog;
 import com.ccc.ari.global.event.StreamingEvent;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Service;
 
 /**
  * StreamingLogCollectorService는 kakfa에서 전달된 StreamingEvent를
  * 도메인 VO인 StreamingLog로 변환하는 책임을 집니다.
  */
+@Service
 public class StreamingLogCollectorService {
 
     /**
