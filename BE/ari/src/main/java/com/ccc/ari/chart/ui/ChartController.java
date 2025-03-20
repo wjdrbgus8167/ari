@@ -35,9 +35,8 @@ public class ChartController {
                         .trackId(entry.getTrackId())
                         .trackTitle(entry.getTrackTitle())
                         .rank(entry.getRank())
-                        // 실제 구현에서는 아티스트와 커버 이미지 정보를 어떻게 가져올지 결정 필요
-                        .artist("Unknown Artist") // 임시 값
-                        .coverImageUrl("") // 임시 빈 값
+                        .artist(entry.getArtist())
+                        .coverImageUrl(entry.getCoverImageUrl())
                         .build())
                 .toList();
 

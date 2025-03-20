@@ -29,5 +29,7 @@ public class ChartResponseDto {
         private final String trackTitle;
         private final int rank;
         private final long streamCount;
+        private final String artist;
+        private final String coverImageUrl;
     }
 }

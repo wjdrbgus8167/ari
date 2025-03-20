@@ -11,12 +11,16 @@ public class ChartEntry {
     private final String trackTitle;
     private final int rank;
     private final long streamCount;
+    private final String artist;
+    private final String coverImageUrl;
 
-    public ChartEntry(Integer trackId, String trackTitle, int rank, long streamCount) {
+    public ChartEntry(Integer trackId, String trackTitle, int rank, long streamCount, String artist, String coverImageUrl) {
         this.trackId = trackId;
         this.trackTitle = trackTitle;
         this.rank = rank;
         this.streamCount = streamCount;
+        this.artist = artist;
+        this.coverImageUrl = coverImageUrl;
     }
 
     @Override
