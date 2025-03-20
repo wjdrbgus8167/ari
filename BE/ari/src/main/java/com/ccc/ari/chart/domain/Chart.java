@@ -5,6 +5,7 @@ import com.ccc.ari.chart.domain.vo.ChartPeriod;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,6 +15,7 @@ public class Chart {
 
     private final ChartPeriod period;
     private final List<ChartEntry> entries;
+    private final Instant createdAt;
 
     public Chart(ChartPeriod period, List<ChartEntry> entries) {
         if (entries.size() > 50) {
@@ -21,6 +23,7 @@ public class Chart {
         }
         this.period = period;
         this.entries = List.copyOf(entries); // 불변 리스트로 저장
+        this.createdAt = Instant.now();
     }
 
     @Override
