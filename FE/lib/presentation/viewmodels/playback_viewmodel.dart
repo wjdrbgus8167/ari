@@ -1,13 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class PlaybackState {
-  final String currentTrackId;
   final String trackTitle;
+  final String artist;
   final bool isPlaying;
 
   PlaybackState({
-    required this.currentTrackId,
     required this.trackTitle,
+    required this.artist,
     required this.isPlaying,
   });
 
@@ -17,8 +17,8 @@ class PlaybackState {
     bool? isPlaying,
   }) {
     return PlaybackState(
-      currentTrackId: currentTrackId ?? this.currentTrackId,
       trackTitle: trackTitle ?? this.trackTitle,
+      artist: artist ?? this.artist,
       isPlaying: isPlaying ?? this.isPlaying,
     );
   }
@@ -27,19 +27,10 @@ class PlaybackState {
 class PlaybackViewModel extends StateNotifier<PlaybackState> {
   PlaybackViewModel()
     : super(
-        PlaybackState(
-          currentTrackId: "노래 제목",
-          trackTitle: "노래 제목",
-          isPlaying: false,
-        ),
+        PlaybackState(trackTitle: "노래 제목", artist: "가수 이름", isPlaying: false),
       );
 
   void updatePlaybackState(bool isPlaying) {
     state = state.copyWith(isPlaying: isPlaying);
   }
 }
-
-final playbackProvider =
-    StateNotifierProvider<PlaybackViewModel, PlaybackState>(
-      (ref) => PlaybackViewModel(),
-    );

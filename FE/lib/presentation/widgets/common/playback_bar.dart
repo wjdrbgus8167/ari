@@ -50,7 +50,7 @@ class PlaybackBar extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        playbackState.currentTrackId,
+                        playbackState.trackTitle,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
@@ -59,7 +59,7 @@ class PlaybackBar extends ConsumerWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        playbackState.trackTitle,
+                        playbackState.artist,
                         style: const TextStyle(
                           color: Colors.white70,
                           fontSize: 12,

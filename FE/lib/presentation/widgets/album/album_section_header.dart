@@ -7,12 +7,12 @@ class AlbumSectionHeader extends StatelessWidget {
   final ValueChanged<String> onGenreSelected;
 
   const AlbumSectionHeader({
-    Key? key,
+    super.key,
     required this.title,
     required this.currentGenre,
     required this.genres,
     required this.onGenreSelected,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

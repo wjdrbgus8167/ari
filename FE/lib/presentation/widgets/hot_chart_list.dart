@@ -46,7 +46,7 @@ class _HotChartListState extends State<HotChartList> {
         );
 
         return Transform.translate(
-          offset: const Offset(-10, 0), // 왼쪽으로 4px 이동
+          offset: const Offset(-10, 0),
           child: Padding(
             padding: const EdgeInsets.only(top: 8, right: 8, bottom: 8),
             child: Column(
@@ -87,7 +87,7 @@ class _ChartItem extends StatelessWidget {
         children: [
           // 앨범 커버 컨테이너
           Padding(
-            padding: const EdgeInsets.only(left: 8), // 원하는 왼쪽 간격
+            padding: const EdgeInsets.only(left: 8),
             child: Container(
               width: 50,
               height: 50,
@@ -146,7 +146,7 @@ class _ChartItem extends StatelessWidget {
               constraints: const BoxConstraints(),
               icon: const Icon(Icons.play_arrow, color: Colors.white),
               onPressed: () {
-                // 재생 로직 추가
+                // 재생 로직 추가(예정)
               },
             ),
           ),

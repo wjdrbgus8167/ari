@@ -5,7 +5,6 @@ import 'presentation/pages/home/home_screen.dart';
 import 'presentation/widgets/common/global_bottom_widget.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
   runApp(const ProviderScope(child: MyApp()));
 }
 
