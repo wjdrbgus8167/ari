@@ -32,7 +32,6 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final trackDetailState = ref.watch(trackDetailViewModelProvider);
-    print(trackDetailState.track?.albumTitle);
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
@@ -42,7 +41,7 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
             children: [
               // 트랙 헤더 위젯
               SafeArea(
-                child: HeaderWidget(type: HeaderType.backWithTitle),
+                child: HeaderWidget(type: HeaderType.backWithTitle, onBackPressed: () { Navigator.pop(context); }),
               ),
               const TrackHeader(
                 albumName: 'AFTER HOURS',
