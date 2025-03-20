@@ -2,11 +2,16 @@ package com.ccc.ari.aggregation.domain.vo;
 
 import lombok.Getter;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
 
 @Getter
-public class StreamingLog {
+public class StreamingLog implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     // 언제
     private final Instant timestamp; // UTC 기준 시간
