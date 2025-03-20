@@ -1,5 +1,6 @@
 package com.ccc.ari.global.event;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -17,6 +18,8 @@ public class StreamingEvent {
     private String artist;
     private Integer memberId;
     private String nickname;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Instant timestamp;
 
     @Builder
