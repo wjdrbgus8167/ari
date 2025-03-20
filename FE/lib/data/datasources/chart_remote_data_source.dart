@@ -33,7 +33,7 @@ class ChartItem {
   }
 }
 
-// Dio를 사용하여 차트 데이터를 가져오는 함수
+// 차트 데이터를 가져오는 함수
 Future<List<ChartItem>> fetchCharts() async {
   final dio = Dio();
   try {

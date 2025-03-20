@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/playback_state_provider.dart';
-import '../../../providers/playback_progress_provider.dart'; // 새로 추가한 프로바이더들
+import '../../../providers/playback_progress_provider.dart';
 import '../../../core/services/audio_service.dart';
 import '../../../core/constants/app_colors.dart';
 import '../playback/expanded_playbackscreen.dart';
-import '../../pages/listening_queue/listening_queue_screen.dart';
+import '../../routes/app_router.dart';
 
 class PlaybackBar extends ConsumerWidget {
   const PlaybackBar({Key? key}) : super(key: key);
@@ -83,12 +83,7 @@ class PlaybackBar extends ConsumerWidget {
                 IconButton(
                   icon: const Icon(Icons.queue_music, color: Colors.white),
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ListeningQueueScreen(),
-                      ),
-                    );
+                    Navigator.pushNamed(context, AppRoutes.listeningqueue);
                   },
                 ),
               ],
