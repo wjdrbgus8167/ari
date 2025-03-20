@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/playback_state_provider.dart';
+import '../../../providers/playback_progress_provider.dart'; // 새로 추가한 프로바이더들
 import '../../../core/services/audio_service.dart';
+import '../../../core/constants/app_colors.dart';
 import '../playback/expanded_playbackscreen.dart';
+import '../../pages/listening_queue/listening_queue_screen.dart';
 
 class PlaybackBar extends ConsumerWidget {
   const PlaybackBar({Key? key}) : super(key: key);
@@ -10,7 +13,7 @@ class PlaybackBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final playbackState = ref.watch(playbackProvider);
-    final audioService = ref.read(audioServiceProvider); // ✅ AudioService 가져오기
+    final audioService = ref.read(audioServiceProvider);
 
     return GestureDetector(
       onTap: () {
@@ -21,54 +24,116 @@ class PlaybackBar extends ConsumerWidget {
           builder: (context) => const ExpandedPlaybackScreen(),
         );
       },
-      child: Container(
-        color: Colors.grey[850],
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 8),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: Image.asset(
-                  'assets/images/default_album_cover.png',
-                  width: 40,
-                  height: 40,
-                  fit: BoxFit.cover,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            color: Colors.grey[850],
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: Image.asset(
+                      'assets/images/default_album_cover.png',
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    playbackState.currentTrackId,
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        playbackState.currentTrackId,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        playbackState.trackTitle,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
-                  Text(
-                    playbackState.trackTitle,
-                    style: const TextStyle(color: Colors.white70, fontSize: 12),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                ),
+                IconButton(
+                  icon: Icon(
+                    playbackState.isPlaying ? Icons.pause : Icons.play_arrow,
+                    color: Colors.white,
                   ),
-                ],
-              ),
+                  onPressed: () {
+                    audioService.togglePlay(ref);
+                  },
+                ),
+                // 재생목록 아이콘
+                IconButton(
+                  icon: const Icon(Icons.queue_music, color: Colors.white),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ListeningQueueScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
-            IconButton(
-              icon: Icon(
-                playbackState.isPlaying ? Icons.pause : Icons.play_arrow,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                audioService.togglePlay(ref); // ✅ 수정된 togglePlay 호출
-              },
-            ),
-          ],
-        ),
+          ),
+          // 음악 재생 진행바
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final maxWidth = constraints.maxWidth;
+              // 현재 재생 위치와 전체 길이 가져오기
+              final position = ref
+                  .watch(playbackPositionProvider)
+                  .maybeWhen(data: (pos) => pos, orElse: () => Duration.zero);
+              final duration = ref
+                  .watch(playbackDurationProvider)
+                  .maybeWhen(
+                    data: (dur) => dur ?? Duration.zero,
+                    orElse: () => Duration.zero,
+                  );
+              double progressFraction = 0;
+              if (duration.inMilliseconds > 0) {
+                progressFraction =
+                    position.inMilliseconds / duration.inMilliseconds;
+                if (progressFraction > 1) progressFraction = 1;
+              }
+              return Container(
+                width: maxWidth,
+                height: 2,
+                decoration: const BoxDecoration(
+                  color: Colors.white24, // 진행바 배경색
+                ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    width: maxWidth * progressFraction,
+                    height: 2,
+                    decoration: const BoxDecoration(
+                      gradient: AppColors.purpleGradientHorizontal,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
