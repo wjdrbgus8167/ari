@@ -43,6 +43,8 @@ public class ChartMapper {
                 .trackTitle(entry.getTrackTitle())
                 .rank(entry.getRank())
                 .streamCount(entry.getStreamCount())
+                .artist(entry.getArtist())
+                .coverImageUrl(entry.getCoverImageUrl())
                 .build();
     }
 }

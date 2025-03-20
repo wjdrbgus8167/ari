@@ -7,6 +7,7 @@ import com.ccc.ari.chart.domain.vo.ChartPeriod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +42,7 @@ public class ChartCalculatorService {
         logger.info("차트 항목 생성 완료: {} 트랙", entries.size());
 
         // 4. 차트 생성
-        Chart chart = new Chart(period, entries);
+        Chart chart = new Chart(period, entries, Instant.now());
         logger.info("차트 생성 완료!");
 
         return chart;
@@ -95,7 +96,11 @@ public class ChartCalculatorService {
             // 미리 저장한 맵에서 제목 조회
             String trackTitle = trackTitles.getOrDefault(trackId, "Unknown Track");
 
-            entries.add(new ChartEntry(trackId, trackTitle, rank++, playCount));
+            // 임시로 Redis에서 가져왔다고 가정하는 데이터
+            String artist = "아티스트 " + trackId;  // 실제로는 Redis에서 가져와야 함
+            String coverImageUrl = "https://your-s3-bucket.amazonaws.com/images/track" + trackId + ".jpg";  // 실제로는 Redis에서 가져와야 함
+
+            entries.add(new ChartEntry(trackId, trackTitle, rank++, playCount, artist, coverImageUrl));
         }
 
         return entries;
