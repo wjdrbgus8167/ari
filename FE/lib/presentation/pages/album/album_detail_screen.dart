@@ -87,7 +87,7 @@ class _AlbumDetailScreenState extends ConsumerState<AlbumDetailScreen> {
                       AlbumDetailTrackList(
                         tracks:
                             albumDetailState.album!.tracks
-                                .map((track) => track.trackTitle)
+                                .map((track) => track)
                                 .toList(),
                       ),
                       AlbumDetailDescription(

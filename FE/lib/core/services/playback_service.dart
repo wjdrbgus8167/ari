@@ -18,18 +18,28 @@ class PlaybackService {
   /// POST 메서드를 사용하여 앨범의 특정 트랙을 재생함.
   /// body는 보내지 않음.
   Future<void> playTrack({required int albumId, required int trackId}) async {
-    final url = '$baseUrl/api/v1/albums/$albumId/tracks/$trackId/play';
+    final url = '$baseUrl/api/v1/albums/$albumId/tracks/$trackId';
     try {
       final response = await dio.post(url);
+      print('[DEBUG] playTrack: 응답 상태 코드: ${response.statusCode}');
+      print('[DEBUG] playTrack: 응답 데이터: ${response.data}');
+
       if (response.statusCode == 200 && response.data['status'] == 200) {
         final data = response.data['data'];
         final String trackFileUrl = data['trackFileUrl'];
+        print('[DEBUG] playTrack: trackFileUrl: $trackFileUrl');
+
         await audioPlayer.play(UrlSource(trackFileUrl));
+        print('[DEBUG] playTrack: 재생 시작됨');
       } else {
         throw Exception('재생 API 호출 실패: ${response.data['message']}');
       }
     } on DioException catch (e) {
-      throw Exception('Dio 에러: ${e.message}');
+      print('[ERROR] playTrack: Dio 에러: ${e.message}');
+      rethrow;
+    } catch (e) {
+      print('[ERROR] playTrack: 에러 발생: $e');
+      rethrow;
     }
   }
 }

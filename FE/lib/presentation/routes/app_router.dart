@@ -1,8 +1,10 @@
 import 'package:ari/presentation/pages/album/album_detail_screen.dart';
+import 'package:ari/presentation/pages/track_detail/track_detail_screen.dart';
 import 'package:flutter/material.dart';
 import '../pages/home/home_screen.dart';
 import '../pages/mypage/mypage_screen.dart';
 import '../pages/listening_queue/listening_queue_screen.dart';
+import '../pages/track_detail/track_detail_screen.dart';
 
 class AppRoutes {
   static const String home = '/';
@@ -13,6 +15,7 @@ class AppRoutes {
   static const String album = '/album';
   static const String playlist = '/playlist';
   static const String listeningqueue = '/listeningqueue';
+  static const String track = '/track';
 }
 
 class AppRouter {
@@ -29,6 +32,10 @@ class AppRouter {
       // 여기에 경로 더 추가하십시오잉
       case AppRoutes.listeningqueue:
         return MaterialPageRoute(builder: (_) => const ListeningQueueScreen());
+      case AppRoutes.track:
+        return MaterialPageRoute(
+          builder: (_) => const TrackDetailScreen(trackId: 1),
+        );
 
       default:
         // 없는 경로는 홈으로 리다이렉트

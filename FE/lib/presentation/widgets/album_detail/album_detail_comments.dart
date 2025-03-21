@@ -12,8 +12,7 @@ class AlbumDetailComments extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 360,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
       clipBehavior: Clip.antiAlias,
       decoration: const BoxDecoration(),
       child: Column(

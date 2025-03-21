@@ -111,6 +111,8 @@ class BottomSheetOptions extends StatelessWidget {
         // "앨범으로 이동" 옵션 선택 시 앨범 상세 페이지로 이동
         if (title == '앨범으로 이동') {
           Navigator.pushNamed(context, AppRoutes.album);
+        } else if (title == '트랙 정보로 이동') {
+          Navigator.pushNamed(context, AppRoutes.track);
         }
         // 다른 옵션에 대해서는 필요한 네비게이션 로직 추가 가능
       },
