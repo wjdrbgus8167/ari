@@ -75,7 +75,7 @@ class _AlbumDetailScreenState extends ConsumerState<AlbumDetailScreen> {
                         releaseDate: albumDetailState.album!.releaseDate,
                       ),
                       AlbumDetailTrackList(
-                        tracks: albumDetailState.album!.tracks.map((track) => track.trackTitle).toList(),
+                        tracks: albumDetailState.album!.tracks.map((track) => track).toList(),
                       ),
                       AlbumDetailDescription(description: albumDetailState.album!.description),
                       AlbumDetailCommentHeader(commentCount: albumDetailState.album!.commentCount),
