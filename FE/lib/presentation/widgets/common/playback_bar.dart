@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../providers/playback_state_provider.dart';
-import '../../../providers/playback_progress_provider.dart'; // 새로 추가한 프로바이더들
+import '../../../providers/playback/playback_state_provider.dart';
+import '../../../providers/playback/playback_progress_provider.dart';
+import '../../../providers/global_providers.dart';
 import '../../../core/services/audio_service.dart';
+import '../../../core/services/playback_service.dart';
 import '../../../core/constants/app_colors.dart';
 import '../playback/expanded_playbackscreen.dart';
-import '../../pages/listening_queue/listening_queue_screen.dart';
+import '../../routes/app_router.dart';
 
 class PlaybackBar extends ConsumerWidget {
   const PlaybackBar({Key? key}) : super(key: key);
@@ -14,6 +16,8 @@ class PlaybackBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final playbackState = ref.watch(playbackProvider);
     final audioService = ref.read(audioServiceProvider);
+    // playbackServiceProvider에서 playbackService 인스턴스를 읽어옴.
+    final playbackService = ref.read(playbackServiceProvider);
 
     return GestureDetector(
       onTap: () {
@@ -50,7 +54,7 @@ class PlaybackBar extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        playbackState.currentTrackId,
+                        playbackState.trackTitle,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
@@ -59,7 +63,7 @@ class PlaybackBar extends ConsumerWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        playbackState.trackTitle,
+                        playbackState.artist,
                         style: const TextStyle(
                           color: Colors.white70,
                           fontSize: 12,
@@ -75,20 +79,21 @@ class PlaybackBar extends ConsumerWidget {
                     playbackState.isPlaying ? Icons.pause : Icons.play_arrow,
                     color: Colors.white,
                   ),
-                  onPressed: () {
-                    audioService.togglePlay(ref);
+                  onPressed: () async {
+                    if (playbackState.isPlaying) {
+                      // 재생 중이면 일시정지 처리
+                      await playbackService.audioPlayer.pause();
+                    } else {
+                      // 재생 중이 아니면 API 호출로 트랙 재생 (여기선 albumId와 trackId를 1로 고정)
+                      await playbackService.playTrack(albumId: 1, trackId: 1);
+                    }
                   },
                 ),
                 // 재생목록 아이콘
                 IconButton(
                   icon: const Icon(Icons.queue_music, color: Colors.white),
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ListeningQueueScreen(),
-                      ),
-                    );
+                    Navigator.pushNamed(context, AppRoutes.listeningqueue);
                   },
                 ),
               ],
@@ -98,7 +103,6 @@ class PlaybackBar extends ConsumerWidget {
           LayoutBuilder(
             builder: (context, constraints) {
               final maxWidth = constraints.maxWidth;
-              // 현재 재생 위치와 전체 길이 가져오기
               final position = ref
                   .watch(playbackPositionProvider)
                   .maybeWhen(data: (pos) => pos, orElse: () => Duration.zero);
@@ -117,9 +121,7 @@ class PlaybackBar extends ConsumerWidget {
               return Container(
                 width: maxWidth,
                 height: 2,
-                decoration: const BoxDecoration(
-                  color: Colors.white24, // 진행바 배경색
-                ),
+                decoration: const BoxDecoration(color: Colors.white24),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Container(

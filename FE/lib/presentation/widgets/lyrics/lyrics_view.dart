@@ -86,7 +86,6 @@ class _LyricsViewState extends State<LyricsView> {
           const SizedBox(height: 20),
           Expanded(child: LyricsContent(lyrics: "가사 줄 1\n가사 줄 2\n가사 줄 3\n")),
           const SizedBox(height: 20),
-          // 모달 내에 재생 컨트롤도 포함 (필요 시 유지)
           PlaybackControls(onToggle: widget.onToggle),
           const SizedBox(height: 10),
           IconButton(

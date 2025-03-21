@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../../data/models/track.dart' as ari;
 
 class HotChartList extends StatefulWidget {
-  final List<ari.Track> songs;
-  const HotChartList({Key? key, required this.songs}) : super(key: key);
+  final List<ari.Track> tracks;
+  const HotChartList({Key? key, required this.tracks}) : super(key: key);
 
   @override
   _HotChartListState createState() => _HotChartListState();
@@ -28,7 +28,7 @@ class _HotChartListState extends State<HotChartList> {
   @override
   Widget build(BuildContext context) {
     const int itemsPerPage = 5;
-    final int pageCount = (widget.songs.length / itemsPerPage).ceil();
+    final int pageCount = (widget.tracks.length / itemsPerPage).ceil();
 
     return PageView.builder(
       controller: _pageController,
@@ -37,16 +37,16 @@ class _HotChartListState extends State<HotChartList> {
       itemBuilder: (context, pageIndex) {
         final int startIndex = pageIndex * itemsPerPage;
         final int endIndex =
-            (startIndex + itemsPerPage) > widget.songs.length
-                ? widget.songs.length
+            (startIndex + itemsPerPage) > widget.tracks.length
+                ? widget.tracks.length
                 : (startIndex + itemsPerPage);
-        final List<ari.Track> pageTitles = widget.songs.sublist(
+        final List<ari.Track> pageTitles = widget.tracks.sublist(
           startIndex,
           endIndex,
         );
 
         return Transform.translate(
-          offset: const Offset(-10, 0), // 왼쪽으로 4px 이동
+          offset: const Offset(-10, 0),
           child: Padding(
             padding: const EdgeInsets.only(top: 8, right: 8, bottom: 8),
             child: Column(
@@ -54,9 +54,9 @@ class _HotChartListState extends State<HotChartList> {
               children:
                   pageTitles.asMap().entries.map((entry) {
                     final localIndex = entry.key;
-                    final song = entry.value;
+                    final track = entry.value;
                     final globalIndex = startIndex + localIndex;
-                    return _ChartItem(rank: globalIndex + 1, song: song);
+                    return _ChartItem(rank: globalIndex + 1, track: track);
                   }).toList(),
             ),
           ),
@@ -68,9 +68,9 @@ class _HotChartListState extends State<HotChartList> {
 
 class _ChartItem extends StatelessWidget {
   final int rank;
-  final ari.Track song;
+  final ari.Track track;
 
-  const _ChartItem({Key? key, required this.rank, required this.song})
+  const _ChartItem({Key? key, required this.rank, required this.track})
     : super(key: key);
 
   @override
@@ -87,15 +87,21 @@ class _ChartItem extends StatelessWidget {
         children: [
           // 앨범 커버 컨테이너
           Padding(
-            padding: const EdgeInsets.only(left: 8), // 원하는 왼쪽 간격
+            padding: const EdgeInsets.only(left: 8),
             child: Container(
               width: 50,
               height: 50,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(4),
-                child: Image.asset(
-                  'assets/images/default_album_cover.png',
+                child: Image.network(
+                  track.coverUrl ?? 'assets/images/default_album_cover.png',
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Image.asset(
+                      'assets/images/default_album_cover.png',
+                      fit: BoxFit.cover,
+                    );
+                  },
                 ),
               ),
             ),
@@ -122,14 +128,14 @@ class _ChartItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  song.trackTitle,
+                  track.trackTitle,
                   style: const TextStyle(color: Colors.white, fontSize: 14),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  song.artist,
+                  track.artist,
                   style: const TextStyle(color: Colors.white70, fontSize: 12),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -146,7 +152,7 @@ class _ChartItem extends StatelessWidget {
               constraints: const BoxConstraints(),
               icon: const Icon(Icons.play_arrow, color: Colors.white),
               onPressed: () {
-                // 재생 로직 추가
+                // 재생 로직 추가(예정)
               },
             ),
           ),

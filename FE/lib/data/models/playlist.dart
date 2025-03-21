@@ -1,5 +1,5 @@
 class Playlist {
-  final String id;
+  final int id;
   final String title;
   final String coverUrl; // 플레이리스트 이미지
   final List<String> songIds; // 플레이리스트에 포함된 곡들의 ID

@@ -131,11 +131,12 @@ class HeaderWidget extends StatelessWidget {
         children: [
           // 뒤로가기 버튼
           IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: Image.asset('assets/images/prev_btn.png'),
             onPressed: onBackPressed,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
           ),
+
           const SizedBox(width: 16),
           // 페이지 제목
           Text(
