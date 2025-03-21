@@ -13,6 +13,9 @@ import '../domain/repositories/chart_repository.dart';
 import '../domain/usecases/get_charts_usecase.dart';
 import 'package:dio/dio.dart';
 import '../data/datasources/chart_remote_data_source.dart';
+import 'package:ari/core/services/playback_service.dart';
+import 'package:dio/dio.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 // Bottom Navigation 전역 상태
 class BottomNavState extends StateNotifier<int> {
@@ -67,6 +70,15 @@ final playlistProvider = StateProvider<List<Track>>((ref) => []);
 
 final dioProvider = Provider<Dio>((ref) => Dio());
 
+// AudioPlayer 인스턴스를 전역에서 제공하는 Provider 추가
+final audioPlayerProvider = Provider<AudioPlayer>((ref) => AudioPlayer());
+
+final playbackServiceProvider = Provider<PlaybackService>((ref) {
+  return PlaybackService(
+    dio: ref.watch(dioProvider),
+    audioPlayer: ref.watch(audioPlayerProvider),
+  );
+});
 final chartRemoteDataSourceProvider = Provider<ChartRemoteDataSource>((ref) {
   return ChartRemoteDataSource(dio: ref.watch(dioProvider));
 });

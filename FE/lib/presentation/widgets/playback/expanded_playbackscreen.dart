@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/playback/playback_state_provider.dart';
-import '../../../core/services/audio_service.dart';
+// import '../../../core/services/audio_service.dart';
+// import '../../../core/services/playback_service.dart';
 import 'playback_info.dart';
 import 'playback_controls.dart';
 import '../lyrics/lyrics_view.dart';
+import '../../../providers/global_providers.dart';
 
 class ExpandedPlaybackScreen extends ConsumerWidget {
   const ExpandedPlaybackScreen({Key? key}) : super(key: key);
@@ -12,7 +14,8 @@ class ExpandedPlaybackScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final playbackState = ref.watch(playbackProvider);
-    final audioService = ref.read(audioServiceProvider); // ✅ 추가
+    // playbackServiceProvider에서 playbackService 인스턴스를 읽어옴.
+    final playbackService = ref.read(playbackServiceProvider);
 
     return DraggableScrollableSheet(
       initialChildSize: 1.0,
@@ -45,8 +48,12 @@ class ExpandedPlaybackScreen extends ConsumerWidget {
               right: 0,
               bottom: 40,
               child: PlaybackControls(
-                onToggle: () {
-                  audioService.togglePlay(ref); // ✅ 수정된 togglePlay 호출
+                onToggle: () async {
+                  if (playbackState.isPlaying) {
+                    await playbackService.audioPlayer.pause();
+                  } else {
+                    await playbackService.playTrack(albumId: 1, trackId: 1);
+                  }
                 },
               ),
             ),
