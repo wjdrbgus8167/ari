@@ -19,6 +19,7 @@ import '../domain/usecases/get_charts_usecase.dart';
 import 'package:dio/dio.dart';
 import '../data/datasources/chart_remote_data_source.dart';
 import 'package:ari/core/services/playback_service.dart';
+import 'package:ari/core/services/playback_service.dart';
 import 'package:dio/dio.dart';
 import 'package:audioplayers/audioplayers.dart';
 
