@@ -1,3 +1,4 @@
+import 'package:ari/presentation/widgets/streaming_log_modal.dart';
 import 'package:flutter/material.dart';
 
 class TrackHeader extends StatelessWidget {
@@ -9,6 +10,7 @@ class TrackHeader extends StatelessWidget {
   final String playCount;
   final String albumImageUrl;
   final String artistImageUrl;
+  final int trackId;
 
   const TrackHeader({
     Key? key,
@@ -20,6 +22,7 @@ class TrackHeader extends StatelessWidget {
     required this.playCount,
     required this.albumImageUrl,
     required this.artistImageUrl,
+    required this.trackId,
   }) : super(key: key);
 
   @override
@@ -171,26 +174,34 @@ class TrackHeader extends StatelessWidget {
                       ),
                       const SizedBox(width: 9),
                       // 재생 횟수
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                        Icon(
-                          Icons.play_arrow,
-                          color: Colors.white,
-                          size: 15,
+                    
+                      GestureDetector(
+                        onTap: () {
+                          // 여기서 모달을 표시합니다
+                          context.showStreamingHistoryModal(trackId: trackId); // trackId는 해당 트랙의 ID
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.play_arrow,
+                              color: Colors.white,
+                              size: 15,
+                            ),
+                            const SizedBox(width: 1),
+                            Text(
+                              playCount,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 1),
-                        Text(
-                          playCount,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontFamily: 'Pretendard',
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],)
+                      )
                     ],
                   ),
                 ],
