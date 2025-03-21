@@ -1,13 +1,16 @@
 import 'package:ari/data/datasources/album_remote_datasource.dart';
+import 'package:ari/data/datasources/streaming_remote_datasource.dart';
 import 'package:ari/data/datasources/track_remote_datasource.dart';
 import 'package:ari/data/repositories/album_repository.dart';
+import 'package:ari/data/repositories/streaming_repository.dart';
 import 'package:ari/data/repositories/track_repository.dart';
 import 'package:ari/domain/repositories/album_repository.dart';
-import 'package:ari/domain/repositories/track_repository.dart';
 import 'package:ari/domain/usecases/album_detail_usecase.dart';
+import 'package:ari/domain/usecases/get_streaming_usecase.dart';
 import 'package:ari/domain/usecases/track_detail_usecase.dart';
 import 'package:ari/presentation/viewmodels/album_detail_viewmodel.dart';
 import 'package:ari/presentation/viewmodels/sign_up_viewmodel.dart';
+import 'package:ari/presentation/viewmodels/streaming_log_viewmodel.dart';
 import 'package:ari/presentation/viewmodels/track_detail_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../presentation/viewmodels/home_viewmodel.dart';
@@ -137,11 +140,11 @@ final getAlbumDetailProvider = Provider((ref) {
 });
 
 // ViewModel Provider
-final albumDetailViewModelProvider =
-    StateNotifierProvider<AlbumDetailViewModel, AlbumDetailState>((ref) {
-      final getAlbumDetail = ref.watch(getAlbumDetailProvider);
-      return AlbumDetailViewModel(getAlbumDetail: getAlbumDetail);
-    });
+final albumDetailViewModelProvider = StateNotifierProvider<AlbumDetailViewModel, AlbumDetailState>((ref) {
+  final getAlbumDetail = ref.watch(getAlbumDetailProvider);
+  return AlbumDetailViewModel(getAlbumDetail: getAlbumDetail);
+});
+
 
 // 데이터 소스 Provider
 final trackDataSourceProvider = Provider((ref) {
@@ -161,8 +164,32 @@ final getTrackDetailProvider = Provider((ref) {
 });
 
 // ViewModel Provider
-final trackDetailViewModelProvider =
-    StateNotifierProvider<TrackDetailViewModel, TrackDetailState>((ref) {
-      final getTrackDetail = ref.watch(getTrackDetailProvider);
-      return TrackDetailViewModel(getTrackDetail: getTrackDetail);
-    });
+final  trackDetailViewModelProvider = StateNotifierProvider<TrackDetailViewModel, TrackDetailState>((ref) {
+  final getTrackDetail = ref.watch(getTrackDetailProvider);
+  return TrackDetailViewModel(getTrackDetail: getTrackDetail);
+});
+
+
+
+// 데이터 소스 Provider
+final streamingDataSourceProvider = Provider((ref) {
+  return StreamingDataSourceImpl(); // 필요한 경우 파라미터 전달
+});
+
+// 리포지토리 Provider
+final streamingRepositoryProvider = Provider((ref) {
+  final dataSource = ref.watch(streamingDataSourceProvider);
+  return StreamingRepositoryImpl(dataSource: dataSource);
+});
+
+// UseCase Provider
+final getStreamingLogByTrackIdProvider = Provider((ref) {
+  final repository = ref.watch(streamingRepositoryProvider);
+  return GetStreamingLogByTrackId(repository);
+});
+
+// ViewModel Provider
+final streamingLogViewModelProvider = StateNotifierProvider<StreamingLogViewmodel, StreamingState>((ref) {
+  final getStreamingLogByTrackId = ref.watch(getStreamingLogByTrackIdProvider);
+  return StreamingLogViewmodel(getStreamingLogByTrackId: getStreamingLogByTrackId);
+});
