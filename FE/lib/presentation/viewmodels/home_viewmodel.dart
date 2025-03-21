@@ -5,9 +5,12 @@ import '../../../core/utils/album_filter.dart';
 import '../../../dummy_data/mock_data.dart';
 import '../../../data/models/album.dart';
 import '../../../core/utils/genre_utils.dart';
+import '../../domain/usecases/get_charts_usecase.dart';
 
 class HomeViewModel extends StateNotifier<HomeState> {
-  HomeViewModel()
+  final GetChartsUseCase getChartsUseCase;
+
+  HomeViewModel({required this.getChartsUseCase})
     : super(
         HomeState(
           selectedGenreLatest: Genre.all,
@@ -15,9 +18,45 @@ class HomeViewModel extends StateNotifier<HomeState> {
           latestAlbums: MockData.getLatestAlbums(),
           popularAlbums: MockData.getPopularAlbums(),
           popularPlaylists: MockData.getPopularPlaylists(),
-          hot50Titles: MockData.getHot50Titles(),
+          hot50Titles: [],
         ),
-      );
+      ) {
+    // 생성자에서 차트 데이터를 비동기로 로드
+    loadHot50Titles();
+  }
+
+  Future<void> loadHot50Titles() async {
+    try {
+      print('[DEBUG] loadHot50Titles: API 호출 전');
+      // GetChartsUseCase로부터 차트 데이터를 ChartItem 리스트로 받아옴.
+      final chartItems = await getChartsUseCase.execute();
+      print('[DEBUG] loadHot50Titles: API 응답 받은 chartItems: $chartItems');
+
+      // ChartItem 리스트를 Track 리스트로 변환함.
+      final List<Track> convertedTracks =
+          chartItems.map((chart) {
+            return Track(
+              id: chart.trackId, // ChartItem의 trackId를 Track의 id로 사용
+              trackTitle: chart.trackTitle,
+              artist: chart.artist,
+              composer: '', // 필요한 경우 적절한 값으로 대체
+              lyricist: '', // 필요한 경우 적절한 값으로 대체
+              albumId: '', // 필요한 경우 적절한 값으로 대체
+              trackFileUrl: '', // 필요한 경우 적절한 값으로 대체
+              lyrics: '', // 필요한 경우 적절한 값으로 대체
+              trackLikeCount: 0, // 기본값 설정
+              coverUrl: chart.coverImageUrl, // ChartItem의 coverImageUrl 사용
+            );
+          }).toList();
+      print('[DEBUG] loadHot50Titles: 변환된 Track 리스트: $convertedTracks');
+
+      // 상태 업데이트
+      state = state.copyWith(hot50Titles: convertedTracks);
+      print('[DEBUG] loadHot50Titles: 상태 업데이트 완료');
+    } catch (e) {
+      print('[ERROR] loadHot50Titles: 차트 데이터 로드 실패: $e');
+    }
+  }
 
   void updateGenreLatest(String genreName) {
     final genre = getGenreFromDisplayName(genreName);
@@ -64,6 +103,7 @@ class HomeState {
     Genre? selectedGenrePopular,
     List<Album>? filteredLatestAlbums,
     List<Album>? filteredPopularAlbums,
+    List<Track>? hot50Titles,
   }) {
     return HomeState(
       selectedGenreLatest: selectedGenreLatest ?? this.selectedGenreLatest,
@@ -74,7 +114,7 @@ class HomeState {
       filteredPopularAlbums:
           filteredPopularAlbums ?? this.filteredPopularAlbums,
       popularPlaylists: popularPlaylists,
-      hot50Titles: hot50Titles,
+      hot50Titles: hot50Titles ?? this.hot50Titles,
     );
   }
 }

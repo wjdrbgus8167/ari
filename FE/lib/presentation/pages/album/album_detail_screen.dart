@@ -13,11 +13,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AlbumDetailScreen extends ConsumerStatefulWidget {
   final int albumId;
-  
-  const AlbumDetailScreen({
-    Key? key,
-    required this.albumId,
-  }) : super(key: key);
+
+  const AlbumDetailScreen({Key? key, required this.albumId}) : super(key: key);
 
   @override
   _AlbumDetailScreenState createState() => _AlbumDetailScreenState();
@@ -29,7 +26,9 @@ class _AlbumDetailScreenState extends ConsumerState<AlbumDetailScreen> {
     super.initState();
     // 화면이 로드될 때 앨범 데이터 가져오기
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(albumDetailViewModelProvider.notifier).loadAlbumDetail(widget.albumId);
+      ref
+          .read(albumDetailViewModelProvider.notifier)
+          .loadAlbumDetail(widget.albumId);
     });
   }
 
@@ -40,31 +39,42 @@ class _AlbumDetailScreenState extends ConsumerState<AlbumDetailScreen> {
     print(albumDetailState.album?.artist);
     return Scaffold(
       body: SingleChildScrollView(
-        child: Container( 
+        child: Container(
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(color: Colors.black),
-          child: albumDetailState.isLoading
-            ? const Center(
-                child: CircularProgressIndicator(color: Colors.white),
-              )
-            : albumDetailState.errorMessage != null
-              ? (() {
-                return Center(
-                  child: Text(
-                    'Error: ${albumDetailState.errorMessage}', 
-                    style: TextStyle(color: Colors.white),
-                  ),
-                );
-              })()
-              : albumDetailState.album != null
-                ? Column(
+          child:
+              albumDetailState.isLoading
+                  ? const Center(
+                    child: CircularProgressIndicator(color: Colors.white),
+                  )
+                  : albumDetailState.errorMessage != null
+                  ? (() {
+                    return Center(
+                      child: Text(
+                        'Error: ${albumDetailState.errorMessage}',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
+                  })()
+                  : albumDetailState.album != null
+                  ? Column(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     spacing: 10,
                     children: [
-                      HeaderWidget(type: HeaderType.backWithTitle),
-                      AlbumDetailCover(coverImage: albumDetailState.album?.coverImageUrl ?? '기본 이미지 URL'),
+                      SafeArea(
+                        child: HeaderWidget(
+                          type: HeaderType.backWithTitle,
+                          onBackPressed: () => Navigator.pop(context),
+                        ),
+                      ),
+
+                      AlbumDetailCover(
+                        coverImage:
+                            albumDetailState.album?.coverImageUrl ??
+                            '기본 이미지 URL',
+                      ),
                       AlbumDetailTitle(
                         title: albumDetailState.album!.title,
                         artist: albumDetailState.album!.artist,
@@ -75,22 +85,33 @@ class _AlbumDetailScreenState extends ConsumerState<AlbumDetailScreen> {
                         releaseDate: albumDetailState.album!.releaseDate,
                       ),
                       AlbumDetailTrackList(
-                        tracks: albumDetailState.album!.tracks.map((track) => track).toList(),
+                        tracks:
+                            albumDetailState.album!.tracks
+                                .map((track) => track)
+                                .toList(),
                       ),
-                      AlbumDetailDescription(description: albumDetailState.album!.description),
-                      AlbumDetailCommentHeader(commentCount: albumDetailState.album!.commentCount),
+                      AlbumDetailDescription(
+                        description: albumDetailState.album!.description,
+                      ),
+                      AlbumDetailCommentHeader(
+                        commentCount: albumDetailState.album!.commentCount,
+                      ),
                       // 댓글 목록 처리
                       if (albumDetailState.album!.comments.isNotEmpty) ...[
                         // 첫 번째 댓글
-                        AlbumDetailComments(comment: albumDetailState.album!.comments[0]),
+                        AlbumDetailComments(
+                          comment: albumDetailState.album!.comments[0],
+                        ),
                         // 두 번째 댓글 (있는 경우)
                         if (albumDetailState.album!.comments.length > 1)
-                          AlbumDetailComments(comment: albumDetailState.album!.comments[1]),
+                          AlbumDetailComments(
+                            comment: albumDetailState.album!.comments[1],
+                          ),
                       ],
-                     // AlbumDetailBottomNavigation(),
+                      // AlbumDetailBottomNavigation(),
                     ],
                   )
-                : const Center(
+                  : const Center(
                     child: Text(
                       '앨범 정보가 없습니다',
                       style: TextStyle(color: Colors.white),

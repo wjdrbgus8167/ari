@@ -1,5 +1,5 @@
 class Album {
-  final String id;
+  final int id;
   final String title;
   final String genre;
   final String artist;

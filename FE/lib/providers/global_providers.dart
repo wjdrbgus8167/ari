@@ -13,9 +13,17 @@ import 'package:ari/presentation/viewmodels/sign_up_viewmodel.dart';
 import 'package:ari/presentation/viewmodels/streaming_log_viewmodel.dart';
 import 'package:ari/presentation/viewmodels/track_detail_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../data/models/track.dart';
 import '../presentation/viewmodels/home_viewmodel.dart';
 import '../presentation/viewmodels/listening_queue_viewmodel.dart';
+import '../data/models/track.dart';
+import '../data/repositories/chart_repository_impl.dart';
+import '../domain/repositories/chart_repository.dart';
+import '../domain/usecases/get_charts_usecase.dart';
+import 'package:dio/dio.dart';
+import '../data/datasources/chart_remote_data_source.dart';
+import 'package:ari/core/services/playback_service.dart';
+import 'package:dio/dio.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 // Bottom Navigation 전역 상태
 class BottomNavState extends StateNotifier<int> {
@@ -68,10 +76,40 @@ class PlaybackNotifier extends StateNotifier<PlaybackState> {
 
 final playlistProvider = StateProvider<List<Track>>((ref) => []);
 
-// HomeViewModel 전역 상태
-final homeViewModelProvider = StateNotifierProvider<HomeViewModel, HomeState>(
-  (ref) => HomeViewModel(),
-);
+final dioProvider = Provider<Dio>((ref) => Dio());
+
+// AudioPlayer 인스턴스를 전역에서 제공하는 Provider 추가
+final audioPlayerProvider = Provider<AudioPlayer>((ref) => AudioPlayer());
+
+final playbackServiceProvider = Provider<PlaybackService>((ref) {
+  return PlaybackService(
+    dio: ref.watch(dioProvider),
+    audioPlayer: ref.watch(audioPlayerProvider),
+  );
+});
+final chartRemoteDataSourceProvider = Provider<ChartRemoteDataSource>((ref) {
+  return ChartRemoteDataSource(dio: ref.watch(dioProvider));
+});
+
+final chartRepositoryProvider = Provider<IChartRepository>((ref) {
+  return ChartRepositoryImpl(
+    remoteDataSource: ref.watch(chartRemoteDataSourceProvider),
+    baseUrl: const String.fromEnvironment(
+      'BASE_URL',
+      defaultValue: 'https://ari-music.duckdns.org',
+    ),
+  );
+});
+
+final getChartsUseCaseProvider = Provider<GetChartsUseCase>((ref) {
+  return GetChartsUseCase(ref.watch(chartRepositoryProvider));
+});
+
+final homeViewModelProvider = StateNotifierProvider<HomeViewModel, HomeState>((
+  ref,
+) {
+  return HomeViewModel(getChartsUseCase: ref.watch(getChartsUseCaseProvider));
+});
 
 // ListeningQueueViewModel(재생목록) 전역 상태
 final listeningQueueProvider =

@@ -1,7 +1,7 @@
 import './album.dart';
 
 class Track {
-  final String id;
+  final int id;
   final String trackTitle; // 🔹 트랙 제목
   final String artist;
   final String composer; // 🔹 작곡가

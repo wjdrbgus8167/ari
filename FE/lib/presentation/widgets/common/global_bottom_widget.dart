@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/global_providers.dart';
-import '../../../providers/playback_state_provider.dart'; // ✅ playbackStateProvider 추가
+import '../../../providers/playback/playback_state_provider.dart'; // ✅ playbackStateProvider 추가
 import 'bottom_nav.dart';
 import 'playback_bar.dart';
 
