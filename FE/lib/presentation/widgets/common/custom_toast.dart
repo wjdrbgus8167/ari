@@ -143,3 +143,20 @@ class _ToastOverlayState extends State<_ToastOverlay>
     return Colors.white;
   }
 }
+
+
+// 확장 메서드(다이얼로그 쉽게 호출 가능)
+// 원본 클래스 수정하지 않아도 기능 확장 가능
+extension ToastExtension on BuildContext {
+  // 토스트 표시
+  void showSuccessToast(
+    String message, {
+    Duration duration = const Duration(seconds: 1),
+  }) {
+    CustomToast.show(
+      context: this,
+      message: message,
+      duration: duration,
+    );
+  }
+}
