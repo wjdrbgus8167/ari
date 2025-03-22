@@ -8,7 +8,6 @@ class CustomToast {
   static void show({
     required BuildContext context,
     required String message,
-    ToastType type = ToastType.success,
     Duration duration = const Duration(seconds: 1),
   }) {
     // 이전 토스트 제거
@@ -20,7 +19,6 @@ class CustomToast {
       builder:
           (context) => _ToastOverlay(
             message: message,
-            type: type,
             onDismiss: _removeToast,
           ),
     );
@@ -52,10 +50,7 @@ class _ToastOverlay extends StatefulWidget {
   final String message;
   final VoidCallback onDismiss;
 
-  const _ToastOverlay({
-    required this.message,
-    required this.onDismiss,
-  });
+  const _ToastOverlay({required this.message, required this.onDismiss});
 
   @override
   State<_ToastOverlay> createState() => _ToastOverlayState();
