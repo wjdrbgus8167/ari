@@ -11,7 +11,7 @@ class CustomToast {
     ToastType type = ToastType.success,
     Duration duration = const Duration(seconds: 1),
   }) {
-    // 기존 토스트 제거
+    // 이전 토스트 제거
     _removeToast();
 
     // Overlay 위에 토스트 표시
@@ -47,18 +47,13 @@ class CustomToast {
   static OverlayEntry? _currentToast;
 }
 
-/// 토스트 타입 (성공, 경고)
-enum ToastType { success, warning }
-
 /// 토스트 오버레이 위젯
 class _ToastOverlay extends StatefulWidget {
   final String message;
-  final ToastType type;
   final VoidCallback onDismiss;
 
   const _ToastOverlay({
     required this.message,
-    required this.type,
     required this.onDismiss,
   });
 
@@ -151,34 +146,5 @@ class _ToastOverlayState extends State<_ToastOverlay>
   // 배경색
   Color _getBackgroundColor() {
     return Colors.white;
-  }
-}
-
-/// 간편하게 사용할 수 있는 확장 메서드
-extension ToastExtension on BuildContext {
-  // 성공 토스트 표시
-  void showSuccessToast(
-    String message, {
-    Duration duration = const Duration(seconds: 2),
-  }) {
-    CustomToast.show(
-      context: this,
-      message: message,
-      type: ToastType.success,
-      duration: duration,
-    );
-  }
-
-  // 경고 토스트 표시
-  void showWarningToast(
-    String message, {
-    Duration duration = const Duration(seconds: 2),
-  }) {
-    CustomToast.show(
-      context: this,
-      message: message,
-      type: ToastType.warning,
-      duration: duration,
-    );
   }
 }
