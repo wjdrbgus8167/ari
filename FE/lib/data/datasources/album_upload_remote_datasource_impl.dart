@@ -10,7 +10,10 @@ class AlbumUploadRemoteDataSourceImpl implements AlbumUploadRemoteDataSource {
   final Dio dio;
   final String baseUrl;
 
-  AlbumUploadRemoteDataSourceImpl({required this.dio, required this.baseUrl});
+  AlbumUploadRemoteDataSourceImpl({
+    required this.dio,
+    required this.baseUrl,
+  });
 
   @override
   Future<String> uploadAlbum({
@@ -21,7 +24,7 @@ class AlbumUploadRemoteDataSourceImpl implements AlbumUploadRemoteDataSource {
     try {
       // FormData
       final formData = FormData();
-
+      
       // 메타데이터
       formData.fields.add(
         MapEntry('metadata', jsonEncode(albumRequest.toJson())),
@@ -55,12 +58,14 @@ class AlbumUploadRemoteDataSourceImpl implements AlbumUploadRemoteDataSource {
         '$baseUrl/api/v1/albums/upload',
         data: formData,
         options: Options(
-          headers: {'Authorization': 'Bearer ${await _getToken()}'},
+          headers: {
+            'Authorization': 'Bearer ${await _getToken()}',
+          },
         ),
       );
 
       final apiResponse = ApiResponse.fromJson(response.data, null);
-
+      
       if (apiResponse.status == 200) {
         return apiResponse.message;
       } else {
@@ -81,7 +86,7 @@ class AlbumUploadRemoteDataSourceImpl implements AlbumUploadRemoteDataSource {
     }
   }
 
-  // JWT 토큰 가져오기
+  // JWT 토큰 가져오기 
   Future<String> _getToken() async {
     // SharedPreferences나 Secure Storage에서 토큰 가져오기
     // 여기서는 임시 구현
