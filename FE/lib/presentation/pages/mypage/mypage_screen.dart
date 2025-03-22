@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../widgets/common/header_widget.dart';
 import '../../widgets/common/button_large.dart';
 import '../../widgets/common/custom_dialog.dart';
+import '../../widgets/common/custom_toast.dart';
 
 class MyPageScreen extends StatelessWidget {
   const MyPageScreen({super.key});
@@ -38,61 +39,22 @@ class MyPageScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  // 기본 버튼, 여기서 showAlertDialog 사용
+                  // 기본 버튼 - toast 사용
                   ButtonLarge(
                     text: '트랙 등록',
                     onPressed: () {
-                      // 스낵바 대신 Alert 다이얼로그 표시
-                      context.showAlertDialog(
-                        title: '알림',
-                        content: '새로운 트랙을 등록하시겠습니까?',
-                        confirmText: '확인',
-                        confirmButtonColor: Colors.blue,
-                        onConfirm: () {
-                          // 확인 버튼 클릭 시 실행될 코드
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('트랙 등록 진행 중...'),
-                              duration: Duration(seconds: 1),
-                            ),
-                          );
-                        },
-                      );
+                      // 토스트 메시지
+                      context.showToast('새로운 트랙이 등록되었습니다');
                     },
                   ),
 
                   const SizedBox(height: 16), // 버튼 간격
-                  // 보라색 테두리 버튼 - showConfirmDialog 사용 (확인/취소 버튼이 있는 다이얼로그)
+                  // 보라색 테두리 버튼 - toast 사용
                   ButtonLarge(
                     text: '작곡 추가',
                     onPressed: () {
-                      // 스낵바 대신 Confirm 다이얼로그 표시
-                      context.showConfirmDialog(
-                        title: '작곡 추가',
-                        content: '새로운 작곡을 추가하시겠습니까?\n추가 후에는 수정이 제한될 수 있습니다.',
-                        confirmText: '추가하기',
-                        cancelText: '취소',
-                        confirmButtonColor: const Color(0xFF6C38F8), // 보라색 버튼
-                        cancelButtonColor: Colors.grey,
-                        onConfirm: () {
-                          // 확인 버튼 클릭 시 실행될 코드
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('작곡 추가가 진행됩니다.'),
-                              duration: Duration(seconds: 1),
-                            ),
-                          );
-                        },
-                        onCancel: () {
-                          // 취소 버튼 클릭 시 실행될 코드
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('작곡 추가가 취소되었습니다.'),
-                              duration: Duration(seconds: 1),
-                            ),
-                          );
-                        },
-                      );
+                      // 토스트 메시지
+                      context.showToast('새로운 작곡이 추가되었습니다');
                     },
                     backgroundColor: Colors.transparent,
                     textColor: Colors.white,
@@ -100,7 +62,7 @@ class MyPageScreen extends StatelessWidget {
                     borderWidth: 2.0,
                   ),
                   const SizedBox(height: 16), // 버튼 간격
-                  // PrimaryButtonLarge - showCustomDialog 사용 (커스텀 내용이 있는 다이얼로그)
+                  // PrimaryButtonLarge - 다이얼로그 알림
                   PrimaryButtonLarge(
                     text: '커스텀 버튼',
                     onPressed: () {
