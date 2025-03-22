@@ -149,7 +149,7 @@ class _ToastOverlayState extends State<_ToastOverlay>
 // 원본 클래스 수정하지 않아도 기능 확장 가능
 extension ToastExtension on BuildContext {
   // 토스트 표시
-  void showSuccessToast(
+  void showToast(
     String message, {
     Duration duration = const Duration(seconds: 1),
   }) {
