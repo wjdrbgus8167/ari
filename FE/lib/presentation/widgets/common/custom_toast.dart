@@ -4,11 +4,11 @@ class CustomToast {
   /// [context] - 토스트 표시할 컨텍스트
   /// [message] - 메시지
   /// [type] - 토스트 종류 (성공 경고)
-  /// [duration] - 토스트가 표시되는 시간 (기본 1초)
+  /// [duration] - 토스트가 표시되는 시간 (기본 2초)
   static void show({
     required BuildContext context,
     required String message,
-    Duration duration = const Duration(seconds: 1),
+    Duration duration = const Duration(seconds: 2),
   }) {
     // 이전 토스트 제거
     _removeToast();
@@ -140,7 +140,7 @@ class _ToastOverlayState extends State<_ToastOverlay>
 
   // 배경색
   Color _getBackgroundColor() {
-    return Colors.white;
+    return Colors.black;
   }
 }
 
@@ -151,7 +151,7 @@ extension ToastExtension on BuildContext {
   // 토스트 표시
   void showToast(
     String message, {
-    Duration duration = const Duration(seconds: 1),
+    Duration duration = const Duration(seconds: 2),
   }) {
     CustomToast.show(
       context: this,
