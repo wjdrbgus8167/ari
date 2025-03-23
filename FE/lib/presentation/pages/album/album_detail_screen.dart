@@ -1,5 +1,3 @@
-import 'package:ari/domain/entities/album.dart';
-import 'package:ari/domain/entities/album_comment.dart';
 import 'package:ari/presentation/widgets/album_detail/album_detail_comment_header.dart';
 import 'package:ari/presentation/widgets/album_detail/album_detail_comments.dart';
 import 'package:ari/presentation/widgets/album_detail/album_detail_cover.dart';
@@ -7,7 +5,7 @@ import 'package:ari/presentation/widgets/album_detail/album_detail_description.d
 import 'package:ari/presentation/widgets/album_detail/album_detail_title.dart';
 import 'package:ari/presentation/widgets/album_detail/album_detail_track_list.dart';
 import 'package:ari/presentation/widgets/common/header_widget.dart';
-import 'package:ari/providers/global_providers.dart';
+import 'package:ari/providers/album/album_detail_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
