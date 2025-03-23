@@ -68,3 +68,16 @@ class CarouselContainer extends StatelessWidget {
     );
   }
 }
+
+/// <카로셀 사용 예시>
+/// CarouselContainer(
+///   title: "인기 앨범",
+///   children: albums.map((album) => AlbumCard(album: album)).toList(),
+/// )
+///
+/// CarouselContainer(
+///   title: "인기 플레이리스트",
+///   children: playlists.map((playlist) => PlaylistCard(playlist: playlist)).toList(),
+///   height: 180.0, // 높이 조절할 수 있고
+///   itemWidth: 140.0, // 아이템 너비도 조절할 수 있어요
+/// )
