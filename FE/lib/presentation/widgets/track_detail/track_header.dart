@@ -2,6 +2,7 @@ import 'package:ari/presentation/widgets/streaming_log_modal.dart';
 import 'package:flutter/material.dart';
 
 class TrackHeader extends StatelessWidget {
+  final int albumId;
   final String albumName;
   final String trackTitle;
   final String artistName;
@@ -14,6 +15,7 @@ class TrackHeader extends StatelessWidget {
 
   const TrackHeader({
     Key? key,
+    required this.albumId,
     required this.albumName,
     required this.trackTitle,
     required this.artistName,
@@ -178,7 +180,7 @@ class TrackHeader extends StatelessWidget {
                       GestureDetector(
                         onTap: () {
                           // 여기서 모달을 표시합니다
-                          context.showStreamingHistoryModal(trackId: trackId); // trackId는 해당 트랙의 ID
+                          context.showStreamingHistoryModal(albumId: albumId, trackId: trackId); // trackId는 해당 트랙의 ID
                         },
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,

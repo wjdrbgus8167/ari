@@ -36,7 +36,7 @@ class StreamingLogViewmodel extends StateNotifier<StreamingState> {
   }) : super(StreamingState(errorMessage: null)); // 명시적으로 null로 초기화
 
   // 앨범 상세 정보 로드
-  Future<void> loadAlbumDetail(int trackId) async {
+  Future<void> loadAlbumDetail(int albumId, int trackId) async {
     // 안전하게 상태 업데이트
     state = StreamingState(
       isLoading: true,
@@ -44,24 +44,24 @@ class StreamingLogViewmodel extends StateNotifier<StreamingState> {
       logs: state.logs,
     );
     
-    print("왔었니1?");
-    // 디버깅 시 안전하게 접근
-    print("errorMessage: ${state.errorMessage?.toString() ?? 'null'}");
+    final result = await getStreamingLogByTrackId.execute(albumId, trackId);
     
-    try {
-      final logs = await getStreamingLogByTrackId.execute(trackId);
-      
-      // 안전하게 상태 업데이트
-      state = StreamingState(
-        isLoading: false,
-        errorMessage: null,
-        logs: logs,
-      );
-      
-      print("Error message: ${state.errorMessage?.toString() ?? 'null'}");
-      print("종료");
-    } catch (e) {
-      print("Error: ${e.toString()}");
-    }
+    // Either 결과 처리
+    result.fold(
+      // 실패 케이스 (Left)
+      (failure) {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: failure.message,
+        );
+      },
+      // 성공 케이스 (Right)
+      (logs) {
+        state = state.copyWith(
+          isLoading: false,
+          logs: logs,
+        );
+      }
+    );
   }
 }
