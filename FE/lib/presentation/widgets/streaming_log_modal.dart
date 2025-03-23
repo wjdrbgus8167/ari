@@ -12,7 +12,7 @@ class StreamingHistoryModal extends ConsumerStatefulWidget {
   final int? trackId;
   
   const StreamingHistoryModal({
-    Key? super.key,
+    super.key,
     this.albumId,
     this.trackId,
   });
@@ -41,7 +41,7 @@ class _StreamingHistoryModalState extends ConsumerState<StreamingHistoryModal>
 
     // 트랙 ID가 제공된 경우 해당 트랙의 스트리밍 로그를 로드
     Future.microtask(() {
-      if (widget.trackId != null) {
+      if (widget.trackId != null && widget.albumId != null) {
         ref.read(streamingLogViewModelProvider.notifier).loadAlbumDetail(widget.albumId!, widget.trackId!);
       }
     });
@@ -113,6 +113,7 @@ class _StreamingHistoryModalState extends ConsumerState<StreamingHistoryModal>
   }
 
   Widget _buildContent(StreamingState state) {
+    print(state.errorMessage);
     if (state.isLoading) {
       return const Center(
         child: CircularProgressIndicator(

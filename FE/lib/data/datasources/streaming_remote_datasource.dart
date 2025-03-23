@@ -19,13 +19,10 @@ class StreamingDataSourceImpl implements StreamingDataSource {
 
   @override
   Future<ApiResponse<dynamic>> getStreamingLogByTrackId(int albumId, int trackId) async {
-    final url = '$baseUrl/api/v1/albums/1/tracks/1/logs';
-    
-    
-   try {
+    final url = '$baseUrl/api/v1/albums/$albumId/tracks/$trackId/logs';
+    try {
       // Dio를 사용하여 GET 요청 보내기
       final response = await dio.get(url);
-      
       // ApiResponse 객체로 변환
       final apiResponse = ApiResponse.fromJson(response.data, null);
       
