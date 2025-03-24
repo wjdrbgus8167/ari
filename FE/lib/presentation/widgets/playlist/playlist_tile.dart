@@ -57,16 +57,10 @@ class PlaylistTrackListTile extends StatelessWidget {
         ),
       ),
       subtitle: Text(
-        "Order: ${item.trackOrder}, Artist: ${track.artist}",
+        "${track.artist}",
         style: const TextStyle(color: Colors.white70),
       ),
-      trailing:
-          selectionMode
-              ? IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: onDelete,
-              )
-              : const Icon(Icons.menu, color: Colors.white70),
+      trailing: const Icon(Icons.menu, color: Colors.white70),
       onTap: onTap,
     );
   }
