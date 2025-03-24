@@ -45,34 +45,24 @@ class AlbumDetailViewModel extends StateNotifier<AlbumDetailState> {
       errorMessage: null,
       album: state.album,
     );
-    
-    print("왔었니1?");
-    // 디버깅 시 안전하게 접근
-    print("errorMessage: ${state.errorMessage?.toString() ?? 'null'}");
-    
-    try {
-      final album = await getAlbumDetail.execute(albumId);
-      print(album.id);
-      
-      // 안전하게 상태 업데이트
-      state = AlbumDetailState(
-        isLoading: false,
-        errorMessage: null,
-        album: album,
-      );
-      
-      print("Album comments: ${state.album?.comments}");
-      print("Error message: ${state.errorMessage?.toString() ?? 'null'}");
-      print("종료");
-    } catch (e) {
-      print("Error: ${e.toString()}");
-      
-      // 안전하게 상태 업데이트
-      state = AlbumDetailState(
-        isLoading: false,
-        errorMessage: e.toString(),
-        album: state.album,
-      );
-    }
+
+    final result = await getAlbumDetail.execute(albumId);
+    // Either 결과 처리
+    result.fold(
+      // 실패 케이스 (Left)
+      (failure) {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: failure.message,
+        );
+      },
+      // 성공 케이스 (Right)
+      (album) {
+        state = state.copyWith(
+          isLoading: false,
+          album: album,
+        );
+      }
+    );
   }
 }

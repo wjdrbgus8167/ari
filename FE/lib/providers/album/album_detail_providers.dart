@@ -6,7 +6,7 @@ import 'package:ari/presentation/viewmodels/album_detail_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final albumDataSourceProvider = Provider((ref) {
-  return AlbumMockmDataSourceImpl(); // 필요한 경우 파라미터 전달
+  return AlbumMockDataSourceImpl(); // 필요한 경우 파라미터 전달
 });
 
 // 리포지토리 Provider
