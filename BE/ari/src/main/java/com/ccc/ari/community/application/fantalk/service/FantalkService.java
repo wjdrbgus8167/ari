@@ -1,5 +1,6 @@
 package com.ccc.ari.community.application.fantalk.service;
 
+import com.ccc.ari.community.application.fantalk.command.CreateFantalkCommand;
 import com.ccc.ari.community.application.fantalk.repository.FantalkRepository;
 import com.ccc.ari.community.domain.fantalk.entity.Fantalk;
 import com.ccc.ari.community.domain.fantalk.vo.FantalkContent;
@@ -19,15 +20,19 @@ public class FantalkService {
     private static final Logger logger = LoggerFactory.getLogger(FantalkService.class);
 
     @Transactional
-    public void createFantalk(Integer memberId, Integer fantalkChannelId, String content, Integer trackId, String fantalkImageUrl) {
+    public void createFantalk(CreateFantalkCommand command) {
         // 1. 팬톡 내용을 담고 있는 값 객체를 생성합니다.
-        FantalkContent contentVO = new FantalkContent(content, trackId, fantalkImageUrl);
+        FantalkContent contentVO = new FantalkContent(
+                command.getContent(),
+                command.getTrackId(),
+                command.getFantalkImageUrl()
+        );
         logger.info("팬톡 내용 VO 생성: {}", contentVO);
 
         // 2. 팬톡 도메인 엔티티를 생성합니다.
         Fantalk fantalk = Fantalk.builder()
-                .fantalkChannelId(fantalkChannelId)
-                .memberId(memberId)
+                .fantalkChannelId(command.getFantalkChannelId())
+                .memberId(command.getMemberId())
                 .content(contentVO)
                 .createdAt(LocalDateTime.now())
                 .build();
