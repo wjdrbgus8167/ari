@@ -1,34 +1,45 @@
+// lib/presentation/widgets/common/playlist_selectbar.dart
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:ari/data/datasources/playlist_mock_datasource.dart';
 import 'package:ari/data/models/playlist.dart';
+import 'package:ari/data/repositories/playlist_repository_impl.dart';
 
 class PlaylistSelectbar extends StatefulWidget {
-  const PlaylistSelectbar({Key? key}) : super(key: key);
+  final ValueChanged<Playlist> onPlaylistSelected;
+  const PlaylistSelectbar({Key? key, required this.onPlaylistSelected})
+    : super(key: key);
 
   @override
   _PlaylistSelectbarState createState() => _PlaylistSelectbarState();
 }
 
 class _PlaylistSelectbarState extends State<PlaylistSelectbar> {
+  final IPlaylistRepository _playlistRepository = PlaylistRepositoryImpl(
+    PlaylistMockDataSource(),
+  );
+
   List<Playlist> playlists = [];
   bool isLoading = true;
   String? errorMessage;
+  bool isModalOpen = false;
+  Playlist? selectedPlaylist;
 
   @override
   void initState() {
     super.initState();
-    fetchPlaylists();
+    _fetchPlaylists();
   }
 
-  Future<void> fetchPlaylists() async {
+  Future<void> _fetchPlaylists() async {
     try {
-      final dio = Dio();
-      // baseUrl 설정이 필요하다면 dio.options.baseUrl = 'https://your.api.url';
-      final response = await dio.get('api/v1/playlists');
-      // 응답 구조에 따라 'data' 필드 사용 (예시)
-      final List<dynamic> data = response.data['data'];
+      final result = await _playlistRepository.fetchPlaylists();
       setState(() {
-        playlists = data.map((json) => Playlist.fromJson(json)).toList();
+        playlists = result;
+        if (playlists.isNotEmpty) {
+          selectedPlaylist = playlists.first;
+          widget.onPlaylistSelected(selectedPlaylist!);
+        }
       });
     } catch (e) {
       setState(() {
@@ -41,11 +52,14 @@ class _PlaylistSelectbarState extends State<PlaylistSelectbar> {
     }
   }
 
-  // 밑에서 위로 나오는 모달 디자인 (예시)
   void _showPlaylistModal() {
+    setState(() {
+      isModalOpen = true;
+    });
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (context) {
         return Container(
           width: double.infinity,
@@ -73,7 +87,7 @@ class _PlaylistSelectbarState extends State<PlaylistSelectbar> {
                   ? Center(
                     child: Text(
                       'Error: $errorMessage',
-                      style: const TextStyle(color: Colors.red),
+                      style: TextStyle(color: Colors.red),
                     ),
                   )
                   : Column(
@@ -98,55 +112,63 @@ class _PlaylistSelectbarState extends State<PlaylistSelectbar> {
                               (context, index) => const SizedBox(height: 20),
                           itemBuilder: (context, index) {
                             final playlist = playlists[index];
-                            return Container(
-                              width: double.infinity,
-                              height: 60,
-                              clipBehavior: Clip.antiAlias,
-                              child: Row(
-                                children: [
-                                  // 이미지 예시, 실제 이미지 URL로 교체
-                                  Container(
-                                    width: 50,
-                                    height: 50,
-                                    decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                        image: NetworkImage(
-                                          "assets/images/default_album_cover.png",
+                            return InkWell(
+                              onTap: () {
+                                setState(() {
+                                  selectedPlaylist = playlist;
+                                });
+                                widget.onPlaylistSelected(playlist);
+                                Navigator.pop(context);
+                              },
+                              child: Container(
+                                width: double.infinity,
+                                height: 60,
+                                child: Row(
+                                  children: [
+                                    // 이미지 예시: 실제 URL로 교체 가능
+                                    Container(
+                                      width: 50,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                            "assets/images/default_album_cover.png",
+                                          ),
+                                          fit: BoxFit.cover,
                                         ),
-                                        fit: BoxFit.cover,
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          playlist.playlistTitle,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12,
-                                            fontFamily: 'Pretendard',
-                                            fontWeight: FontWeight.w500,
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            playlist.playlistTitle,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                              fontFamily: 'Pretendard',
+                                              fontWeight: FontWeight.w500,
+                                            ),
                                           ),
-                                        ),
-                                        Text(
-                                          '${playlist.tracks.length}곡',
-                                          style: const TextStyle(
-                                            color: Color(0xFF989595),
-                                            fontSize: 12,
-                                            fontFamily: 'Pretendard',
-                                            fontWeight: FontWeight.w400,
+                                          Text(
+                                            '${playlist.tracks.length}곡',
+                                            style: const TextStyle(
+                                              color: Color(0xFF989595),
+                                              fontSize: 12,
+                                              fontFamily: 'Pretendard',
+                                              fontWeight: FontWeight.w400,
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             );
                           },
@@ -156,29 +178,37 @@ class _PlaylistSelectbarState extends State<PlaylistSelectbar> {
                   ),
         );
       },
-    );
+    ).whenComplete(() {
+      setState(() {
+        isModalOpen = false;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    // 버튼 디자인: 누르면 모달이 나타남
+    // 버튼 텍스트는 선택된 플레이리스트가 있으면 해당 제목, 없으면 기본 텍스트
+    final buttonText = selectedPlaylist?.playlistTitle ?? '나의 플레이리스트 보기';
     return GestureDetector(
       onTap: _showPlaylistModal,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: Row(
-          children: const [
+          children: [
             Text(
-              '나의 플레이리스트 보기',
-              style: TextStyle(
+              buttonText,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 15,
                 fontFamily: 'Pretendard',
                 fontWeight: FontWeight.w500,
               ),
             ),
-            Icon(Icons.keyboard_arrow_up, color: Colors.white),
+            Icon(
+              isModalOpen ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
+              color: Colors.white,
+            ),
           ],
         ),
       ),

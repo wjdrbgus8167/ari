@@ -1,6 +1,7 @@
-import '../data/models/album.dart';
-import '../data/models/track.dart';
-import '../data/models/playlist.dart';
+import 'package:ari/data/models/album.dart';
+import 'package:ari/data/models/track.dart';
+import 'package:ari/data/models/playlist_trackitem.dart';
+import 'package:ari/data/models/playlist.dart';
 
 class MockData {
   static List<Track> getListeningQueue() {
@@ -254,20 +255,44 @@ class MockData {
         playlistTitle: 'Top 50 K-Pop',
         publicYn: true,
         tracks: [
-          PlaylistTrack(
-            trackTitle: 'song1',
+          PlaylistTrackItem(
+            track: Track(
+              id: 1,
+              trackTitle: 'song1',
+              artist: 'Artist1',
+              composer: '',
+              lyricist: '',
+              albumId: 'album1',
+              trackFileUrl: '',
+              lyrics: '',
+            ),
             trackOrder: 1,
-            nickname: 'Artist1',
           ),
-          PlaylistTrack(
-            trackTitle: 'song2',
+          PlaylistTrackItem(
+            track: Track(
+              id: 2,
+              trackTitle: 'song2',
+              artist: 'Artist2',
+              composer: '',
+              lyricist: '',
+              albumId: 'album1',
+              trackFileUrl: '',
+              lyrics: '',
+            ),
             trackOrder: 2,
-            nickname: 'Artist2',
           ),
-          PlaylistTrack(
-            trackTitle: 'song3',
+          PlaylistTrackItem(
+            track: Track(
+              id: 3,
+              trackTitle: 'song2',
+              artist: 'Artist2',
+              composer: '',
+              lyricist: '',
+              albumId: 'album1',
+              trackFileUrl: '',
+              lyrics: '',
+            ),
             trackOrder: 3,
-            nickname: 'Artist3',
           ),
         ],
       ),
@@ -276,20 +301,31 @@ class MockData {
         playlistTitle: 'Relaxing Jazz',
         publicYn: true,
         tracks: [
-          PlaylistTrack(
-            trackTitle: 'song1',
+          PlaylistTrackItem(
+            track: Track(
+              id: 1,
+              trackTitle: 'song1',
+              artist: 'Artist1',
+              composer: '',
+              lyricist: '',
+              albumId: 'album1',
+              trackFileUrl: '',
+              lyrics: '',
+            ),
             trackOrder: 1,
-            nickname: 'Artist1',
           ),
-          PlaylistTrack(
-            trackTitle: 'song2',
+          PlaylistTrackItem(
+            track: Track(
+              id: 2,
+              trackTitle: 'song2',
+              artist: 'Artist2',
+              composer: '',
+              lyricist: '',
+              albumId: 'album1',
+              trackFileUrl: '',
+              lyrics: '',
+            ),
             trackOrder: 2,
-            nickname: 'Artist2',
-          ),
-          PlaylistTrack(
-            trackTitle: 'song3',
-            trackOrder: 3,
-            nickname: 'Artist3',
           ),
         ],
       ),
@@ -298,20 +334,31 @@ class MockData {
         playlistTitle: 'Rock Classics',
         publicYn: true,
         tracks: [
-          PlaylistTrack(
-            trackTitle: 'song1',
+          PlaylistTrackItem(
+            track: Track(
+              id: 1,
+              trackTitle: 'song1',
+              artist: 'Artist1',
+              composer: '',
+              lyricist: '',
+              albumId: 'album1',
+              trackFileUrl: '',
+              lyrics: '',
+            ),
             trackOrder: 1,
-            nickname: 'Artist1',
           ),
-          PlaylistTrack(
-            trackTitle: 'song2',
+          PlaylistTrackItem(
+            track: Track(
+              id: 2,
+              trackTitle: 'song2',
+              artist: 'Artist2',
+              composer: '',
+              lyricist: '',
+              albumId: 'album1',
+              trackFileUrl: '',
+              lyrics: '',
+            ),
             trackOrder: 2,
-            nickname: 'Artist2',
-          ),
-          PlaylistTrack(
-            trackTitle: 'song3',
-            trackOrder: 3,
-            nickname: 'Artist3',
           ),
         ],
       ),
@@ -320,20 +367,31 @@ class MockData {
         playlistTitle: 'Hip Hop Beats',
         publicYn: true,
         tracks: [
-          PlaylistTrack(
-            trackTitle: 'song1',
+          PlaylistTrackItem(
+            track: Track(
+              id: 1,
+              trackTitle: 'song1',
+              artist: 'Artist1',
+              composer: '',
+              lyricist: '',
+              albumId: 'album1',
+              trackFileUrl: '',
+              lyrics: '',
+            ),
             trackOrder: 1,
-            nickname: 'Artist1',
           ),
-          PlaylistTrack(
-            trackTitle: 'song2',
+          PlaylistTrackItem(
+            track: Track(
+              id: 2,
+              trackTitle: 'song2',
+              artist: 'Artist2',
+              composer: '',
+              lyricist: '',
+              albumId: 'album1',
+              trackFileUrl: '',
+              lyrics: '',
+            ),
             trackOrder: 2,
-            nickname: 'Artist2',
-          ),
-          PlaylistTrack(
-            trackTitle: 'song3',
-            trackOrder: 3,
-            nickname: 'Artist3',
           ),
         ],
       ),
@@ -342,20 +400,31 @@ class MockData {
         playlistTitle: 'Indie Mix',
         publicYn: true,
         tracks: [
-          PlaylistTrack(
-            trackTitle: 'song1',
+          PlaylistTrackItem(
+            track: Track(
+              id: 1,
+              trackTitle: 'song1',
+              artist: 'Artist1',
+              composer: '',
+              lyricist: '',
+              albumId: 'album1',
+              trackFileUrl: '',
+              lyrics: '',
+            ),
             trackOrder: 1,
-            nickname: 'Artist1',
           ),
-          PlaylistTrack(
-            trackTitle: 'song2',
+          PlaylistTrackItem(
+            track: Track(
+              id: 2,
+              trackTitle: 'song2',
+              artist: 'Artist2',
+              composer: '',
+              lyricist: '',
+              albumId: 'album1',
+              trackFileUrl: '',
+              lyrics: '',
+            ),
             trackOrder: 2,
-            nickname: 'Artist2',
-          ),
-          PlaylistTrack(
-            trackTitle: 'song3',
-            trackOrder: 3,
-            nickname: 'Artist3',
           ),
         ],
       ),
@@ -364,20 +433,31 @@ class MockData {
         playlistTitle: 'Workout Mix',
         publicYn: true,
         tracks: [
-          PlaylistTrack(
-            trackTitle: 'song1',
+          PlaylistTrackItem(
+            track: Track(
+              id: 1,
+              trackTitle: 'song1',
+              artist: 'Artist1',
+              composer: '',
+              lyricist: '',
+              albumId: 'album1',
+              trackFileUrl: '',
+              lyrics: '',
+            ),
             trackOrder: 1,
-            nickname: 'Artist1',
           ),
-          PlaylistTrack(
-            trackTitle: 'song2',
+          PlaylistTrackItem(
+            track: Track(
+              id: 2,
+              trackTitle: 'song2',
+              artist: 'Artist2',
+              composer: '',
+              lyricist: '',
+              albumId: 'album1',
+              trackFileUrl: '',
+              lyrics: '',
+            ),
             trackOrder: 2,
-            nickname: 'Artist2',
-          ),
-          PlaylistTrack(
-            trackTitle: 'song3',
-            trackOrder: 3,
-            nickname: 'Artist3',
           ),
         ],
       ),
@@ -386,20 +466,31 @@ class MockData {
         playlistTitle: 'Chill Vibes',
         publicYn: true,
         tracks: [
-          PlaylistTrack(
-            trackTitle: 'song1',
+          PlaylistTrackItem(
+            track: Track(
+              id: 1,
+              trackTitle: 'song1',
+              artist: 'Artist1',
+              composer: '',
+              lyricist: '',
+              albumId: 'album1',
+              trackFileUrl: '',
+              lyrics: '',
+            ),
             trackOrder: 1,
-            nickname: 'Artist1',
           ),
-          PlaylistTrack(
-            trackTitle: 'song2',
+          PlaylistTrackItem(
+            track: Track(
+              id: 2,
+              trackTitle: 'song2',
+              artist: 'Artist2',
+              composer: '',
+              lyricist: '',
+              albumId: 'album1',
+              trackFileUrl: '',
+              lyrics: '',
+            ),
             trackOrder: 2,
-            nickname: 'Artist2',
-          ),
-          PlaylistTrack(
-            trackTitle: 'song3',
-            trackOrder: 3,
-            nickname: 'Artist3',
           ),
         ],
       ),
@@ -408,20 +499,31 @@ class MockData {
         playlistTitle: 'Party Hits',
         publicYn: true,
         tracks: [
-          PlaylistTrack(
-            trackTitle: 'song1',
+          PlaylistTrackItem(
+            track: Track(
+              id: 1,
+              trackTitle: 'song1',
+              artist: 'Artist1',
+              composer: '',
+              lyricist: '',
+              albumId: 'album1',
+              trackFileUrl: '',
+              lyrics: '',
+            ),
             trackOrder: 1,
-            nickname: 'Artist1',
           ),
-          PlaylistTrack(
-            trackTitle: 'song2',
+          PlaylistTrackItem(
+            track: Track(
+              id: 2,
+              trackTitle: 'song2',
+              artist: 'Artist2',
+              composer: '',
+              lyricist: '',
+              albumId: 'album1',
+              trackFileUrl: '',
+              lyrics: '',
+            ),
             trackOrder: 2,
-            nickname: 'Artist2',
-          ),
-          PlaylistTrack(
-            trackTitle: 'song3',
-            trackOrder: 3,
-            nickname: 'Artist3',
           ),
         ],
       ),
@@ -430,20 +532,31 @@ class MockData {
         playlistTitle: 'Acoustic Sessions',
         publicYn: true,
         tracks: [
-          PlaylistTrack(
-            trackTitle: 'song1',
+          PlaylistTrackItem(
+            track: Track(
+              id: 1,
+              trackTitle: 'song1',
+              artist: 'Artist1',
+              composer: '',
+              lyricist: '',
+              albumId: 'album1',
+              trackFileUrl: '',
+              lyrics: '',
+            ),
             trackOrder: 1,
-            nickname: 'Artist1',
           ),
-          PlaylistTrack(
-            trackTitle: 'song2',
+          PlaylistTrackItem(
+            track: Track(
+              id: 2,
+              trackTitle: 'song2',
+              artist: 'Artist2',
+              composer: '',
+              lyricist: '',
+              albumId: 'album1',
+              trackFileUrl: '',
+              lyrics: '',
+            ),
             trackOrder: 2,
-            nickname: 'Artist2',
-          ),
-          PlaylistTrack(
-            trackTitle: 'song3',
-            trackOrder: 3,
-            nickname: 'Artist3',
           ),
         ],
       ),
@@ -452,20 +565,31 @@ class MockData {
         playlistTitle: 'Electronic Essentials',
         publicYn: true,
         tracks: [
-          PlaylistTrack(
-            trackTitle: 'song1',
+          PlaylistTrackItem(
+            track: Track(
+              id: 1,
+              trackTitle: 'song1',
+              artist: 'Artist1',
+              composer: '',
+              lyricist: '',
+              albumId: 'album1',
+              trackFileUrl: '',
+              lyrics: '',
+            ),
             trackOrder: 1,
-            nickname: 'Artist1',
           ),
-          PlaylistTrack(
-            trackTitle: 'song2',
+          PlaylistTrackItem(
+            track: Track(
+              id: 2,
+              trackTitle: 'song2',
+              artist: 'Artist2',
+              composer: '',
+              lyricist: '',
+              albumId: 'album1',
+              trackFileUrl: '',
+              lyrics: '',
+            ),
             trackOrder: 2,
-            nickname: 'Artist2',
-          ),
-          PlaylistTrack(
-            trackTitle: 'song3',
-            trackOrder: 3,
-            nickname: 'Artist3',
           ),
         ],
       ),

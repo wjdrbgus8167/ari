@@ -1,20 +1,36 @@
+// lib/presentation/widgets/playlist/playlist_screen.dart
+import 'package:ari/presentation/widgets/playlist/track_list_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ari/providers/global_providers.dart';
-import 'package:ari/presentation/viewmodels/listening_queue_viewmodel.dart';
 import 'package:ari/presentation/widgets/common/listening_queue_appbar.dart';
+import 'package:ari/presentation/viewmodels/listening_queue_viewmodel.dart';
+import 'package:ari/data/models/playlist.dart';
+import 'package:ari/providers/global_providers.dart';
 import 'package:ari/presentation/widgets/playlist/playlist_selectbar.dart';
-import 'package:ari/presentation/widgets/common/track_count_bar.dart';
-import 'package:ari/presentation/widgets/listening_queue/track_list_tile.dart';
-import 'package:ari/presentation/widgets/listening_queue/bottom_sheet_options.dart';
 
-class PlaylistScreen extends ConsumerWidget {
+class PlaylistScreen extends ConsumerStatefulWidget {
   const PlaylistScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(listeningQueueProvider);
+  _PlaylistScreenState createState() => _PlaylistScreenState();
+}
+
+class _PlaylistScreenState extends ConsumerState<PlaylistScreen> {
+  // 현재 선택된 플레이리스트를 저장하는 상태
+  Playlist? selectedPlaylist;
+
+  void _updateSelectedPlaylist(Playlist newPlaylist) {
+    setState(() {
+      selectedPlaylist = newPlaylist;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final viewModel = ref.read(listeningQueueProvider.notifier);
+    // 전역 선택 상태: 선택된 트랙이 하나라도 있으면 선택 모드 활성화
+    final selectedTracks = ref.watch(listeningQueueProvider).selectedTracks;
+    final bool selectionMode = selectedTracks.isNotEmpty;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -31,73 +47,62 @@ class PlaylistScreen extends ConsumerWidget {
             },
           ),
           const SizedBox(height: 20),
-          // PlaylistSelectbar가 TrackCountBar 위에 위치합니다.
-          const PlaylistSelectbar(),
-          const SizedBox(height: 20),
-          TrackCountBar(
-            trackCount: state.filteredPlaylist.length,
-            selectedTracks: state.selectedTracks,
-            onToggleSelectAll: viewModel.toggleSelectAll,
-            onAddToPlaylist: () {
-              for (var track in state.selectedTracks) {
-                print("추가할 트랙: ${track.trackTitle}");
-              }
-            },
+          // PlaylistSelectbar와 삭제하기 버튼이 포함된 Row
+          Row(
+            children: [
+              Expanded(
+                child: PlaylistSelectbar(
+                  onPlaylistSelected: _updateSelectedPlaylist,
+                ),
+              ),
+              if (selectionMode)
+                TextButton(
+                  onPressed: () {
+                    for (final track in selectedTracks) {
+                      viewModel.removeTrack(track);
+                    }
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("선택된 트랙이 삭제되었습니다.")),
+                    );
+                  },
+                  child: const Text(
+                    "삭제하기",
+                    style: TextStyle(color: Colors.redAccent, fontSize: 14),
+                  ),
+                ),
+            ],
           ),
+          const SizedBox(height: 20),
           Expanded(
             child:
-                state.filteredPlaylist.isEmpty
+                (selectedPlaylist == null || selectedPlaylist!.tracks.isEmpty)
                     ? const Center(
                       child: Text(
-                        "재생목록이 없습니다.",
+                        "플레이리스트가 없습니다.",
                         style: TextStyle(color: Colors.white70, fontSize: 18),
                       ),
                     )
-                    : ReorderableListView.builder(
-                      onReorder: viewModel.reorderTracks,
-                      itemCount: state.filteredPlaylist.length,
+                    : ListView.builder(
+                      itemCount: selectedPlaylist!.tracks.length,
                       itemBuilder: (context, index) {
-                        final track = state.filteredPlaylist[index];
-                        final isSelected = state.selectedTracks.contains(track);
-                        return Dismissible(
-                          key: ValueKey(track.id),
-                          direction: DismissDirection.endToStart,
-                          background: Container(
-                            color: Colors.red,
-                            alignment: Alignment.centerRight,
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: const Icon(
-                              Icons.delete,
-                              color: Colors.white,
-                            ),
-                          ),
-                          onDismissed: (direction) {
-                            viewModel.removeTrack(track);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text("${track.trackTitle} 삭제됨"),
+                        final playlistTrack = selectedPlaylist!.tracks[index];
+                        final isSelected = selectedTracks.contains(
+                          playlistTrack,
+                        );
+                        return PlaylistTrackListTile(
+                          key: ValueKey(playlistTrack.track.trackTitle),
+                          item: playlistTrack,
+                          isSelected: isSelected,
+                          selectionMode: selectionMode,
+                          onToggleSelection:
+                              () => viewModel.toggleTrackSelection(
+                                playlistTrack.track,
                               ),
-                            );
-                          },
-                          child: GestureDetector(
-                            onLongPress: () {
-                              showModalBottomSheet(
-                                context: context,
-                                backgroundColor: Colors.transparent,
-                                builder:
-                                    (context) =>
-                                        BottomSheetOptions(track: track),
-                              );
-                            },
-                            child: TrackListTile(
-                              key: ValueKey(track.id),
-                              track: track,
-                              isSelected: isSelected,
-                              onToggleSelection:
-                                  () => viewModel.toggleTrackSelection(track),
-                              onTap: () => print("${track.trackTitle} 선택됨!"),
-                            ),
-                          ),
+                          onTap:
+                              () => print(
+                                "${playlistTrack.track.trackTitle} 선택됨!",
+                              ),
+                          onDelete: () {}, // 삭제 아이콘은 제거되었으므로 빈 콜백
                         );
                       },
                     ),
