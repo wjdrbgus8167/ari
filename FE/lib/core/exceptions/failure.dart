@@ -25,13 +25,16 @@ class Failure {
   // DioException에서 Failure 생성
   factory Failure.fromDioException(DioException dioException) {
     return Failure(
-      message: dioException.response?.data?['error']?['message'] ?? dioException.message ?? 'Network error',
+      message: dioException.message ?? 'Network error',
       statusCode: dioException.response?.statusCode,
     );
   }
   
   // 일반 예외에서 Failure 생성
   factory Failure.fromException(Exception exception) {
-    return Failure(message: exception.toString());
+    return Failure(
+      message: exception.toString(),
+      statusCode: 400,
+    );
   }
 }
