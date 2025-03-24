@@ -8,16 +8,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.core.RemoteCall;
 import org.web3j.protocol.core.methods.request.Transaction;
 import org.web3j.protocol.core.methods.response.EthBlockNumber;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
-import org.web3j.tx.ClientTransactionManager;
 import org.web3j.tx.RawTransactionManager;
-import org.web3j.tx.TransactionManager;
 import org.web3j.tx.gas.ContractGasProvider;
-import org.web3j.tx.gas.DefaultGasProvider;
 
 import java.math.BigInteger;
 import java.util.Optional;
