@@ -45,6 +45,15 @@ class AlbumDataSourceImpl implements AlbumDataSource {
 }
 
 class AlbumMockDataSourceImpl implements AlbumDataSource {
+
+  final Dio dio;
+  final String baseUrl;
+
+  AlbumMockDataSourceImpl({
+    required this.dio,
+    required this.baseUrl,
+  });
+
   @override
   Future<ApiResponse<dynamic>> getAlbumDetail(int albumId) async {
     // Simulate network delay
