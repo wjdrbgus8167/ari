@@ -8,10 +8,12 @@ import 'package:ari/providers/track/track_detail_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 class TrackDetailScreen extends ConsumerStatefulWidget {
+  final int albumId;
   final int trackId;
   
   const TrackDetailScreen({
     super.key,
+    required this.albumId,
     required this.trackId,
   });
 
@@ -25,7 +27,7 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
     super.initState();
     // 화면이 로드될 때 트랙 데이터 가져오기
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(trackDetailViewModelProvider.notifier).loadTrackDetail(widget.trackId);
+      ref.read(trackDetailViewModelProvider.notifier).loadTrackDetail(widget.albumId, widget.trackId);
     });
   }
   
@@ -57,7 +59,7 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
                   trackId: track.trackId,
                   albumName: 'AFTER HOURS', // 실제 값으로 교체 필요
                   trackTitle: track.trackTitle,
-                  artistName: track.artist,
+                  artistName: track.artistName,
                   likeCount: '2,040', // 실제 값으로 교체 필요
                   commentCount: '${track.commentCount}',
                   playCount: '100회 재생', // 실제 값으로 교체 필요
@@ -69,8 +71,8 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
                 TrackCredit(
                   title: '크레딧',
                   trackName: track.trackTitle,
-                  lyricists: track.lylist.split(","),
-                  composers: track.composer.split(","),
+                  lyricists: track.lyricist,
+                  composers: track.composer,
                   genres: ['재즈'], // 실제 값으로 교체 필요
                 ),
                 
