@@ -54,6 +54,12 @@ spring:
       s3:
         bucket: ${AWS_S3_BUCKET_NAME}
 
+
+#JWT 설정
+jwt:
+  secret_key: BEf1KiTdBwHyGTRESuicupstqnw7hwNqKMhjR69xQFM=
+  access_expiration: 3600000
+  refresh_expiration: 604800000
 # 서버 포트 설정
 server:
   port: 8080
