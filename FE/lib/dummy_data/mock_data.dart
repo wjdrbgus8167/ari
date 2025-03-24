@@ -250,64 +250,224 @@ class MockData {
   static List<Playlist> getPopularPlaylists() {
     return [
       Playlist(
-        id: 1,
-        title: 'Top 50 K-Pop',
-        coverUrl: 'https://example.com/playlist_cover_1.jpg',
-        songIds: ['song1', 'song2', 'song3'],
+        playlistId: 1,
+        playlistTitle: 'Top 50 K-Pop',
+        publicYn: true,
+        tracks: [
+          PlaylistTrack(
+            trackTitle: 'song1',
+            trackOrder: 1,
+            nickname: 'Artist1',
+          ),
+          PlaylistTrack(
+            trackTitle: 'song2',
+            trackOrder: 2,
+            nickname: 'Artist2',
+          ),
+          PlaylistTrack(
+            trackTitle: 'song3',
+            trackOrder: 3,
+            nickname: 'Artist3',
+          ),
+        ],
       ),
       Playlist(
-        id: 2,
-        title: 'Relaxing Jazz',
-        coverUrl: 'https://example.com/playlist_cover_2.jpg',
-        songIds: ['song4', 'song5'],
+        playlistId: 2,
+        playlistTitle: 'Relaxing Jazz',
+        publicYn: true,
+        tracks: [
+          PlaylistTrack(
+            trackTitle: 'song1',
+            trackOrder: 1,
+            nickname: 'Artist1',
+          ),
+          PlaylistTrack(
+            trackTitle: 'song2',
+            trackOrder: 2,
+            nickname: 'Artist2',
+          ),
+          PlaylistTrack(
+            trackTitle: 'song3',
+            trackOrder: 3,
+            nickname: 'Artist3',
+          ),
+        ],
       ),
       Playlist(
-        id: 3,
-        title: 'Rock Classics',
-        coverUrl: 'https://example.com/playlist_cover_3.jpg',
-        songIds: ['song6', 'song7', 'song8'],
+        playlistId: 3,
+        playlistTitle: 'Rock Classics',
+        publicYn: true,
+        tracks: [
+          PlaylistTrack(
+            trackTitle: 'song1',
+            trackOrder: 1,
+            nickname: 'Artist1',
+          ),
+          PlaylistTrack(
+            trackTitle: 'song2',
+            trackOrder: 2,
+            nickname: 'Artist2',
+          ),
+          PlaylistTrack(
+            trackTitle: 'song3',
+            trackOrder: 3,
+            nickname: 'Artist3',
+          ),
+        ],
       ),
       Playlist(
-        id: 4,
-        title: 'Hip Hop Beats',
-        coverUrl: 'https://example.com/playlist_cover_4.jpg',
-        songIds: ['song9', 'song10', 'song11'],
+        playlistId: 4,
+        playlistTitle: 'Hip Hop Beats',
+        publicYn: true,
+        tracks: [
+          PlaylistTrack(
+            trackTitle: 'song1',
+            trackOrder: 1,
+            nickname: 'Artist1',
+          ),
+          PlaylistTrack(
+            trackTitle: 'song2',
+            trackOrder: 2,
+            nickname: 'Artist2',
+          ),
+          PlaylistTrack(
+            trackTitle: 'song3',
+            trackOrder: 3,
+            nickname: 'Artist3',
+          ),
+        ],
       ),
       Playlist(
-        id: 5,
-        title: 'Indie Mix',
-        coverUrl: 'https://example.com/playlist_cover_5.jpg',
-        songIds: ['song12', 'song13'],
+        playlistId: 5,
+        playlistTitle: 'Indie Mix',
+        publicYn: true,
+        tracks: [
+          PlaylistTrack(
+            trackTitle: 'song1',
+            trackOrder: 1,
+            nickname: 'Artist1',
+          ),
+          PlaylistTrack(
+            trackTitle: 'song2',
+            trackOrder: 2,
+            nickname: 'Artist2',
+          ),
+          PlaylistTrack(
+            trackTitle: 'song3',
+            trackOrder: 3,
+            nickname: 'Artist3',
+          ),
+        ],
       ),
       Playlist(
-        id: 6,
-        title: 'Workout Mix',
-        coverUrl: 'https://example.com/playlist_cover_6.jpg',
-        songIds: ['song14', 'song15', 'song16'],
+        playlistId: 6,
+        playlistTitle: 'Workout Mix',
+        publicYn: true,
+        tracks: [
+          PlaylistTrack(
+            trackTitle: 'song1',
+            trackOrder: 1,
+            nickname: 'Artist1',
+          ),
+          PlaylistTrack(
+            trackTitle: 'song2',
+            trackOrder: 2,
+            nickname: 'Artist2',
+          ),
+          PlaylistTrack(
+            trackTitle: 'song3',
+            trackOrder: 3,
+            nickname: 'Artist3',
+          ),
+        ],
       ),
       Playlist(
-        id: 7,
-        title: 'Chill Vibes',
-        coverUrl: 'https://example.com/playlist_cover_7.jpg',
-        songIds: ['song17', 'song18', 'song19'],
+        playlistId: 7,
+        playlistTitle: 'Chill Vibes',
+        publicYn: true,
+        tracks: [
+          PlaylistTrack(
+            trackTitle: 'song1',
+            trackOrder: 1,
+            nickname: 'Artist1',
+          ),
+          PlaylistTrack(
+            trackTitle: 'song2',
+            trackOrder: 2,
+            nickname: 'Artist2',
+          ),
+          PlaylistTrack(
+            trackTitle: 'song3',
+            trackOrder: 3,
+            nickname: 'Artist3',
+          ),
+        ],
       ),
       Playlist(
-        id: 8,
-        title: 'Party Hits',
-        coverUrl: 'https://example.com/playlist_cover_8.jpg',
-        songIds: ['song20', 'song21', 'song22'],
+        playlistId: 8,
+        playlistTitle: 'Party Hits',
+        publicYn: true,
+        tracks: [
+          PlaylistTrack(
+            trackTitle: 'song1',
+            trackOrder: 1,
+            nickname: 'Artist1',
+          ),
+          PlaylistTrack(
+            trackTitle: 'song2',
+            trackOrder: 2,
+            nickname: 'Artist2',
+          ),
+          PlaylistTrack(
+            trackTitle: 'song3',
+            trackOrder: 3,
+            nickname: 'Artist3',
+          ),
+        ],
       ),
       Playlist(
-        id: 9,
-        title: 'Acoustic Sessions',
-        coverUrl: 'https://example.com/playlist_cover_9.jpg',
-        songIds: ['song23', 'song24'],
+        playlistId: 9,
+        playlistTitle: 'Acoustic Sessions',
+        publicYn: true,
+        tracks: [
+          PlaylistTrack(
+            trackTitle: 'song1',
+            trackOrder: 1,
+            nickname: 'Artist1',
+          ),
+          PlaylistTrack(
+            trackTitle: 'song2',
+            trackOrder: 2,
+            nickname: 'Artist2',
+          ),
+          PlaylistTrack(
+            trackTitle: 'song3',
+            trackOrder: 3,
+            nickname: 'Artist3',
+          ),
+        ],
       ),
       Playlist(
-        id: 10,
-        title: 'Electronic Essentials',
-        coverUrl: 'https://example.com/playlist_cover_10.jpg',
-        songIds: ['song25', 'song26', 'song27'],
+        playlistId: 10,
+        playlistTitle: 'Electronic Essentials',
+        publicYn: true,
+        tracks: [
+          PlaylistTrack(
+            trackTitle: 'song1',
+            trackOrder: 1,
+            nickname: 'Artist1',
+          ),
+          PlaylistTrack(
+            trackTitle: 'song2',
+            trackOrder: 2,
+            nickname: 'Artist2',
+          ),
+          PlaylistTrack(
+            trackTitle: 'song3',
+            trackOrder: 3,
+            nickname: 'Artist3',
+          ),
+        ],
       ),
     ];
   }

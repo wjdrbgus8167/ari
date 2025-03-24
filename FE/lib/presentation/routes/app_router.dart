@@ -1,10 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:ari/presentation/pages/album/album_detail_screen.dart';
 import 'package:ari/presentation/pages/track_detail/track_detail_screen.dart';
-import 'package:flutter/material.dart';
-import '../pages/home/home_screen.dart';
-import '../pages/mypage/mypage_screen.dart';
-import '../pages/listening_queue/listening_queue_screen.dart';
-import '../pages/track_detail/track_detail_screen.dart';
+import 'package:ari/presentation/pages/home/home_screen.dart';
+import 'package:ari/presentation/pages/mypage/mypage_screen.dart';
+import 'package:ari/presentation/widgets/listening_queue/listening_queue_screen.dart';
+import 'package:ari/presentation/widgets/playlist/playlist_screen.dart';
 
 class AppRoutes {
   static const String home = '/';
@@ -36,7 +36,8 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => const TrackDetailScreen(trackId: 1),
         );
-
+      case AppRoutes.playlist:
+        return MaterialPageRoute(builder: (_) => const PlaylistScreen());
       default:
         // 없는 경로는 홈으로 리다이렉트
         return MaterialPageRoute(

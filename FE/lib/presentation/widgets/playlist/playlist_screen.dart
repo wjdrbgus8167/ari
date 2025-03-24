@@ -1,14 +1,15 @@
-import 'package:ari/providers/global_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../viewmodels/listening_queue_viewmodel.dart';
-import '../../widgets/listening_queue/listening_queue_appbar.dart';
-import '../../widgets/listening_queue/track_count_bar.dart';
-import '../../widgets/listening_queue/track_list_tile.dart';
-import '../../widgets/listening_queue/bottom_sheet_options.dart';
+import 'package:ari/providers/global_providers.dart';
+import 'package:ari/presentation/viewmodels/listening_queue_viewmodel.dart';
+import 'package:ari/presentation/widgets/common/listening_queue_appbar.dart';
+import 'package:ari/presentation/widgets/playlist/playlist_selectbar.dart';
+import 'package:ari/presentation/widgets/common/track_count_bar.dart';
+import 'package:ari/presentation/widgets/listening_queue/track_list_tile.dart';
+import 'package:ari/presentation/widgets/listening_queue/bottom_sheet_options.dart';
 
-class ListeningQueueScreen extends ConsumerWidget {
-  const ListeningQueueScreen({Key? key}) : super(key: key);
+class PlaylistScreen extends ConsumerWidget {
+  const PlaylistScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -22,7 +23,16 @@ class ListeningQueueScreen extends ConsumerWidget {
           ListeningQueueAppBar(
             onBack: () => Navigator.pop(context),
             onSearch: () => _showSearchDialog(context, viewModel),
+            selectedTab: ListeningTab.playlist,
+            onTabChanged: (ListeningTab tab) {
+              if (tab == ListeningTab.listeningQueue) {
+                Navigator.pushReplacementNamed(context, '/listeningqueue');
+              }
+            },
           ),
+          const SizedBox(height: 20),
+          // PlaylistSelectbar가 TrackCountBar 위에 위치합니다.
+          const PlaylistSelectbar(),
           const SizedBox(height: 20),
           TrackCountBar(
             trackCount: state.filteredPlaylist.length,

@@ -4,7 +4,6 @@ import 'package:ari/data/datasources/track_remote_datasource.dart';
 import 'package:ari/data/repositories/album_repository.dart';
 import 'package:ari/data/repositories/streaming_repository.dart';
 import 'package:ari/data/repositories/track_repository.dart';
-import 'package:ari/domain/repositories/album_repository.dart';
 import 'package:ari/domain/usecases/album_detail_usecase.dart';
 import 'package:ari/domain/usecases/get_streaming_usecase.dart';
 import 'package:ari/domain/usecases/track_detail_usecase.dart';
@@ -22,9 +21,8 @@ import '../domain/usecases/get_charts_usecase.dart';
 import 'package:dio/dio.dart';
 import '../data/datasources/chart_remote_data_source.dart';
 import 'package:ari/core/services/playback_service.dart';
-import 'package:ari/core/services/playback_service.dart';
-import 'package:dio/dio.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:ari/core/constants/app_constants.dart';
 
 // Bottom Navigation 전역 상태
 class BottomNavState extends StateNotifier<int> {
@@ -95,10 +93,7 @@ final chartRemoteDataSourceProvider = Provider<ChartRemoteDataSource>((ref) {
 final chartRepositoryProvider = Provider<IChartRepository>((ref) {
   return ChartRepositoryImpl(
     remoteDataSource: ref.watch(chartRemoteDataSourceProvider),
-    baseUrl: const String.fromEnvironment(
-      'BASE_URL',
-      defaultValue: 'https://ari-music.duckdns.org',
-    ),
+    baseUrl: baseUrl,
   );
 });
 
@@ -141,11 +136,11 @@ final getAlbumDetailProvider = Provider((ref) {
 });
 
 // ViewModel Provider
-final albumDetailViewModelProvider = StateNotifierProvider<AlbumDetailViewModel, AlbumDetailState>((ref) {
-  final getAlbumDetail = ref.watch(getAlbumDetailProvider);
-  return AlbumDetailViewModel(getAlbumDetail: getAlbumDetail);
-});
-
+final albumDetailViewModelProvider =
+    StateNotifierProvider<AlbumDetailViewModel, AlbumDetailState>((ref) {
+      final getAlbumDetail = ref.watch(getAlbumDetailProvider);
+      return AlbumDetailViewModel(getAlbumDetail: getAlbumDetail);
+    });
 
 // 데이터 소스 Provider
 final trackDataSourceProvider = Provider((ref) {
@@ -165,12 +160,11 @@ final getTrackDetailProvider = Provider((ref) {
 });
 
 // ViewModel Provider
-final  trackDetailViewModelProvider = StateNotifierProvider<TrackDetailViewModel, TrackDetailState>((ref) {
-  final getTrackDetail = ref.watch(getTrackDetailProvider);
-  return TrackDetailViewModel(getTrackDetail: getTrackDetail);
-});
-
-
+final trackDetailViewModelProvider =
+    StateNotifierProvider<TrackDetailViewModel, TrackDetailState>((ref) {
+      final getTrackDetail = ref.watch(getTrackDetailProvider);
+      return TrackDetailViewModel(getTrackDetail: getTrackDetail);
+    });
 
 // 데이터 소스 Provider
 final streamingDataSourceProvider = Provider((ref) {
@@ -190,7 +184,12 @@ final getStreamingLogByTrackIdProvider = Provider((ref) {
 });
 
 // ViewModel Provider
-final streamingLogViewModelProvider = StateNotifierProvider<StreamingLogViewmodel, StreamingState>((ref) {
-  final getStreamingLogByTrackId = ref.watch(getStreamingLogByTrackIdProvider);
-  return StreamingLogViewmodel(getStreamingLogByTrackId: getStreamingLogByTrackId);
-});
+final streamingLogViewModelProvider =
+    StateNotifierProvider<StreamingLogViewmodel, StreamingState>((ref) {
+      final getStreamingLogByTrackId = ref.watch(
+        getStreamingLogByTrackIdProvider,
+      );
+      return StreamingLogViewmodel(
+        getStreamingLogByTrackId: getStreamingLogByTrackId,
+      );
+    });
