@@ -1,8 +1,8 @@
-import 'package:ari/data/models/track_detail.dart';
+import 'package:ari/domain/entities/track_comment.dart';
 import 'package:flutter/material.dart';
 
 class TrackDetailComments extends StatelessWidget {
-  final TrackCommentModel comment;
+  final TrackComment comment;
   
   const TrackDetailComments({
     super.key,
@@ -34,7 +34,7 @@ class TrackDetailComments extends StatelessWidget {
               const SizedBox(width: 10),
               // 사용자 이름 - 실제 댓글의 닉네임 사용
               Text(
-                comment.nickname ?? '사용자',
+                comment.nickname,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 10,
@@ -47,7 +47,7 @@ class TrackDetailComments extends StatelessWidget {
           const SizedBox(height: 10),
           // 댓글 내용
           Text(
-            comment.content ?? '내용 없음',
+            comment.content,
             style: const TextStyle(
               color: Colors.white,
               fontSize: 12,
@@ -62,7 +62,7 @@ class TrackDetailComments extends StatelessWidget {
             children: [
               // 타임스탬프 표시
               Text(
-                comment.contentTimestamp ?? '00:00',
+                comment.timestamp,
                 style: const TextStyle(
                   color: Color(0xFFD9D9D9),
                   fontSize: 11,

@@ -34,7 +34,7 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const ListeningQueueScreen());
       case AppRoutes.track:
         return MaterialPageRoute(
-          builder: (_) => const TrackDetailScreen(trackId: 1),
+          builder: (_) => const TrackDetailScreen(albumId: 1, trackId: 1),
         );
       case AppRoutes.playlist:
         return MaterialPageRoute(builder: (_) => const PlaylistScreen());

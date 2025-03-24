@@ -3,8 +3,8 @@ class TrackSummary {
 }
 
 class Track {
-  final int id;
   final int albumId;
+  final int trackId;
   final String trackTitle;
   final String artistName;
   final String lyric;
@@ -16,7 +16,7 @@ class Track {
   final List<TrackComment> comments;
   final String createdAt;
   const Track({
-    required this.id,
+    required this.trackId,
     required this.albumId,
     required this.trackTitle,
     required this.artistName,

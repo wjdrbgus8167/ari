@@ -4,15 +4,15 @@ import 'package:ari/domain/entities/album_comment.dart';
 
 class AlbumDetailModel extends Album {
   AlbumDetailModel({
-    required super.id,
-    required super.title,
+    required super.albumId,
+    required super.albumTitle,
     required super.artist,
     required super.description,
-    required super.likeCount,
+    required super.albumLikeCount,
     required super.genre,
     required super.commentCount,
     required super.rating,
-    required super.releaseDate,
+    required super.createdAt,
     required super.coverImageUrl,
     required super.comments,
     required super.tracks,
@@ -20,48 +20,26 @@ class AlbumDetailModel extends Album {
 
   factory AlbumDetailModel.fromJson(Map<String, dynamic> json) {
     return AlbumDetailModel(
-      id: json['id'],
-      title: json['title'],
+      albumId: json['albumId'],
+      albumTitle: json['albumTitle'],
       artist: json['artist'],
-      description: json['description'] ?? '',
-      likeCount: json['likeCount'] ?? 0,
+      description: json['discription'] ?? '',
+      albumLikeCount: json['albumLikeCount'] ?? 0,
       genre: json['genre'] ?? '',
       commentCount: json['commentCount'] ?? 0,
-      rating: (json['rating'] is String) 
-        ? double.parse(json['rating']) 
-        : (json['rating'] ?? 0.0).toDouble(),
-      releaseDate: json['releaseDate'] ?? '',
+      rating: json['rating'],
+      createdAt: json['createdAt'] ?? '',
       coverImageUrl: json['coverImageUrl'] ?? '',
       comments: json['comments'] != null
           ? List<AlbumCommentModel>.from(
               json['comments'].map((comment) => AlbumCommentModel.fromJson(comment)))
           : [],
-      tracks: json['tracks'] != null
+      tracks: json['track'] != null
           ? List<TrackModel>.from(
-              json['tracks'].map((track) => TrackModel.fromJson(track)))
+              json['track'].map((track) => TrackModel.fromJson(track, json['albumId'])))
           : [],
     );
   }
-
-  // Map<String, dynamic> toJson() {
-  //   return {
-  //     'id': id,
-  //     'title': title,
-  //     'artist': artist,
-  //     'composer': composer,
-  //     'description': description,
-  //     'likeCount': likeCount,
-  //     'genre': genre,
-  //     'commentCount': commentCount,
-  //     'rating': rating,
-  //     'releaseDate': releaseDate,
-  //     'coverImageUrl': coverImageUrl,
-  //     'comments': comments.map((comment) => 
-  //       (comment as AlbumCommentModel).toJson()).toList(),
-  //     'tracks': tracks.map((track) => 
-  //       (track as TrackModel).toJson()).toList(),
-  //   };
-  // }
 }
 
 
@@ -92,8 +70,8 @@ class AlbumCommentModel extends AlbumComment {
 
   factory AlbumCommentModel.fromJson(Map<String, dynamic> json) {
     return AlbumCommentModel(
-      albumId: json['albumId'],
-      commentId: json['id'],
+      albumId: json['trackId'],
+      commentId: json['commentId'],
       nickname: json['nickname'],
       content: json['content'],
       contentTimestamp: json['contentTimestamp'],
@@ -104,11 +82,11 @@ class AlbumCommentModel extends AlbumComment {
 
 class TrackModel extends Track {
   TrackModel({
-    required int id,
+    required int trackId,
     required int albumId,
     required String title,
   }) : super(
-    id: id,
+    trackId: trackId,
     albumId: albumId,
     trackTitle: title,
     trackNumber: 0,
@@ -122,10 +100,10 @@ class TrackModel extends Track {
     createdAt: '',         // 필요한 경우 추가
   );
 
-  factory TrackModel.fromJson(Map<String, dynamic> json) {
+  factory TrackModel.fromJson(Map<String, dynamic> json, int albumId) {
     return TrackModel(
-      id: json['id'],
-      albumId: json['albumId'],
+      trackId: json['trackId'],
+      albumId: albumId,
       title: json['trackTitle'],
     );
   }
