@@ -14,5 +14,12 @@ public interface IpfsClient {
      */
     IpfsResponse save(String data);
 
+    /**
+     * 주어진 IPFS 경로의 컨텐츠를 조회한다.
+     *
+     * @param ipfsPath IPFS 객체 해시(CID)
+     * @return 조회된 컨텐츠 (text/plain)
+     */
     String get(String ipfsPath);
+
 }
