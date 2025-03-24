@@ -7,7 +7,7 @@ import 'package:ari/providers/global_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final albumDataSourceProvider = Provider((ref) {
-  return AlbumDataSourceImpl(
+  return AlbumMockDataSourceImpl(
     dio: ref.watch(dioProvider), 
     baseUrl: const String.fromEnvironment(
       'BASE_URL',

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import '../pages/home/home_screen.dart';
 import '../pages/mypage/mypage_screen.dart';
 import '../pages/listening_queue/listening_queue_screen.dart';
-import '../pages/track_detail/track_detail_screen.dart';
 
 class AppRoutes {
   static const String home = '/';
@@ -34,7 +33,7 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const ListeningQueueScreen());
       case AppRoutes.track:
         return MaterialPageRoute(
-          builder: (_) => const TrackDetailScreen(trackId: 1),
+          builder: (_) => const TrackDetailScreen(albumId: 1, trackId: 1,),
         );
 
       default:

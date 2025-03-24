@@ -19,13 +19,7 @@ class AlbumRepositoryImpl implements AlbumRepository {
       if (response.data == null) {
         return Left(Failure(message: "Response data is null"));
       }
-      // 안전한 타입 체크 및 변환
-      if (response.data is Map<String, dynamic>) {
-        final dataMap = response.data as Map<String, dynamic>;
-        return Right(AlbumDetailModel.fromJson(dataMap));
-      } else {
-        return Left(Failure(message: "Response data is not a map: ${response.data.runtimeType}"));
-      }
+      return Right(response.data as AlbumDetailModel);
     } on Failure catch (failure) {
       return Left(failure);
     } catch (e) {

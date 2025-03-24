@@ -12,7 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class AlbumDetailScreen extends ConsumerStatefulWidget {
   final int albumId;
 
-  const AlbumDetailScreen({Key? key, required this.albumId}) : super(key: key);
+  const AlbumDetailScreen({super.key, required this.albumId});
 
   @override
   _AlbumDetailScreenState createState() => _AlbumDetailScreenState();
@@ -34,7 +34,6 @@ class _AlbumDetailScreenState extends ConsumerState<AlbumDetailScreen> {
   Widget build(BuildContext context) {
     // 앨범 데이터 상태 가져오기
     final albumDetailState = ref.watch(albumDetailViewModelProvider);
-    print(albumDetailState.album?.artist);
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
@@ -74,13 +73,13 @@ class _AlbumDetailScreenState extends ConsumerState<AlbumDetailScreen> {
                             '기본 이미지 URL',
                       ),
                       AlbumDetailTitle(
-                        title: albumDetailState.album!.title,
+                        title: albumDetailState.album!.albumTitle,
                         artist: albumDetailState.album!.artist,
-                        viewCount: albumDetailState.album!.likeCount,
+                        viewCount: albumDetailState.album!.albumLikeCount,
                         commentCount: albumDetailState.album!.commentCount,
                         rating: albumDetailState.album!.rating,
                         genre: albumDetailState.album!.genre,
-                        releaseDate: albumDetailState.album!.releaseDate,
+                        releaseDate: albumDetailState.album!.createdAt,
                       ),
                       AlbumDetailTrackList(
                         tracks:

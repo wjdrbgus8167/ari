@@ -1,9 +1,10 @@
 import 'package:ari/core/exceptions/failure.dart';
+import 'package:ari/data/models/album_detail.dart';
 import 'package:ari/data/models/api_response.dart';
 import 'package:dio/dio.dart';
 
 abstract class AlbumDataSource {
-  Future<ApiResponse<dynamic>> getAlbumDetail(int albumId);
+  Future<ApiResponse<AlbumDetailModel>> getAlbumDetail(int albumId);
 }
 
 class AlbumDataSourceImpl implements AlbumDataSource {
@@ -16,14 +17,14 @@ class AlbumDataSourceImpl implements AlbumDataSource {
   });
 
   @override
-  Future<ApiResponse<dynamic>> getAlbumDetail(int albumId) async {
+  Future<ApiResponse<AlbumDetailModel>> getAlbumDetail(int albumId) async {
     final url = '$baseUrl/api/v1/albums/$albumId';
     try {
       // Dio를 사용하여 GET 요청 보내기
       final response = await dio.get(url);
 
       // ApiResponse 객체로 변환
-      final apiResponse = ApiResponse.fromJson(response.data, null);
+      final apiResponse = ApiResponse.fromJson(response.data, (json) => AlbumDetailModel.fromJson(json));
       
       if (apiResponse.status == 200) {
         return apiResponse;
@@ -55,7 +56,7 @@ class AlbumMockDataSourceImpl implements AlbumDataSource {
   });
 
   @override
-  Future<ApiResponse<dynamic>> getAlbumDetail(int albumId) async {
+  Future<ApiResponse<AlbumDetailModel>> getAlbumDetail(int albumId) async {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 800));
     
@@ -68,7 +69,6 @@ class AlbumMockDataSourceImpl implements AlbumDataSource {
         "artist": "유캔도",
         "composer": "김준석", 
         "discription" : "이 앨범은....",
-        "albumLikeCount": 150,
         "genre": "호러",
         "albumLikeCount" :12433,
         "commentCount":180,
@@ -107,7 +107,7 @@ class AlbumMockDataSourceImpl implements AlbumDataSource {
     };
 
     await Future.delayed(Duration(milliseconds: 300));
-    
-    return ApiResponse.fromJson(mockData, null);
+    print(ApiResponse.fromJson(mockData, (json) => AlbumDetailModel.fromJson(json)));
+    return ApiResponse.fromJson(mockData, (json) => AlbumDetailModel.fromJson(json));
   }
 }

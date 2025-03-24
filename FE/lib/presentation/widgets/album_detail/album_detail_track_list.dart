@@ -37,7 +37,7 @@ class AlbumDetailTrackList extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => TrackDetailScreen(trackId: track.id),
+                        builder: (context) => TrackDetailScreen(albumId: track.albumId, trackId: track.trackId),
                       ),
                     );
                   },
