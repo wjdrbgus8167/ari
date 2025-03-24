@@ -1,6 +1,7 @@
 package com.ccc.ari.member.domain.member;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -19,7 +20,7 @@ public class MemberEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "member_id")
-  private int memberId;
+  private Integer memberId;
 
   @Column(nullable = false, length = 100)
   private String nickname;
@@ -47,5 +48,19 @@ public class MemberEntity {
   @Column(nullable = true, length = 100)
   private String bio;
 
+  @Column(nullable = false, length = 10)
+  private String provider;
+
+  @Builder
+  public MemberEntity(Integer memberId,String nickname,String password,String email,String profileImageUrl,String instagramId,String bio) {
+    this.memberId = memberId;
+    this.nickname = nickname;
+    this.password = password;
+    this.email = email;
+    this.profileImageUrl = profileImageUrl;
+    this.instagramId = instagramId;
+    this.bio = bio;
+
+  }
 
 }

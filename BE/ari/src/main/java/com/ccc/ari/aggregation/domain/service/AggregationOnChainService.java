@@ -40,7 +40,7 @@ public class AggregationOnChainService {
 
         // 3. 획득한 CID를 블록체인에 커밋
         String txHash = blockChainClient.commitRawAllTracks(ipfsResponse.getCid());
-        logger.info("CID, Merkle Root Blockchain에 커밋 완료 Transaction Hash: {}", txHash);
+        logger.info("CID Blockchain에 커밋 완료 Transaction Hash: {}", txHash);
 
         return txHash;
     }
