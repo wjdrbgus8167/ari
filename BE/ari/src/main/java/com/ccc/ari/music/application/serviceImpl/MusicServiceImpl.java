@@ -16,6 +16,7 @@ import com.ccc.ari.music.infrastructure.track.JpaTrackRepository;
 import com.ccc.ari.music.ui.response.TrackPlayResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,8 +33,8 @@ public class MusicServiceImpl implements MusicService {
 
     private final JpaTrackRepository jpaTrackRepository;
     private final JpaAlbumRepository jpaAlbumRepository;
-    private final KafkaProducerService kafkaProducerService;
     private final UploadAlbumService uploadAlbumService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     @Override
@@ -47,6 +48,9 @@ public class MusicServiceImpl implements MusicService {
 
 
         StreamingEvent event = StreamingEvent.builder()
+                // TODO: 인증 미구현으로 인한 하드 코딩 이후 수정 필요
+                .memberId(23)
+                .nickname("정규현")
                 .trackId(track.getTrackId())
                 .trackTitle(track.getTrackTitle())
                 .artist(album.getMember().getNickname())
@@ -60,7 +64,8 @@ public class MusicServiceImpl implements MusicService {
         log.info("타임스탬프 : {}", event.getTimestamp());
         log.info("트랙 제목 : {}", event.getTrackTitle());
 
-        kafkaProducerService.sendStreamingEvent(event);
+        eventPublisher.publishEvent(event);
+        log.info("이벤트가 성공적으로 발행되었습니다: 트랙 이름={}, 닉네임={}", event.getTrackTitle(), event.getNickname());
 
         return TrackPlayResponse.builder()
                 .artist(album.getMember().getNickname())
