@@ -23,6 +23,7 @@ class StreamingDataSourceImpl implements StreamingDataSource {
     try {
       // Dio를 사용하여 GET 요청 보내기
       final response = await dio.get(url);
+
       // ApiResponse 객체로 변환
       final apiResponse = ApiResponse.fromJson(response.data, null);
       
@@ -42,45 +43,36 @@ class StreamingDataSourceImpl implements StreamingDataSource {
         throw Failure.fromException(e as Exception);
       }
     }
+  }
+}
+
+class MockStreamingDataSourceImpl implements StreamingDataSource {
+  @override
+  Future<ApiResponse<dynamic>> getStreamingLogByTrackId(int albumId, int trackId) async {
+    // 목 데이터
+    final Map<String, dynamic> mockData = {
+      "status": 200,
+      "message": "Success",
+      "data": {
+        "streamings": [
+          {
+            "nickname": "jinlal",
+            "datetime": "2025-03-17 13:01:00"
+          },
+          {
+            "nickname": "dogkyuhyeon",
+            "datetime": "2025-03-17 13:01:42"
+          },
+          // 추가 데이터...
+        ],
+      },
+      "error": null
+    };
     
-    // final Map<String, dynamic> response = {
-    //   "status" : 200,
-    //   "message" : "Success",
-    //   "data" : {
-    //     "streamings": [
-    //       {
-    //         "nickname": "jinlal",
-    //         "datetime": "2025-03-17 13:01:00"
-    //       },
-    //       {
-    //         "nickname": "dogkyuhyeon",
-    //         "datetime": "2025-03-17 13:01:42"
-    //       },
-    //       {
-    //         "nickname": "dogkyuhyeon",
-    //         "datetime": "2025-03-17 13:01:42"
-    //       },
-    //       {
-    //         "nickname": "dogkyuhyeon",
-    //         "datetime": "2025-03-17 13:01:42"
-    //       },
-    //       {
-    //         "nickname": "dogkyuhyeon",
-    //         "datetime": "2025-03-17 13:01:42"
-    //       },
-    //       {
-    //         "nickname": "dogkyuhyeon",
-    //         "datetime": "2025-03-17 13:01:42"
-    //       },
-    //       {
-    //         "nickname": "dogkyuhyeon",
-    //         "datetime": "2025-03-17 13:01:42"
-    //       },
-    //     ],
-    //   },
-    //   "error" : null
-    // };
-    // return response["data"];
+    // 지연 시간 추가 (네트워크 시뮬레이션)
+    await Future.delayed(Duration(milliseconds: 300));
+    
+    return ApiResponse.fromJson(mockData, null);
   }
 }
 /*

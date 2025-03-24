@@ -113,7 +113,6 @@ class _StreamingHistoryModalState extends ConsumerState<StreamingHistoryModal>
   }
 
   Widget _buildContent(StreamingState state) {
-    print(state.errorMessage);
     if (state.isLoading) {
       return const Center(
         child: CircularProgressIndicator(
