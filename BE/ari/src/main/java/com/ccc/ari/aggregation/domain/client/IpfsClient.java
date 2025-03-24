@@ -13,4 +13,6 @@ public interface IpfsClient {
      * @return IpfsResponse 객체 (CID값을 포함)
      */
     IpfsResponse save(String data);
+
+    String get(String ipfsPath);
 }
