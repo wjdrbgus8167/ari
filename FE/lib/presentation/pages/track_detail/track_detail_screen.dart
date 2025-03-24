@@ -4,16 +4,16 @@ import 'package:ari/presentation/widgets/track_detail/track_comments.dart';
 import 'package:ari/presentation/widgets/track_detail/track_credit.dart';
 import 'package:ari/presentation/widgets/track_detail/track_header.dart';
 import 'package:ari/presentation/widgets/track_detail/track_lyrics.dart';
-import 'package:ari/providers/global_providers.dart';
+import 'package:ari/providers/track/track_detail_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 class TrackDetailScreen extends ConsumerStatefulWidget {
   final int trackId;
   
   const TrackDetailScreen({
-    Key? key,
+    super.key,
     required this.trackId,
-  }) : super(key: key);
+  });
 
   @override
   _TrackDetailScreenState createState() => _TrackDetailScreenState();
@@ -53,6 +53,7 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
               if (track != null) ...[
                 // 트랙 정보가 있는 경우에만 위젯 표시
                 TrackHeader(
+                  albumId: track.albumId,
                   trackId: track.trackId,
                   albumName: 'AFTER HOURS', // 실제 값으로 교체 필요
                   trackTitle: track.trackTitle,

@@ -1,6 +1,6 @@
 import 'package:ari/domain/entities/streaming_log.dart';
 import 'package:ari/presentation/viewmodels/streaming_log_viewmodel.dart';
-import 'package:ari/providers/global_providers.dart';
+import 'package:ari/providers/track/streaming_log_providers.dart';
 // Provider 정의가 있는 파일을 임포트합니다
 // 만약 StreamingLogViewmodel 파일에 Provider가 정의되어 있지 않다면
 // Provider가 정의된 파일을 추가로 임포트해야 합니다
@@ -8,12 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class StreamingHistoryModal extends ConsumerStatefulWidget {
+  final int? albumId;
   final int? trackId;
   
   const StreamingHistoryModal({
-    Key? key,
+    super.key,
+    this.albumId,
     this.trackId,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<StreamingHistoryModal> createState() => _StreamingHistoryModalState();
@@ -39,8 +41,8 @@ class _StreamingHistoryModalState extends ConsumerState<StreamingHistoryModal>
 
     // 트랙 ID가 제공된 경우 해당 트랙의 스트리밍 로그를 로드
     Future.microtask(() {
-      if (widget.trackId != null) {
-        ref.read(streamingLogViewModelProvider.notifier).loadAlbumDetail(widget.trackId!);
+      if (widget.trackId != null && widget.albumId != null) {
+        ref.read(streamingLogViewModelProvider.notifier).loadAlbumDetail(widget.albumId!, widget.trackId!);
       }
     });
   }
@@ -194,12 +196,12 @@ class _StreamingHistoryModalState extends ConsumerState<StreamingHistoryModal>
 
 // 모달을 표시하는 확장 메서드
 extension StreamingHistoryModalExtension on BuildContext {
-  Future<void> showStreamingHistoryModal({int? trackId}) {
+  Future<void> showStreamingHistoryModal({int? albumId, int? trackId}) {
     return showModalBottomSheet(
       context: this,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => StreamingHistoryModal(trackId: trackId),
+      builder: (context) => StreamingHistoryModal(albumId: albumId, trackId: trackId),
     );
   }
 }
