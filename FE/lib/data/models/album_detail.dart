@@ -4,35 +4,21 @@ import 'package:ari/domain/entities/album_comment.dart';
 
 class AlbumDetailModel extends Album {
   AlbumDetailModel({
-    required int id,
-    required String title,
-    required String artist,
-    required String description,
-    required int likeCount,
-    required String genre,
-    required int commentCount,
-    required double rating,
-    required String releaseDate,
-    required String coverImageUrl,
-    required List<AlbumCommentModel> comments,
-    required List<TrackModel> tracks,
-  }):super(
-    id: id,
-    title: title,
-    artist: artist,
-    description: description,
-    likeCount: likeCount,
-    genre: genre,
-    commentCount: commentCount,
-    rating: rating,
-    releaseDate: releaseDate,
-    coverImageUrl: coverImageUrl,
-    comments: comments,
-    tracks: tracks,
-  );
+    required super.id,
+    required super.title,
+    required super.artist,
+    required super.description,
+    required super.likeCount,
+    required super.genre,
+    required super.commentCount,
+    required super.rating,
+    required super.releaseDate,
+    required super.coverImageUrl,
+    required super.comments,
+    required super.tracks,
+  });
 
   factory AlbumDetailModel.fromJson(Map<String, dynamic> json) {
-    print(json);
     return AlbumDetailModel(
       id: json['id'],
       title: json['title'],
