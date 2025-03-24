@@ -15,9 +15,21 @@ public class FantalkContent {
     private final String fantalkImageUrl;
 
     public FantalkContent(String content, Integer trackId, String fantalkImageUrl) {
+        validateContent(content);
+
         this.content = content;
         this.trackId = trackId;
         this.fantalkImageUrl = fantalkImageUrl;
+    }
+
+    private void validateContent(String content) {
+        if (content == null || content.trim().isEmpty()) {
+            throw new IllegalArgumentException("팬톡 내용은 필수입니다.");
+        }
+
+        if (content.length() > 1000) {
+            throw new IllegalArgumentException("팬톡 내용은 1000자를 초과할 수 없습니다.");
+        }
     }
 
     @Override
