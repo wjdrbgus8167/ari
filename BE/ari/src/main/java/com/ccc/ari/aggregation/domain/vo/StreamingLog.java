@@ -1,5 +1,8 @@
 package com.ccc.ari.aggregation.domain.vo;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.io.Serial;
@@ -9,7 +12,9 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
+@Builder
 @Getter
+@JsonDeserialize(builder = StreamingLog.StreamingLogBuilder.class)
 public class StreamingLog implements Serializable {
 
     @Serial
@@ -23,6 +28,11 @@ public class StreamingLog implements Serializable {
     // 무엇을
     private final Integer trackId;
     private final String trackTitle;
+
+    @JsonPOJOBuilder(withPrefix = "")
+    public static class StreamingLogBuilder {
+        // builder 구현
+    }
 
     public StreamingLog(Instant timestamp, Integer memberId, String memberNickname, Integer trackId, String trackTitle) {
       this.timestamp = timestamp;
