@@ -47,6 +47,15 @@ class StreamingDataSourceImpl implements StreamingDataSource {
 }
 
 class MockStreamingDataSourceImpl implements StreamingDataSource {
+
+  final Dio dio;
+  final String baseUrl;
+
+  MockStreamingDataSourceImpl({
+    required this.dio,
+    required this.baseUrl,
+  });
+
   @override
   Future<ApiResponse<dynamic>> getStreamingLogByTrackId(int albumId, int trackId) async {
     // 목 데이터
