@@ -1,172 +1,261 @@
 import 'package:flutter/material.dart';
-import '../../widgets/common/header_widget.dart';
-import '../../widgets/common/button_large.dart';
-import '../../widgets/common/custom_dialog.dart';
-import '../../widgets/common/custom_toast.dart';
+import '../../widgets/common/carousel_container.dart';
 
-class MyPageScreen extends StatelessWidget {
+class MyPageScreen extends StatefulWidget {
   const MyPageScreen({super.key});
 
   @override
+  State<MyPageScreen> createState() => _MyPageScreenState();
+}
+
+class _MyPageScreenState extends State<MyPageScreen> {
+  @override
   Widget build(BuildContext context) {
+    // 테스트용 앨범 데이터 생성
+    // 원래라면 API 호출 해야함
+    final myAlbums = List.generate(
+      8,
+      (index) => _AlbumData(
+        id: 'album_$index',
+        title: '앨범 ${index + 1}',
+        artist: '아티스트 ${index + 1}',
+        coverImage: 'assets/images/default_album_cover.png',
+      ),
+    );
+
+    // 테스트용 플레이리스트 데이터 생성
+    // 원래라면 API 호출 해야함
+    final myPlaylists = List.generate(
+      6,
+      (index) => _PlaylistData(
+        id: 'playlist_$index',
+        title: '플레이리스트 ${index + 1}',
+        trackCount: (index + 3) * 2,
+        coverImage: 'assets/images/default_album_cover.png',
+      ),
+    );
+
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: SafeArea(
+      appBar: AppBar(
+        title: const Text('마이페이지'),
+        backgroundColor: const Color(0xFF121212),
+      ),
+      body: SingleChildScrollView(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 뒤로가기 있는 헤더
-            HeaderWidget(
-              type: HeaderType.backWithTitle,
-              title: "마이페이지",
-              onBackPressed: () => Navigator.of(context).pop(),
-            ),
-
-            const Expanded(
-              child: Center(
-                child: Text(
-                  "마이 페이지",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-
-            // 여기서부터 버튼 테스트 중
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
+            // 이 부분은 나중에 마이페이지 UI 할 때 참고할 수도 있을 것 같아서 남겨둡니다
+            // 사용자 정보 영역
+            Container(
+              padding: const EdgeInsets.all(20.0),
+              color: const Color(0xFF1A1A1A),
+              child: Row(
                 children: [
-                  // 기본 버튼 - toast 사용
-                  ButtonLarge(
-                    text: '트랙 등록',
-                    onPressed: () {
-                      // 토스트 메시지
-                      context.showToast('새로운 트랙이 등록되었습니다');
-                    },
+                  // 프로필 이미지
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundColor: Colors.grey[800],
+                    child: const Icon(
+                      Icons.person,
+                      size: 40,
+                      color: Colors.white70,
+                    ),
                   ),
-
-                  const SizedBox(height: 16), // 버튼 간격
-                  // 보라색 테두리 버튼 - toast 사용
-                  ButtonLarge(
-                    text: '작곡 추가',
-                    onPressed: () {
-                      // 토스트 메시지
-                      context.showToast('새로운 작곡이 추가되었습니다');
-                    },
-                    backgroundColor: Colors.transparent,
-                    textColor: Colors.white,
-                    borderColor: const Color(0xFF6C38F8), // 보라색 테두리
-                    borderWidth: 2.0,
-                  ),
-                  const SizedBox(height: 16), // 버튼 간격
-                  // PrimaryButtonLarge - 다이얼로그 알림
-                  PrimaryButtonLarge(
-                    text: '커스텀 버튼',
-                    onPressed: () {
-                      // 스낵바 대신 Custom 다이얼로그 표시
-                      context.showCustomDialog(
-                        title: '음악 정보',
-                        customContent: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const SizedBox(height: 10),
-                            Container(
-                              width: 120,
-                              height: 120,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[800],
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Icon(
-                                Icons.music_note,
-                                size: 60,
-                                color: Colors.white70,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            const Text(
-                              '곡 제목: Summer Vibe',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              '아티스트: DJ Cloud',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              '발매일: 2025-03-15',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.star,
-                                  color: Colors.amber,
-                                  size: 18,
-                                ),
-                                const Icon(
-                                  Icons.star,
-                                  color: Colors.amber,
-                                  size: 18,
-                                ),
-                                const Icon(
-                                  Icons.star,
-                                  color: Colors.amber,
-                                  size: 18,
-                                ),
-                                const Icon(
-                                  Icons.star,
-                                  color: Colors.amber,
-                                  size: 18,
-                                ),
-                                const Icon(
-                                  Icons.star_half,
-                                  color: Colors.amber,
-                                  size: 18,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '4.5',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey[700],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                          ],
+                  const SizedBox(width: 16),
+                  // 사용자 이름과 정보
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        '사용자 닉네임',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                         ),
-                        confirmText: '재생하기',
-                        cancelText: '닫기',
-                        confirmButtonColor: Colors.green,
-                        onConfirm: () {
-                          // 확인 버튼 클릭 시 실행될 코드
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('음악 재생을 시작합니다.'),
-                              duration: Duration(seconds: 1),
-                            ),
-                          );
-                        },
-                      );
-                    },
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'user@example.com',
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
+
+            // 내 플레이리스트 카로셀
+            // height-> 전체 높이를 조절 가능
+            CarouselContainer(
+              title: '내 플레이리스트',
+              height: 190.0, // 카로셀 전체 높이 설정
+              children:
+                  myPlaylists
+                      .map((playlist) => _PlaylistCard(playlist: playlist))
+                      .toList(), // 플레이리스트 데이터를 카드 위젯으로 변환
+            ),
+
+            // 최근 재생 트랙 카로셀
+            // itemWidth 속성으로 각 아이템의 너비를 조절할 수 있음
+            CarouselContainer(
+              title: '최근 재생',
+              height: 200.0, // 카로셀 전체 높이 설정
+              itemWidth: 140.0, // 각 아이템의 너비 설정 (더 작은 크기로)
+              children:
+                  myAlbums.reversed
+                      .map((album) => _AlbumCard(album: album))
+                      .toList(),
+            ),
           ],
         ),
       ),
+      backgroundColor: const Color(0xFF121212), // 배경색 설정
     );
   }
+}
+
+// 테스트용 앨범 카드 위젯
+// 앨범을 표시하는 카드 UI 컴포넌트
+class _AlbumCard extends StatelessWidget {
+  final _AlbumData album; // 표시할 앨범 데이터
+
+  const _AlbumCard({super.key, required this.album});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 앨범 커버 이미지
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8.0),
+          child: Image.asset(
+            album.coverImage,
+            width: double.infinity, // 부모 위젯 너비에 맞춤
+            height: 140, // 이미지 높이 고정
+            fit: BoxFit.cover, // 이미지 비율 유지하며 채우기
+          ),
+        ),
+        const SizedBox(height: 8),
+        // 앨범 제목 - 한 줄로 제한하고 넘칠 경우 말줄임표(..)
+        Text(
+          album.title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: 2),
+        // 아티스트 이름 - 회색, 한 줄 제한
+        Text(
+          album.artist,
+          style: TextStyle(color: Colors.grey[400], fontSize: 12),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+}
+
+// 테스트용 플레이리스트 카드 위젯
+// 플레이리스트를 표시하는 카드 UI 컴포넌트
+class _PlaylistCard extends StatelessWidget {
+  final _PlaylistData playlist;
+
+  const _PlaylistCard({super.key, required this.playlist});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 플레이리스트 커버 이미지와 재생 버튼 오버레이
+        Stack(
+          children: [
+            // 커버 이미지
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: Image.asset(
+                playlist.coverImage,
+                width: double.infinity, // 부모 위젯 너비에 맞춤
+                height: 140, // 이미지 높이
+                fit: BoxFit.cover, // 이미지 비율 유지하며 채우기
+              ),
+            ),
+            // play 아이콘 오버레이
+            Positioned.fill(
+              child: Center(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 238, 157, 252), // 분홍색
+                    shape: BoxShape.circle,
+                  ),
+                  padding: const EdgeInsets.all(10),
+                  child: const Icon(
+                    Icons.play_arrow_rounded,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        // 플레이리스트 제목 - 한 줄로 제한하고 넘칠 경우 말줄임표(..)
+        Text(
+          playlist.title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: 2),
+        // 트랙 개수 정보 - 회색
+        Text(
+          '${playlist.trackCount}곡',
+          style: TextStyle(color: Colors.grey[400], fontSize: 12),
+        ),
+      ],
+    );
+  }
+}
+
+////////////////////////////////////////
+// 테스트용 앨범 데이터 모델
+// 앨범 정보를 담는 데이터 클래스
+class _AlbumData {
+  final String id; // 앨범 고유 식별자
+  final String title; // 앨범 제목
+  final String artist; // 아티스트 이름
+  final String coverImage; // 커버 이미지 경로
+
+  _AlbumData({
+    required this.id,
+    required this.title,
+    required this.artist,
+    required this.coverImage,
+  });
+}
+
+// 테스트용 플레이리스트 데이터 모델
+// 플레이리스트 정보를 담는 데이터 클래스
+class _PlaylistData {
+  final String id; // 플레이리스트 고유 식별자
+  final String title; // 플레이리스트 제목
+  final int trackCount; // 수록곡 개수
+  final String coverImage; // 커버 이미지 경로
+
+  _PlaylistData({
+    required this.id,
+    required this.title,
+    required this.trackCount,
+    required this.coverImage,
+  });
 }
