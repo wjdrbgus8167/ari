@@ -1,17 +1,4 @@
-import 'package:ari/data/datasources/album_remote_datasource.dart';
-import 'package:ari/data/datasources/streaming_remote_datasource.dart';
-import 'package:ari/data/datasources/track_remote_datasource.dart';
-import 'package:ari/data/repositories/album_repository.dart';
-import 'package:ari/data/repositories/streaming_repository.dart';
-import 'package:ari/data/repositories/track_repository.dart';
-import 'package:ari/domain/repositories/album_repository.dart';
-import 'package:ari/domain/usecases/album_detail_usecase.dart';
-import 'package:ari/domain/usecases/get_streaming_usecase.dart';
-import 'package:ari/domain/usecases/track_detail_usecase.dart';
-import 'package:ari/presentation/viewmodels/album_detail_viewmodel.dart';
 import 'package:ari/presentation/viewmodels/sign_up_viewmodel.dart';
-import 'package:ari/presentation/viewmodels/streaming_log_viewmodel.dart';
-import 'package:ari/presentation/viewmodels/track_detail_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../presentation/viewmodels/home_viewmodel.dart';
 import '../presentation/viewmodels/listening_queue_viewmodel.dart';
@@ -22,7 +9,6 @@ import '../domain/usecases/get_charts_usecase.dart';
 import 'package:dio/dio.dart';
 import '../data/datasources/chart_remote_data_source.dart';
 import 'package:ari/core/services/playback_service.dart';
-import 'package:dio/dio.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 // Bottom Navigation 전역 상태
@@ -39,7 +25,7 @@ final bottomNavProvider = StateNotifierProvider<BottomNavState, int>((ref) {
 
 // 재생 상태 전역 관리
 class PlaybackState {
-  final String? currentTrackId; // ✅ 기존 currentSongId → currentTrackId로 변경
+  final String? currentTrackId;
   final String trackTitle;
   final bool isPlaying;
 

@@ -1,11 +1,11 @@
-import 'package:ari/providers/global_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../viewmodels/listening_queue_viewmodel.dart';
-import '../../widgets/listening_queue/listening_queue_appbar.dart';
-import '../../widgets/listening_queue/track_count_bar.dart';
-import '../../widgets/listening_queue/track_list_tile.dart';
-import '../../widgets/listening_queue/bottom_sheet_options.dart';
+import 'package:ari/providers/global_providers.dart';
+import 'package:ari/presentation/viewmodels/listening_queue_viewmodel.dart';
+import 'package:ari/presentation/widgets/common/listening_queue_appbar.dart';
+import 'package:ari/presentation/widgets/common/track_count_bar.dart';
+import 'package:ari/presentation/widgets/listening_queue/track_list_tile.dart';
+import 'package:ari/presentation/widgets/listening_queue/bottom_sheet_options.dart';
 
 class ListeningQueueScreen extends ConsumerWidget {
   const ListeningQueueScreen({Key? key}) : super(key: key);
@@ -22,6 +22,12 @@ class ListeningQueueScreen extends ConsumerWidget {
           ListeningQueueAppBar(
             onBack: () => Navigator.pop(context),
             onSearch: () => _showSearchDialog(context, viewModel),
+            selectedTab: ListeningTab.listeningQueue,
+            onTabChanged: (ListeningTab tab) {
+              if (tab == ListeningTab.playlist) {
+                Navigator.pushReplacementNamed(context, '/playlist');
+              }
+            },
           ),
           const SizedBox(height: 20),
           TrackCountBar(

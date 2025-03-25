@@ -5,7 +5,7 @@ class AlbumDetailTitle extends StatelessWidget {
   final String artist;
   final int viewCount;
   final int commentCount;
-  final double rating;
+  final String rating;
   final String genre;
   final String releaseDate;
   

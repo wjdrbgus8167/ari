@@ -49,10 +49,17 @@ class ExpandedPlaybackScreen extends ConsumerWidget {
               bottom: 40,
               child: PlaybackControls(
                 onToggle: () async {
+                  print('[DEBUG] PlaybackControls onToggle 호출됨');
                   if (playbackState.isPlaying) {
                     await playbackService.audioPlayer.pause();
+                    ref
+                        .read(playbackProvider.notifier)
+                        .updatePlaybackState(false);
                   } else {
                     await playbackService.playTrack(albumId: 1, trackId: 1);
+                    ref
+                        .read(playbackProvider.notifier)
+                        .updatePlaybackState(true);
                   }
                 },
               ),

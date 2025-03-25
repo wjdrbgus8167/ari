@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AdditionalInfoPage extends StatelessWidget {
-  const AdditionalInfoPage({Key? key}) : super(key: key);
+  const AdditionalInfoPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +18,7 @@ class AdditionalInfoPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
+            SizedBox(
               width: 360,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -33,7 +33,7 @@ class AdditionalInfoPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Container(
+                        SizedBox(
                           width: double.infinity,
                           child: Column(
                             mainAxisSize: MainAxisSize.min,

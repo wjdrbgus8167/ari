@@ -1,11 +1,10 @@
-import 'dart:io';
-
 import 'package:ari/core/exceptions/failure.dart';
 import 'package:ari/data/models/api_response.dart';
+import 'package:ari/data/models/streaming_log_model.dart';
 import 'package:dio/dio.dart';
 
 abstract class StreamingDataSource {
-  Future<ApiResponse<dynamic>> getStreamingLogByTrackId(int albumId, int trackId);
+  Future<ApiResponse<List<StreamingLogModel>>> getStreamingLogByTrackId(int albumId, int trackId);
 }
 
 class StreamingDataSourceImpl implements StreamingDataSource {
@@ -18,15 +17,20 @@ class StreamingDataSourceImpl implements StreamingDataSource {
   });
 
   @override
-  Future<ApiResponse<dynamic>> getStreamingLogByTrackId(int albumId, int trackId) async {
+  Future<ApiResponse<List<StreamingLogModel>>> getStreamingLogByTrackId(int albumId, int trackId) async {
     final url = '$baseUrl/api/v1/albums/$albumId/tracks/$trackId/logs';
     try {
       // Dio를 사용하여 GET 요청 보내기
       final response = await dio.get(url);
 
       // ApiResponse 객체로 변환
-      final apiResponse = ApiResponse.fromJson(response.data, null);
-      
+      final apiResponse = ApiResponse.fromJson(
+        response.data, 
+        (json) => (json as List)
+          .map((item) => StreamingLogModel.fromJson(item))
+          .toList()
+      );
+
       if (apiResponse.status == 200) {
         return apiResponse;
       } else {
@@ -47,8 +51,17 @@ class StreamingDataSourceImpl implements StreamingDataSource {
 }
 
 class MockStreamingDataSourceImpl implements StreamingDataSource {
+
+  final Dio dio;
+  final String baseUrl;
+
+  MockStreamingDataSourceImpl({
+    required this.dio,
+    required this.baseUrl,
+  });
+
   @override
-  Future<ApiResponse<dynamic>> getStreamingLogByTrackId(int albumId, int trackId) async {
+  Future<ApiResponse<List<StreamingLogModel>>> getStreamingLogByTrackId(int albumId, int trackId) async {
     // 목 데이터
     final Map<String, dynamic> mockData = {
       "status": 200,
@@ -72,7 +85,12 @@ class MockStreamingDataSourceImpl implements StreamingDataSource {
     // 지연 시간 추가 (네트워크 시뮬레이션)
     await Future.delayed(Duration(milliseconds: 300));
     
-    return ApiResponse.fromJson(mockData, null);
+    return ApiResponse.fromJson(
+      mockData, 
+      (json) => (json['streamings'] as List)
+        .map((item) => StreamingLogModel.fromJson(item))
+        .toList()
+    );
   }
 }
 /*

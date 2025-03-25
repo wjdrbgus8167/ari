@@ -1,0 +1,47 @@
+import 'package:ari/presentation/widgets/playlist/playlist_tile.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ari/presentation/viewmodels/playlist/playlist_viewmodel.dart';
+
+class PlaylistTrackList extends ConsumerWidget {
+  const PlaylistTrackList({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(playlistViewModelProvider);
+    final viewModel = ref.read(playlistViewModelProvider.notifier);
+
+    final playlist = state.selectedPlaylist;
+
+    if (playlist == null || playlist.tracks.isEmpty) {
+      return const Center(
+        child: Text(
+          "플레이리스트가 없습니다.",
+          style: TextStyle(color: Colors.white70, fontSize: 18),
+        ),
+      );
+    }
+
+    return ReorderableListView.builder(
+      padding: const EdgeInsets.only(bottom: 20),
+      onReorder: (oldIndex, newIndex) {
+        viewModel.reorderTracks(oldIndex, newIndex);
+      },
+      itemCount: playlist.tracks.length,
+      itemBuilder: (context, index) {
+        final item = playlist.tracks[index];
+        final isSelected = state.selectedTracks.contains(item);
+
+        return PlaylistTrackListTile(
+          key: ValueKey(item.track.id),
+          item: item,
+          isSelected: isSelected,
+          selectionMode: state.selectedTracks.isNotEmpty,
+          onToggleSelection: () => viewModel.toggleTrackSelection(item),
+          onTap: () => print("${item.track.trackTitle} 선택됨!"),
+          onDelete: () {},
+        );
+      },
+    );
+  }
+}
