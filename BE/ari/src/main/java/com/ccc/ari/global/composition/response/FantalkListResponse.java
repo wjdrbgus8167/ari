@@ -23,9 +23,11 @@ public class FantalkListResponse {
                 .map(fantalk -> FantalkItem.builder()
                         .fantalkId(fantalk.getFantalkId())
                         .memberId(fantalk.getMemberId())
+                        .memberName("더미 작성자 이름")
+                        .profileImageUrl("더미 작성자 프로필")
                         .content(fantalk.getContent())
                         .fantalkImageUrl(fantalk.getFantalkImageUrl())
-                        .trackId(fantalk.getTrackId())
+                        .track(fantalk.getTrackId() != null ? placeholderTrack(fantalk.getTrackId()) : null)
                         .createdAt(fantalk.getCreatedAt())
                         .build())
                 .toList();
@@ -37,6 +39,19 @@ public class FantalkListResponse {
     }
 
     /**
+     * 임시 트랙 정보 생성
+     * TODO: 트랙 Client 구현 시 수정하겠습니다.
+     */
+    private static TrackItem placeholderTrack(Integer trackId) {
+        return TrackItem.builder()
+                .trackId(trackId)
+                .trackName("더미 트랙")
+                .artist("더미 아티스트 이름")
+                .coverImageUrl(null)
+                .build();
+    }
+
+    /**
      * 팬톡 상세 정보를 담는 내부 클래스
      */
     @Getter
@@ -44,11 +59,25 @@ public class FantalkListResponse {
     public static class FantalkItem {
         private Integer fantalkId;
         private Integer memberId;
+        private String memberName;
+        private String profileImageUrl;
         private String content;
         private String fantalkImageUrl;
-        private Integer trackId;
+        private TrackItem track;
 
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime createdAt;
+    }
+
+    /**
+     * 트랙 정보를 담는 내부 클래스
+     */
+    @Getter
+    @Builder
+    public static class TrackItem {
+        private Integer trackId;
+        private String trackName;
+        private String artist;
+        private String coverImageUrl;
     }
 }
