@@ -3,12 +3,12 @@ import 'package:ari/data/datasources/track_remote_datasource.dart';
 import 'package:ari/data/repositories/track_repository.dart';
 import 'package:ari/domain/usecases/track_detail_usecase.dart';
 import 'package:ari/presentation/viewmodels/track_detail_viewmodel.dart';
-import 'package:ari/providers/global_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ari/providers/playback/playback_provider.dart';
 
 final trackDataSourceProvider = Provider((ref) {
   return TrackMockDataSourceImpl(
-    dio: ref.watch(dioProvider), 
+    dio: ref.watch(dioProvider),
     baseUrl: const String.fromEnvironment(
       'BASE_URL',
       defaultValue: 'https://ari-music.duckdns.org',
@@ -29,7 +29,8 @@ final getTrackDetailProvider = Provider((ref) {
 });
 
 // ViewModel Provider
-final  trackDetailViewModelProvider = StateNotifierProvider<TrackDetailViewModel, TrackDetailState>((ref) {
-  final getTrackDetail = ref.watch(getTrackDetailProvider);
-  return TrackDetailViewModel(getTrackDetail: getTrackDetail);
-});
+final trackDetailViewModelProvider =
+    StateNotifierProvider<TrackDetailViewModel, TrackDetailState>((ref) {
+      final getTrackDetail = ref.watch(getTrackDetailProvider);
+      return TrackDetailViewModel(getTrackDetail: getTrackDetail);
+    });

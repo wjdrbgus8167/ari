@@ -1,10 +1,8 @@
+import 'package:ari/providers/playback/playback_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/playback/playback_state_provider.dart';
 import '../../../providers/playback/playback_progress_provider.dart';
-import '../../../providers/global_providers.dart';
-import '../../../core/services/audio_service.dart';
-import '../../../core/services/playback_service.dart';
 import '../../../core/constants/app_colors.dart';
 import '../playback/expanded_playbackscreen.dart';
 import '../../routes/app_router.dart';

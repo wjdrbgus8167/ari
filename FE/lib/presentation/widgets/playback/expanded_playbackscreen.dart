@@ -1,12 +1,10 @@
+import 'package:ari/providers/playback/playback_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/playback/playback_state_provider.dart';
-// import '../../../core/services/audio_service.dart';
-// import '../../../core/services/playback_service.dart';
 import 'playback_info.dart';
 import 'playback_controls.dart';
 import '../lyrics/lyrics_view.dart';
-import '../../../providers/global_providers.dart';
 
 class ExpandedPlaybackScreen extends ConsumerWidget {
   const ExpandedPlaybackScreen({Key? key}) : super(key: key);
