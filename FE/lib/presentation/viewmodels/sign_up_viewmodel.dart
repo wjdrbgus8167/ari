@@ -1,4 +1,4 @@
-// SignUpState 정의
+import 'package:ari/domain/usecases/auth_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class SignUpState {
@@ -39,10 +39,11 @@ class SignUpState {
 
 // StateNotifier로 변경된 ViewModel
 class SignUpViewModel extends StateNotifier<SignUpState> {
-  // final SignUpUseCase signUpUseCase;
-  
-  SignUpViewModel() : super(SignUpState());
-  
+  final SignUpUseCase signUpUseCase;
+
+  SignUpViewModel({required this.signUpUseCase})
+        : super(SignUpState());
+
   void setEmail(String value) {
     state = state.copyWith(email: value);
   }
@@ -77,11 +78,11 @@ class SignUpViewModel extends StateNotifier<SignUpState> {
     if (!validateInputs()) {
       return false;
     }
-    return true;
+
     state = state.copyWith(isLoading: true, errorMessage: null);
     
     try {
-      // await signUpUseCase.execute(state.email, state.nickname, state.password);
+      await signUpUseCase(state.email, state.nickname, state.password);
       state = state.copyWith(isLoading: false);
       return true;
     } catch (e) {

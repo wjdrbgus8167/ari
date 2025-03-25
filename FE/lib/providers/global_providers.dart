@@ -1,4 +1,3 @@
-import 'package:ari/presentation/viewmodels/sign_up_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../presentation/viewmodels/home_viewmodel.dart';
 import '../presentation/viewmodels/listening_queue_viewmodel.dart';
@@ -62,7 +61,14 @@ class PlaybackNotifier extends StateNotifier<PlaybackState> {
 
 final playlistProvider = StateProvider<List<Track>>((ref) => []);
 
-final dioProvider = Provider<Dio>((ref) => Dio());
+
+final dioProvider = Provider<Dio>((ref) {
+  final dio = Dio(BaseOptions(
+    baseUrl: 'https://ari-music.duckdns.org/api',
+    contentType: 'application/json',
+  ));
+  return dio;
+});
 
 // AudioPlayer 인스턴스를 전역에서 제공하는 Provider 추가
 final audioPlayerProvider = Provider<AudioPlayer>((ref) => AudioPlayer());
@@ -101,9 +107,4 @@ final homeViewModelProvider = StateNotifierProvider<HomeViewModel, HomeState>((
 final listeningQueueProvider =
     StateNotifierProvider<ListeningQueueViewModel, ListeningQueueState>(
       (ref) => ListeningQueueViewModel(),
-    );
-
-final signUpViewModelProvider =
-    StateNotifierProvider<SignUpViewModel, SignUpState>(
-      (ref) => SignUpViewModel(),
     );

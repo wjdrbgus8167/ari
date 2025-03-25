@@ -1,3 +1,4 @@
+import 'package:ari/data/models/login_request.dart';
 import 'package:ari/data/models/token_model.dart';
 import 'package:dio/dio.dart';
 
@@ -5,7 +6,8 @@ import '../models/sign_up_request.dart';
 
 abstract class AuthRemoteDataSource {
   Future<TokenModel?> refreshTokens(String refreshToken);
-  Future<void> signUp(SignUpRequest userModel);
+  Future<void> signUp(SignUpRequest signUpRequest);
+  Future<TokenModel?> login(LoginRequest loginRequest);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -47,7 +49,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<TokenModel?> login(SignUpRequest loginRequest) async {
+  Future<TokenModel?> login(LoginRequest loginRequest) async {
     // API 호출 구현
     final response = await dio.post(
         '/v1/albums/upload',
