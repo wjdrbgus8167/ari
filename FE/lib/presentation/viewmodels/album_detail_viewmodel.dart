@@ -9,11 +9,7 @@ class AlbumDetailState {
   final String? errorMessage;
   final Album? album;
 
-  AlbumDetailState({
-    this.isLoading = false,
-    this.errorMessage,
-    this.album,
-  });
+  AlbumDetailState({this.isLoading = false, this.errorMessage, this.album});
 
   // 상태 복사 메서드
   AlbumDetailState copyWith({
@@ -51,18 +47,12 @@ class AlbumDetailViewModel extends StateNotifier<AlbumDetailState> {
     result.fold(
       // 실패 케이스 (Left)
       (failure) {
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: failure.message,
-        );
+        state = state.copyWith(isLoading: false, errorMessage: failure.message);
       },
       // 성공 케이스 (Right)
       (album) {
-        state = state.copyWith(
-          isLoading: false,
-          album: album,
-        );
-      }
+        state = state.copyWith(isLoading: false, album: album);
+      },
     );
   }
 }

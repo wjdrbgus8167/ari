@@ -11,20 +11,24 @@ class StreamingRepositoryImpl implements StreamingRepository {
   StreamingRepositoryImpl({required this.dataSource});
 
   @override
-  Future<Either<Failure, List<StreamingLog>>> getStreamingLogByTrackId(int albumId, int trackId) async {
+  Future<Either<Failure, List<StreamingLog>>> getStreamingLogByTrackId(
+    int albumId,
+    int trackId,
+  ) async {
     try {
-      final response = await dataSource.getStreamingLogByTrackId(albumId, trackId);
+      final response = await dataSource.getStreamingLogByTrackId(
+        albumId,
+        trackId,
+      );
 
       // 응답 데이터 구조 확인
       if (response.data == null) {
         return Left(Failure(message: "Response data is null"));
       }
       final responseData = response.data as List<StreamingLogModel>;
-      final result = responseData.map((item) => item.toEntity())
-                .toList();
-                
+      final result = responseData.map((item) => item.toEntity()).toList();
+
       return Right(result);
-      
     } on Failure catch (failure) {
       return Left(failure);
     } catch (e) {

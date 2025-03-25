@@ -1,14 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:audioplayers/audioplayers.dart';
-
-// 빌드 시점에 주입된 환경변수에서 baseUrl 읽어옴 (const로 선언)
-const String baseUrl = String.fromEnvironment(
-  'BASE_URL',
-  defaultValue: 'https://ari-music.duckdns.org',
-);
+import 'package:ari/core/constants/app_constants.dart';
 
 /// 오디오 재생 관련 기능을 제공하는 서비스 클래스임.
-/// API 엔드포인트: api/v1/albums/{albumId}/tracks/{trackId}/play
+/// API 엔드포인트: api/v1/albums/{albumId}/tracks/{trackId}
 class PlaybackService {
   final Dio dio;
   final AudioPlayer audioPlayer;
