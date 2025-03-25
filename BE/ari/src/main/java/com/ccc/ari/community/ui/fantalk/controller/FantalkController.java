@@ -3,10 +3,15 @@ package com.ccc.ari.community.ui.fantalk.controller;
 import com.ccc.ari.community.application.fantalk.command.CreateFantalkCommand;
 import com.ccc.ari.community.application.fantalk.service.FantalkService;
 import com.ccc.ari.community.ui.fantalk.request.CreateFantalkRequest;
+import com.ccc.ari.global.error.ErrorCode;
 import com.ccc.ari.global.util.ApiUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/v1/fantalk-channels/{fantalkChannelId}/fantalks")
@@ -14,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class FantalkController {
 
     private final FantalkService fantalkService;
+    private final ObjectMapper objectMapper;
 
     /**
      * 팬톡 생성 API
@@ -21,16 +27,27 @@ public class FantalkController {
     @PostMapping
     public ApiUtils.ApiResponse<Void> createFantalk(
             @PathVariable Integer fantalkChannelId,
-            @RequestBody CreateFantalkRequest request
+            @RequestPart(value = "fantalkImage", required = false) MultipartFile fantalkImage,
+            @RequestPart(value = "request") String requestJson
     ) {
-        // TODO: 인증 구현 완료 시 수정하겠습니다.
-        Integer memberId = 1;
+        try {
+            // TODO: 인증 구현 완료 시 수정하겠습니다.
+            Integer memberId = 1;
 
-        // Request -> Command 변환
-        CreateFantalkCommand command = request.toCommand(memberId, fantalkChannelId);
+            // 1. JSON 문자열을 Request 객체로 변환합니다.
+            CreateFantalkRequest request = objectMapper.readValue(requestJson, CreateFantalkRequest.class);
 
-        fantalkService.createFantalk(command);
+            // 2. Request 객체를 Command로 변환합니다.
+            CreateFantalkCommand command = request.toCommand(memberId, fantalkChannelId, fantalkImage);
 
-        return ApiUtils.success(null);
+            // 3. 팬톡 생성 서비스를 호출합니다.
+            fantalkService.createFantalk(command);
+
+            return ApiUtils.success(null);
+        } catch (IOException e) {
+            return (ApiUtils.ApiResponse<Void>) ApiUtils.error(ErrorCode.S3_UPLOAD_ERROR);
+        } catch (Exception e) {
+            return (ApiUtils.ApiResponse<Void>) ApiUtils.error(ErrorCode.FANTALK_CREATION_FAILED);
+        }
     }
 }
