@@ -1,7 +1,4 @@
-import 'package:ari/presentation/pages/sign_up/on_boarding.dart';
-import 'package:ari/presentation/pages/sign_up/sign_up_screen.dart';
 import 'package:ari/presentation/routes/app_router.dart';
-import 'package:ari/presentation/viewmodels/login_viewmodel.dart';
 import 'package:ari/presentation/widgets/common/button_large.dart';
 import 'package:ari/providers/auth/auth_providers.dart';
 import 'package:flutter/material.dart';

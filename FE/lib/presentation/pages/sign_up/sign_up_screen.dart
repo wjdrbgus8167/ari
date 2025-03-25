@@ -1,11 +1,9 @@
 import 'package:ari/presentation/routes/app_router.dart';
 import 'package:ari/presentation/widgets/common/button_large.dart';
-import 'package:ari/presentation/widgets/sign_up/sign_up_button.dart';
 import 'package:ari/presentation/widgets/sign_up/sign_up_text_field.dart';
 import 'package:ari/providers/auth/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ari/presentation/pages/login/login_screen.dart'; // 로그인 화면으로 변경
 
 class SignUpScreen extends ConsumerWidget {
   const SignUpScreen({super.key});

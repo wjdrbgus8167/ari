@@ -1,5 +1,4 @@
 import 'package:ari/domain/entities/track.dart';
-import 'package:ari/presentation/pages/track_detail/track_detail_screen.dart';
 import 'package:ari/presentation/routes/app_router.dart';
 import 'package:flutter/material.dart';
 
