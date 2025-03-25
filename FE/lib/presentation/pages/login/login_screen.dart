@@ -85,6 +85,7 @@ class LoginScreen extends ConsumerWidget {
             ButtonLarge(
               text: '로그인하기',
               onPressed: () async {
+                print("누름인식");
                 if (await viewModel.login()) {
                   // 잠시 후 로그인 화면으로 이동
                   Navigator.of(context).pushNamed(AppRoutes.home);

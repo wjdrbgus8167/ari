@@ -59,12 +59,8 @@ class LoginViewModel extends StateNotifier<LoginState> {
   }
 
   Future<bool> login() async {
-    if (!validateInputs()) {
-      return false;
-    }
 
     state = state.copyWith(isLoading: true, errorMessage: null);
-
     try {
       await loginUseCase(state.email, state.password);
       state = state.copyWith(isLoading: false);
