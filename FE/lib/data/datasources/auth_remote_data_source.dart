@@ -43,7 +43,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     print('로그인 요청 시작: ${signUpRequest.toString()}');
     print('요청 URL: ${dio.options.baseUrl}/v1/auth/members/register');
     await dio.post(
-      '/v1/auth/members/register',
+      '/api/v1/auth/members/register',
       data: signUpRequest,
     );
     
@@ -61,7 +61,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       print('요청 URL: ${dio.options.baseUrl}/v1/auth/members/login');
       
       final response = await dio.post(
-        '/v1/auth/members/login',
+        '/api/v1/auth/members/login',
         data: loginRequest.toJson(),
       );
       
