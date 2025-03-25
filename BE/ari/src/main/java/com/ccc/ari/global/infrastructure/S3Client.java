@@ -1,4 +1,4 @@
-package com.ccc.ari.community.domain.fantalk.client;
+package com.ccc.ari.global.infrastructure;
 
 import org.springframework.web.multipart.MultipartFile;
 
