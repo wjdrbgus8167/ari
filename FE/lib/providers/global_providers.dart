@@ -1,26 +1,15 @@
+import 'package:ari/presentation/viewmodels/sign_up_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dio/dio.dart';
-import 'package:audioplayers/audioplayers.dart';
-
-import '../presentation/viewmodels/sign_up_viewmodel.dart';
 import '../presentation/viewmodels/home_viewmodel.dart';
 import '../presentation/viewmodels/listening_queue_viewmodel.dart';
-import '../presentation/viewmodels/my_channel_viewmodel.dart';
-
 import '../data/models/track.dart';
 import '../data/repositories/chart_repository_impl.dart';
-import '../data/datasources/chart_remote_data_source.dart';
-import '../data/datasources/my_channel_remote_datasource.dart';
-import '../data/datasources/my_channel_remote_datasource_impl.dart';
-import '../data/repositories/my_channel_repository_impl.dart';
-
 import '../domain/repositories/chart_repository.dart';
-import '../domain/repositories/my_channel_repository.dart';
 import '../domain/usecases/get_charts_usecase.dart';
-import '../domain/usecases/my_channel_usecases.dart';
-
-import '../core/services/playback_service.dart';
-import '../core/constants/app_constants.dart';
+import 'package:dio/dio.dart';
+import '../data/datasources/chart_remote_data_source.dart';
+import 'package:ari/core/services/playback_service.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 // Bottom Navigation 전역 상태
 class BottomNavState extends StateNotifier<int> {
@@ -49,7 +38,7 @@ class PlaybackState {
   PlaybackState copyWith({String? currentTrackId, bool? isPlaying}) {
     return PlaybackState(
       currentTrackId: currentTrackId ?? this.currentTrackId,
-      trackTitle: trackTitle,
+      trackTitle: this.trackTitle,
       isPlaying: isPlaying ?? this.isPlaying,
     );
   }
@@ -84,7 +73,6 @@ final playbackServiceProvider = Provider<PlaybackService>((ref) {
     audioPlayer: ref.watch(audioPlayerProvider),
   );
 });
-
 final chartRemoteDataSourceProvider = Provider<ChartRemoteDataSource>((ref) {
   return ChartRemoteDataSource(dio: ref.watch(dioProvider));
 });
@@ -92,7 +80,10 @@ final chartRemoteDataSourceProvider = Provider<ChartRemoteDataSource>((ref) {
 final chartRepositoryProvider = Provider<IChartRepository>((ref) {
   return ChartRepositoryImpl(
     remoteDataSource: ref.watch(chartRemoteDataSourceProvider),
-    baseUrl: baseUrl,
+    baseUrl: const String.fromEnvironment(
+      'BASE_URL',
+      defaultValue: 'https://ari-music.duckdns.org',
+    ),
   );
 });
 
@@ -116,87 +107,3 @@ final signUpViewModelProvider =
     StateNotifierProvider<SignUpViewModel, SignUpState>(
       (ref) => SignUpViewModel(),
     );
-
-// ========== 나의 채널 관련 Provider 추가 ==========
-
-/// 인증 토큰 제공자
-/// 로그인 상태에 따라 실제 토큰 반환
-final authTokenProvider = Provider<String>((ref) {
-  // 실제 구현에서는 토큰 저장소에서 가져옵니다
-  // 예: SharedPreferences, Secure Storage 등
-  return 'dummy-token';
-});
-
-/// 나의 채널 원격 데이터 소스 제공자
-final myChannelRemoteDataSourceProvider = Provider<MyChannelRemoteDataSource>((
-  ref,
-) {
-  final dio = ref.watch(dioProvider);
-  final token = ref.watch(authTokenProvider);
-
-  return MyChannelRemoteDataSourceImpl(dio: dio, token: token);
-});
-
-/// 나의 채널 리포지토리 제공자
-final myChannelRepositoryProvider = Provider<MyChannelRepository>((ref) {
-  final remoteDataSource = ref.watch(myChannelRemoteDataSourceProvider);
-
-  return MyChannelRepositoryImpl(remoteDataSource: remoteDataSource);
-});
-
-/// UseCase 제공자들
-final getChannelInfoUseCaseProvider = Provider<GetChannelInfoUseCase>((ref) {
-  return GetChannelInfoUseCase(ref.watch(myChannelRepositoryProvider));
-});
-
-final followMemberUseCaseProvider = Provider<FollowMemberUseCase>((ref) {
-  return FollowMemberUseCase(ref.watch(myChannelRepositoryProvider));
-});
-
-final unfollowMemberUseCaseProvider = Provider<UnfollowMemberUseCase>((ref) {
-  return UnfollowMemberUseCase(ref.watch(myChannelRepositoryProvider));
-});
-
-final getArtistAlbumsUseCaseProvider = Provider<GetArtistAlbumsUseCase>((ref) {
-  return GetArtistAlbumsUseCase(ref.watch(myChannelRepositoryProvider));
-});
-
-final getArtistNoticesUseCaseProvider = Provider<GetArtistNoticesUseCase>((
-  ref,
-) {
-  return GetArtistNoticesUseCase(ref.watch(myChannelRepositoryProvider));
-});
-
-final getFanTalksUseCaseProvider = Provider<GetFanTalksUseCase>((ref) {
-  return GetFanTalksUseCase(ref.watch(myChannelRepositoryProvider));
-});
-
-final getPublicPlaylistsUseCaseProvider = Provider<GetPublicPlaylistsUseCase>((
-  ref,
-) {
-  return GetPublicPlaylistsUseCase(ref.watch(myChannelRepositoryProvider));
-});
-
-final getFollowersUseCaseProvider = Provider<GetFollowersUseCase>((ref) {
-  return GetFollowersUseCase(ref.watch(myChannelRepositoryProvider));
-});
-
-final getFollowingsUseCaseProvider = Provider<GetFollowingsUseCase>((ref) {
-  return GetFollowingsUseCase(ref.watch(myChannelRepositoryProvider));
-});
-
-/// 나의 채널 뷰모델 제공자
-final myChannelProvider =
-    StateNotifierProvider<MyChannelNotifier, MyChannelState>((ref) {
-      return MyChannelNotifier(
-        getChannelInfoUseCase: ref.watch(getChannelInfoUseCaseProvider),
-        followMemberUseCase: ref.watch(followMemberUseCaseProvider),
-        unfollowMemberUseCase: ref.watch(unfollowMemberUseCaseProvider),
-        getArtistAlbumsUseCase: ref.watch(getArtistAlbumsUseCaseProvider),
-        getArtistNoticesUseCase: ref.watch(getArtistNoticesUseCaseProvider),
-        getFanTalksUseCase: ref.watch(getFanTalksUseCaseProvider),
-        getPublicPlaylistsUseCase: ref.watch(getPublicPlaylistsUseCaseProvider),
-        getFollowersUseCase: ref.watch(getFollowersUseCaseProvider),
-        getFollowingsUseCase: ref.watch(getFollowingsUseCaseProvider),
-      );
-    });
