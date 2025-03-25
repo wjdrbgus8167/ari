@@ -15,12 +15,10 @@ public class CookieUtils {
                 .secure(false)
                 .path("/")
                 .maxAge(maxAge)
-//                .domain(".i12c204.p.ssafy.io")
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
     }
-
 
     /**
      * Refresh Token 쿠키 생성

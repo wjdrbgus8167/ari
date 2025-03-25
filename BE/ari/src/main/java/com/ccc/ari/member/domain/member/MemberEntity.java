@@ -25,7 +25,7 @@ public class MemberEntity {
   @Column(nullable = false, length = 100)
   private String nickname;
 
-  @Column(nullable = false, length = 30)
+  @Column(nullable = false, length = 64)
   private String password;
 
   @Column(nullable = false, length = 64)
@@ -48,11 +48,12 @@ public class MemberEntity {
   @Column(nullable = true, length = 100)
   private String bio;
 
-  @Column(nullable = false, length = 10)
+  @Column(nullable = true, length = 10)
   private String provider;
 
   @Builder
-  public MemberEntity(Integer memberId,String nickname,String password,String email,String profileImageUrl,String instagramId,String bio) {
+  public MemberEntity(Integer memberId,String nickname,String password,String email,String profileImageUrl
+          ,String instagramId,String bio,String provider,LocalDateTime registeredAt) {
     this.memberId = memberId;
     this.nickname = nickname;
     this.password = password;
@@ -60,7 +61,8 @@ public class MemberEntity {
     this.profileImageUrl = profileImageUrl;
     this.instagramId = instagramId;
     this.bio = bio;
-
+    this.provider = provider;
+    this.registeredAt = registeredAt;
   }
 
 }

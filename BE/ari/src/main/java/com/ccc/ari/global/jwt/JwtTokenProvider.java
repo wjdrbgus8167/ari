@@ -7,6 +7,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.*;
@@ -15,6 +16,9 @@ import java.util.*;
 @RequiredArgsConstructor
 @Component
 public class JwtTokenProvider implements InitializingBean {
+
+    @Value("${JWT_SECRET_KEY}")
+    private String jwtSecretKey;
 
     private final JwtProperties jwtProperties;
     private Key signingKey;
@@ -73,7 +77,7 @@ public class JwtTokenProvider implements InitializingBean {
     private Claims getClaims(String token) {
         try{
             return Jwts.parser()
-                    .setSigningKey(signingKey)
+                    .setSigningKey(jwtSecretKey)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();

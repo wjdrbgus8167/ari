@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 public class RefreshToken {
     private String email;
-    private int userId;
+    private Integer userId;
     private String refreshToken;
     private long expiration;
 
