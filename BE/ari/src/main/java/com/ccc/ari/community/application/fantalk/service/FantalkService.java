@@ -2,7 +2,7 @@ package com.ccc.ari.community.application.fantalk.service;
 
 import com.ccc.ari.community.application.fantalk.command.CreateFantalkCommand;
 import com.ccc.ari.community.application.fantalk.repository.FantalkRepository;
-import com.ccc.ari.community.domain.fantalk.client.S3Client;
+import com.ccc.ari.global.infrastructure.S3Client;
 import com.ccc.ari.community.domain.fantalk.entity.Fantalk;
 import com.ccc.ari.community.domain.fantalk.vo.FantalkContent;
 import lombok.RequiredArgsConstructor;

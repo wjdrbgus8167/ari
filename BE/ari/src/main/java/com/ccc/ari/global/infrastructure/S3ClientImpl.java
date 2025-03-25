@@ -1,7 +1,5 @@
-package com.ccc.ari.community.infrastructure.fantalk.adapter;
+package com.ccc.ari.global.infrastructure;
 
-import com.ccc.ari.community.domain.fantalk.client.S3Client;
-import com.ccc.ari.global.infrastructure.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
