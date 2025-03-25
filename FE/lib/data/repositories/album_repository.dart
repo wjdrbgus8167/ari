@@ -15,7 +15,6 @@ class AlbumRepositoryImpl implements AlbumRepository {
     try {
       final response = await dataSource.getAlbumDetail(albumId);
 
-      // 응답 데이터 구조 확인
       if (response.data == null) {
         return Left(Failure(message: "Response data is null"));
       }
