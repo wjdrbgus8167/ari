@@ -35,7 +35,7 @@ class AlbumDetailViewModel extends StateNotifier<AlbumDetailState> {
 
   AlbumDetailViewModel({
     required this.getAlbumDetail,
-  }) : super(AlbumDetailState(errorMessage: null)); // 명시적으로 null로 초기화
+  }) : super(AlbumDetailState(errorMessage: null));
 
   // 앨범 상세 정보 로드
   Future<void> loadAlbumDetail(int albumId) async {

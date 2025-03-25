@@ -29,39 +29,33 @@ class AuthInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     // 401 에러 처리 (인증 실패)
     if (err.response?.statusCode == 401) {
-      // 리프레시 토큰 요청 또는 로그인 요청이면 재시도하지 않음
-      if (err.requestOptions.path.contains('/auth/refresh') || 
-          err.requestOptions.path.contains('/auth/login')) {
-        return handler.next(err);
-      }
+      return handler.next(err);
+    }
       
       // 토큰 갱신 시도
-      final newTokens = await refreshTokensUseCase();
-      if (newTokens != null) {
-        // 원래 요청 재시도
-        final options = Options(
-          method: err.requestOptions.method,
-          headers: {
-            ...err.requestOptions.headers,
-            'Authorization': 'Bearer ${newTokens.accessToken}',
-          },
-        );
+    final newTokens = await refreshTokensUseCase();
+    if (newTokens != null) {
+      // 원래 요청 재시도
+      final options = Options(
+        method: err.requestOptions.method,
+        headers: {
+          ...err.requestOptions.headers,
+          'Authorization': 'Bearer ${newTokens.accessToken}',
+        },
+      );
         
-        try {
-          final response = await dio.request(
-            err.requestOptions.path,
-            options: options,
-            data: err.requestOptions.data,
-            queryParameters: err.requestOptions.queryParameters,
-          );
-          return handler.resolve(response);
-        } on DioException catch (e) {
-          return handler.next(e);
-        }
+      try {
+        final response = await dio.request(
+          err.requestOptions.path,
+          options: options,
+          data: err.requestOptions.data,
+          queryParameters: err.requestOptions.queryParameters,
+        );
+        return handler.resolve(response);
+      } on DioException catch (e) {
+        return handler.next(e);
       }
     }
-    
-    // 다른 에러는 그대로 전달
     return handler.next(err);
   }
 }

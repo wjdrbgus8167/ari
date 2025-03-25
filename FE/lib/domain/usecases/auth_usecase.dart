@@ -24,7 +24,8 @@ class LoginUseCase {
 
   LoginUseCase(this.repository);
 
-  Future<void> call(Token tokens) => repository.login(tokens);
+  //유효성 검사
+  Future<void> call(String email, String password) => repository.login(email, password);
 }
 
 // 로그아웃 유스케이스. 토큰 제거 로직 작동
@@ -52,4 +53,12 @@ class GetTokensUseCase {
   GetTokensUseCase(this.repository);
 
   Future<Token?> call() => repository.getTokens();
+}
+
+class SignUpUseCase {
+  final AuthRepository repository;
+
+  SignUpUseCase(this.repository);
+
+  Future<void> call(String email, String nickname, String password) => repository.signUp(email, nickname, password);
 }

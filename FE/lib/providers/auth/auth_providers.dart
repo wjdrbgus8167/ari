@@ -2,9 +2,10 @@ import 'package:ari/core/utils/auth_interceptor.dart';
 import 'package:ari/data/datasources/auth_local_data_source.dart';
 import 'package:ari/data/datasources/auth_remote_data_source.dart';
 import 'package:ari/data/repositories/auth_repository_impl.dart';
-import 'package:ari/domain/entities/token.dart';
 import 'package:ari/domain/repositories/auth_repository.dart';
 import 'package:ari/domain/usecases/auth_usecase.dart';
+import 'package:ari/presentation/viewmodels/login_viewmodel.dart';
+import 'package:ari/presentation/viewmodels/sign_up_viewmodel.dart';
 import 'package:ari/providers/global_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -34,12 +35,20 @@ final getTokensUseCaseProvider = Provider<GetTokensUseCase>((ref) {
   return GetTokensUseCase(ref.watch(authRepositoryProvider));
 });
 
+final saveTokensUseCaseProvider = Provider<SaveTokensUseCase>((ref) {
+  return SaveTokensUseCase(ref.watch(authRepositoryProvider));
+});
+
 final loginUseCaseProvider = Provider<LoginUseCase>((ref) {
   return LoginUseCase(ref.watch(authRepositoryProvider));
 });
 
 final logoutUseCaseProvider = Provider<LogoutUseCase>((ref) {
   return LogoutUseCase(ref.watch(authRepositoryProvider));
+});
+
+final signUpUseCaseProvider = Provider<SignUpUseCase>((ref) {
+  return SignUpUseCase(ref.watch(authRepositoryProvider));
 });
 
 final refreshTokensUseCaseProvider = Provider<RefreshTokensUseCase>((ref) {
@@ -71,6 +80,20 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
   );
 });
 
+final signUpViewModelProvider = StateNotifierProvider<SignUpViewModel, SignUpState>((ref) { 
+  return SignUpViewModel(
+    signUpUseCase: ref.watch(signUpUseCaseProvider),
+  );
+});
+
+final loginViewModelProvider = StateNotifierProvider<LoginViewModel, LoginState>((ref) {
+  
+  return LoginViewModel(
+    loginUseCase: ref.watch(loginUseCaseProvider),
+    saveTokensUseCase: ref.watch(saveTokensUseCaseProvider),
+  );
+});
+
 // 유저 로그인 여부를 관리
 class AuthStateNotifier extends StateNotifier<AsyncValue<bool>> {
   final GetAuthStatusUseCase getAuthStatusUseCase;
@@ -95,21 +118,18 @@ class AuthStateNotifier extends StateNotifier<AsyncValue<bool>> {
     }
   }
 
-  // 로그인 성공 시 이 함수를 호출해 토큰 정보 저장
-  Future<void> login(String accessToken, String refreshToken) async {
-    state = const AsyncValue.loading();
+  
+  Future<void> login(String email, String password) async {
     try {
-      await loginUseCase(Token(
-        accessToken: accessToken,
-        refreshToken: refreshToken,
-      ));
+      final result = await loginUseCase(email, password);
+
       state = const AsyncValue.data(true);
     } catch (e, stackTrace) {
       state = AsyncValue.error(e, stackTrace);
     }
   }
 
-  // 로그아웃 성공 시 이 함수를 호출해 제거거
+
   Future<void> logout() async {
     state = const AsyncValue.loading();
     try {

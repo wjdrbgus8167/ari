@@ -11,6 +11,7 @@ class AppRoutes {
 
   // 여기에 경로 더 추가하십시옹
   static const String login = '/login';
+  static const String signUp = '/signup';
   static const String album = '/album';
   static const String playlist = '/playlist';
   static const String listeningqueue = '/listeningqueue';

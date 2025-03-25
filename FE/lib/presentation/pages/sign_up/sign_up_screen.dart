@@ -1,12 +1,14 @@
+import 'package:ari/presentation/routes/app_router.dart';
+import 'package:ari/presentation/widgets/common/button_large.dart';
 import 'package:ari/presentation/widgets/sign_up/sign_up_button.dart';
 import 'package:ari/presentation/widgets/sign_up/sign_up_text_field.dart';
-import 'package:ari/providers/global_providers.dart';
+import 'package:ari/providers/auth/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ari/presentation/pages/home/home_screen.dart';
+import 'package:ari/presentation/pages/login/login_screen.dart'; // 로그인 화면으로 변경
 
 class SignUpScreen extends ConsumerWidget {
-  const SignUpScreen({Key? key}) : super(key: key);
+  const SignUpScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -84,14 +86,12 @@ class SignUpScreen extends ConsumerWidget {
                   const SizedBox(height: 20),
                   
                   // 회원가입 버튼
-                  SignUpButton(
+                  ButtonLarge(
                     text: '회원가입 완료하기',
-                    onTap: () async {
+                    onPressed: () async {
                       if (await viewModel.signUp()) {
-                        // 회원가입 성공, 다음 화면으로 이동
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (context) => const HomeScreen())
-                        );
+                        // 잠시 후 로그인 화면으로 이동
+                        Navigator.of(context).pushNamed(AppRoutes.login);
                       }
                     },
                     isLoading: signUpState.isLoading,

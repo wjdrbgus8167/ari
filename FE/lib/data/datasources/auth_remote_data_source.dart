@@ -40,8 +40,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> signUp(SignUpRequest signUpRequest) async {
     // API 호출 구현
     await dio.post(
-        '/v1/albums/upload',
-        data: signUpRequest,
+      '/v1/auth/members/register',
+      data: signUpRequest,
     );
     
     await Future.delayed(const Duration(seconds: 1));
@@ -52,8 +52,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<TokenModel?> login(LoginRequest loginRequest) async {
     // API 호출 구현
     final response = await dio.post(
-        '/v1/albums/upload',
-        data: loginRequest,
+      '/v1/auth/members/login',
+      data: loginRequest,
     );
     
     return TokenModel.fromJson(response.data);

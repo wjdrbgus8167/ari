@@ -1,3 +1,4 @@
+import 'package:ari/data/models/login_request.dart';
 import 'package:ari/domain/entities/token.dart';
 import 'package:ari/domain/repositories/auth_repository.dart';
 import 'package:ari/data/datasources/auth_local_data_source.dart';
@@ -65,15 +66,10 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Token?> login() async {
-    //토큰을 가져온다.
-    final currentTokens = await localDataSource.getTokens();
-    if (currentTokens == null) {
-      return null;
-    }
-
+  Future<Token?> login(String email, String password) async {
     // refresh dataSource를 구현하여 새로운 토큰을 받는다.
-    final newTokens = await remoteDataSource.refreshTokens(currentTokens.refreshToken);
+    
+    final newTokens = await remoteDataSource.login(LoginRequest(email: email, password: password));
     if (newTokens != null) {
       // 그 토큰을 저장한다.
       await localDataSource.saveTokens(newTokens);

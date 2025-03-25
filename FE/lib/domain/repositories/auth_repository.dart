@@ -15,5 +15,5 @@ abstract class AuthRepository {
   Future<void> saveTokens(Token tokens);
   Future<void> clearTokens();
   Future<Token?> refreshTokens();
-  Future<Token?> login();
+  Future<Token?> login(String email, String password);
 }
