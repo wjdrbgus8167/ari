@@ -5,9 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/presentation/widgets/common/listening_queue_appbar.dart';
 import 'package:ari/presentation/widgets/playlist/playlist_selectbar.dart';
-import 'package:ari/presentation/widgets/playlist/playlist_tile.dart';
-import 'package:ari/data/models/playlist.dart';
-import 'package:ari/providers/global_providers.dart'; // 필요시 Provider들을 관리하는 파일
 import 'package:ari/presentation/viewmodels/playlist/playlist_viewmodel.dart';
 
 class PlaylistScreen extends ConsumerWidget {
