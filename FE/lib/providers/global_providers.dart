@@ -25,7 +25,7 @@ final bottomNavProvider = StateNotifierProvider<BottomNavState, int>((ref) {
 
 // 재생 상태 전역 관리
 class PlaybackState {
-  final String? currentTrackId; // ✅ 기존 currentSongId → currentTrackId로 변경
+  final String? currentTrackId;
   final String trackTitle;
   final bool isPlaying;
 

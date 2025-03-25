@@ -2,6 +2,7 @@
 import 'package:ari/domain/entities/album.dart';
 import 'package:ari/domain/usecases/album_detail_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dartz/dartz.dart';
 
 // 상태 클래스
 class AlbumDetailState {
@@ -9,11 +10,7 @@ class AlbumDetailState {
   final String? errorMessage;
   final Album? album;
 
-  AlbumDetailState({
-    this.isLoading = false,
-    this.errorMessage,
-    this.album,
-  });
+  AlbumDetailState({this.isLoading = false, this.errorMessage, this.album});
 
   // 상태 복사 메서드
   AlbumDetailState copyWith({
@@ -33,9 +30,8 @@ class AlbumDetailState {
 class AlbumDetailViewModel extends StateNotifier<AlbumDetailState> {
   final GetAlbumDetail getAlbumDetail;
 
-  AlbumDetailViewModel({
-    required this.getAlbumDetail,
-  }) : super(AlbumDetailState(errorMessage: null)); // 명시적으로 null로 초기화
+  AlbumDetailViewModel({required this.getAlbumDetail})
+    : super(AlbumDetailState(errorMessage: null)); // 명시적으로 null로 초기화
 
   // 앨범 상세 정보 로드
   Future<void> loadAlbumDetail(int albumId) async {
@@ -51,18 +47,12 @@ class AlbumDetailViewModel extends StateNotifier<AlbumDetailState> {
     result.fold(
       // 실패 케이스 (Left)
       (failure) {
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: failure.message,
-        );
+        state = state.copyWith(isLoading: false, errorMessage: failure.message);
       },
       // 성공 케이스 (Right)
       (album) {
-        state = state.copyWith(
-          isLoading: false,
-          album: album,
-        );
-      }
+        state = state.copyWith(isLoading: false, album: album);
+      },
     );
   }
 }

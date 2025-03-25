@@ -15,7 +15,6 @@ class PlaybackBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final playbackState = ref.watch(playbackProvider);
-    final audioService = ref.read(audioServiceProvider);
     // playbackServiceProvider에서 playbackService 인스턴스를 읽어옴.
     final playbackService = ref.read(playbackServiceProvider);
 
