@@ -121,7 +121,7 @@ class AuthStateNotifier extends StateNotifier<AsyncValue<bool>> {
   
   Future<void> login(String email, String password) async {
     try {
-      final result = await loginUseCase(email, password);
+      await loginUseCase(email, password);
 
       state = const AsyncValue.data(true);
     } catch (e, stackTrace) {
