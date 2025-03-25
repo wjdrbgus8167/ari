@@ -1,16 +1,16 @@
 import 'package:ari/presentation/routes/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../widgets/album/album_section_header.dart';
-import '../../widgets/album/album_card.dart';
-import '../../widgets/common/carousel_container.dart';
-import '../../widgets/playlist/playlist_card.dart';
-import '../../widgets/hot_chart_list.dart';
-import '../../../core/utils/genre_utils.dart';
-import '../../widgets/home_section.dart';
-import '../../widgets/login_prompt.dart';
-import '../../../providers/global_providers.dart';
-import '../../widgets/common/header_widget.dart';
+import 'package:ari/presentation/widgets/album/album_section_header.dart';
+import 'package:ari/presentation/widgets/album/album_card.dart';
+import 'package:ari/presentation/widgets/common/carousel_container.dart';
+import 'package:ari/presentation/widgets/playlist/playlist_card.dart';
+import 'package:ari/presentation/widgets/hot_chart_list.dart';
+import 'package:ari/core/utils/genre_utils.dart';
+import 'package:ari/presentation/widgets/home_section.dart';
+import 'package:ari/presentation/widgets/login_prompt.dart';
+import 'package:ari/providers/global_providers.dart';
+import 'package:ari/presentation/widgets/common/header_widget.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});

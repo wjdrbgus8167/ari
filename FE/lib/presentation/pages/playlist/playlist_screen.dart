@@ -1,4 +1,3 @@
-// lib/presentation/widgets/playlist/playlist_screen.dart
 import 'package:ari/presentation/widgets/playlist/playlist_track_controls.dart';
 import 'package:ari/presentation/widgets/playlist/playlist_track_list.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/presentation/widgets/common/listening_queue_appbar.dart';
 import 'package:ari/presentation/widgets/playlist/playlist_selectbar.dart';
 import 'package:ari/presentation/viewmodels/playlist/playlist_viewmodel.dart';
+import 'package:ari/presentation/widgets/common/global_bottom_widget.dart';
 
 class PlaylistScreen extends ConsumerWidget {
   const PlaylistScreen({Key? key}) : super(key: key);
@@ -24,38 +24,40 @@ class PlaylistScreen extends ConsumerWidget {
       );
     }
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Column(
-        children: [
-          ListeningQueueAppBar(
-            onBack: () => Navigator.pop(context),
-            onSearch: () {
-              _showSearchDialog(context, playlistViewModel);
-            },
-            selectedTab: ListeningTab.playlist,
-            onTabChanged: (ListeningTab tab) {
-              if (tab == ListeningTab.listeningQueue) {
-                Navigator.pushReplacementNamed(context, '/listeningqueue');
-              }
-            },
-          ),
-          const SizedBox(height: 20),
-          // PlaylistSelectbar를 통해 플레이리스트 선택
-          PlaylistSelectbar(
-            onPlaylistSelected: (playlist) {
-              playlistViewModel.setPlaylist(playlist);
-            },
-          ),
-          const SizedBox(height: 10),
-          // 전체 트랙 선택 바
-          PlaylistTrackControls(),
-          const SizedBox(height: 10),
-          // 트랙 목록
-          Expanded(
-            child: PlaylistTrackList(), // ✅ 모듈화된 리스트 위젯 사용
-          ),
-        ],
+    return GlobalBottomWidget(
+      child: Container(
+        color: Colors.black, // 배경색을 검정색으로 지정
+        child: Column(
+          children: [
+            ListeningQueueAppBar(
+              onBack: () => Navigator.pop(context),
+              onSearch: () {
+                _showSearchDialog(context, playlistViewModel);
+              },
+              selectedTab: ListeningTab.playlist,
+              onTabChanged: (ListeningTab tab) {
+                if (tab == ListeningTab.listeningQueue) {
+                  Navigator.pushReplacementNamed(context, '/listeningqueue');
+                }
+              },
+            ),
+            const SizedBox(height: 20),
+            // PlaylistSelectbar를 통해 플레이리스트 선택
+            PlaylistSelectbar(
+              onPlaylistSelected: (playlist) {
+                playlistViewModel.setPlaylist(playlist);
+              },
+            ),
+            const SizedBox(height: 10),
+            // 전체 트랙 선택 바
+            PlaylistTrackControls(),
+            const SizedBox(height: 10),
+            // 트랙 목록
+            Expanded(
+              child: PlaylistTrackList(), // 모듈화된 리스트 위젯 사용
+            ),
+          ],
+        ),
       ),
     );
   }

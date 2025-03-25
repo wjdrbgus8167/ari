@@ -3,8 +3,8 @@ import 'package:ari/presentation/pages/album/album_detail_screen.dart';
 import 'package:ari/presentation/pages/track_detail/track_detail_screen.dart';
 import 'package:ari/presentation/pages/home/home_screen.dart';
 import 'package:ari/presentation/pages/mypage/mypage_screen.dart';
-import 'package:ari/presentation/widgets/listening_queue/listening_queue_screen.dart';
-import 'package:ari/presentation/widgets/playlist/playlist_screen.dart';
+import 'package:ari/presentation/pages/listeningqueue/listening_queue_screen.dart';
+import 'package:ari/presentation/pages/playlist/playlist_screen.dart';
 
 class AppRoutes {
   static const String home = '/';

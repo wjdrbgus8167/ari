@@ -1,11 +1,11 @@
 import 'package:ari/data/models/playlist.dart';
 import 'package:ari/data/models/track.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/utils/album_filter.dart';
-import '../../../dummy_data/mock_data.dart';
-import '../../../data/models/album.dart';
-import '../../../core/utils/genre_utils.dart';
-import '../../domain/usecases/get_charts_usecase.dart';
+import 'package:ari/core/utils/album_filter.dart';
+import 'package:ari/dummy_data/mock_data.dart';
+import 'package:ari/data/models/album.dart';
+import 'package:ari/core/utils/genre_utils.dart';
+import 'package:ari/domain/usecases/get_charts_usecase.dart';
 
 class HomeViewModel extends StateNotifier<HomeState> {
   final GetChartsUseCase getChartsUseCase;
