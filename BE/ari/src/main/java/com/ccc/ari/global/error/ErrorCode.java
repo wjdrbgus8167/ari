@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum ErrorCode {
 
-
     // 인증 관련
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "A001", "접근 권한이 없습니다."),
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "A002", "토큰이 만료되었습니다."),
@@ -20,7 +19,6 @@ public enum ErrorCode {
     UNSUPPORTED_TOKEN(HttpStatus.BAD_REQUEST, "A008", "지원되지 않는 JWT 토큰입니다."),
     INVALID_TOKEN_FORMAT(HttpStatus.BAD_REQUEST, "A009", "JWT 토큰 형식이 잘못되었습니다."),
 
-
     // 음원 재생 관련
     MUSIC_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "M001", "해당 음원을 찾을 수 없습니다."),
     MUSIC_STREAMING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "M002", "음원 스트리밍 중 오류가 발생했습니다."),
@@ -28,8 +26,12 @@ public enum ErrorCode {
     MUSIC_FORMAT_UNSUPPORTED(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "M004", "지원하지 않는 음원 형식입니다."),
     MUSIC_PLAYBACK_TIMEOUT(HttpStatus.REQUEST_TIMEOUT, "M005", "음원 재생 요청이 시간 초과되었습니다."),
 
-    //S3 업로드 관련
-    S3_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S001", "S3 파일 업로드 중 오류가 발생했습니다.");
+    // S3 업로드 관련
+    S3_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S001", "S3 파일 업로드 중 오류가 발생했습니다."),
+
+    // 팬톡 관련
+    FANTALK_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "F001", "팬톡 생성 중 오류가 발생했습니다.");
+
 
     private final HttpStatus status;
     private final String code;
