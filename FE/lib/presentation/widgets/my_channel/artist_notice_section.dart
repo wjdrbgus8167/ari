@@ -19,11 +19,10 @@ class ArtistNoticeSection extends ConsumerWidget {
     final isLoading =
         channelState.artistNoticesStatus == MyChannelStatus.loading;
     final hasError = channelState.artistNoticesStatus == MyChannelStatus.error;
+    final isArtist = channelState.isArtist; // 아티스트 회원인지 여부 확인
 
-    // 공지사항이 없는 경우(아티스트 아님) 위젯 표시 X
-    if (!isLoading &&
-        (noticeResponse == null || noticeResponse.notices.isEmpty) &&
-        !hasError) {
+    // 아티스트가 아닌 경우 위젯을 표시하지 않음
+    if (!isArtist) {
       return const SizedBox.shrink();
     }
 
@@ -62,6 +61,8 @@ class ArtistNoticeSection extends ConsumerWidget {
               ],
             ),
           ),
+
+          // 로딩 중 표시시
           if (isLoading)
             const Center(
               child: Padding(
@@ -69,6 +70,7 @@ class ArtistNoticeSection extends ConsumerWidget {
                 child: CircularProgressIndicator(color: Colors.blue),
               ),
             )
+          // 에러 표시
           else if (hasError)
             Center(
               child: Padding(
@@ -80,11 +82,25 @@ class ArtistNoticeSection extends ConsumerWidget {
                 ),
               ),
             )
+
+          // 공지사항이 없는 경우 메시지 표시
+          else if (noticeResponse == null || noticeResponse.notices.isEmpty)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: Text(
+                  '아티스트가 작성한 공지사항이 없습니다.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey[400], fontSize: 14),
+                ),
+              ),
+            )
+
+          // 공지사항 표시 (최근 1개만)
           else
-            // 최근 공지사항 1개만 표시
             _buildNoticeItem(
               context,
-              noticeResponse!.notices[0],
+              noticeResponse.notices[0],
               noticeResponse,
             ),
         ],
@@ -106,17 +122,8 @@ class ArtistNoticeSection extends ConsumerWidget {
     return GestureDetector(
       onTap: () {
         // TODO: 공지사항 상세 페이지로 이동하는 네비게이션 로직
-        print('공지사항 터치: ${notice.noticeId}');
-        // 예시:
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => NoticeDetailPage(
-        //       noticeId: notice.noticeId,
-        //       memberId: memberId,
-        //     ),
-        //   ),
-        // );
+        print('공지사항 클릭: ${notice.noticeId}');
+
       },
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
