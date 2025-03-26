@@ -34,7 +34,6 @@ public class StreamingLogQueryService {
     public List<StreamingLog> findStreamingLogByTrackId(Integer trackId) {
         // 블록체인 이벤트 구독 및 IPFS 데이터 처리를 위한 리스트 준비
         logger.info("findStreamingLogByTrackId 메서드 호출 - trackId: {}", trackId);
-        List<StreamingLog> allStreamingLogs = new ArrayList<>();
 
         // 블록체인으로부터 이벤트 로그 조회
         List<StreamingAggregationContract.RawAllTracksUpdatedEventResponse> events =
@@ -61,7 +60,7 @@ public class StreamingLogQueryService {
                         // 리스트로 수집
                         .collect(Collectors.toList());
 
-        logger.info("총 {}개의 스트리밍 로그가 정렬 및 필터링되었습니다.", allStreamingLogs.size());
+        logger.info("총 {}개의 스트리밍 로그가 정렬 및 필터링되었습니다.", allStreamingLog.size());
 
         logger.info("findStreamingLogByTrackId 처리 완료 - trackId: {}", trackId);
 
