@@ -10,6 +10,7 @@ import '../common/carousel_container.dart';
 class PublicPlaylistSection extends ConsumerWidget {
   final String memberId;
 
+  /// [memberId] : 채널 소유자의 회원 ID
   const PublicPlaylistSection({super.key, required this.memberId});
 
   @override
@@ -46,36 +47,37 @@ class PublicPlaylistSection extends ConsumerWidget {
       );
     }
 
-    // 공개된 플레이리스트가 없는 경우 메시지 표시
+    // 플레이리스트가 없는 경우에도 타이틀, 안내 메시지 표시
     if (playlistResponse == null || playlistResponse.playlists.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.symmetric(vertical: 24),
-        alignment: Alignment.center,
-        child: Column(
-          children: [
-            // 섹션 제목 (optional)
-            const Padding(
-              padding: EdgeInsets.only(bottom: 16),
-              child: Text(
-                '공개된 플레이리스트',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 16, top: 16, bottom: 12),
+            child: const Text(
+              '공개된 플레이리스트',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            // 플레이리스트 없음 메시지
-            Text(
-              '공개된 플레이리스트가 없습니다.',
-              style: TextStyle(color: Colors.grey[400], fontSize: 14),
+          ),
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Text(
+                '공개된 플레이리스트가 없습니다.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey[400], fontSize: 14),
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       );
     }
 
-    // 플레이리스트가 있는 경우 CarouselContainer 위젯으로 표시
+    // 플레이리스트가 있는 경우
     return CarouselContainer(
       title: '공개된 플레이리스트',
       height: 220, // 앨범 섹션과 동일한 높이
@@ -136,7 +138,7 @@ class PublicPlaylistSection extends ConsumerWidget {
               Icon(Icons.share, size: 14, color: Colors.grey[400]),
               const SizedBox(width: 4),
               Text(
-                '${playlist.shareCount}회 공유됨',
+                '${playlist.shareCount}회',
                 style: TextStyle(color: Colors.grey[400], fontSize: 12),
               ),
             ],
