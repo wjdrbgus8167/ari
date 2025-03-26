@@ -12,5 +12,5 @@ import java.util.List;
 @Repository
 public interface NoticeCommentJpaRepository extends JpaRepository<NoticeCommentJpaEntity, Integer> {
     // 공지사항 ID로 댓글 목록 조회 (생성 일시 기준 내림차순 정렬)
-    List<NoticeCommentJpaEntity> findByNoticeIdOrderByCreatedAtDesc(Integer noticeId);
+    List<NoticeCommentJpaEntity> findByNoticeIdAndDeletedYnFalseOrderByCreatedAtDesc(Integer noticeId);
 }

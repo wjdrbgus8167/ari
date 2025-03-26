@@ -25,8 +25,8 @@ public class FantalkClientImpl implements FantalkClient {
 
         // 2. JPA 엔티티 -> 도메인 엔티티 -> DTO로 변환합니다.
         return jpaEntities.stream()
-                .map(jpaEntity -> jpaEntity.toDomain())
-                .map(fantalk -> FantalkDto.from(fantalk))
+                .map(FantalkJpaEntity::toDomain)
+                .map(FantalkDto::from)
                 .toList();
     }
 }

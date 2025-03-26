@@ -4,10 +4,12 @@ import com.ccc.ari.community.application.fantalk.command.CreateFantalkCommand;
 import com.ccc.ari.community.application.fantalk.service.FantalkService;
 import com.ccc.ari.community.ui.fantalk.request.CreateFantalkRequest;
 import com.ccc.ari.global.error.ErrorCode;
+import com.ccc.ari.global.security.MemberUserDetails;
 import com.ccc.ari.global.util.ApiUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,8 +33,8 @@ public class FantalkController {
             @RequestPart(value = "request") String requestJson
     ) {
         try {
-            // TODO: 인증 구현 완료 시 수정하겠습니다.
-            Integer memberId = 1;
+            MemberUserDetails userDetails = (MemberUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Integer memberId = userDetails.getMemberId();
 
             // 1. JSON 문자열을 Request 객체로 변환합니다.
             CreateFantalkRequest request = objectMapper.readValue(requestJson, CreateFantalkRequest.class);
