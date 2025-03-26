@@ -29,17 +29,17 @@ class TrackDataSourceImpl implements TrackDataSource {
       if (apiResponse.status == 200) {
         return apiResponse;
       } else {
-        throw Failure.fromApiResponse(apiResponse);
+        throw Failure(message: "에러가 났음요");
       }
       
     } catch (e) {
       // DioError 또는 기타 예외 처리
       if (e is DioException) {
         // Dio 에러 정보를 사용하여 에러 응답 생성
-        throw Failure.fromDioException(e);
+        throw Failure(message: "에러가 났음요");
       } else {
         // 기타 예외 처리
-        throw Failure.fromException(e as Exception);
+        throw Failure(message: "에러가 났음요");
       }
     }
   }
