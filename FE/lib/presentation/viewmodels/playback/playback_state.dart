@@ -1,23 +1,31 @@
 class PlaybackState {
+  final bool isPlaying;
   final String trackTitle;
   final String artist;
-  final bool isPlaying;
+  final String coverImageUrl;
+  final String lyrics;
 
   PlaybackState({
-    required this.trackTitle,
-    required this.artist,
-    required this.isPlaying,
+    this.isPlaying = false,
+    this.trackTitle = '',
+    this.artist = '',
+    this.coverImageUrl = '',
+    this.lyrics = '',
   });
 
   PlaybackState copyWith({
+    bool? isPlaying,
     String? trackTitle,
     String? artist,
-    bool? isPlaying,
+    String? coverImageUrl,
+    String? lyrics,
   }) {
     return PlaybackState(
+      isPlaying: isPlaying ?? this.isPlaying,
       trackTitle: trackTitle ?? this.trackTitle,
       artist: artist ?? this.artist,
-      isPlaying: isPlaying ?? this.isPlaying,
+      coverImageUrl: coverImageUrl ?? this.coverImageUrl,
+      lyrics: lyrics ?? this.lyrics,
     );
   }
 }

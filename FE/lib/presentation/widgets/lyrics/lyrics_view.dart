@@ -7,12 +7,14 @@ import '../playback/playback_controls.dart';
 class LyricsView extends StatefulWidget {
   final String albumCoverUrl;
   final String trackTitle;
+  final String lyrics;
   final VoidCallback onToggle; // 창 닫기 기능 유지
 
   const LyricsView({
     Key? key,
     required this.albumCoverUrl,
     required this.trackTitle,
+    required this.lyrics,
     required this.onToggle,
   }) : super(key: key);
 
@@ -71,33 +73,35 @@ class _LyricsViewState extends State<LyricsView> {
   }
 
   Widget _buildLyricsScreen() {
-    return Container(
-      width: double.infinity,
-      // 높이를 전체 화면으로 설정하여 재생 인터페이스가 보이지 않도록 함
-      height: MediaQuery.of(context).size.height,
-      decoration: BoxDecoration(
-        color: _dominantColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      child: Column(
-        children: [
-          const SizedBox(height: 20),
-          LyricsHeader(trackTitle: widget.trackTitle),
-          const SizedBox(height: 20),
-          Expanded(child: LyricsContent(lyrics: "가사 줄 1\n가사 줄 2\n가사 줄 3\n")),
-          const SizedBox(height: 20),
-          PlaybackControls(onToggle: widget.onToggle),
-          const SizedBox(height: 10),
-          IconButton(
-            icon: const Icon(
-              Icons.keyboard_arrow_down,
-              size: 36,
-              color: Colors.white70,
+    return SafeArea(
+      child: Container(
+        width: double.infinity,
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+          color: _dominantColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            LyricsHeader(trackTitle: widget.trackTitle),
+            const SizedBox(height: 20),
+            // LyricsContent에 widget.lyrics 전달
+            Expanded(child: LyricsContent(lyrics: widget.lyrics)),
+            const SizedBox(height: 20),
+            PlaybackControls(onToggle: widget.onToggle),
+            const SizedBox(height: 10),
+            IconButton(
+              icon: const Icon(
+                Icons.keyboard_arrow_down,
+                size: 36,
+                color: Colors.white70,
+              ),
+              onPressed: widget.onToggle,
             ),
-            onPressed: widget.onToggle,
-          ),
-          const SizedBox(height: 20),
-        ],
+            const SizedBox(height: 20),
+          ],
+        ),
       ),
     );
   }

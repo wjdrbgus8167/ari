@@ -1,11 +1,11 @@
 import 'package:ari/providers/playback/playback_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../providers/playback/playback_state_provider.dart';
-import '../../../providers/playback/playback_progress_provider.dart';
-import '../../../core/constants/app_colors.dart';
-import '../playback/expanded_playbackscreen.dart';
-import '../../routes/app_router.dart';
+import 'package:ari/providers/playback/playback_state_provider.dart';
+import 'package:ari/providers/playback/playback_progress_provider.dart';
+import 'package:ari/core/constants/app_colors.dart';
+import 'package:ari/presentation/widgets/playback/expanded_playbackscreen.dart';
+import 'package:ari/presentation/routes/app_router.dart';
 
 class PlaybackBar extends ConsumerWidget {
   const PlaybackBar({Key? key}) : super(key: key);
@@ -82,7 +82,11 @@ class PlaybackBar extends ConsumerWidget {
                       await playbackService.audioPlayer.pause();
                     } else {
                       // 재생 중이 아니면 API 호출로 트랙 재생 (여기선 albumId와 trackId를 1로 고정)
-                      await playbackService.playTrack(albumId: 1, trackId: 1);
+                      await playbackService.playTrack(
+                        albumId: 1,
+                        trackId: 1,
+                        ref: ref,
+                      );
                     }
                   },
                 ),

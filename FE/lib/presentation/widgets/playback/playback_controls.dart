@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../providers/playback/playback_state_provider.dart';
-import '../../../providers/playback/playback_progress_provider.dart'; // 재생 진행 관련 프로바이더 (아래 참조)
-import '../../../core/services/audio_service.dart';
+import 'package:ari/providers/playback/playback_state_provider.dart';
+import 'package:ari/providers/playback/playback_progress_provider.dart'; // 재생 진행 관련 프로바이더 (아래 참조)
+import 'package:ari/core/services/audio_service.dart';
 
 class PlaybackControls extends ConsumerStatefulWidget {
   final VoidCallback onToggle; // 재생/일시정지 콜백

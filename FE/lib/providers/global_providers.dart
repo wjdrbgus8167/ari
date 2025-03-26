@@ -1,8 +1,8 @@
 import 'package:ari/presentation/viewmodels/sign_up_viewmodel.dart';
 import 'package:ari/providers/chart/chart_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../presentation/viewmodels/home_viewmodel.dart';
-import '../presentation/viewmodels/listening_queue_viewmodel.dart';
+import 'package:ari/presentation/viewmodels/home_viewmodel.dart';
+import 'package:ari/presentation/viewmodels/listening_queue_viewmodel.dart';
 import 'package:dio/dio.dart';
 
 final dioProvider = Provider<Dio>((ref) => Dio());
