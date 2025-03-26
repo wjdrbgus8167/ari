@@ -1,5 +1,5 @@
 import 'package:ari/domain/entities/track.dart';
-import 'package:ari/presentation/pages/track_detail/track_detail_screen.dart';
+import 'package:ari/presentation/routes/app_router.dart';
 import 'package:flutter/material.dart';
 
 class AlbumDetailTrackList extends StatelessWidget {
@@ -33,13 +33,7 @@ class AlbumDetailTrackList extends StatelessWidget {
                 Track track = entry.value;
                 return GestureDetector(
                   onTap: () {
-                    // 트랙으로 이동하는 네비게이션
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TrackDetailScreen(albumId: track.albumId, trackId: track.trackId),
-                      ),
-                    );
+                    Navigator.of(context).pushNamed(AppRoutes.track);
                   },
                   child: Text(
                     '${index + 1}. ${track.trackTitle}',  // 숫자와 track을 결합

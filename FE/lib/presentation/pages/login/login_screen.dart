@@ -1,12 +1,18 @@
-import 'package:ari/presentation/pages/sign_up/on_boarding.dart';
-import 'package:ari/presentation/pages/sign_up/sign_up_screen.dart';
+import 'package:ari/presentation/routes/app_router.dart';
+import 'package:ari/presentation/widgets/common/button_large.dart';
+import 'package:ari/providers/auth/auth_providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class LoginScreen extends ConsumerWidget {
+  const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // ViewModel의 notifier와 state를 모두 가져옵니다
+    final viewModel = ref.read(loginViewModelProvider.notifier);
+    final loginState = ref.watch(loginViewModelProvider);
+    
     return Scaffold(
       // 배경색 검정
       backgroundColor: Colors.black,
@@ -59,6 +65,7 @@ class LoginScreen extends StatelessWidget {
                   borderSide: BorderSide.none,
                 ),
               ),
+              onChanged: (value) => viewModel.setEmail(value),
             ),
             const SizedBox(height: 16),
             // 비밀번호 입력 필드
@@ -76,27 +83,33 @@ class LoginScreen extends StatelessWidget {
                   borderSide: BorderSide.none,
                 ),
               ),
+              onChanged: (value) => viewModel.setPassword(value),
             ),
-            const SizedBox(height: 24),
-            // 로그인 버튼
-            SizedBox(
-              height: 48,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                onPressed: () {
-                  // 로그인 로직 구현
-                },
-                child: const Text(
-                  '로그인 하기',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+            const SizedBox(height: 8),
+            
+            // 에러 메시지 표시
+            if (loginState.errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  loginState.errorMessage!,
+                  style: const TextStyle(color: Colors.red),
+                  textAlign: TextAlign.center,
                 ),
               ),
+              
+            const SizedBox(height: 16),
+            // 로그인 버튼
+            ButtonLarge(
+              text: loginState.isLoading ? '로그인 중...' : '로그인하기',
+              onPressed: loginState.isLoading
+                ? null  // 로딩 중일 때는 버튼 비활성화
+                : () async {
+                    if (viewModel.validateInputs() && await viewModel.login()) {
+                      // 로그인 성공 시 홈 화면으로 이동
+                      Navigator.of(context).pushNamed(AppRoutes.home);
+                    }
+                  },
             ),
             const SizedBox(height: 16),
             // 구글 계정으로 로그인 버튼
@@ -115,13 +128,12 @@ class LoginScreen extends StatelessWidget {
                   width: 24,
                   height: 24,
                 ),
-                onPressed: () {
-                  // 구글 로그인 로직 구현
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const AdditionalInfoPage()),
-                  );
-                },
+                onPressed: loginState.isLoading
+                  ? null  // 로딩 중일 때는 버튼 비활성화
+                  : () {
+                      // 구글 로그인 로직 구현
+                      viewModel.startGoogleLogin();
+                    },
                 label: const Text(
                   '구글 계정으로 로그인하기',
                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -138,10 +150,7 @@ class LoginScreen extends StatelessWidget {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const SignUpScreen()),
-                    );
+                    Navigator.of(context).pushNamed(AppRoutes.signUp);
                   },
                   child: const Text(
                     '회원가입 하기',

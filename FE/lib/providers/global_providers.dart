@@ -1,5 +1,10 @@
-import 'package:ari/presentation/viewmodels/sign_up_viewmodel.dart';
+import 'package:ari/core/utils/auth_interceptor.dart';
+import 'package:ari/providers/auth/auth_providers.dart';
+import 'package:ari/providers/my_channel_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dio/dio.dart';
+import 'package:audioplayers/audioplayers.dart';
+
 import '../presentation/viewmodels/home_viewmodel.dart';
 import '../presentation/viewmodels/listening_queue_viewmodel.dart';
 import '../data/models/track.dart';
@@ -62,7 +67,33 @@ class PlaybackNotifier extends StateNotifier<PlaybackState> {
 
 final playlistProvider = StateProvider<List<Track>>((ref) => []);
 
-final dioProvider = Provider<Dio>((ref) => Dio());
+
+final dioProvider = Provider<Dio>((ref) {
+  final dio = Dio(BaseOptions(
+    baseUrl: 'https://ari-music.duckdns.org',
+    contentType: 'application/json',
+  ));
+
+  dio.interceptors.add(LogInterceptor(
+      requestBody: true,
+      responseBody: true,
+      logPrint: (obj) => print('DIO LOG: $obj'),
+    ));
+    
+  final refreshTokensUseCase = ref.read(refreshTokensUseCaseProvider);
+  final getAuthStatusUseCase = ref.read(getAuthStatusUseCaseProvider);
+  final getTokensUseCase = ref.read(getTokensUseCaseProvider);
+
+  // Add auth interceptor with the required dependencies
+  dio.interceptors.add(AuthInterceptor(
+    refreshTokensUseCase: refreshTokensUseCase,
+    getAuthStatusUseCase: getAuthStatusUseCase,
+    getTokensUseCase: getTokensUseCase,
+    dio: dio,
+  ));
+  
+  return dio;
+});
 
 // AudioPlayer 인스턴스를 전역에서 제공하는 Provider 추가
 final audioPlayerProvider = Provider<AudioPlayer>((ref) => AudioPlayer());
@@ -103,7 +134,79 @@ final listeningQueueProvider =
       (ref) => ListeningQueueViewModel(),
     );
 
-final signUpViewModelProvider =
-    StateNotifierProvider<SignUpViewModel, SignUpState>(
-      (ref) => SignUpViewModel(),
-    );
+// ========== 나의 채널 관련 Provider 추가 ==========
+
+
+/// 나의 채널 원격 데이터 소스 제공자
+final myChannelRemoteDataSourceProvider = Provider<MyChannelRemoteDataSource>((
+  ref,
+) {
+  final dio = ref.watch(dioProvider);
+  final token = ref.watch(authTokenProvider);
+
+  return MyChannelRemoteDataSourceImpl(dio: dio, token: token);
+});
+
+/// 나의 채널 리포지토리 제공자
+final myChannelRepositoryProvider = Provider<MyChannelRepository>((ref) {
+  final remoteDataSource = ref.watch(myChannelRemoteDataSourceProvider);
+
+  return MyChannelRepositoryImpl(remoteDataSource: remoteDataSource);
+});
+
+/// UseCase 제공자들
+final getChannelInfoUseCaseProvider = Provider<GetChannelInfoUseCase>((ref) {
+  return GetChannelInfoUseCase(ref.watch(myChannelRepositoryProvider));
+});
+
+final followMemberUseCaseProvider = Provider<FollowMemberUseCase>((ref) {
+  return FollowMemberUseCase(ref.watch(myChannelRepositoryProvider));
+});
+
+final unfollowMemberUseCaseProvider = Provider<UnfollowMemberUseCase>((ref) {
+  return UnfollowMemberUseCase(ref.watch(myChannelRepositoryProvider));
+});
+
+final getArtistAlbumsUseCaseProvider = Provider<GetArtistAlbumsUseCase>((ref) {
+  return GetArtistAlbumsUseCase(ref.watch(myChannelRepositoryProvider));
+});
+
+final getArtistNoticesUseCaseProvider = Provider<GetArtistNoticesUseCase>((
+  ref,
+) {
+  return GetArtistNoticesUseCase(ref.watch(myChannelRepositoryProvider));
+});
+
+final getFanTalksUseCaseProvider = Provider<GetFanTalksUseCase>((ref) {
+  return GetFanTalksUseCase(ref.watch(myChannelRepositoryProvider));
+});
+
+final getPublicPlaylistsUseCaseProvider = Provider<GetPublicPlaylistsUseCase>((
+  ref,
+) {
+  return GetPublicPlaylistsUseCase(ref.watch(myChannelRepositoryProvider));
+});
+
+final getFollowersUseCaseProvider = Provider<GetFollowersUseCase>((ref) {
+  return GetFollowersUseCase(ref.watch(myChannelRepositoryProvider));
+});
+
+final getFollowingsUseCaseProvider = Provider<GetFollowingsUseCase>((ref) {
+  return GetFollowingsUseCase(ref.watch(myChannelRepositoryProvider));
+});
+
+/// 나의 채널 뷰모델 제공자
+final myChannelProvider =
+    StateNotifierProvider<MyChannelNotifier, MyChannelState>((ref) {
+      return MyChannelNotifier(
+        getChannelInfoUseCase: ref.watch(getChannelInfoUseCaseProvider),
+        followMemberUseCase: ref.watch(followMemberUseCaseProvider),
+        unfollowMemberUseCase: ref.watch(unfollowMemberUseCaseProvider),
+        getArtistAlbumsUseCase: ref.watch(getArtistAlbumsUseCaseProvider),
+        getArtistNoticesUseCase: ref.watch(getArtistNoticesUseCaseProvider),
+        getFanTalksUseCase: ref.watch(getFanTalksUseCaseProvider),
+        getPublicPlaylistsUseCase: ref.watch(getPublicPlaylistsUseCaseProvider),
+        getFollowersUseCase: ref.watch(getFollowersUseCaseProvider),
+        getFollowingsUseCase: ref.watch(getFollowingsUseCaseProvider),
+      );
+    });
