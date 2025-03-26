@@ -2,7 +2,6 @@
 import 'package:ari/domain/entities/album.dart';
 import 'package:ari/domain/usecases/album_detail_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dartz/dartz.dart';
 
 // 상태 클래스
 class AlbumDetailState {
@@ -30,8 +29,9 @@ class AlbumDetailState {
 class AlbumDetailViewModel extends StateNotifier<AlbumDetailState> {
   final GetAlbumDetail getAlbumDetail;
 
-  AlbumDetailViewModel({required this.getAlbumDetail})
-    : super(AlbumDetailState(errorMessage: null)); // 명시적으로 null로 초기화
+  AlbumDetailViewModel({
+    required this.getAlbumDetail,
+  }) : super(AlbumDetailState(errorMessage: null));
 
   // 앨범 상세 정보 로드
   Future<void> loadAlbumDetail(int albumId) async {

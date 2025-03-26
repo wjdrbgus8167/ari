@@ -1,8 +1,10 @@
+import 'package:ari/core/utils/auth_interceptor.dart';
+import 'package:ari/providers/auth/auth_providers.dart';
+import 'package:ari/providers/my_channel_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import 'package:audioplayers/audioplayers.dart';
 
-import '../presentation/viewmodels/sign_up_viewmodel.dart';
 import '../presentation/viewmodels/home_viewmodel.dart';
 import '../presentation/viewmodels/listening_queue_viewmodel.dart';
 import '../presentation/viewmodels/my_channel_viewmodel.dart';
@@ -73,7 +75,33 @@ class PlaybackNotifier extends StateNotifier<PlaybackState> {
 
 final playlistProvider = StateProvider<List<Track>>((ref) => []);
 
-final dioProvider = Provider<Dio>((ref) => Dio());
+
+final dioProvider = Provider<Dio>((ref) {
+  final dio = Dio(BaseOptions(
+    baseUrl: 'https://ari-music.duckdns.org',
+    contentType: 'application/json',
+  ));
+
+  dio.interceptors.add(LogInterceptor(
+      requestBody: true,
+      responseBody: true,
+      logPrint: (obj) => print('DIO LOG: $obj'),
+    ));
+    
+  final refreshTokensUseCase = ref.read(refreshTokensUseCaseProvider);
+  final getAuthStatusUseCase = ref.read(getAuthStatusUseCaseProvider);
+  final getTokensUseCase = ref.read(getTokensUseCaseProvider);
+
+  // Add auth interceptor with the required dependencies
+  dio.interceptors.add(AuthInterceptor(
+    refreshTokensUseCase: refreshTokensUseCase,
+    getAuthStatusUseCase: getAuthStatusUseCase,
+    getTokensUseCase: getTokensUseCase,
+    dio: dio,
+  ));
+  
+  return dio;
+});
 
 // AudioPlayer 인스턴스를 전역에서 제공하는 Provider 추가
 final audioPlayerProvider = Provider<AudioPlayer>((ref) => AudioPlayer());
@@ -112,20 +140,8 @@ final listeningQueueProvider =
       (ref) => ListeningQueueViewModel(),
     );
 
-final signUpViewModelProvider =
-    StateNotifierProvider<SignUpViewModel, SignUpState>(
-      (ref) => SignUpViewModel(),
-    );
-
 // ========== 나의 채널 관련 Provider 추가 ==========
 
-/// 인증 토큰 제공자
-/// 로그인 상태에 따라 실제 토큰 반환
-final authTokenProvider = Provider<String>((ref) {
-  // 실제 구현에서는 토큰 저장소에서 가져옵니다
-  // 예: SharedPreferences, Secure Storage 등
-  return 'dummy-token';
-});
 
 /// 나의 채널 원격 데이터 소스 제공자
 final myChannelRemoteDataSourceProvider = Provider<MyChannelRemoteDataSource>((

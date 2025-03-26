@@ -1,3 +1,5 @@
+import 'package:ari/presentation/pages/login/login_screen.dart';
+import 'package:ari/presentation/pages/sign_up/sign_up_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:ari/presentation/pages/album/album_detail_screen.dart';
 import 'package:ari/presentation/pages/track_detail/track_detail_screen.dart';
@@ -12,6 +14,7 @@ class AppRoutes {
 
   // 여기에 경로 더 추가하십시옹
   static const String login = '/login';
+  static const String signUp = '/signup';
   static const String album = '/album';
   static const String playlist = '/playlist';
   static const String listeningqueue = '/listeningqueue';
@@ -23,6 +26,12 @@ class AppRouter {
     switch (settings.name) {
       case AppRoutes.home:
         return MaterialPageRoute(builder: (_) => const HomeScreen());
+
+      case AppRoutes.signUp:
+        return MaterialPageRoute(builder: (_) => const SignUpScreen());
+
+      case AppRoutes.login:
+        return MaterialPageRoute(builder: (_) => const LoginScreen());
 
       case AppRoutes.myPage:
         return MaterialPageRoute(builder: (_) => const MyPageScreen());

@@ -23,7 +23,7 @@ class ApiResponse<T> {
 
 class ApiError {
   final String code;
-  final String message;
+  final String message; 
 
   ApiError({
     required this.code,

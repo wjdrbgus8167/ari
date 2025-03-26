@@ -1,17 +1,147 @@
+import 'package:ari/core/exceptions/failure.dart';
+import 'package:ari/core/utils/extract_token_from_cookie.dart';
+import 'package:ari/data/models/login_request.dart';
+import 'package:ari/data/models/token_model.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../models/sign_up_request.dart';
-/// datasources는 데이터의 입출력(api 호출과 처리)을을 담당합니다.
-/// 클린 아키텍처의 장점은 의존과 구분이 명확하기 때문에 테스트가 편함. 이런 식으로 api 연결 부분을 최소화하는 것도 가능함.
+
 abstract class AuthRemoteDataSource {
-  Future<void> signUp(SignUpRequest userModel);
+  Future<TokenModel?> refreshTokens(String refreshToken);
+  Future<void> signUp(SignUpRequest signUpRequest);
+  Future<TokenModel?> login(LoginRequest loginRequest);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
+  final Ref ref;
+  final String refreshUrl;
+
+  AuthRemoteDataSourceImpl({
+    required this.ref,
+    required this.refreshUrl,
+  });
+
   @override
-  Future<void> signUp(SignUpRequest userModel) async {
-    // API 호출 구현
-    
-    // 임시 구현 (나중에 실제 API 호출로 대체)
-    await Future.delayed(const Duration(seconds: 1));
-    return;
+  Future<TokenModel?> refreshTokens(String refreshToken) async {
+    try {
+      final dio = Dio(BaseOptions(
+        baseUrl: 'https://ari-music.duckdns.org',
+        contentType: 'application/json',
+      ));
+      final response = await dio.post(
+        refreshUrl,
+        data: {'refresh_token': refreshToken},
+      );
+
+      // 응답 헤더에서 쿠키 가져오기
+      final cookies = response.headers.map['set-cookie'];
+      if (cookies != null && cookies.isNotEmpty) {
+        String? accessToken;
+        String? refreshToken;
+        
+        for (var cookie in cookies) {
+          if (cookie.contains('accessToken=')) {
+            accessToken = extractTokenFromCookie(cookie, 'accessToken=');
+          }
+          if (cookie.contains('refreshToken=')) {
+            refreshToken = extractTokenFromCookie(cookie, 'refreshToken=');
+          }
+        }
+        
+        // 토큰이 있으면 저장하거나 사용
+        if (accessToken != null && refreshToken != null) {
+          return TokenModel(accessToken: accessToken, refreshToken: refreshToken);
+        }
+        return null;
+      }
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> signUp(SignUpRequest signUpRequest) async {
+    try {
+      final dio = Dio(BaseOptions(
+        baseUrl: 'https://ari-music.duckdns.org',
+        contentType: 'application/json',
+      ));
+      print('회원가입 요청 시작: ${signUpRequest.toString()}');
+      print('요청 URL: ${dio.options.baseUrl}/api/v1/auth/members/register');
+      
+      await dio.post(
+        '/api/v1/auth/members/register',
+        data: signUpRequest.toJson(),
+      );
+      
+      print('회원가입 성공!');
+    } catch (e) {
+      print('회원가입 오류 발생: $e');
+      rethrow; // 호출자에게 오류 전달
+    }
+  }
+
+
+  @override
+  Future<TokenModel?> login(LoginRequest loginRequest) async {
+    // API 호출 구
+    try {
+      final dio = Dio(BaseOptions(
+        baseUrl: 'https://ari-music.duckdns.org',
+        contentType: 'application/json',
+      ));
+      print('로그인 요청 시작: ${loginRequest.email}');
+      print('요청 URL: ${dio.options.baseUrl}/api/v1/auth/members/login');
+      
+      final response = await dio.post(
+        '/api/v1/auth/members/login',
+        data: loginRequest.toJson(),
+        options: Options(
+          // 쿠키를 받기 위한 설정
+          validateStatus: (status) => true,
+          receiveDataWhenStatusError: true,
+        ),
+      );
+      
+      // 응답 로그
+      print('로그인 응답 코드: ${response.statusCode}');
+      print('로그인 응답 데이터: ${response.data}');
+      print(response);
+
+      // 응답 헤더에서 쿠키 가져오기
+      final cookies = response.headers.map['set-cookie'];
+      if (cookies != null && cookies.isNotEmpty) {
+        print(cookies);
+        String? accessToken;
+        String? refreshToken;
+        
+        for (var cookie in cookies) {
+          if (cookie.contains('access_token=')) {
+            accessToken = extractTokenFromCookie(cookie, 'access_token=');
+          }
+          if (cookie.contains('refresh_token=')) {
+            refreshToken = extractTokenFromCookie(cookie, 'refresh_token=');
+          }
+        }
+        // 토큰이 있으면 저장하거나 사용
+        if (accessToken != null && refreshToken != null) {
+          print(accessToken);
+          return TokenModel(accessToken: accessToken, refreshToken: refreshToken);
+        }
+        print("널이다");
+        return null;
+      }
+    } catch (e) {
+      // DioError 또는 기타 예외 처리
+      print(e.toString());
+      if (e is DioException) {
+        // Dio 에러 정보를 사용하여 에러 응답 생성
+        throw Failure(message: "에러가 났음요");
+      } else {
+        // 기타 예외 처리
+        throw Failure(message: "에러가 났음요");
+      }
+    }
   }
 }
