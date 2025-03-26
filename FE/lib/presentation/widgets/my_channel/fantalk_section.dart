@@ -21,11 +21,10 @@ class FanTalkSection extends ConsumerWidget {
     final fanTalkResponse = channelState.fanTalks;
     final isLoading = channelState.fanTalksStatus == MyChannelStatus.loading;
     final hasError = channelState.fanTalksStatus == MyChannelStatus.error;
+    final isArtist = channelState.isArtist; // 아티스트인지 여부 확인
 
-    // 팬톡이 없는 경우(아티스트 아님) 위젯 표시 X
-    if (!isLoading &&
-        (fanTalkResponse == null || fanTalkResponse.fantalks.isEmpty) &&
-        !hasError) {
+    // 아티스트가 아닌 경우 위젯 표시x
+    if (!isArtist) {
       return const SizedBox.shrink();
     }
 
@@ -36,7 +35,34 @@ class FanTalkSection extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 섹션 헤더: 제목과 더보기 버튼
-          _buildSectionHeader(fanTalkResponse),
+          Padding(
+            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '아티스트 팬톡 ${fanTalkResponse?.fantalkCount ?? 0}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (fanTalkResponse != null &&
+                    fanTalkResponse.fantalks.isNotEmpty)
+                  GestureDetector(
+                    onTap: () {
+                      // TODO: 팬톡 전체 목록 페이지로 이동
+                      print('팬톡 더보기 클릭');
+                    },
+                    child: Text(
+                      '더 보기',
+                      style: TextStyle(color: Colors.blue[300], fontSize: 14),
+                    ),
+                  ),
+              ],
+            ),
+          ),
 
           // 로딩 중 표시
           if (isLoading)
@@ -46,6 +72,7 @@ class FanTalkSection extends ConsumerWidget {
                 child: CircularProgressIndicator(color: Colors.blue),
               ),
             )
+
           // 에러 표시
           else if (hasError)
             Center(
@@ -58,14 +85,29 @@ class FanTalkSection extends ConsumerWidget {
                 ),
               ),
             )
+
+          // 팬톡이 없는 경우 메시지 표시
+          else if (fanTalkResponse == null || fanTalkResponse.fantalks.isEmpty)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: Text(
+                  '아티스트 팬톡이 없습니다. 첫 팬톡을 작성해보세요!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey[400], fontSize: 14),
+                ),
+              ),
+            )
+
           // 팬톡 목록 표시 (최대 2개)
           else
-            ...fanTalkResponse!.fantalks
+            ...fanTalkResponse.fantalks
                 .take(2)
-                .map((fanTalk) => _buildFanTalkItem(context, fanTalk)),
+                .map((fanTalk) => _buildFanTalkItem(context, fanTalk))
+                .toList(),
 
-          // 팬톡 작성 버튼
-          if (!isLoading && !hasError && fanTalkResponse != null)
+          // 팬톡 작성 버튼 (항상 표시)
+          if (!isLoading && !hasError)
             _buildWriteFanTalkButton(context),
         ],
       ),
