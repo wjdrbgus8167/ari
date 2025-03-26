@@ -4,11 +4,11 @@ WORKDIR /build
 
 # Gradle 파일 복사 및 의존성 캐싱
 COPY build.gradle settings.gradle /build/
-RUN gradle build -x test --parallel --continue > /dev/null 2>&1 || true
+RUN gradle dependencies --refresh-dependencies > /dev/null 2>&1 || true
 
 # 전체 프로젝트 복사 후 빌드
 COPY . /build
-RUN gradle clean build -x test --parallel
+RUN gradle build -x test --parallel
 
 # 실행 스테이지
 FROM openjdk:17-alpine
