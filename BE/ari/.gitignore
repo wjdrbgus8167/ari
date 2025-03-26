@@ -36,3 +36,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Web3j generated wrapper classes
+**/generated/**
