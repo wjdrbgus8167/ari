@@ -1,4 +1,4 @@
-import 'package:ari/providers/playback/playback_provider.dart';
+import 'package:ari/presentation/viewmodels/playback/playback_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/providers/playback/playback_state_provider.dart';
@@ -21,9 +21,7 @@ class PlaybackBar extends ConsumerWidget {
     );
     final audioService = ref.read(audioServiceProvider);
 
-    // 예시: API로부터 받아올 trackFileUrl (실제 앱에서는 PlaybackState나 다른 곳에서 관리)
-    final trackFileUrl =
-        "https://ari-205-bucket.s3.ap-northeast-2.amazonaws.com/track1.mp3";
+    final coverImage = ref.watch(coverImageProvider);
 
     return GestureDetector(
       onTap: () {
@@ -46,8 +44,8 @@ class PlaybackBar extends ConsumerWidget {
                   padding: const EdgeInsets.only(left: 8),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(4),
-                    child: Image.asset(
-                      'assets/images/default_album_cover.png',
+                    child: Image(
+                      image: coverImage,
                       width: 40,
                       height: 40,
                       fit: BoxFit.cover,

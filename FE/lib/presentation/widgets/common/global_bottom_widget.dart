@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/providers/global_providers.dart';
-import 'package:ari/providers/playback/playback_state_provider.dart';
 import 'package:ari/presentation/widgets/common/bottom_nav.dart';
 import 'package:ari/presentation/widgets/common/playback_bar.dart';
 
@@ -13,8 +12,6 @@ class GlobalBottomWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bottomIndex = ref.watch(bottomNavProvider);
-    final playbackState = ref.watch(playbackProvider);
-    final playbackNotifier = ref.read(playbackProvider.notifier);
 
     return Scaffold(
       body: child,

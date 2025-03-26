@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:ari/presentation/viewmodels/playback/playback_state.dart';
 import 'package:ari/providers/playback/playback_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,7 +20,6 @@ class _ExpandedPlaybackScreenState
     extends ConsumerState<ExpandedPlaybackScreen> {
   bool _showCommentOverlay = false;
 
-  // 실제 재생시간을 가져오는 로직으로 대체 가능 (예시값)
   String getCurrentPlaybackTime() {
     return "0:32";
   }
@@ -29,8 +29,9 @@ class _ExpandedPlaybackScreenState
     final playbackState = ref.watch(playbackProvider);
     final playbackService = ref.read(playbackServiceProvider);
 
+    final coverImage = ref.watch(coverImageProvider);
+
     return GestureDetector(
-      // 재생 화면 터치 시 댓글 오버레이가 나타납니다.
       onTap: () {
         if (!_showCommentOverlay) {
           setState(() {
@@ -47,12 +48,9 @@ class _ExpandedPlaybackScreenState
             builder: (context, scrollController) {
               return Stack(
                 children: [
-                  // 배경 앨범 커버 (재생 화면 배경)
+                  // 배경: API의 coverImageUrl 사용 (없으면 기본 asset)
                   Positioned.fill(
-                    child: Image.asset(
-                      'assets/images/default_album_cover.png',
-                      fit: BoxFit.cover,
-                    ),
+                    child: Image(image: coverImage, fit: BoxFit.cover),
                   ),
                   // 우측 상단 즐겨찾기 버튼
                   Positioned(
@@ -67,7 +65,7 @@ class _ExpandedPlaybackScreenState
                       onPressed: () {},
                     ),
                   ),
-                  // 왼쪽 상단 PlaybackInfo (예: 곡 제목, 아티스트 등)
+                  // 좌측 상단 PlaybackInfo
                   const Positioned(top: 40, left: 16, child: PlaybackInfo()),
                   // 하단 재생 컨트롤 영역
                   Positioned(
@@ -101,7 +99,10 @@ class _ExpandedPlaybackScreenState
                     right: 0,
                     bottom: 0,
                     child: LyricsView(
-                      albumCoverUrl: 'assets/images/default_album_cover.png',
+                      albumCoverUrl:
+                          playbackState.coverImageUrl.isNotEmpty
+                              ? playbackState.coverImageUrl
+                              : 'assets/images/default_album_cover.png',
                       trackTitle: playbackState.trackTitle,
                       lyrics: playbackState.lyrics,
                       onToggle: () {
@@ -113,14 +114,12 @@ class _ExpandedPlaybackScreenState
               );
             },
           ),
-          // 댓글 오버레이: 배경은 재생 화면을 블러 처리한 모습
+          // 댓글 오버레이 (생략)
           if (_showCommentOverlay)
             Positioned.fill(
               child: GestureDetector(
-                // 배경 터치 시 오버레이 닫힘 없이 제스처가 CommentOverlay로 전달되게 함.
                 onTap: () {},
                 child: Container(
-                  // 재생 화면 위에 블러 효과와 어둡게 처리된 오버레이 배경
                   color: Colors.black.withOpacity(0.4),
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
