@@ -3,6 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/providers/global_providers.dart';
 import 'package:ari/presentation/widgets/common/bottom_nav.dart';
 import 'package:ari/presentation/widgets/common/playback_bar.dart';
+import '../../pages/my_channel/my_channel_screen.dart';
+
+// 인덱스 0: 홈 화면 (전달된 child)
+// 인덱스 1: 검색 화면 (임시 텍스트 표시)
+// 인덱스 2: 음악 서랍 화면 (임시 텍스트 표시)
+// 인덱스 3: 나의 채널 화면 (MyChannelScreen)
 
 class GlobalBottomWidget extends ConsumerWidget {
   final Widget child; // 각 페이지 콘텐츠 영역

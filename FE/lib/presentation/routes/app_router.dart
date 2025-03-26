@@ -7,6 +7,7 @@ import 'package:ari/presentation/pages/home/home_screen.dart';
 import 'package:ari/presentation/pages/mypage/mypage_screen.dart';
 import 'package:ari/presentation/pages/listeningqueue/listening_queue_screen.dart';
 import 'package:ari/presentation/pages/playlist/playlist_screen.dart';
+import 'package:ari/presentation/pages/my_channel/my_channel_screen.dart';
 
 class AppRoutes {
   static const String home = '/';
