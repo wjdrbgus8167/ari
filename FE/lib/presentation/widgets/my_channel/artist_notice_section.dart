@@ -50,7 +50,7 @@ class ArtistNoticeSection extends ConsumerWidget {
                     padding: const EdgeInsets.only(right: 16),
                     child: GestureDetector(
                       onTap: () {
-                        // TODO: 공지사항 목록 페이지로 이동
+                        // TODO: 공지사항 상세 페이지(공지 댓글, 이전 공지 확인)로 이동
                         print('공지사항 더보기 클릭');
                       },
                       child: Text(
@@ -106,7 +106,7 @@ class ArtistNoticeSection extends ConsumerWidget {
     return GestureDetector(
       onTap: () {
         // TODO: 공지사항 상세 페이지로 이동하는 네비게이션 로직
-        print('공지사항 클릭: ${notice.noticeId}');
+        print('공지사항 터치: ${notice.noticeId}');
         // 예시:
         // Navigator.push(
         //   context,
