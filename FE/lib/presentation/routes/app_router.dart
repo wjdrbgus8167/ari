@@ -5,6 +5,7 @@ import 'package:ari/presentation/pages/home/home_screen.dart';
 import 'package:ari/presentation/pages/mypage/mypage_screen.dart';
 import 'package:ari/presentation/widgets/listening_queue/listening_queue_screen.dart';
 import 'package:ari/presentation/widgets/playlist/playlist_screen.dart';
+import 'package:ari/presentation/pages/my_channel/my_channel_screen.dart';
 
 class AppRoutes {
   static const String home = '/';
@@ -16,6 +17,7 @@ class AppRoutes {
   static const String playlist = '/playlist';
   static const String listeningqueue = '/listeningqueue';
   static const String track = '/track';
+  static const String myChannel = '/mychannel';
 }
 
 class AppRouter {
@@ -38,6 +40,14 @@ class AppRouter {
         );
       case AppRoutes.playlist:
         return MaterialPageRoute(builder: (_) => const PlaylistScreen());
+
+      case AppRoutes.myChannel:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final memberId = args?['memberId'] as String?;
+        return MaterialPageRoute(
+          builder: (_) => MyChannelScreen(memberId: memberId),
+        );
+
       default:
         // 없는 경로는 홈으로 리다이렉트
         return MaterialPageRoute(
