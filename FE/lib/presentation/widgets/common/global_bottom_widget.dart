@@ -4,7 +4,6 @@ import '../../../providers/global_providers.dart';
 import '../../../providers/playback/playback_state_provider.dart'; // ✅ playbackStateProvider 추가
 import 'bottom_nav.dart';
 import 'playback_bar.dart';
-import '../../pages/home/home_screen.dart';
 import '../../pages/my_channel/my_channel_screen.dart';
 
 class GlobalBottomWidget extends ConsumerWidget {
@@ -60,6 +59,12 @@ class GlobalBottomWidget extends ConsumerWidget {
           CommonBottomNav(
             currentIndex: bottomIndex,
             onTap: (index) {
+              // 인덱스가 0이고 현재도 0이면 홈 화면을 맨 위로 스크롤
+              if (index == 0 && bottomIndex == 0) {
+                // TODO: 홈 화면 맨 위로 스크롤 처리
+                // 예: _homeScrollController.animateTo(0.0, ...);
+              }
+              // 하단 네비게이션 인덱스 업데이트
               ref.read(bottomNavProvider.notifier).setIndex(index);
             },
           ),
@@ -68,3 +73,4 @@ class GlobalBottomWidget extends ConsumerWidget {
     );
   }
 }
+
