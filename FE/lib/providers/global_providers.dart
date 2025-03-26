@@ -1,3 +1,5 @@
+import 'package:ari/core/utils/auth_interceptor.dart';
+import 'package:ari/providers/auth/auth_providers.dart';
 import 'package:ari/providers/my_channel_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
@@ -76,9 +78,28 @@ final playlistProvider = StateProvider<List<Track>>((ref) => []);
 
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(BaseOptions(
-    baseUrl: 'https://ari-music.duckdns.org/api',
+    baseUrl: 'https://ari-music.duckdns.org',
     contentType: 'application/json',
   ));
+
+  dio.interceptors.add(LogInterceptor(
+      requestBody: true,
+      responseBody: true,
+      logPrint: (obj) => print('DIO LOG: $obj'),
+    ));
+    
+  final refreshTokensUseCase = ref.read(refreshTokensUseCaseProvider);
+  final getAuthStatusUseCase = ref.read(getAuthStatusUseCaseProvider);
+  final getTokensUseCase = ref.read(getTokensUseCaseProvider);
+
+  // Add auth interceptor with the required dependencies
+  dio.interceptors.add(AuthInterceptor(
+    refreshTokensUseCase: refreshTokensUseCase,
+    getAuthStatusUseCase: getAuthStatusUseCase,
+    getTokensUseCase: getTokensUseCase,
+    dio: dio,
+  ));
+  
   return dio;
 });
 

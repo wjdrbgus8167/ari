@@ -22,8 +22,8 @@ final authLocalDataSourceProvider = Provider<AuthLocalDataSource>((ref) {
 
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
   return AuthRemoteDataSourceImpl(
-    dio: ref.watch(dioProvider),
-    refreshUrl: '/api/v1/auth/refresh',
+    refreshUrl: '/api/v1/auth/refr esh',
+    ref: ref,
   );
 });
 

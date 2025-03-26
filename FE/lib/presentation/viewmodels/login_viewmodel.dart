@@ -62,6 +62,7 @@ class LoginViewModel extends StateNotifier<LoginState> {
 
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
+      print(state.email);
       await loginUseCase(state.email, state.password);
       state = state.copyWith(isLoading: false);
       return true;
