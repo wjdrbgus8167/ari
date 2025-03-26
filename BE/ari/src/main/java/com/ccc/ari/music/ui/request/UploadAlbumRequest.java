@@ -44,6 +44,7 @@ public class UploadAlbumRequest {
     }
 
     @Getter
+    @NoArgsConstructor
     public static class UploadTrackRequest {
         private Integer trackNumber;
         private String trackTitle;
