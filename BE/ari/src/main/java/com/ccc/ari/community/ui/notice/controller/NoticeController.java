@@ -1,17 +1,16 @@
 package com.ccc.ari.community.ui.notice.controller;
 
 import com.ccc.ari.community.application.notice.command.CreateNoticeCommand;
+import com.ccc.ari.community.application.notice.dto.NoticeListResponseDto;
+import com.ccc.ari.community.application.notice.dto.NoticeResponseDto;
 import com.ccc.ari.community.application.notice.service.NoticeService;
 import com.ccc.ari.global.util.ApiUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/api/v1/artists/notices")
+@RequestMapping("/api/v1/artists")
 @RequiredArgsConstructor
 public class NoticeController {
 
@@ -20,7 +19,7 @@ public class NoticeController {
     /**
      * 공지사항 생성 API
      */
-    @PostMapping
+    @PostMapping("/notices")
     public ApiUtils.ApiResponse<Void> createNotice(
             @RequestPart(value = "noticeContent") String content,
             @RequestPart(value = "noticeImage", required = false) MultipartFile noticeImage
@@ -37,5 +36,23 @@ public class NoticeController {
         noticeService.saveNotice(command);
 
         return ApiUtils.success(null);
+    }
+
+    /**
+     * 공지사항 목록 조회 API
+     */
+    @GetMapping("/{memberId}/notices")
+    public ApiUtils.ApiResponse<NoticeListResponseDto> getNoticeList(@PathVariable Integer memberId) {
+        NoticeListResponseDto responseDto = noticeService.getNoticeList(memberId);
+        return ApiUtils.success(responseDto);
+    }
+
+    /**
+     * 공지사항 상세 조회 API
+     */
+    @GetMapping("/notices/{noticeId}")
+    public ApiUtils.ApiResponse<NoticeResponseDto> getNotice(@PathVariable Integer noticeId) {
+        NoticeResponseDto responseDto = noticeService.getNotice(noticeId);
+        return ApiUtils.success(responseDto);
     }
 }
