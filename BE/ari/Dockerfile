@@ -3,7 +3,7 @@ FROM gradle:8.12-jdk17 AS builder
 WORKDIR /build
 
 # Gradle 파일 복사 및 의존성 캐싱
-COPY build.gradle settings.gradle gradle.properties /build/
+COPY build.gradle settings.gradle /build/
 COPY gradle /build/gradle
 RUN gradle dependencies --no-daemon
 
