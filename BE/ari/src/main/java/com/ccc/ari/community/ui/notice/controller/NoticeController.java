@@ -4,8 +4,10 @@ import com.ccc.ari.community.application.notice.command.CreateNoticeCommand;
 import com.ccc.ari.community.application.notice.dto.NoticeListResponseDto;
 import com.ccc.ari.community.application.notice.dto.NoticeResponseDto;
 import com.ccc.ari.community.application.notice.service.NoticeService;
+import com.ccc.ari.global.security.MemberUserDetails;
 import com.ccc.ari.global.util.ApiUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,8 +26,8 @@ public class NoticeController {
             @RequestPart(value = "noticeContent") String content,
             @RequestPart(value = "noticeImage", required = false) MultipartFile noticeImage
     ) {
-        // TODO: 인증 구현 완료 시 실제 로그인한 memberId로 수정하겠습니다.
-        Integer artistId = 1;
+        MemberUserDetails userDetails = (MemberUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Integer artistId = userDetails.getMemberId();
 
         CreateNoticeCommand command = CreateNoticeCommand.builder()
                 .artistId(artistId)
