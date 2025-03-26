@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.4.3'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.web3j' version '4.13.0'
 }
 
 group = 'com.ccc'
@@ -56,6 +57,19 @@ dependencies {
 	implementation 'org.springframework.security:spring-security-oauth2-jose'
 }
 
+web3j {
+	// 생성될 Wrapper 클래스의 패키지명
+	generatedPackageName = "com.ccc.ari.global.contract"
+	// Wrapper 생성을 제외할 계약 이름 목록
+	excludedContracts = ['Ownable']
+}
+
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+tasks.whenTaskAdded { task ->
+	if (task.name.startsWith('generateContractWrappers')) {
+		task.dependsOn processResources
+	}
 }
