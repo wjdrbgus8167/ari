@@ -49,13 +49,22 @@ class AppRouter {
         );
 
       default:
-        // 없는 경로는 홈으로 리다이렉트
+        // 없는 경로는 에러 메시지 표시
         return MaterialPageRoute(
           builder:
               (_) => Scaffold(
-                body: Center(child: Text('Route ${settings.name} not found')),
+                body: Center(
+                  child: Text('😞 Route ${settings.name} not found'),
+                ),
               ),
         );
+      // 없는 경로는 홈으로 리다이렉트
+      // return MaterialPageRoute(
+      //   builder:
+      //       (_) => Scaffold(
+      //         body: Center(child: Text('Route ${settings.name} not found')),
+      //       ),
+      // );
     }
   }
 }
