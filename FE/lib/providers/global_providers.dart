@@ -53,7 +53,7 @@ class PlaybackState {
   PlaybackState copyWith({String? currentTrackId, bool? isPlaying}) {
     return PlaybackState(
       currentTrackId: currentTrackId ?? this.currentTrackId,
-      trackTitle: trackTitle,
+      trackTitle: this.trackTitle,
       isPlaying: isPlaying ?? this.isPlaying,
     );
   }
@@ -116,7 +116,6 @@ final playbackServiceProvider = Provider<PlaybackService>((ref) {
     audioPlayer: ref.watch(audioPlayerProvider),
   );
 });
-
 final chartRemoteDataSourceProvider = Provider<ChartRemoteDataSource>((ref) {
   return ChartRemoteDataSource(dio: ref.watch(dioProvider));
 });
@@ -124,7 +123,10 @@ final chartRemoteDataSourceProvider = Provider<ChartRemoteDataSource>((ref) {
 final chartRepositoryProvider = Provider<IChartRepository>((ref) {
   return ChartRepositoryImpl(
     remoteDataSource: ref.watch(chartRemoteDataSourceProvider),
-    baseUrl: baseUrl,
+    baseUrl: const String.fromEnvironment(
+      'BASE_URL',
+      defaultValue: 'https://ari-music.duckdns.org',
+    ),
   );
 });
 
