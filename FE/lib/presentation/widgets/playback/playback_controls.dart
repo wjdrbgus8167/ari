@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../providers/playback/playback_state_provider.dart';
-import '../../../providers/playback/playback_progress_provider.dart'; // 재생 진행 관련 프로바이더 (아래 참조)
-import '../../../core/services/audio_service.dart';
+import 'package:ari/providers/playback/playback_state_provider.dart';
+import 'package:ari/providers/playback/playback_progress_provider.dart';
+import 'package:ari/core/services/audio_service.dart';
 
 class PlaybackControls extends ConsumerStatefulWidget {
-  final VoidCallback onToggle; // 재생/일시정지 콜백
-
+  final VoidCallback onToggle; // 기존 콜백 (필요시 제거 가능)
   const PlaybackControls({Key? key, required this.onToggle}) : super(key: key);
 
   @override
@@ -19,7 +18,8 @@ class _PlaybackControlsState extends ConsumerState<PlaybackControls> {
 
   @override
   Widget build(BuildContext context) {
-    final isPlaying = ref.watch(playbackProvider).isPlaying;
+    final playbackState = ref.watch(playbackProvider);
+    final isPlaying = playbackState.isPlaying;
     final positionAsync = ref.watch(playbackPositionProvider);
     final durationAsync = ref.watch(playbackDurationProvider);
 
@@ -101,6 +101,7 @@ class _PlaybackControlsState extends ConsumerState<PlaybackControls> {
                 ),
                 onPressed: () {},
               ),
+              // 중앙 재생 버튼: 전역 상태와 AudioService를 사용하여 재생/일시정지/이어재생 처리
               IconButton(
                 icon: Icon(
                   isPlaying
@@ -109,7 +110,19 @@ class _PlaybackControlsState extends ConsumerState<PlaybackControls> {
                   color: Colors.white,
                   size: 64,
                 ),
-                onPressed: widget.onToggle,
+                onPressed: () async {
+                  if (isPlaying) {
+                    await ref.read(audioServiceProvider).pause(ref);
+                  } else {
+                    final trackUrl = playbackState.trackUrl;
+                    if (trackUrl.isNotEmpty) {
+                      await ref.read(audioServiceProvider).resume(ref);
+                    } else {
+                      // 만약 트랙이 로드되지 않았다면, 기존 onToggle 콜백을 호출할 수도 있습니다.
+                      widget.onToggle();
+                    }
+                  }
+                },
               ),
               IconButton(
                 icon: const Icon(

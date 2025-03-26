@@ -1,20 +1,32 @@
-// dio http client를 사용하여 차트 데이터를 가져오는 데이터 소스
-
 import 'package:dio/dio.dart';
-import '../../domain/entities/chart_item.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ari/domain/entities/chart_item.dart';
+import 'package:ari/data/models/api_response.dart';
 
 class ChartRemoteDataSource {
   final Dio dio;
 
   ChartRemoteDataSource({required this.dio});
 
-  Future<List<ChartItem>> fetchCharts(String baseUrl) async {
-    final response = await dio.get('$baseUrl/api/v1/charts');
-    if (response.statusCode == 200 && response.data['status'] == 200) {
-      final List charts = response.data['data']['charts'];
-      return charts.map((chart) => ChartItem.fromJson(chart)).toList();
-    } else {
-      throw Exception('차트 데이터를 불러오지 못함');
+  /// 서버에서 차트 데이터를 가져와서 ChartItem 리스트로 변환
+  Future<List<ChartItem>> fetchCharts() async {
+    try {
+      final response = await dio.get('/api/v1/charts');
+
+      final apiResponse = ApiResponse.fromJson(response.data, (data) {
+        final chartsJson = data['charts'] as List;
+        return chartsJson.map((c) => ChartItem.fromJson(c)).toList();
+      });
+
+      if (apiResponse.status == 200 && apiResponse.data != null) {
+        return apiResponse.data!;
+      } else {
+        throw Exception('API 요청 실패: ${apiResponse.message}');
+      }
+    } on DioException catch (dioError) {
+      throw Exception('Dio 에러 발생: ${dioError.message}');
+    } catch (e) {
+      throw Exception('예기치 못한 오류 발생: $e');
     }
   }
 }

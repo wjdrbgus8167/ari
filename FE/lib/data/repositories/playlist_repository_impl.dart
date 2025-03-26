@@ -1,4 +1,4 @@
-import 'package:ari/data/datasources/playlist_mock_datasource.dart';
+import 'package:ari/data/datasources/playlist/playlist_mock_datasource.dart';
 import 'package:ari/data/models/playlist.dart';
 
 abstract class IPlaylistRepository {
