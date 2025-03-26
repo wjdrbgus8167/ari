@@ -4,7 +4,6 @@ import com.ccc.ari.aggregation.domain.vo.StreamingLog;
 import com.ccc.ari.global.event.StreamingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 /**
@@ -31,6 +30,8 @@ public class StreamingLogCollectorService {
 
         StreamingLog streamingLog = new StreamingLog(event.getTimestamp(),
                 event.getMemberId(), event.getNickname(),
+                event.getGenreId(), event.getGenreName(),
+                event.getArtistId(), event.getArtistName(),
                 event.getTrackId(), event.getTrackTitle());
 
         // 로그: 변환된 StreamingLog 정보 출력
