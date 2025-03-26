@@ -2,7 +2,7 @@ package com.ccc.ari.aggregation.ui.controller;
 
 import com.ccc.ari.aggregation.application.service.StreamingLogQueryService;
 import com.ccc.ari.aggregation.domain.vo.StreamingLog;
-//import com.ccc.ari.aggregation.ui.response.StreamingLogResponse;
+import com.ccc.ari.aggregation.ui.response.StreamingLogResponse;
 import com.ccc.ari.global.util.ApiUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,21 +17,21 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StreamingLogController {
 
-//    private final StreamingLogQueryService streamingLogQueryService;
-//
-//    @GetMapping("/albums/{albumId}/tracks/{trackId}/logs")
-//    public ApiUtils.ApiResponse<List<StreamingLogResponse>> getStreamingLogByTrackId(@PathVariable Integer albumId,
-//                                                                                     @PathVariable Integer trackId) {
-//
-//        List<StreamingLog> streamingLogList = streamingLogQueryService.findStreamingLogByTrackId(trackId);
-//
-//        List<StreamingLogResponse> streamingLogs = streamingLogList.stream()
-//                .map(streamingLog -> StreamingLogResponse.builder()
-//                        .nickname(streamingLog.getMemberNickname())
-//                        .datetime(streamingLog.timestampToString())
-//                        .build())
-//                .toList();
-//
-//        return ApiUtils.success(streamingLogs);
-//    }
+    private final StreamingLogQueryService streamingLogQueryService;
+
+    @GetMapping("/albums/{albumId}/tracks/{trackId}/logs")
+    public ApiUtils.ApiResponse<List<StreamingLogResponse>> getStreamingLogByTrackId(@PathVariable Integer albumId,
+                                                                                     @PathVariable Integer trackId) {
+
+        List<StreamingLog> streamingLogList = streamingLogQueryService.findStreamingLogByTrackId(trackId);
+
+        List<StreamingLogResponse> streamingLogs = streamingLogList.stream()
+                .map(streamingLog -> StreamingLogResponse.builder()
+                        .nickname(streamingLog.getMemberNickname())
+                        .datetime(streamingLog.timestampToString())
+                        .build())
+                .toList();
+
+        return ApiUtils.success(streamingLogs);
+    }
 }
