@@ -22,7 +22,7 @@ final authLocalDataSourceProvider = Provider<AuthLocalDataSource>((ref) {
 
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
   return AuthRemoteDataSourceImpl(
-    refreshUrl: '/api/v1/auth/refr esh',
+    refreshUrl: '/api/v1/auth/refresh',
     ref: ref,
   );
 });
