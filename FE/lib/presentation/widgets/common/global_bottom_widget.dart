@@ -64,10 +64,9 @@ class GlobalBottomWidget extends ConsumerWidget {
           CommonBottomNav(
             currentIndex: bottomIndex,
             onTap: (index) {
-              // 인덱스가 0이고 현재도 0이면 홈 화면을 맨 위로 스크롤
-              if (index == 0 && bottomIndex == 0) {
-                // TODO: 홈 화면 맨 위로 스크롤 처리
-                // 예: _homeScrollController.animateTo(0.0, ...);
+              // 현재 인덱스와 선택한 인덱스가 같으면 해당 화면을 맨 위로 스크롤
+              if (index == bottomIndex) {
+                // TODO: 현재 화면 맨 위로 스크롤 처리
               }
               // 하단 네비게이션 인덱스 업데이트
               ref.read(bottomNavProvider.notifier).setIndex(index);
