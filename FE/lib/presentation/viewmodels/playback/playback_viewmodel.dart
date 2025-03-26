@@ -13,12 +13,16 @@ class PlaybackViewModel extends StateNotifier<PlaybackState> {
     required String artist,
     required String coverImageUrl,
     required String lyrics,
+    required int currentTrackId,
+    required String trackUrl,
   }) {
     state = state.copyWith(
       trackTitle: trackTitle,
       artist: artist,
       coverImageUrl: coverImageUrl,
       lyrics: lyrics,
+      currentTrackId: currentTrackId,
+      trackUrl: trackUrl,
     );
   }
 }

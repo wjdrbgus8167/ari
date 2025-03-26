@@ -4,7 +4,7 @@ import 'package:ari/data/repositories/streaming_repository.dart';
 import 'package:ari/domain/usecases/get_streaming_usecase.dart';
 import 'package:ari/presentation/viewmodels/streaming_log_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ari/providers/playback/playback_provider.dart';
+import 'package:ari/providers/global_providers.dart';
 
 final streamingDataSourceProvider = Provider((ref) {
   return MockStreamingDataSourceImpl(
