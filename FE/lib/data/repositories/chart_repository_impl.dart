@@ -13,6 +13,6 @@ class ChartRepositoryImpl implements IChartRepository {
 
   @override
   Future<List<ChartItem>> getCharts() async {
-    return remoteDataSource.fetchCharts(baseUrl);
+    return remoteDataSource.fetchCharts();
   }
 }
