@@ -26,7 +26,7 @@ class ArtistAlbumSection extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    // 로딩 중이거나 에러 발생 시 표시할 위젯
+    // 로딩 중이면 로딩 표시
     if (isLoading) {
       return const Center(
         child: Padding(
@@ -34,7 +34,10 @@ class ArtistAlbumSection extends ConsumerWidget {
           child: CircularProgressIndicator(color: Colors.blue),
         ),
       );
-    } else if (hasError) {
+    }
+
+    // 에러 발생 시 에러 메시지 표시
+    if (hasError) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 24),
@@ -47,14 +50,18 @@ class ArtistAlbumSection extends ConsumerWidget {
       );
     }
 
-    // 앨범이 있는 경우 CarouselContainer 위젯 사용
+    // 앨범이 없는 경우 위젯을 표시하지 않음 (일반 회원으로 간주)
+    if (albums == null || albums.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    // 앨범이 있는 경우 CarouselContainer 위젯 사용 (아티스트로 간주)
     return CarouselContainer(
       title: '나의 앨범',
       height: 220,
       itemWidth: 160,
       itemSpacing: 12.0,
-      children:
-          albums!.map((album) => _buildAlbumItem(context, album)).toList(),
+      children: albums.map((album) => _buildAlbumItem(context, album)).toList(),
     );
   }
 
