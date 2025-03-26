@@ -28,7 +28,7 @@ class GlobalBottomWidget extends ConsumerWidget {
     if (bottomIndex != 0) {
       switch (bottomIndex) {
         case 1:
-          // 검색 화면 (추후 구현)
+          // TODO: 검색 화면
           currentScreen = const Center(
             child: Text(
               '검색 화면',
@@ -37,7 +37,7 @@ class GlobalBottomWidget extends ConsumerWidget {
           );
           break;
         case 2:
-          // 음악 서랍 화면 (추후 구현)
+          // TODO: 음악 서랍 화면
           currentScreen = const Center(
             child: Text(
               '음악 서랍 화면',
@@ -56,7 +56,7 @@ class GlobalBottomWidget extends ConsumerWidget {
     }
 
     return Scaffold(
-      body: child,
+      body: currentScreen,
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -78,4 +78,3 @@ class GlobalBottomWidget extends ConsumerWidget {
     );
   }
 }
-
