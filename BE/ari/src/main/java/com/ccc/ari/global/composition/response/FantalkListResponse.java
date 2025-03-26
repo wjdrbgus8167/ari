@@ -65,7 +65,7 @@ public class FantalkListResponse {
         private String fantalkImageUrl;
         private TrackItem track;
 
-        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime createdAt;
     }
 
