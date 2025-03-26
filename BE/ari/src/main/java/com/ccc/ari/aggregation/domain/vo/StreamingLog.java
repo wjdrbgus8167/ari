@@ -26,6 +26,10 @@ public class StreamingLog implements Serializable {
     private final Integer memberId;
     private final String memberNickname;
     // 무엇을
+    private final Integer genreId;
+    private final String genreName;
+    private final Integer artistId;
+    private final String artistName;
     private final Integer trackId;
     private final String trackTitle;
 
@@ -34,10 +38,18 @@ public class StreamingLog implements Serializable {
         // builder 구현
     }
 
-    public StreamingLog(Instant timestamp, Integer memberId, String memberNickname, Integer trackId, String trackTitle) {
+    public StreamingLog(Instant timestamp,
+                        Integer memberId, String memberNickname,
+                        Integer genreId, String genreName,
+                        Integer artistId, String artistName,
+                        Integer trackId, String trackTitle) {
       this.timestamp = timestamp;
       this.memberId = memberId;
       this.memberNickname = memberNickname;
+      this.genreId = genreId;
+      this.genreName = genreName;
+      this.artistId = artistId;
+      this.artistName = artistName;
       this.trackId = trackId;
       this.trackTitle = trackTitle;
     }
@@ -64,6 +76,10 @@ public class StreamingLog implements Serializable {
             return log.getTimestamp().equals(timestamp) &&
                     log.getMemberId().equals(memberId) &&
                     log.getMemberNickname().equals(memberNickname) &&
+                    log.getGenreId().equals(genreId) &&
+                    log.getGenreName().equals(genreName) &&
+                    log.getArtistId().equals(artistId) &&
+                    log.getArtistName().equals(artistName) &&
                     log.getTrackId().equals(trackId) &&
                     log.getTrackTitle().equals(trackTitle);
         }
@@ -72,6 +88,7 @@ public class StreamingLog implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(timestamp, memberId, memberNickname, trackId, trackTitle);
+        return Objects.hash(timestamp, memberId, memberNickname,
+                genreId, genreName, artistId, artistName, trackId, trackTitle);
     }
 }
