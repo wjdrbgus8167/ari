@@ -4,17 +4,52 @@ import '../../../providers/global_providers.dart';
 import '../../../providers/playback/playback_state_provider.dart'; // ✅ playbackStateProvider 추가
 import 'bottom_nav.dart';
 import 'playback_bar.dart';
+import '../../pages/home/home_screen.dart';
+import '../../pages/my_channel/my_channel_screen.dart';
 
 class GlobalBottomWidget extends ConsumerWidget {
   final Widget child; // 각 페이지 콘텐츠 영역
 
-  const GlobalBottomWidget({Key? key, required this.child}) : super(key: key);
+  const GlobalBottomWidget({super.key, required this.child});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bottomIndex = ref.watch(bottomNavProvider);
     final playbackState = ref.watch(playbackProvider); // ✅ 변경
     final playbackNotifier = ref.read(playbackProvider.notifier); // ✅ 변경
+
+    Widget currentScreen = child;
+
+    // 하단 탭 인덱스가 변경될 때 해당 화면으로 교체
+    if (bottomIndex != 0) {
+      switch (bottomIndex) {
+        case 1:
+          // 검색 화면 (추후 구현)
+          currentScreen = const Center(
+            child: Text(
+              '검색 화면',
+              style: TextStyle(color: Colors.white, fontSize: 24),
+            ),
+          );
+          break;
+        case 2:
+          // 음악 서랍 화면 (추후 구현)
+          currentScreen = const Center(
+            child: Text(
+              '음악 서랍 화면',
+              style: TextStyle(color: Colors.white, fontSize: 24),
+            ),
+          );
+          break;
+        case 3:
+          // 나의 채널 화면
+          currentScreen = const MyChannelScreen();
+          break;
+        default:
+          // 기본값은 전달된 child (일반적으로 HomeScreen)
+          currentScreen = child;
+      }
+    }
 
     return Scaffold(
       body: child,
