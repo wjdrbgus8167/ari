@@ -3,12 +3,13 @@ FROM gradle:8.12-jdk17 AS builder
 WORKDIR /build
 
 # Gradle 파일 복사 및 의존성 캐싱
-COPY build.gradle settings.gradle /build/
-RUN gradle dependencies --refresh-dependencies > /dev/null 2>&1 || true
+COPY build.gradle settings.gradle gradle.properties /build/
+COPY gradle /build/gradle
+RUN gradle dependencies --no-daemon
 
 # 전체 프로젝트 복사 후 빌드
 COPY . /build
-RUN gradle build -x test --parallel
+RUN gradle build -x test --parallel --no-daemon
 
 # 실행 스테이지
 FROM openjdk:17-alpine
