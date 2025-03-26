@@ -1,7 +1,7 @@
 // lib/presentation/widgets/common/playlist_selectbar.dart
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:ari/data/datasources/playlist_mock_datasource.dart';
+import 'package:ari/data/datasources/playlist/playlist_mock_datasource.dart';
 import 'package:ari/data/models/playlist.dart';
 import 'package:ari/data/repositories/playlist_repository_impl.dart';
 

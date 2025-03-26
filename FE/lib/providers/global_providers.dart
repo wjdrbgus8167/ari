@@ -5,16 +5,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import 'package:audioplayers/audioplayers.dart';
 
-import '../presentation/viewmodels/home_viewmodel.dart';
-import '../presentation/viewmodels/listening_queue_viewmodel.dart';
-import '../data/models/track.dart';
-import '../data/repositories/chart_repository_impl.dart';
-import '../domain/repositories/chart_repository.dart';
-import '../domain/usecases/get_charts_usecase.dart';
-import 'package:dio/dio.dart';
-import '../data/datasources/chart_remote_data_source.dart';
+import 'package:ari/presentation/viewmodels/home_viewmodel.dart';
+import 'package:ari/presentation/viewmodels/listening_queue_viewmodel.dart';
+import 'package:ari/presentation/viewmodels/my_channel_viewmodel.dart';
+
+import 'package:ari/data/models/track.dart';
+import 'package:ari/data/repositories/chart_repository_impl.dart';
+import 'package:ari/data/datasources/chart_remote_data_source.dart';
+import 'package:ari/data/datasources/my_channel_remote_datasource.dart';
+import 'package:ari/data/datasources/my_channel_remote_datasource_impl.dart';
+import 'package:ari/data/repositories/my_channel_repository_impl.dart';
+
+import 'package:ari/domain/repositories/chart_repository.dart';
+import 'package:ari/domain/repositories/my_channel_repository.dart';
+import 'package:ari/domain/usecases/get_charts_usecase.dart';
+import 'package:ari/domain/usecases/my_channel_usecases.dart';
+
 import 'package:ari/core/services/playback_service.dart';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:ari/core/constants/app_constants.dart';
+
+// final dioProvider = Provider<Dio>((ref) => Dio());
 
 // Bottom Navigation 전역 상태
 class BottomNavState extends StateNotifier<int> {
@@ -67,31 +77,33 @@ class PlaybackNotifier extends StateNotifier<PlaybackState> {
 
 final playlistProvider = StateProvider<List<Track>>((ref) => []);
 
-
 final dioProvider = Provider<Dio>((ref) {
-  final dio = Dio(BaseOptions(
-    baseUrl: 'https://ari-music.duckdns.org',
-    contentType: 'application/json',
-  ));
+  final dio = Dio(
+    BaseOptions(baseUrl: baseUrl, contentType: 'application/json'),
+  );
 
-  dio.interceptors.add(LogInterceptor(
+  dio.interceptors.add(
+    LogInterceptor(
       requestBody: true,
       responseBody: true,
       logPrint: (obj) => print('DIO LOG: $obj'),
-    ));
-    
+    ),
+  );
+
   final refreshTokensUseCase = ref.read(refreshTokensUseCaseProvider);
   final getAuthStatusUseCase = ref.read(getAuthStatusUseCaseProvider);
   final getTokensUseCase = ref.read(getTokensUseCaseProvider);
 
   // Add auth interceptor with the required dependencies
-  dio.interceptors.add(AuthInterceptor(
-    refreshTokensUseCase: refreshTokensUseCase,
-    getAuthStatusUseCase: getAuthStatusUseCase,
-    getTokensUseCase: getTokensUseCase,
-    dio: dio,
-  ));
-  
+  dio.interceptors.add(
+    AuthInterceptor(
+      refreshTokensUseCase: refreshTokensUseCase,
+      getAuthStatusUseCase: getAuthStatusUseCase,
+      getTokensUseCase: getTokensUseCase,
+      dio: dio,
+    ),
+  );
+
   return dio;
 });
 
@@ -135,7 +147,6 @@ final listeningQueueProvider =
     );
 
 // ========== 나의 채널 관련 Provider 추가 ==========
-
 
 /// 나의 채널 원격 데이터 소스 제공자
 final myChannelRemoteDataSourceProvider = Provider<MyChannelRemoteDataSource>((
