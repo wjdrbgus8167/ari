@@ -10,8 +10,6 @@ import 'package:ari/presentation/pages/my_channel/my_channel_screen.dart';
 class AppRoutes {
   static const String home = '/';
   static const String myPage = '/mypage';
-
-  // 여기에 경로 더 추가하십시옹
   static const String login = '/login';
   static const String album = '/album';
   static const String playlist = '/playlist';
@@ -54,7 +52,7 @@ class AppRouter {
         // 없는 경로는 홈으로 리다이렉트, 스낵바로 알림
         return MaterialPageRoute(
           builder: (context) {
-            // 화면이 빌드된 후 SnackBar 표시
+            // 화면 빌드 후 SnackBar 표시
             WidgetsBinding.instance.addPostFrameCallback((_) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -66,7 +64,7 @@ class AppRouter {
                 ),
               );
             });
-            // 홈 화면을 반환
+            // 홈 화면 반환
             return const HomeScreen();
           },
         );
