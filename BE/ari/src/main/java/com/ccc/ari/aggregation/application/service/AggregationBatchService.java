@@ -13,6 +13,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -50,8 +52,7 @@ public class AggregationBatchService {
         AggregationPeriod period = new AggregationPeriod(now.minusSeconds(3600), now);
         logger.info("집계 기간이 설정되었습니다: {}", period);
 
-        // 3. 집계 기준 별 AggregatedData 생성 및 AggregationCompletedEvent 발행
-        // 3.1 전체 스트리밍 집계
+        // 3. 전체 스트리밍 집계 처리
         try {
             AggregatedData aggregatedData = AggregatedData.builder()
                     .period(period)
@@ -59,79 +60,43 @@ public class AggregationBatchService {
                     .build();
             logger.debug("생성된 AggregatedData 상세 정보: {}", aggregatedData);
             logger.info("AggregatedData 객체를 생성했습니다. JSON 출력: {}", aggregatedData.toJson());
-
             eventPublisher.publishEvent(new AggregationCompletedEvent(aggregatedData));
             logger.info("전체 집계 이벤트가 성공적으로 발행되었습니다.");
-
-            Map<Integer, List<StreamingLog>> genreLogGroups = aggregatedData.getStreamingLogs().stream()
-                    .collect(Collectors.groupingBy(StreamingLog::getGenreId));
-            logger.info("스트리밍 그룹핑 완료");
-
         } catch (Exception e) {
             logger.error("전체 집계 중 오류 발생: {}", e.getMessage(), e);
             throw e;
         }
-        // 3.2 장르별 스트리밍 집계
-        Map<Integer, List<StreamingLog>> genreLogGroups = rawLogs.stream()
-                .collect(Collectors.groupingBy(StreamingLog::getGenreId));
 
-        genreLogGroups.forEach((genreId, genreLogs) -> {
+        // 4. 그룹별 집계를 위한 로그 분류 (한 번의 순회로 세 그룹을 동시에 분류)
+        Map<Integer, List<StreamingLog>> genreLogs = new HashMap<>();
+        Map<Integer, List<StreamingLog>> artistLogs = new HashMap<>();
+        Map<Integer, List<StreamingLog>> listenerLogs = new HashMap<>();
+
+        for (StreamingLog log : rawLogs) {
+            genreLogs.computeIfAbsent(log.getGenreId(), k -> new ArrayList<>()).add(log);
+            artistLogs.computeIfAbsent(log.getArtistId(), k -> new ArrayList<>()).add(log);
+            listenerLogs.computeIfAbsent(log.getMemberId(), k -> new ArrayList<>()).add(log);
+        }
+
+        // 5. 각 그룹별 집계 이벤트 발행 (공통 로직을 별도 메서드로 추출)
+        processAggregationGroup(genreLogs, AggregationCompletedEvent.AggregationType.GENRE, period);
+        processAggregationGroup(artistLogs, AggregationCompletedEvent.AggregationType.ARTIST, period);
+        processAggregationGroup(listenerLogs, AggregationCompletedEvent.AggregationType.LISTENER, period);
+    }
+
+    private void processAggregationGroup(Map<Integer, List<StreamingLog>> groupMap,
+                                             AggregationCompletedEvent.AggregationType aggregationType,
+                                             AggregationPeriod period) {
+        groupMap.forEach((id, logs) -> {
             try {
-                AggregatedData genreAggregatedData = AggregatedData.builder()
+                AggregatedData aggregatedData = AggregatedData.builder()
                         .period(period)
-                        .streamingLogs(genreLogs)
+                        .streamingLogs(logs)
                         .build();
-
-                eventPublisher.publishEvent(new AggregationCompletedEvent(
-                        AggregationCompletedEvent.AggregationType.GENRE,
-                        genreAggregatedData,
-                        genreId
-                ));
-                logger.info("장르(ID:{}) 집계 이벤트가 성공적으로 발행되었습니다.", genreId);
+                eventPublisher.publishEvent(new AggregationCompletedEvent(aggregationType, aggregatedData, id));
+                logger.info("{} 집계 이벤트가 성공적으로 발행되었습니다. ID: {}", aggregationType, id);
             } catch (Exception e) {
-                logger.error("장르(ID:{}) 집계 중 오류 발생: {}", genreId, e.getMessage(), e);
-            }
-        });
-        // 3.3 아티스트별 스트리밍 집계
-        Map<Integer, List<StreamingLog>> artistLogGroups = rawLogs.stream()
-                .collect(Collectors.groupingBy(StreamingLog::getArtistId));
-
-        artistLogGroups.forEach((artistId, artistLogs) -> {
-            try {
-                AggregatedData artistAggregatedData = AggregatedData.builder()
-                        .period(period)
-                        .streamingLogs(artistLogs)
-                        .build();
-
-                eventPublisher.publishEvent(new AggregationCompletedEvent(
-                        AggregationCompletedEvent.AggregationType.ARTIST,
-                        artistAggregatedData,
-                        artistId
-                ));
-                logger.info("아티스트(ID:{}) 집계 이벤트가 성공적으로 발행되었습니다.", artistId);
-            } catch (Exception e) {
-                logger.error("아티스트(ID:{}) 집계 중 오류 발생: {}", artistId, e.getMessage(), e);
-            }
-        });
-        // 3.4 리스너별 스트리밍 집계
-        Map<Integer, List<StreamingLog>> listenerLogGroups = rawLogs.stream()
-                .collect(Collectors.groupingBy(StreamingLog::getMemberId));
-
-        listenerLogGroups.forEach((listenerId, listenerLogs) -> {
-            try {
-                AggregatedData listenerAggregatedData = AggregatedData.builder()
-                        .period(period)
-                        .streamingLogs(listenerLogs)
-                        .build();
-
-                eventPublisher.publishEvent(new AggregationCompletedEvent(
-                        AggregationCompletedEvent.AggregationType.LISTENER,
-                        listenerAggregatedData,
-                        listenerId
-                ));
-                logger.info("리스너(ID:{}) 집계 이벤트가 성공적으로 발행되었습니다.", listenerId);
-            } catch (Exception e) {
-                logger.error("리스너(ID:{}) 집계 중 오류 발생: {}", listenerId, e.getMessage(), e);
+                logger.error("{} 집계 중 오류 발생: {}. ID: {}", aggregationType, e.getMessage(), id, e);
             }
         });
     }
