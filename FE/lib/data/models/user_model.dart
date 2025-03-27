@@ -28,10 +28,11 @@ class UserModel extends User {
   factory UserModel.fromJwtPayload(Map<String, dynamic> payload) {
     return UserModel(
       id: payload['userId']?.toString() ?? '',
-      email: payload['email']?.toString() ?? '',
-      nickname: '', // 토큰에 닉네임 없음
-      password: '',
-      profileImageUrl: null, // 토큰에 프로필 이미지 URL 없음
+      // email 필드가 있으면 사용, 없으면 sub 필드에서 이메일 추출
+      email: payload['email']?.toString() ?? payload['sub']?.toString() ?? '',
+      nickname: '', // 토큰에 닉네임이 없으므로 빈 문자열 설정
+      password: '', // JWT에서는 비밀번호를 포함하지 않음
+      profileImageUrl: null, // 토큰에 프로필 이미지 URL이 없음
     );
   }
 
