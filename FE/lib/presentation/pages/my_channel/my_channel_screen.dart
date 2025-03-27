@@ -9,14 +9,13 @@ import '../../widgets/my_channel/artist_notice_section.dart';
 import '../../widgets/my_channel/fantalk_section.dart';
 import '../../widgets/my_channel/public_playlist_section.dart';
 import '../../widgets/my_channel/neighbors_section.dart';
-import '../../widgets/test/jwt_user_test_widget.dart'; // JWT 테스트 위젯
+import '../../widgets/test/jwt_user_test_widget.dart';
 
 /// 나의 채널 화면
 /// 사용자 프로필, 뱃지, (앨범, 공지사항, 팬톡), 플레이리스트, 이웃 정보 표시
 class MyChannelScreen extends ConsumerStatefulWidget {
   final String? memberId; // null이면 내 채널 표시
 
-  /// 생성자
   /// [memberId] : 표시할 채널의 회원 ID (null이면 로그인한 사용자 본인의 채널)
   const MyChannelScreen({super.key, this.memberId});
 
@@ -31,7 +30,7 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
   late bool _isMyProfile;
 
   // JWT 테스트용 상태
-  bool _showJwtTest = true; // 테스트 완료 후 false로 변경하여 위젯 숨기기
+  bool _showJwtTest = true; // 테스트 완료 후 false로 위젯 숨기기
 
   @override
   void initState() {
@@ -41,12 +40,10 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
     _memberId = widget.memberId ?? 'current-user-id';
     _isMyProfile = widget.memberId == null;
 
-    // 화면 렌더링 후 데이터 로드
+    // 화면 렌더링 후 데이터 로드 및 사용자 ID 설정
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        // mounted 체크 추가
-        _loadMyChannelData();
-      }
+      _loadMyChannelData();
+      _updateUserIdFromToken();
     });
   }
 
@@ -72,7 +69,7 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
     // 채널 데이터 로드
     final notifier = ref.read(myChannelProvider.notifier);
 
-    // TODO: 팬톡 채널 ID 구현 시 실제 ID로 수정
+    // TODO: 팬톡 채널 구현 시 실제 ID로 수정
     notifier.loadMyChannelData(_memberId, 'fantalk-channel-id');
   }
 
