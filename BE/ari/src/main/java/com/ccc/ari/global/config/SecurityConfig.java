@@ -85,7 +85,7 @@ public class SecurityConfig {
                         .successHandler(oAuth2SuccessHandler())
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/auth/logout")
+                        .logoutUrl("/api/v1/auth/logout")
                         .logoutSuccessHandler(customLogoutSuccessHandler)
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
