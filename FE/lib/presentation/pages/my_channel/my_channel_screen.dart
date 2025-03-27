@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/my_channel_providers.dart';
+import '../../../providers/user_provider.dart';
 import '../../widgets/my_channel/profile_header.dart';
 import '../../widgets/my_channel/badge_list.dart';
 import '../../widgets/my_channel/artist_album_section.dart';
@@ -8,6 +9,7 @@ import '../../widgets/my_channel/artist_notice_section.dart';
 import '../../widgets/my_channel/fantalk_section.dart';
 import '../../widgets/my_channel/public_playlist_section.dart';
 import '../../widgets/my_channel/neighbors_section.dart';
+import '../../widgets/test/jwt_user_test_widget.dart'; // JWT 테스트 위젯
 
 /// 나의 채널 화면
 /// 사용자 프로필, 뱃지, (앨범, 공지사항, 팬톡), 플레이리스트, 이웃 정보 표시
@@ -28,20 +30,35 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
   late String _memberId;
   late bool _isMyProfile;
 
+  // JWT 테스트용 상태
+  bool _showJwtTest = true; // 테스트 완료 후 false로 변경하여 위젯 숨기기
+
   @override
   void initState() {
     super.initState();
 
-    // TODO: 실제 인증 구현 후 -> 현재 사용자 ID를 가져오도록 수정
+    // 초기 설정
     _memberId = widget.memberId ?? 'current-user-id';
-
-    // TODO: 본인 프로필인지 여부 (인증 구현 시 실제 비교로 수정)
     _isMyProfile = widget.memberId == null;
 
     // 화면 렌더링 후 데이터 로드
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadMyChannelData();
+      if (mounted) {
+        // mounted 체크 추가
+        _loadMyChannelData();
+      }
     });
+  }
+
+  // 토큰에서 사용자 ID 업데이트
+  void _updateUserIdFromToken() {
+    // 로그인된 상태라면 토큰에서 사용자 ID 가져오기
+    final userId = ref.read(userIdProvider);
+    if (userId != null && widget.memberId == null) {
+      setState(() {
+        _memberId = userId;
+      });
+    }
   }
 
   @override
@@ -69,12 +86,40 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
         onRefresh: () async {
           // 당겨서 새로고침 시 데이터 다시 로드
           _loadMyChannelData();
+
+          // JWT 사용자 정보도 새로고침
+          await ref.read(userProvider.notifier).refreshUserInfo();
+          _updateUserIdFromToken();
         },
         child: SafeArea(
           child: CustomScrollView(
             controller: _scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
+              // JWT 테스트 위젯 (테스트 완료 후 제거 예정)
+              if (_showJwtTest)
+                SliverToBoxAdapter(
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.close, color: Colors.white),
+                            onPressed: () {
+                              setState(() {
+                                _showJwtTest = false;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                      const JwtUserTestWidget(),
+                      const Divider(color: Colors.grey),
+                    ],
+                  ),
+                ),
+
               // 프로필 헤더
               SliverToBoxAdapter(
                 child: ProfileHeader(
