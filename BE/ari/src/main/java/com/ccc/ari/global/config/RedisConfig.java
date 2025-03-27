@@ -1,7 +1,9 @@
 package com.ccc.ari.global.config;
 
 import com.ccc.ari.aggregation.domain.vo.StreamingLog;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -43,6 +45,12 @@ public class RedisConfig {
         // ObjectMapper 설정
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
+        // 타입 정보를 JSON에 포함시키기 위한 default typing 활성화
+        objectMapper.activateDefaultTyping(
+                LaissezFaireSubTypeValidator.instance,
+                ObjectMapper.DefaultTyping.NON_FINAL,
+                JsonTypeInfo.As.PROPERTY
+        );
 
         // GenericJackson2JsonRedisSerializer 사용 (권장되는 방식)
         GenericJackson2JsonRedisSerializer jsonSerializer =

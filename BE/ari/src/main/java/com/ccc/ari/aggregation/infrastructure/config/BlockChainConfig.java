@@ -49,7 +49,7 @@ public class BlockChainConfig {
         return new ContractGasProvider() {
             @Override
             public BigInteger getGasPrice() {
-                return BigInteger.valueOf(1_000_000_000L); // 1 GWEI
+                return BigInteger.valueOf(5_000_000_000L); // 5 GWEI
             }
 
             @Override

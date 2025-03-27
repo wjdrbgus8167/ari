@@ -13,7 +13,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -48,8 +52,7 @@ public class AggregationBatchService {
         AggregationPeriod period = new AggregationPeriod(now.minusSeconds(3600), now);
         logger.info("집계 기간이 설정되었습니다: {}", period);
 
-        // 3. 집계 기준 별 AggregatedData 생성
-        // TODO: 도메인 서비스를 활용하여 집계 기준 별 AggregatedData 생성 메소드 호출
+        // 3. 전체 스트리밍 집계 처리
         try {
             AggregatedData aggregatedData = AggregatedData.builder()
                     .period(period)
@@ -57,12 +60,44 @@ public class AggregationBatchService {
                     .build();
             logger.debug("생성된 AggregatedData 상세 정보: {}", aggregatedData);
             logger.info("AggregatedData 객체를 생성했습니다. JSON 출력: {}", aggregatedData.toJson());
-        // 4. AggregationCompletedEvent 발행
             eventPublisher.publishEvent(new AggregationCompletedEvent(aggregatedData));
-            logger.info("AggregationCompletedEvent가 성공적으로 발행되었습니다.");
+            logger.info("전체 집계 이벤트가 성공적으로 발행되었습니다.");
         } catch (Exception e) {
-            logger.error("AggregatedData 생성 중 오류 발생: {}", e.getMessage(), e);
+            logger.error("전체 집계 중 오류 발생: {}", e.getMessage(), e);
             throw e;
         }
+
+        // 4. 그룹별 집계를 위한 로그 분류 (한 번의 순회로 세 그룹을 동시에 분류)
+        Map<Integer, List<StreamingLog>> genreLogs = new HashMap<>();
+        Map<Integer, List<StreamingLog>> artistLogs = new HashMap<>();
+        Map<Integer, List<StreamingLog>> listenerLogs = new HashMap<>();
+
+        for (StreamingLog log : rawLogs) {
+            genreLogs.computeIfAbsent(log.getGenreId(), k -> new ArrayList<>()).add(log);
+            artistLogs.computeIfAbsent(log.getArtistId(), k -> new ArrayList<>()).add(log);
+            listenerLogs.computeIfAbsent(log.getMemberId(), k -> new ArrayList<>()).add(log);
+        }
+
+        // 5. 각 그룹별 집계 이벤트 발행 (공통 로직을 별도 메서드로 추출)
+        processAggregationGroup(genreLogs, AggregationCompletedEvent.AggregationType.GENRE, period);
+        processAggregationGroup(artistLogs, AggregationCompletedEvent.AggregationType.ARTIST, period);
+        processAggregationGroup(listenerLogs, AggregationCompletedEvent.AggregationType.LISTENER, period);
+    }
+
+    private void processAggregationGroup(Map<Integer, List<StreamingLog>> groupMap,
+                                             AggregationCompletedEvent.AggregationType aggregationType,
+                                             AggregationPeriod period) {
+        groupMap.forEach((id, logs) -> {
+            try {
+                AggregatedData aggregatedData = AggregatedData.builder()
+                        .period(period)
+                        .streamingLogs(logs)
+                        .build();
+                eventPublisher.publishEvent(new AggregationCompletedEvent(aggregationType, aggregatedData, id));
+                logger.info("{} 집계 이벤트가 성공적으로 발행되었습니다. ID: {}", aggregationType, id);
+            } catch (Exception e) {
+                logger.error("{} 집계 중 오류 발생: {}. ID: {}", aggregationType, e.getMessage(), id, e);
+            }
+        });
     }
 }

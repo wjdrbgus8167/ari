@@ -20,7 +20,7 @@ public interface BlockChainClient {
      * @param cid IPFS에서 반환된 CID
      * @return 트랜잭션 해시 혹은 커밋 결과 식별자
      */
-    String commitRawGenreTracks(byte[] genreId, String cid);
+    String commitRawGenreTracks(Integer genreId, String cid);
 
     /**
      * 아티스트별 스트리밍 로그가 위치한 CID를 블록체인에 커밋한다.
@@ -29,7 +29,7 @@ public interface BlockChainClient {
      * @param cid IPFS에서 반환된 CID
      * @return 트랜잭션 해시 혹은 커밋 결과 식별자
      */
-    String commitRawArtistTracks(byte[] artistId, String cid);
+    String commitRawArtistTracks(Integer artistId, String cid);
 
     /**
      * 리스너별 스트리밍 로그가 위치한 CID를 블록체인에 커밋한다.
@@ -38,5 +38,5 @@ public interface BlockChainClient {
      * @param cid IPFS에서 반환된 CID
      * @return 트랜잭션 해시 혹은 커밋 결과 식별자
      */
-    String commitRawListenerTracks(byte[] listenerId, String cid);
+    String commitRawListenerTracks(Integer listenerId, String cid);
 }

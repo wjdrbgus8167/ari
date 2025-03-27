@@ -17,7 +17,8 @@ public class StreamingEvent {
     private String albumTitle;
     private Integer genreId;
     private String genreName;
-    private String artist;
+    private Integer artistId;
+    private String artistName;
     private Integer memberId;
     private String nickname;
 
@@ -25,9 +26,12 @@ public class StreamingEvent {
     private Instant timestamp;
 
     @Builder
-    public StreamingEvent(Integer trackId, String trackTitle, Integer albumId, String albumTitle
-            , Integer genreId, String genreName, String artist, Integer memberId, String nickname
-            , Instant timestamp) {
+    public StreamingEvent(Integer trackId, String trackTitle,
+                          Integer albumId, String albumTitle,
+                          Integer genreId, String genreName,
+                          Integer artistId, String artistName,
+                          Integer memberId, String nickname,
+                          Instant timestamp) {
 
         this.trackId = trackId;
         this.trackTitle = trackTitle;
@@ -35,7 +39,8 @@ public class StreamingEvent {
         this.albumTitle = albumTitle;
         this.genreId = genreId;
         this.genreName = genreName;
-        this.artist = artist;
+        this.artistId = artistId;
+        this.artistName = artistName;
         this.memberId = memberId;
         this.nickname = nickname;
         this.timestamp = timestamp;
