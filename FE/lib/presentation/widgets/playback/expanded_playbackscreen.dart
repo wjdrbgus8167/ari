@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:ari/presentation/viewmodels/playback/playback_state.dart';
+import 'package:ari/presentation/widgets/playback_comment/comment_overlay.dart';
 import 'package:ari/providers/playback/playback_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,7 +8,6 @@ import 'package:ari/providers/playback/playback_state_provider.dart';
 import 'playback_info.dart';
 import 'playback_controls.dart';
 import 'package:ari/presentation/widgets/lyrics/lyrics_view.dart';
-import 'package:ari/presentation/widgets/playback/playback_comment_widget.dart';
 
 class ExpandedPlaybackScreen extends ConsumerStatefulWidget {
   const ExpandedPlaybackScreen({Key? key}) : super(key: key);
@@ -124,6 +124,10 @@ class _ExpandedPlaybackScreenState
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                     child: CommentOverlay(
+                      trackTitle: playbackState.trackTitle, // 트랙 제목 전달
+                      artist: playbackState.artist, // 아티스트 전달
+                      coverImageUrl:
+                          playbackState.coverImageUrl, // 커버 이미지 URL 전달
                       timestamp: getCurrentPlaybackTime(),
                       onClose: () {
                         setState(() {
