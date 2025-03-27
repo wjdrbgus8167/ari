@@ -1,4 +1,3 @@
-// lib/core/utils/jwt_utils.dart
 import 'dart:convert';
 
 /// JWT 토큰 관련 유틸리티 클래스
@@ -65,7 +64,8 @@ class JwtUtils {
   static String? extractEmail(String token) {
     try {
       final payload = parseJwtPayload(token);
-      return payload['email']?.toString();
+      // email 필드가 있으면 사용, 없으면 sub 필드에서 이메일 추출
+      return payload['email']?.toString() ?? payload['sub']?.toString();
     } catch (e) {
       print('토큰에서 이메일 추출 오류: $e');
       return null;
