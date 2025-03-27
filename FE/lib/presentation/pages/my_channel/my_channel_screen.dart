@@ -42,8 +42,10 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
 
     // 화면 렌더링 후 데이터 로드 및 사용자 ID 설정
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadMyChannelData();
-      _updateUserIdFromToken();
+      if (mounted) {
+        // mounted 체크 추가
+        _loadMyChannelData();
+      }
     });
   }
 
