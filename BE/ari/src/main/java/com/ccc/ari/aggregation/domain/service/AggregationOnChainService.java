@@ -44,4 +44,43 @@ public class AggregationOnChainService {
 
         return txHash;
     }
+
+    public String publishAggregatedDataByGenre(AggregatedData aggregatedData, Integer genreId) {
+        String jsonData = aggregatedData.toJson();
+        logger.info("AggregatedData JSON 직렬화: {}", jsonData);
+
+        IpfsResponse ipfsResponse = ipfsClient.save(jsonData);
+        logger.info("IPFS 데이터 저장 완료 CID: {}", ipfsResponse.getCid());
+
+        String txHash = blockChainClient.commitRawGenreTracks(genreId, ipfsResponse.getCid());
+        logger.info("CID Blockchain에 커밋 완료 Transaction Hash: {}", txHash);
+
+        return txHash;
+    }
+
+    public String publishAggregatedDataByArtist(AggregatedData aggregatedData, Integer artistId) {
+        String jsonData = aggregatedData.toJson();
+        logger.info("AggregatedData JSON 직렬화: {}", jsonData);
+
+        IpfsResponse ipfsResponse = ipfsClient.save(jsonData);
+        logger.info("IPFS 데이터 저장 완료 CID: {}", ipfsResponse.getCid());
+
+        String txHash = blockChainClient.commitRawArtistTracks(artistId, ipfsResponse.getCid());
+        logger.info("CID Blockchain에 커밋 완료 Transaction Hash: {}", txHash);
+
+        return txHash;
+    }
+
+    public String publishAggregatedDataByListener(AggregatedData aggregatedData, Integer listenerId) {
+        String jsonData = aggregatedData.toJson();
+        logger.info("AggregatedData JSON 직렬화: {}", jsonData);
+
+        IpfsResponse ipfsResponse = ipfsClient.save(jsonData);
+        logger.info("IPFS 데이터 저장 완료 CID: {}", ipfsResponse.getCid());
+
+        String txHash = blockChainClient.commitRawListenerTracks(listenerId, ipfsResponse.getCid());
+        logger.info("CID Blockchain에 커밋 완료 Transaction Hash: {}", txHash);
+
+        return txHash;
+    }
 }

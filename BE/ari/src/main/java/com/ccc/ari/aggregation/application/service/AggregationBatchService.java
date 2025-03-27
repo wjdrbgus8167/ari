@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -48,8 +50,8 @@ public class AggregationBatchService {
         AggregationPeriod period = new AggregationPeriod(now.minusSeconds(3600), now);
         logger.info("집계 기간이 설정되었습니다: {}", period);
 
-        // 3. 집계 기준 별 AggregatedData 생성
-        // TODO: 도메인 서비스를 활용하여 집계 기준 별 AggregatedData 생성 메소드 호출
+        // 3. 집계 기준 별 AggregatedData 생성 및 AggregationCompletedEvent 발행
+        // 3.1 전체 스트리밍 집계
         try {
             AggregatedData aggregatedData = AggregatedData.builder()
                     .period(period)
@@ -57,12 +59,80 @@ public class AggregationBatchService {
                     .build();
             logger.debug("생성된 AggregatedData 상세 정보: {}", aggregatedData);
             logger.info("AggregatedData 객체를 생성했습니다. JSON 출력: {}", aggregatedData.toJson());
-        // 4. AggregationCompletedEvent 발행
+
             eventPublisher.publishEvent(new AggregationCompletedEvent(aggregatedData));
-            logger.info("AggregationCompletedEvent가 성공적으로 발행되었습니다.");
+            logger.info("전체 집계 이벤트가 성공적으로 발행되었습니다.");
+
+            Map<Integer, List<StreamingLog>> genreLogGroups = aggregatedData.getStreamingLogs().stream()
+                    .collect(Collectors.groupingBy(StreamingLog::getGenreId));
+            logger.info("스트리밍 그룹핑 완료");
+
         } catch (Exception e) {
-            logger.error("AggregatedData 생성 중 오류 발생: {}", e.getMessage(), e);
+            logger.error("전체 집계 중 오류 발생: {}", e.getMessage(), e);
             throw e;
         }
+        // 3.2 장르별 스트리밍 집계
+        Map<Integer, List<StreamingLog>> genreLogGroups = rawLogs.stream()
+                .collect(Collectors.groupingBy(StreamingLog::getGenreId));
+
+        genreLogGroups.forEach((genreId, genreLogs) -> {
+            try {
+                AggregatedData genreAggregatedData = AggregatedData.builder()
+                        .period(period)
+                        .streamingLogs(genreLogs)
+                        .build();
+
+                eventPublisher.publishEvent(new AggregationCompletedEvent(
+                        AggregationCompletedEvent.AggregationType.GENRE,
+                        genreAggregatedData,
+                        genreId
+                ));
+                logger.info("장르(ID:{}) 집계 이벤트가 성공적으로 발행되었습니다.", genreId);
+            } catch (Exception e) {
+                logger.error("장르(ID:{}) 집계 중 오류 발생: {}", genreId, e.getMessage(), e);
+            }
+        });
+        // 3.3 아티스트별 스트리밍 집계
+        Map<Integer, List<StreamingLog>> artistLogGroups = rawLogs.stream()
+                .collect(Collectors.groupingBy(StreamingLog::getArtistId));
+
+        artistLogGroups.forEach((artistId, artistLogs) -> {
+            try {
+                AggregatedData artistAggregatedData = AggregatedData.builder()
+                        .period(period)
+                        .streamingLogs(artistLogs)
+                        .build();
+
+                eventPublisher.publishEvent(new AggregationCompletedEvent(
+                        AggregationCompletedEvent.AggregationType.ARTIST,
+                        artistAggregatedData,
+                        artistId
+                ));
+                logger.info("아티스트(ID:{}) 집계 이벤트가 성공적으로 발행되었습니다.", artistId);
+            } catch (Exception e) {
+                logger.error("아티스트(ID:{}) 집계 중 오류 발생: {}", artistId, e.getMessage(), e);
+            }
+        });
+        // 3.4 리스너별 스트리밍 집계
+        Map<Integer, List<StreamingLog>> listenerLogGroups = rawLogs.stream()
+                .collect(Collectors.groupingBy(StreamingLog::getMemberId));
+
+        listenerLogGroups.forEach((listenerId, listenerLogs) -> {
+            try {
+                AggregatedData listenerAggregatedData = AggregatedData.builder()
+                        .period(period)
+                        .streamingLogs(listenerLogs)
+                        .build();
+
+                eventPublisher.publishEvent(new AggregationCompletedEvent(
+                        AggregationCompletedEvent.AggregationType.LISTENER,
+                        listenerAggregatedData,
+                        listenerId
+                ));
+                logger.info("리스너(ID:{}) 집계 이벤트가 성공적으로 발행되었습니다.", listenerId);
+            } catch (Exception e) {
+                logger.error("리스너(ID:{}) 집계 중 오류 발생: {}", listenerId, e.getMessage(), e);
+            }
+        });
     }
 }
