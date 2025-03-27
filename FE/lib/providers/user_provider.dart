@@ -10,12 +10,14 @@ import 'package:ari/providers/auth/auth_providers.dart';
 /// 사용자 정보 저장 키
 const String _userStorageKey = 'current_user_info';
 
-/// 사용자 정보 관리를 위한 상태 알림 클래스
-/// JWT 토큰에서 사용자 정보를 추출하고 관리
+/// JWT 토큰에서 사용자 정보를 추출, 관리
 class UserNotifier extends StateNotifier<AsyncValue<User?>> {
   final GetTokensUseCase getTokensUseCase;
   final FlutterSecureStorage secureStorage;
   final AsyncValue<bool> authState;
+
+  // dispose 여부 추적
+  bool _disposed = false;
 
   UserNotifier({
     required this.getTokensUseCase,
@@ -29,9 +31,17 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
     _handleAuthStateChange(authState);
   }
 
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
   /// 인증 상태 변경 처리
   void _handleAuthStateChange(AsyncValue<bool> authState) {
     authState.whenData((isAuthenticated) {
+      if (_disposed) return; // dispose 체크
+
       if (!isAuthenticated) {
         // 로그아웃 시 사용자 정보 삭제
         clearUserInfo();
@@ -45,8 +55,12 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
   /// 시작시 저장된 사용자 정보 또는 토큰에서 추출한 정보 로드
   Future<void> _loadUserInfo() async {
     try {
+      if (_disposed) return; // dispose 체크 추가
+
       // 로컬 스토리지에서 사용자 정보 확인
       final userJson = await secureStorage.read(key: _userStorageKey);
+
+      if (_disposed) return; // 비동기 작업 후 dispose 체크
 
       if (userJson != null) {
         // 저장된 사용자 정보가 있으면 로드
@@ -58,17 +72,25 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
       }
     } catch (e, stackTrace) {
       print('사용자 정보 로드 오류: $e');
-      state = AsyncValue.error(e, stackTrace);
+      if (!_disposed) {
+        // 오류 발생 시에도 dispose 체크
+        state = AsyncValue.error(e, stackTrace);
+      }
     }
   }
 
   /// 토큰에서 userId, email 추출
   Future<User?> extractUserFromToken() async {
     try {
+      if (_disposed) return null; // dispose 체크 추가
+
       state = const AsyncValue.loading();
 
       // 토큰 가져오기
       final tokens = await getTokensUseCase();
+
+      if (_disposed) return null; // 비동기 작업 후 dispose 체크
+
       if (tokens == null || tokens.accessToken.isEmpty) {
         state = const AsyncValue.data(null);
         return null;
@@ -80,14 +102,21 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
       // UserModel 생성
       final user = UserModel.fromJwtPayload(payload);
 
+      if (_disposed) return user; // 비동기 작업 전 dispose 체크
+
       // 추출한 정보 저장
       await _saveUserToStorage(user);
+
+      if (_disposed) return user; // 비동기 작업 후 dispose 체크
 
       state = AsyncValue.data(user);
       return user;
     } catch (e, stackTrace) {
       print('토큰에서 사용자 정보 추출 오류: $e');
-      state = AsyncValue.error(e, stackTrace);
+      if (!_disposed) {
+        // 오류 발생 시에도 dispose 체크
+        state = AsyncValue.error(e, stackTrace);
+      }
       return null;
     }
   }
@@ -95,6 +124,8 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
   /// 사용자 정보 로컬 스토리지에 저장
   Future<void> _saveUserToStorage(User user) async {
     try {
+      if (_disposed) return; // dispose 체크 추가
+
       final userModel = user is UserModel ? user : UserModel.fromEntity(user);
       final userJson = json.encode(userModel.toJson());
       await secureStorage.write(key: _userStorageKey, value: userJson);
@@ -106,7 +137,12 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
   /// 저장된 사용자 정보 삭제 (로그아웃 시 호출)
   Future<void> clearUserInfo() async {
     try {
+      if (_disposed) return; // dispose 체크 추가
+
       await secureStorage.delete(key: _userStorageKey);
+
+      if (_disposed) return; // 비동기 작업 후 dispose 체크
+
       state = const AsyncValue.data(null);
     } catch (e) {
       print('사용자 정보 삭제 오류: $e');
@@ -115,6 +151,7 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
 
   /// 사용자 정보 수동 새로고침
   Future<void> refreshUserInfo() async {
+    if (_disposed) return; // dispose 체크 추가
     await extractUserFromToken();
   }
 }
