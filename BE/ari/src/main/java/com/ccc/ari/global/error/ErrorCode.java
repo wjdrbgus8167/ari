@@ -36,8 +36,13 @@ public enum ErrorCode {
     S3_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S001", "S3 파일 업로드 중 오류가 발생했습니다."),
 
     // 팬톡 관련
-    FANTALK_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "F001", "팬톡 생성 중 오류가 발생했습니다.");
+    FANTALK_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "F001", "팬톡 생성 중 오류가 발생했습니다."),
 
+    //플레이리스트 관련
+    PLAYLIST_TRACK_ADD_FAIL(HttpStatus.NOT_FOUND,"P001","해당 트랙을 추가하는데 실패했습니다."),
+    PLAYLIST_NOT_FOUND(HttpStatus.NOT_FOUND,"P002","해당 플레이리스트를 조회하는데 실패했습니다."),
+    PLAYLIST_NOT_PUBLIC(HttpStatus.CONFLICT,"P003","해당 플레이리스트는 공개된 플레이리스트가 아닙니다."),
+    PLAYLIST_TRACK_NOT_FOUND(HttpStatus.NOT_FOUND,"P004","트랙을 찾을 수 없습니다.");
 
     private final HttpStatus status;
     private final String code;
