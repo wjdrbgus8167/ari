@@ -65,7 +65,7 @@ class TrackMockDataSourceImpl implements TrackDataSource {
       "message" : "Success",
       "data": {
         "albumId": 1,
-        "trackId":2,
+        "trackId":1,
         "albumTitle": "hiyo",
         "trackTitle": "ahah",
         "artist": "유캔도",
@@ -78,7 +78,7 @@ class TrackMockDataSourceImpl implements TrackDataSource {
         "commentCount":180,
         "createdAt":"2024-08-12",
         "lyric" : "나는있자나...",
-        "coverImageUrl": "https://s3.example.com/tracks/track_one.mp3",
+        "coverImageUrl": "",
         "comments" : [
           {
             "trackId" : 1,
