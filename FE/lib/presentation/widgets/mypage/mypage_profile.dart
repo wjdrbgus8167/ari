@@ -49,13 +49,10 @@ class MypageProfile extends StatelessWidget {
             children: [
               // Left side - Profile information
               SizedBox(
-                width: 154,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Profile images
-                    const SizedBox(height: 20),
                     Container(
                       width: 100,
                       height: 100,
@@ -86,7 +83,8 @@ class MypageProfile extends StatelessWidget {
                     
                     // Name and instagram ID
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
                       children: [
                         Text(
                           name,
