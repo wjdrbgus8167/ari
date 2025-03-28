@@ -2,6 +2,7 @@ package com.ccc.ari.music.domain.genre;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -11,7 +12,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Table(name = "genres")
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-
 public class GenreEntity {
 
   @Id
@@ -21,4 +21,9 @@ public class GenreEntity {
 
   @Column(nullable = false, length = 30)
   private String genreName;
+
+  @Builder
+  public GenreEntity(String genreName) {
+    this.genreName = genreName;
+  }
 }
