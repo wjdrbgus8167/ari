@@ -48,9 +48,8 @@ public class MusicServiceImpl implements MusicService {
 
 
         StreamingEvent event = StreamingEvent.builder()
-                // TODO: 인증 미구현으로 인한 하드 코딩 이후 수정 필요
-                .memberId(23)
-                .nickname("정규현")
+                .memberId(trackPlayCommand.getMemberId())
+                .nickname(trackPlayCommand.getNickname())
                 .trackId(track.getTrackId())
                 .trackTitle(track.getTrackTitle())
                 .artistId(album.getMember().getMemberId())
