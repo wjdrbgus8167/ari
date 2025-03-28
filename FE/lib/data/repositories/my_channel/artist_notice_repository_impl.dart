@@ -18,8 +18,8 @@ class ArtistNoticeRepositoryImpl implements ArtistNoticeRepository {
       if (e is Failure) {
         rethrow; // 이미 Failure로 변환된 예외는 그대로 전달
       }
-      // 기타 예외는 Failure로 전달
-      throw Failure(message: '공지사항 목록을 불러오는데 실패했습니다: ${e.toString()}');
+      // 기타 예외는 Failure
+      throw Failure(message: '😞공지사항 목록 불러오기 실패: ${e.toString()}');
     }
   }
 
@@ -32,7 +32,7 @@ class ArtistNoticeRepositoryImpl implements ArtistNoticeRepository {
       if (e is Failure) {
         rethrow;
       }
-      throw Failure(message: '공지사항 상세 정보를 불러오는데 실패했습니다: ${e.toString()}');
+      throw Failure(message: '😞공지사항 상세 정보 불러오기 실패: ${e.toString()}');
     }
   }
 
@@ -51,7 +51,7 @@ class ArtistNoticeRepositoryImpl implements ArtistNoticeRepository {
       if (e is Failure) {
         rethrow;
       }
-      throw Failure(message: '공지사항 등록에 실패했습니다: ${e.toString()}');
+      throw Failure(message: '😞공지사항 등록 실패: ${e.toString()}');
     }
   }
 }
