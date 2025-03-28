@@ -6,7 +6,7 @@ import '../../data/models/my_channel/artist_notice.dart';
 import '../../data/models/my_channel/fantalk.dart';
 import '../../data/models/my_channel/public_playlist.dart';
 import '../../data/models/my_channel/neighbor.dart';
-import '../../domain/usecases/my_channel_usecases.dart';
+import '../../domain/usecases/my_channel/my_channel_usecases.dart';
 
 /// 나의 채널 데이터 로딩 상태
 enum MyChannelStatus { initial, loading, success, error }

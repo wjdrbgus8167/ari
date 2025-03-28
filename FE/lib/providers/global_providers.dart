@@ -19,7 +19,7 @@ import 'package:ari/data/repositories/my_channel/my_channel_repository_impl.dart
 import 'package:ari/domain/repositories/chart_repository.dart';
 import 'package:ari/domain/repositories/my_channel/my_channel_repository.dart';
 import 'package:ari/domain/usecases/get_charts_usecase.dart';
-import 'package:ari/domain/usecases/my_channel_usecases.dart';
+import 'package:ari/domain/usecases/my_channel/my_channel_usecases.dart';
 
 import 'package:ari/core/services/playback_service.dart';
 import 'package:ari/core/constants/app_constants.dart';

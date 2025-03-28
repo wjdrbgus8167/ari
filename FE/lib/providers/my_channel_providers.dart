@@ -4,7 +4,7 @@ import '../data/datasources/my_channel/my_channel_remote_datasource.dart';
 import '../data/datasources/my_channel/my_channel_remote_datasource_impl.dart';
 import '../data/repositories/my_channel/my_channel_repository_impl.dart';
 import '../domain/repositories/my_channel/my_channel_repository.dart';
-import '../domain/usecases/my_channel_usecases.dart';
+import '../domain/usecases/my_channel/my_channel_usecases.dart';
 import '../presentation/viewmodels/my_channel_viewmodel.dart';
 
 /// TODO: 토큰 제공자 - 추후 Secure Storage에서 토큰을 가져올 예정!!!!!!!
