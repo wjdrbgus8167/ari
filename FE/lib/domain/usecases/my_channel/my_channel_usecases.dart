@@ -52,17 +52,16 @@ class GetArtistAlbumsUseCase {
   }
 }
 
-/// 아티스트 공지사항 조회 유스케이스
-class GetArtistNoticesUseCase {
+/// 아티스트 공지사항 최근 글 조회 유스케이스
+class GetChannelRecentNoticesUseCase {
   final MyChannelRepository repository;
 
-  GetArtistNoticesUseCase(this.repository);
+  GetChannelRecentNoticesUseCase(this.repository);
 
   Future<Either<Failure, ArtistNoticeResponse>> execute(String memberId) {
     return repository.getArtistNotices(memberId);
   }
 }
-
 /// 아티스트 팬톡 목록 조회 유스케이스
 class GetFanTalksUseCase {
   final MyChannelRepository repository;
