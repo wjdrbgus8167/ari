@@ -18,6 +18,7 @@ import com.ccc.ari.music.infrastructure.album.JpaAlbumRepository;
 import com.ccc.ari.music.infrastructure.genre.JpaGenreRepository;
 import com.ccc.ari.music.infrastructure.track.JpaTrackRepository;
 import com.ccc.ari.music.ui.response.TrackPlayResponse;
+import com.ccc.ari.music.ui.response.UploadAlbumResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -83,7 +84,7 @@ public class MusicServiceImpl implements MusicService {
 
     @Transactional
     @Override
-    public void uploadAlbum(UploadAlbumCommand command){
+    public UploadAlbumResponse uploadAlbum(UploadAlbumCommand command){
 
         String coverUrl = uploadAlbumService.uploadCoverImage(command.getCoverImage());
 
@@ -137,7 +138,36 @@ public class MusicServiceImpl implements MusicService {
                 .collect(Collectors.toList());
 
         // 트랙 DB 저장
-        jpaTrackRepository.saveAll(tracks);
+        List<TrackEntity> savedTracks =jpaTrackRepository.saveAll(tracks);
+
+        // 트랙 응답 변환
+        List<UploadAlbumResponse.TrackResponse> trackResponses = savedTracks.stream()
+                .map(track -> UploadAlbumResponse.TrackResponse.builder()
+                        .trackId(track.getTrackId())
+                        .trackTitle(track.getTrackTitle())
+                        .trackNumber(track.getTrackNumber())
+                        .composer(track.getComposer())
+                        .lyricist(track.getLyricist())
+                        .lyrics(track.getLyrics())
+                        .trackFileUrl(track.getTrackFileUrl())
+                        .build())
+                .collect(Collectors.toList());
+
+        // 최종 응답 DTO 생성
+        UploadAlbumResponse response = UploadAlbumResponse.builder()
+                .albumId(savedAlbum.getAlbumId())
+                .albumTitle(savedAlbum.getAlbumTitle())
+                .coverImageUrl(savedAlbum.getCoverImageUrl())
+                .description(savedAlbum.getDescription())
+                .releasedAt(savedAlbum.getReleasedAt())
+                .genre(savedAlbum.getGenre().getGenreName())
+                .nickname(savedAlbum.getMember().getNickname())
+                .memberId(savedAlbum.getMember().getMemberId())
+                .trackCount(savedTracks.size())
+                .tracks(trackResponses)
+                .build();
+
+        return response;
 
     }
 }

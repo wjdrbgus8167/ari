@@ -8,6 +8,7 @@ import com.ccc.ari.music.application.command.UploadAlbumCommand;
 import com.ccc.ari.music.application.serviceImpl.MusicServiceImpl;
 import com.ccc.ari.music.ui.request.UploadAlbumRequest;
 import com.ccc.ari.music.ui.response.TrackPlayResponse;
+import com.ccc.ari.music.ui.response.UploadAlbumResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,9 +53,9 @@ public class MusicController {
         try {
             UploadAlbumRequest request = objectMapper.readValue(metadata, UploadAlbumRequest.class);
             UploadAlbumCommand command = request.toCommand(coverImage, tracks,memberUserDetails.getMemberId());
-            musicService.uploadAlbum(command);
+            UploadAlbumResponse response = musicService.uploadAlbum(command);
 
-            return ApiUtils.success("음원 업로드 완료");
+            return ApiUtils.success(response);
         } catch (Exception e) {
             log.error("음원 업로드 중 오류 발생", e);
             return ApiUtils.error(ErrorCode.MUSIC_FORMAT_UNSUPPORTED);
