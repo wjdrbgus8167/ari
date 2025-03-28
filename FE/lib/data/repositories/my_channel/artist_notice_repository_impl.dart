@@ -23,5 +23,17 @@ class ArtistNoticeRepositoryImpl implements ArtistNoticeRepository {
     }
   }
 
+  /// 공지사항 상세 정보 조회
+  @override
+  Future<ArtistNotice> getArtistNoticeDetail(int noticeId) async {
+    try {
+      return await remoteDataSource.getArtistNoticeDetail(noticeId);
+    } catch (e) {
+      if (e is Failure) {
+        rethrow;
+      }
+      throw Failure(message: '공지사항 상세 정보를 불러오는데 실패했습니다: ${e.toString()}');
+    }
+  }
 
 }
