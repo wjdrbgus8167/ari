@@ -1,0 +1,15 @@
+import 'package:dio/dio.dart';
+import '../../repositories/my_channel/artist_notice_repository.dart';
+import '../../../data/models/my_channel/artist_notice.dart';
+
+/// 아티스트 공지사항 목록 조회 유스케이스
+class GetArtistNoticesUseCase {
+  final ArtistNoticeRepository repository;
+
+  GetArtistNoticesUseCase(this.repository);
+
+  Future<ArtistNoticeResponse> call(String memberId) {
+    return repository.getArtistNotices(memberId);
+  }
+}
+
