@@ -36,4 +36,22 @@ class ArtistNoticeRepositoryImpl implements ArtistNoticeRepository {
     }
   }
 
+  /// 공지사항 등록
+  @override
+  Future<void> createArtistNotice(
+    String noticeContent, {
+    MultipartFile? noticeImage,
+  }) async {
+    try {
+      await remoteDataSource.createArtistNotice(
+        noticeContent,
+        noticeImage: noticeImage,
+      );
+    } catch (e) {
+      if (e is Failure) {
+        rethrow;
+      }
+      throw Failure(message: '공지사항 등록에 실패했습니다: ${e.toString()}');
+    }
+  }
 }
