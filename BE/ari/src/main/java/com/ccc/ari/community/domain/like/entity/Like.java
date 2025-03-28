@@ -5,12 +5,15 @@ import lombok.Getter;
 
 import java.util.Objects;
 
+/**
+ * 좋아요 도메인 엔티티
+ */
 @Getter
 @Builder
-public class AlbumLike {
+public class Like {
 
-    private Integer albumLikeId;
-    private Integer albumId;
+    private Integer likeId;
+    private Integer targetId;
     private Integer memberId;
     @Builder.Default
     private Boolean activateYn = true;
@@ -20,21 +23,21 @@ public class AlbumLike {
         this.activateYn = false;
     }
 
-    // 좋아요 활성화
+    // 좋아요
     public void activate() {
         this.activateYn = true;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof AlbumLike albumLike) {
-            return Objects.equals(albumLike.getAlbumLikeId(), albumLikeId);
+        if (obj instanceof Like like) {
+            return like.getLikeId().equals(likeId);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(albumLikeId);
+        return Objects.hash(likeId);
     }
 }
