@@ -74,7 +74,7 @@ class AlbumMockDataSourceImpl implements AlbumDataSource {
         "commentCount":180,
         "rating" : "4.2",
         "createdAt":"2024-08-12",
-        "coverImageUrl": "https://s3.example.com/tracks/track_one.mp3",
+        "coverImageUrl": "",
         "comments" : [
           {
             "trackId" : 1,
