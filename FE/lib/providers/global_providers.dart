@@ -17,7 +17,7 @@ import 'package:ari/data/datasources/my_channel/my_channel_remote_datasource_imp
 import 'package:ari/data/repositories/my_channel_repository_impl.dart';
 
 import 'package:ari/domain/repositories/chart_repository.dart';
-import 'package:ari/domain/repositories/my_channel_repository.dart';
+import 'package:ari/domain/repositories/my_channel/my_channel_repository.dart';
 import 'package:ari/domain/usecases/get_charts_usecase.dart';
 import 'package:ari/domain/usecases/my_channel_usecases.dart';
 

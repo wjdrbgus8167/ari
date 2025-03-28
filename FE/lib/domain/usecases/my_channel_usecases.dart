@@ -6,7 +6,7 @@ import '../../data/models/my_channel/artist_notice.dart';
 import '../../data/models/my_channel/fantalk.dart';
 import '../../data/models/my_channel/public_playlist.dart';
 import '../../data/models/my_channel/neighbor.dart';
-import '../repositories/my_channel_repository.dart';
+import '../repositories/my_channel/my_channel_repository.dart';
 
 /// 채널 정보 조회 유스케이스
 class GetChannelInfoUseCase {
