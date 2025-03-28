@@ -83,5 +83,49 @@ class ArtistNoticeRemoteDataSourceImpl implements ArtistNoticeRemoteDataSource {
     }
   }
 
+  /// 공지사항 등록 (이미지 포함 가능)
+  @override
+  Future<void> createArtistNotice(
+    String noticeContent, {
+    MultipartFile? noticeImage,
+  }) async {
+    try {
+      // FormData
+      final formData = FormData();
+      formData.fields.add(MapEntry('noticeContent', noticeContent));
 
+      // 이미지가 있으면 추가
+      if (noticeImage != null) {
+        formData.files.add(MapEntry('noticeImage', noticeImage));
+      }
+
+      // API 엔드포인트 호출
+      final response = await dio.post(
+        '/api/v1/artists/notices',
+        data: formData,
+      );
+
+      // API 응답 파싱
+      final apiResponse = ApiResponse.fromJson(response.data, null);
+
+      // 성공 응답 확인
+      if (apiResponse.status != 200) {
+        throw Failure(
+          message: apiResponse.error?.message ?? '공지사항 등록에 실패했습니다.',
+          code: apiResponse.error?.code,
+          statusCode: apiResponse.status,
+        );
+      }
+    } on DioException catch (e) {
+      // Dio 네트워크 에러 처리
+      throw Failure(
+        message: '네트워크 오류가 발생했습니다: ${e.message}',
+        code: e.response?.statusCode.toString(),
+        statusCode: e.response?.statusCode,
+      );
+    } catch (e) {
+      // 예외 처리
+      throw Failure(message: '알 수 없는 오류가 발생했습니다: ${e.toString()}');
+    }
+  }
 }
