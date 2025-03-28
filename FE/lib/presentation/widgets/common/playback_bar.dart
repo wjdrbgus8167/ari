@@ -1,13 +1,14 @@
+import 'package:ari/presentation/viewmodels/playback/playback_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../providers/playback/playback_state_provider.dart';
-import '../../../providers/playback/playback_progress_provider.dart';
-import '../../../providers/global_providers.dart';
-import '../../../core/services/audio_service.dart';
-import '../../../core/services/playback_service.dart';
-import '../../../core/constants/app_colors.dart';
-import '../playback/expanded_playbackscreen.dart';
-import '../../routes/app_router.dart';
+import 'package:ari/providers/playback/playback_state_provider.dart';
+import 'package:ari/providers/playback/playback_progress_provider.dart';
+import 'package:ari/core/constants/app_colors.dart';
+import 'package:ari/presentation/widgets/playback/expanded_playbackscreen.dart';
+import 'package:ari/presentation/routes/app_router.dart';
+// import alias 사용: playback_service_provider와 구분하기 위해
+import 'package:ari/core/services/playback_service.dart' as playbackServiceLib;
+import 'package:ari/core/services/audio_service.dart';
 
 class PlaybackBar extends ConsumerWidget {
   const PlaybackBar({Key? key}) : super(key: key);
@@ -15,8 +16,12 @@ class PlaybackBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final playbackState = ref.watch(playbackProvider);
-    // playbackServiceProvider에서 playbackService 인스턴스를 읽어옴.
-    final playbackService = ref.read(playbackServiceProvider);
+    final playbackService = ref.read(
+      playbackServiceLib.playbackServiceProvider,
+    );
+    final audioService = ref.read(audioServiceProvider);
+
+    final coverImage = ref.watch(coverImageProvider);
 
     return GestureDetector(
       onTap: () {
@@ -39,8 +44,8 @@ class PlaybackBar extends ConsumerWidget {
                   padding: const EdgeInsets.only(left: 8),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(4),
-                    child: Image.asset(
-                      'assets/images/default_album_cover.png',
+                    child: Image(
+                      image: coverImage,
                       width: 40,
                       height: 40,
                       fit: BoxFit.cover,
@@ -80,15 +85,22 @@ class PlaybackBar extends ConsumerWidget {
                   ),
                   onPressed: () async {
                     if (playbackState.isPlaying) {
-                      // 재생 중이면 일시정지 처리
-                      await playbackService.audioPlayer.pause();
+                      await audioService.pause(ref);
                     } else {
-                      // 재생 중이 아니면 API 호출로 트랙 재생 (여기선 albumId와 trackId를 1로 고정)
-                      await playbackService.playTrack(albumId: 1, trackId: 1);
+                      // 만약 현재 재생 중인 트랙이 이미 존재하면 이어서 재생(resume)
+                      if (playbackState.currentTrackId != null) {
+                        await audioService.resume(ref);
+                      } else {
+                        // 최초 재생: PlaybackService를 사용하여 API를 호출하고 재생 시작
+                        await playbackService.playTrack(
+                          albumId: 1,
+                          trackId: 1,
+                          ref: ref,
+                        );
+                      }
                     }
                   },
                 ),
-                // 재생목록 아이콘
                 IconButton(
                   icon: const Icon(Icons.queue_music, color: Colors.white),
                   onPressed: () {
@@ -123,7 +135,8 @@ class PlaybackBar extends ConsumerWidget {
                 decoration: const BoxDecoration(color: Colors.white24),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: Container(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
                     width: maxWidth * progressFraction,
                     height: 2,
                     decoration: const BoxDecoration(

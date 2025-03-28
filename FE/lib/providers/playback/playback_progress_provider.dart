@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/services/audio_service.dart';
+import 'package:ari/core/services/audio_service.dart';
 
 // 오디오 재생 위치 스트림 제공함
 final playbackPositionProvider = StreamProvider<Duration>((ref) {

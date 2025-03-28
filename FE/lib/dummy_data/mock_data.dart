@@ -61,6 +61,17 @@ class MockData {
         lyrics: '가사 내용 5',
         coverUrl: 'https://example.com/cover5.jpg',
       ),
+      Track(
+        id: 6,
+        trackTitle: 'LALISA',
+        artist: 'LISA',
+        composer: 'Teddy Park',
+        lyricist: 'Teddy Park, Bekuh Boom',
+        albumId: 'album5',
+        trackFileUrl: 'https://example.com/song5.mp3',
+        lyrics: '가사 내용 5',
+        coverUrl: 'https://example.com/cover5.jpg',
+      ),
     ];
   }
 
