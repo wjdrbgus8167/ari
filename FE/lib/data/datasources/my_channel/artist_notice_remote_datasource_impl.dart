@@ -45,4 +45,43 @@ class ArtistNoticeRemoteDataSourceImpl implements ArtistNoticeRemoteDataSource {
       throw Failure(message: '알 수 없는 오류가 발생했습니다: ${e.toString()}');
     }
   }
+
+  /// 공지사항 상세 조회
+  @override
+  Future<ArtistNotice> getArtistNoticeDetail(int noticeId) async {
+    try {
+      // API 엔드포인트 호출
+      final response = await dio.get('/api/v1/artists/notices/$noticeId');
+
+      // API 응답 파싱
+      final apiResponse = ApiResponse.fromJson(
+        response.data,
+        (data) => ArtistNotice.fromJson(data),
+      );
+
+      // 성공
+      if (apiResponse.status == 200 && apiResponse.data != null) {
+        return apiResponse.data!;
+      } else {
+        // 에러
+        throw Failure(
+          message: apiResponse.error?.message ?? '공지사항 상세 정보를 불러오는데 실패했습니다.',
+          code: apiResponse.error?.code,
+          statusCode: apiResponse.status,
+        );
+      }
+    } on DioException catch (e) {
+      // Dio 네트워크 에러 처리
+      throw Failure(
+        message: '네트워크 오류가 발생했습니다: ${e.message}',
+        code: e.response?.statusCode.toString(),
+        statusCode: e.response?.statusCode,
+      );
+    } catch (e) {
+      // 예외 처리
+      throw Failure(message: '알 수 없는 오류가 발생했습니다: ${e.toString()}');
+    }
+  }
+
+
 }
