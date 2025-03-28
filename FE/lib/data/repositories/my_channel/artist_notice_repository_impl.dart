@@ -1,0 +1,27 @@
+import 'package:dio/dio.dart';
+import '../../../core/exceptions/failure.dart';
+import '../../../domain/repositories/my_channel/artist_notice_repository.dart';
+import '../../datasources/my_channel/artist_notice_remote_datasource.dart';
+import '../../models/my_channel/artist_notice.dart';
+
+class ArtistNoticeRepositoryImpl implements ArtistNoticeRepository {
+  final ArtistNoticeRemoteDataSource remoteDataSource;
+
+  ArtistNoticeRepositoryImpl({required this.remoteDataSource});
+
+  /// 공지사항 목록 조회
+  @override
+  Future<ArtistNoticeResponse> getArtistNotices(String memberId) async {
+    try {
+      return await remoteDataSource.getArtistNotices(memberId);
+    } catch (e) {
+      if (e is Failure) {
+        rethrow; // 이미 Failure로 변환된 예외는 그대로 전달
+      }
+      // 기타 예외는 Failure로 전달
+      throw Failure(message: '공지사항 목록을 불러오는데 실패했습니다: ${e.toString()}');
+    }
+  }
+
+
+}
