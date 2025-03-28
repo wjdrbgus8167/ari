@@ -46,11 +46,12 @@ public class MusicController {
     public ApiUtils.ApiResponse<?> uploadAlbum(
             @RequestPart(value = "coverImage", required = true) MultipartFile coverImage,
             @RequestPart(value = "tracks", required = true) List<MultipartFile> tracks,
-            @RequestPart(value = "metadata", required = true) String metadata
+            @RequestPart(value = "metadata", required = true) String metadata,
+            @AuthenticationPrincipal MemberUserDetails memberUserDetails
     ) {
         try {
             UploadAlbumRequest request = objectMapper.readValue(metadata, UploadAlbumRequest.class);
-            UploadAlbumCommand command = request.toCommand(coverImage, tracks);
+            UploadAlbumCommand command = request.toCommand(coverImage, tracks,memberUserDetails.getMemberId());
             musicService.uploadAlbum(command);
 
             return ApiUtils.success("음원 업로드 완료");
