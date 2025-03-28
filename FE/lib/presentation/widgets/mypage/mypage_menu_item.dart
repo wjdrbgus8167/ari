@@ -8,6 +8,7 @@ class MypageMenuItem extends StatelessWidget {
     Key? key,
     required this.title,
     required this.routeName,
+    required onTap,
   }) : super(key: key);
 
   @override

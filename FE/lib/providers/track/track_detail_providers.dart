@@ -2,7 +2,7 @@
 import 'package:ari/data/datasources/track_remote_datasource.dart';
 import 'package:ari/data/repositories/track_repository.dart';
 import 'package:ari/domain/usecases/track_detail_usecase.dart';
-import 'package:ari/presentation/viewmodels/track_detail_viewmodel.dart';
+import 'package:ari/presentation/viewmodels/track/track_detail_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/providers/global_providers.dart';
 
