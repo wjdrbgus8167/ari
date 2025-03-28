@@ -29,7 +29,7 @@ public class UploadAlbumRequest {
     /**
      * Request → Command 변환 (coverImage + trackFiles 추가)
      */
-    public UploadAlbumCommand toCommand(MultipartFile coverImage, List<MultipartFile> trackFiles) {
+    public UploadAlbumCommand toCommand(MultipartFile coverImage, List<MultipartFile> trackFiles,Integer memberId) {
         List<UploadAlbumCommand.UploadTrackCommand> trackCommands = IntStream.range(0, this.tracks.size())
                 .mapToObj(i -> this.tracks.get(i).toCommand(trackFiles.get(i)))
                 .toList();
@@ -40,6 +40,7 @@ public class UploadAlbumRequest {
                 .description(this.description)
                 .coverImage(coverImage)
                 .tracks(trackCommands)
+                .memberId(memberId)
                 .build();
     }
 

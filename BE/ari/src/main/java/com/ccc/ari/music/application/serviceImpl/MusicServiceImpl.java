@@ -3,15 +3,19 @@ package com.ccc.ari.music.application.serviceImpl;
 import com.ccc.ari.global.error.ApiException;
 import com.ccc.ari.global.error.ErrorCode;
 import com.ccc.ari.global.infrastructure.S3Service;
+import com.ccc.ari.member.domain.member.MemberEntity;
+import com.ccc.ari.member.infrastructure.JpaMemberRepository;
 import com.ccc.ari.music.application.MusicService;
 import com.ccc.ari.music.application.command.TrackPlayCommand;
 import com.ccc.ari.global.event.StreamingEvent;
 import com.ccc.ari.music.application.command.UploadAlbumCommand;
+import com.ccc.ari.music.domain.genre.GenreEntity;
 import com.ccc.ari.music.domain.service.UploadAlbumService;
 import com.ccc.ari.music.event.producer.KafkaProducerService;
 import com.ccc.ari.music.domain.album.AlbumEntity;
 import com.ccc.ari.music.domain.track.TrackEntity;
 import com.ccc.ari.music.infrastructure.album.JpaAlbumRepository;
+import com.ccc.ari.music.infrastructure.genre.JpaGenreRepository;
 import com.ccc.ari.music.infrastructure.track.JpaTrackRepository;
 import com.ccc.ari.music.ui.response.TrackPlayResponse;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +39,8 @@ public class MusicServiceImpl implements MusicService {
     private final JpaAlbumRepository jpaAlbumRepository;
     private final UploadAlbumService uploadAlbumService;
     private final ApplicationEventPublisher eventPublisher;
+    private final JpaMemberRepository jpaMemberRepository;
+    private final JpaGenreRepository jpaGenreRepository;
 
     @Transactional
     @Override
@@ -82,6 +88,15 @@ public class MusicServiceImpl implements MusicService {
 
         String coverUrl = uploadAlbumService.uploadCoverImage(command.getCoverImage());
 
+        MemberEntity member = jpaMemberRepository.findByMemberId(command.getMemberId())
+                .orElseThrow(()-> new ApiException(ErrorCode.MEMBER_NOT_FOUND));
+
+        GenreEntity genre = GenreEntity.builder()
+                .genreName(command.getGenreName())
+                .build();
+
+        GenreEntity savedGenre =jpaGenreRepository.save(genre);
+
         // 앨범 메타데이터 DB 저장
         // 추후 Security 인증인가 구현되는데로 memberId 추가 예정
         AlbumEntity album = AlbumEntity.builder()
@@ -90,6 +105,8 @@ public class MusicServiceImpl implements MusicService {
                 .coverImageUrl(coverUrl)
                 .albumLikeCount(0)
                 .releasedAt(LocalDateTime.now())
+                .genre(savedGenre)
+                .member(member)
                 .build();
 
         AlbumEntity savedAlbum = jpaAlbumRepository.save(album);

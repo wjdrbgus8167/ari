@@ -1,5 +1,6 @@
 package com.ccc.ari.music.application.command;
 
+import com.ccc.ari.global.security.MemberUserDetails;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,15 +14,17 @@ public class UploadAlbumCommand {
     private final String description;
     private final MultipartFile coverImage;
     private final List<UploadTrackCommand> tracks;
+    private final Integer memberId;
 
     @Builder
     public UploadAlbumCommand(String genreName, String albumTitle, String description,
-                              MultipartFile coverImage, List<UploadTrackCommand> tracks) {
+                              MultipartFile coverImage, List<UploadTrackCommand> tracks,Integer memberId) {
         this.genreName = genreName;
         this.albumTitle = albumTitle;
         this.description = description;
         this.coverImage = coverImage;
         this.tracks = tracks;
+        this.memberId = memberId;
     }
 
     @Getter
