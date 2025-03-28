@@ -23,3 +23,19 @@ class GetArtistNoticeDetailUseCase {
     return repository.getArtistNoticeDetail(noticeId);
   }
 }
+
+/// 공지사항 등록 유스케이스
+class CreateArtistNoticeUseCase {
+  final ArtistNoticeRepository repository;
+
+  CreateArtistNoticeUseCase(this.repository);
+
+  /// 공지사항 등록 실행
+  /// [noticeContent]: 공지 내용, [noticeImage]: 이미지 파일 (선택)
+  Future<void> call(String noticeContent, {MultipartFile? noticeImage}) {
+    return repository.createArtistNotice(
+      noticeContent,
+      noticeImage: noticeImage,
+    );
+  }
+}
