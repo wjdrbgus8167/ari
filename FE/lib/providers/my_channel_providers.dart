@@ -7,18 +7,18 @@ import '../domain/repositories/my_channel/my_channel_repository.dart';
 import '../domain/usecases/my_channel/my_channel_usecases.dart';
 import '../presentation/viewmodels/my_channel_viewmodel.dart';
 
-/// TODO: 토큰 제공자 - 추후 Secure Storage에서 토큰을 가져올 예정!!!!!!!
+/// TODO: 토큰 provider - 추후 Secure Storage에서 토큰을 가져올 예정!!!!!!!
 final authTokenProvider = Provider<String>((ref) {
   // 이 부분 Secure Storage에서 가져오기!!!!!
   return 'dummy-token';
 });
 
-/// Dio HTTP 클라이언트 제공자
+/// Dio HTTP 클라이언트 provider
 final dioProvider = Provider<Dio>((ref) {
   return Dio();
 });
 
-/// 나의 채널 원격 데이터 소스 제공자
+/// 나의 채널 원격 데이터 소스 provider
 final myChannelRemoteDataSourceProvider = Provider<MyChannelRemoteDataSource>((ref) {
   final dio = ref.watch(dioProvider);
   final token = ref.watch(authTokenProvider);
@@ -29,7 +29,7 @@ final myChannelRemoteDataSourceProvider = Provider<MyChannelRemoteDataSource>((r
   );
 });
 
-/// 나의 채널 repository 제공자
+/// 나의 채널 repository provider
 final myChannelRepositoryProvider = Provider<MyChannelRepository>((ref) {
   final remoteDataSource = ref.watch(myChannelRemoteDataSourceProvider);
   
@@ -38,7 +38,7 @@ final myChannelRepositoryProvider = Provider<MyChannelRepository>((ref) {
   );
 });
 
-/// UseCase 제공자
+/// UseCase provider
 final getChannelInfoUseCaseProvider = Provider<GetChannelInfoUseCase>((ref) {
   return GetChannelInfoUseCase(ref.watch(myChannelRepositoryProvider));
 });
@@ -75,7 +75,7 @@ final getFollowingsUseCaseProvider = Provider<GetFollowingsUseCase>((ref) {
   return GetFollowingsUseCase(ref.watch(myChannelRepositoryProvider));
 });
 
-/// 나의 채널 ViewModel 제공자
+/// 나의 채널 ViewModel provider
 final myChannelProvider = StateNotifierProvider<MyChannelNotifier, MyChannelState>((ref) {
   return MyChannelNotifier(
     getChannelInfoUseCase: ref.watch(getChannelInfoUseCaseProvider),
