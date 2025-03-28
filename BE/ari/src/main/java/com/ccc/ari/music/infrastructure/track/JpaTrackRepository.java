@@ -7,5 +7,6 @@ import java.util.Optional;
 
 @Repository
 public interface JpaTrackRepository extends JpaRepository<TrackEntity,Integer> {
-    Optional<TrackEntity> findByTrackId(Integer trackId);
+    Optional<TrackEntity> findByAlbum_AlbumIdAndTrackId(Integer albumId, Integer trackId);
+
 }
