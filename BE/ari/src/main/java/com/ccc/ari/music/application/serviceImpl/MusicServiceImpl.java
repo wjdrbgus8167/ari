@@ -46,24 +46,23 @@ public class MusicServiceImpl implements MusicService {
     @Override
     public TrackPlayResponse trackPlay(TrackPlayCommand trackPlayCommand) {
 
-        TrackEntity track = jpaTrackRepository.findByTrackId(trackPlayCommand.getTrackId())
+        TrackEntity track = jpaTrackRepository
+                .findByAlbum_AlbumIdAndTrackId(trackPlayCommand.getAlbumId(), trackPlayCommand.getTrackId())
                 .orElseThrow(() -> new ApiException(ErrorCode.MUSIC_FILE_NOT_FOUND));
 
-        AlbumEntity album = jpaAlbumRepository.findByAlbumId(trackPlayCommand.getAlbumId())
-                .orElseThrow(()-> new ApiException(ErrorCode.MUSIC_FILE_NOT_FOUND));
-
+        log.info("Track play command: " + track.getTrackId());
 
         StreamingEvent event = StreamingEvent.builder()
                 .memberId(trackPlayCommand.getMemberId())
                 .nickname(trackPlayCommand.getNickname())
                 .trackId(track.getTrackId())
                 .trackTitle(track.getTrackTitle())
-                .artistId(album.getMember().getMemberId())
-                .artistName(album.getMember().getNickname())
-                .albumId(album.getAlbumId())
-                .albumTitle(album.getAlbumTitle())
-                .genreId(album.getGenre().getGenreId())
-                .genreName(album.getGenre().getGenreName())
+                .artistId(track.getAlbum().getMember().getMemberId())
+                .artistName(track.getAlbum().getMember().getNickname())
+                .albumId(track.getAlbum().getAlbumId())
+                .albumTitle(track.getAlbum().getAlbumTitle())
+                .genreId(track.getAlbum().getGenre().getGenreId())
+                .genreName(track.getAlbum().getGenre().getGenreName())
                 .timestamp(Instant.now())
                 .build();
 
@@ -74,8 +73,8 @@ public class MusicServiceImpl implements MusicService {
         log.info("이벤트가 성공적으로 발행되었습니다: 트랙 이름={}, 닉네임={}", event.getTrackTitle(), event.getNickname());
 
         return TrackPlayResponse.builder()
-                .artist(album.getMember().getNickname())
-                .coverImageUrl(album.getCoverImageUrl())
+                .artist(track.getAlbum().getMember().getNickname())
+                .coverImageUrl(track.getAlbum().getCoverImageUrl())
                 .lyrics(track.getLyrics())
                 .tackFileUrl(track.getTrackFileUrl())
                 .title(track.getTrackTitle())
