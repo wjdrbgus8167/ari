@@ -1,6 +1,7 @@
 package com.ccc.ari.community.infrastructure.like.repository;
 
 import com.ccc.ari.community.application.like.repository.LikeRepository;
+import com.ccc.ari.community.domain.like.LikeType;
 import com.ccc.ari.community.domain.like.entity.Like;
 import com.ccc.ari.community.infrastructure.like.entity.AlbumLikeJpaEntity;
 import com.ccc.ari.community.infrastructure.like.entity.TrackLikeJpaEntity;
@@ -17,26 +18,26 @@ public class AlbumRepositoryImpl implements LikeRepository {
     private final TrackLikeJpaRepository trackLikeJpaRepository;
 
     @Override
-    public void saveAlbumLike(Like like) {
-        AlbumLikeJpaEntity entity = AlbumLikeJpaEntity.fromDomain(like);
-        albumLikeJpaRepository.save(entity);
+    public void saveLike(Like like, LikeType type) {
+        switch (type) {
+            case ALBUM:
+                AlbumLikeJpaEntity albumEntity = AlbumLikeJpaEntity.fromDomain(like);
+                albumLikeJpaRepository.save(albumEntity);
+                break;
+            case TRACK:
+                TrackLikeJpaEntity trackEntity = TrackLikeJpaEntity.fromDomain(like);
+                trackLikeJpaRepository.save(trackEntity);
+                break;
+        }
     }
 
     @Override
-    public void saveTrackLike(Like like) {
-        TrackLikeJpaEntity entity = TrackLikeJpaEntity.fromDomain(like);
-        trackLikeJpaRepository.save(entity);
-    }
-
-    @Override
-    public Optional<Like> findByAlbumIdAndMemberId(Integer albumId, Integer memberId) {
-        return albumLikeJpaRepository.findByAlbumIdAndMemberId(albumId, memberId)
-                .map(AlbumLikeJpaEntity::toDomain);
-    }
-
-    @Override
-    public Optional<Like> findByTrackIdAndMemberId(Integer trackId, Integer memberId) {
-        return trackLikeJpaRepository.findByTrackIdAndMemberId(trackId, memberId)
-                .map(TrackLikeJpaEntity::toDomain);
+    public Optional<Like> findByTargetAndMember(Integer targetId, Integer memberId, LikeType type) {
+        return switch (type) {
+            case ALBUM -> albumLikeJpaRepository.findByAlbumIdAndMemberId(targetId, memberId)
+                    .map(AlbumLikeJpaEntity::toDomain);
+            case TRACK -> trackLikeJpaRepository.findByTrackIdAndMemberId(targetId, memberId)
+                    .map(TrackLikeJpaEntity::toDomain);
+        };
     }
 }
