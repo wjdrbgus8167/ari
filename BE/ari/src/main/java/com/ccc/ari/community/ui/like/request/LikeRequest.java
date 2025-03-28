@@ -10,9 +10,9 @@ public class LikeRequest {
     /**
      * Request -> Command 변환 메서드
      */
-    public LikeCommand toCommand(Integer albumId, Integer memberId) {
+    public LikeCommand toCommand(Integer targetId, Integer memberId) {
         return LikeCommand.builder()
-                .albumId(albumId)
+                .targetId(targetId)
                 .memberId(memberId)
                 .activateYn(this.activateYn)
                 .build();
