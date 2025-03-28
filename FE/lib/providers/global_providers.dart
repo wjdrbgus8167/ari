@@ -12,8 +12,8 @@ import 'package:ari/presentation/viewmodels/my_channel_viewmodel.dart';
 import 'package:ari/data/models/track.dart';
 import 'package:ari/data/repositories/chart_repository_impl.dart';
 import 'package:ari/data/datasources/chart_remote_data_source.dart';
-import 'package:ari/data/datasources/my_channel_remote_datasource.dart';
-import 'package:ari/data/datasources/my_channel_remote_datasource_impl.dart';
+import 'package:ari/data/datasources/my_channel/my_channel_remote_datasource.dart';
+import 'package:ari/data/datasources/my_channel/my_channel_remote_datasource_impl.dart';
 import 'package:ari/data/repositories/my_channel_repository_impl.dart';
 
 import 'package:ari/domain/repositories/chart_repository.dart';

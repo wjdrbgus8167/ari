@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
-import '../data/datasources/my_channel_remote_datasource.dart';
-import '../data/datasources/my_channel_remote_datasource_impl.dart';
+import '../data/datasources/my_channel/my_channel_remote_datasource.dart';
+import '../data/datasources/my_channel/my_channel_remote_datasource_impl.dart';
 import '../data/repositories/my_channel_repository_impl.dart';
 import '../domain/repositories/my_channel_repository.dart';
 import '../domain/usecases/my_channel_usecases.dart';

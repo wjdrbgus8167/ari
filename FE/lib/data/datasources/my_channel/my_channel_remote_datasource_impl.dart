@@ -1,13 +1,13 @@
 import 'package:dio/dio.dart';
-import '../../core/constants/app_constants.dart';
-import '../../core/exceptions/failure.dart';
-import '../models/api_response.dart';
-import '../models/my_channel/channel_info.dart';
-import '../models/my_channel/artist_album.dart';
-import '../models/my_channel/artist_notice.dart';
-import '../models/my_channel/fantalk.dart';
-import '../models/my_channel/public_playlist.dart';
-import '../models/my_channel/neighbor.dart';
+import '../../../core/constants/app_constants.dart';
+import '../../../core/exceptions/failure.dart';
+import '../../models/api_response.dart';
+import '../../models/my_channel/channel_info.dart';
+import '../../models/my_channel/artist_album.dart';
+import '../../models/my_channel/artist_notice.dart';
+import '../../models/my_channel/fantalk.dart';
+import '../../models/my_channel/public_playlist.dart';
+import '../../models/my_channel/neighbor.dart';
 import 'my_channel_remote_datasource.dart';
 
 /// 나의 채널 원격 데이터 소스 구현체
