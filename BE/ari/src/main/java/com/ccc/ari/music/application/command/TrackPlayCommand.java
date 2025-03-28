@@ -8,10 +8,14 @@ public class TrackPlayCommand {
 
     Integer trackId;
     Integer albumId;
+    Integer memberId;
+    String nickname;
 
     @Builder
-    public TrackPlayCommand(Integer trackId, Integer albumId) {
+    public TrackPlayCommand(Integer trackId, Integer albumId, Integer memberId,String nickname) {
         this.trackId = trackId;
         this.albumId = albumId;
+        this.memberId = memberId;
+        this.nickname = nickname;
     }
 }

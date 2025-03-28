@@ -1,6 +1,7 @@
 package com.ccc.ari.music.ui;
 
 import com.ccc.ari.global.error.ErrorCode;
+import com.ccc.ari.global.security.MemberUserDetails;
 import com.ccc.ari.global.util.ApiUtils;
 import com.ccc.ari.music.application.command.TrackPlayCommand;
 import com.ccc.ari.music.application.command.UploadAlbumCommand;
@@ -10,6 +11,7 @@ import com.ccc.ari.music.ui.response.TrackPlayResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,11 +31,14 @@ public class MusicController {
     @PostMapping("/{albumId}/tracks/{trackId}")
     public ApiUtils.ApiResponse<TrackPlayResponse> trackPlay(
             @PathVariable Integer albumId,
-            @PathVariable Integer trackId) {
+            @PathVariable Integer trackId,
+            @AuthenticationPrincipal MemberUserDetails memberUserDetails) {
 
         return ApiUtils.success(musicService.trackPlay(TrackPlayCommand.builder()
                 .albumId(albumId)
                 .trackId(trackId)
+                .memberId(memberUserDetails.getMemberId())
+                .nickname(memberUserDetails.getNickname())
                 .build()));
     }
 
