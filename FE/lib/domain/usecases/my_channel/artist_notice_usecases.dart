@@ -13,3 +13,13 @@ class GetArtistNoticesUseCase {
   }
 }
 
+/// 공지사항 상세 정보 조회 유스케이스
+class GetArtistNoticeDetailUseCase {
+  final ArtistNoticeRepository repository;
+
+  GetArtistNoticeDetailUseCase(this.repository);
+
+  Future<ArtistNotice> call(int noticeId) {
+    return repository.getArtistNoticeDetail(noticeId);
+  }
+}
