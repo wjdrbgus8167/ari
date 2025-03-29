@@ -1,19 +1,48 @@
 import 'package:ari/presentation/routes/app_router.dart';
+import 'package:ari/presentation/viewmodels/mypage/mypage_viewmodel.dart';
+import 'package:ari/presentation/widgets/common/custom_dialog.dart';
 import 'package:ari/presentation/widgets/common/header_widget.dart';
 import 'package:ari/presentation/widgets/mypage/mypage_menu_item.dart';
 import 'package:ari/presentation/widgets/mypage/mypage_profile.dart';
+import 'package:ari/providers/auth/auth_providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MyPageScreen extends StatefulWidget {
+// MyPageViewModel Provider 정의
+final myPageViewModelProvider = Provider.autoDispose<MyPageViewModel>((ref) {
+  return MyPageViewModel(ref);
+});
+
+class MyPageScreen extends ConsumerStatefulWidget {
   const MyPageScreen({super.key});
 
   @override
-  State<MyPageScreen> createState() => _MyPageScreenState();
+  ConsumerState<MyPageScreen> createState() => _MyPageScreenState();
 }
 
-class _MyPageScreenState extends State<MyPageScreen> {
+class _MyPageScreenState extends ConsumerState<MyPageScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // 뷰모델 초기화 (화면이 렌더링된 후)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(myPageViewModelProvider).initialize();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final viewModel = ref.watch(myPageViewModelProvider);
+    
+    // 로그인 상태 확인
+    final authState = ref.watch(authStateProvider);
+    final isLoggedIn = authState.maybeWhen(
+      data: (value) => value,
+      orElse: () => false,
+    );
+    print("로그인 여부 :$isLoggedIn");
+    
+
     return Scaffold(
       body: Container(
         height: double.infinity,
@@ -29,6 +58,10 @@ class _MyPageScreenState extends State<MyPageScreen> {
               },
             ),
             
+            // 로딩 표시
+            if (viewModel.isLoading)
+              const LinearProgressIndicator(),
+            
             // 컨텐츠 부분 (스크롤 가능)
             Expanded(
               child: SingleChildScrollView(
@@ -37,47 +70,61 @@ class _MyPageScreenState extends State<MyPageScreen> {
                   children: [
                     // 프로필 위젯
                     MypageProfile(
-                      name: '진우석',
-                      instagramId: '인스타그램ID',
-                      bio: '안녕하세요~',
-                      followers: 0,
-                      following: 0,
-                      profileImage: "https://placehold.co/100x100",
-                      secondaryImage: "https://placehold.co/100x100",
-                      onEditPressed: () {
-                        // 프로필 수정 페이지로 이동하는 로직
-                        print('프로필 수정 버튼 클릭');
-                      },
+                      name: viewModel.name,
+                      instagramId: viewModel.instagramId,
+                      bio: viewModel.bio,
+                      followers: viewModel.followers,
+                      following: viewModel.following,
+                      profileImage: viewModel.profileImage,
+                      secondaryImage: viewModel.secondaryImage,
+                      onEditPressed: () => viewModel.navigateToEditProfile(context),
                     ),
                     
                     // 메뉴 아이템들
                     MypageMenuItem(
                       title: '나의 구독',
                       routeName: AppRoutes.subscribe,
+                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.subscribe),
                     ),
                     MypageMenuItem(
                       title: '구독 내역',
                       routeName: AppRoutes.subscribe,
+                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.subscribe),
                     ),
                     MypageMenuItem(
                       title: '앨범 업로드',
                       routeName: AppRoutes.subscribe,
+                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.subscribe),
                     ),
                     MypageMenuItem(
                       title: '아티스트 대시보드',
                       routeName: AppRoutes.subscribe,
+                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.subscribe),
                     ),
                     MypageMenuItem(
                       title: '정산 내역',
                       routeName: AppRoutes.subscribe,
+                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.subscribe),
                     ),
                     MypageMenuItem(
                       title: '로그아웃',
-                      routeName: AppRoutes.login,
+                      routeName: AppRoutes.home,
+                      onTap: () async {
+                        final shouldLogout = await context.showConfirmDialog(
+                          title: "로그아웃",
+                          content: "로그아웃하시겠습니까?",
+                          confirmText: "확인",
+                          cancelText: "취소",
+                        );
+                        
+                        // 사용자가 확인(true)을 선택한 경우에만 로그아웃 실행
+                        if (shouldLogout == true) {
+                          await viewModel.logout(context);
+                        }
+                      }
                     ),
-                    
                     // 하단 여백
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),

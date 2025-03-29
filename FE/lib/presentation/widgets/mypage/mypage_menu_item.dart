@@ -3,20 +3,19 @@ import 'package:flutter/material.dart';
 class MypageMenuItem extends StatelessWidget {
   final String title;
   final String routeName;
+  final VoidCallback? onTap;
 
   const MypageMenuItem({
     Key? key,
     required this.title,
     required this.routeName,
-    required onTap,
+    required this.onTap,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        Navigator.of(context).pushNamed(routeName);
-      },
+      onTap: onTap,
       child: Container(
         width: double.infinity,
         height: 60,
