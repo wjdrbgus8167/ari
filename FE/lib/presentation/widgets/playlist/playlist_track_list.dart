@@ -13,7 +13,13 @@ class PlaylistTrackList extends ConsumerWidget {
 
     final playlist = state.selectedPlaylist;
 
-    if (playlist == null || playlist.tracks.isEmpty) {
+    // ✅ 렌더링할 트랙 리스트를 filteredTracks 기준으로 결정
+    final tracksToShow =
+        state.filteredTracks.isNotEmpty
+            ? state.filteredTracks
+            : playlist?.tracks ?? [];
+
+    if (tracksToShow.isEmpty) {
       return const Center(
         child: Text(
           "플레이리스트가 없습니다.",
@@ -27,9 +33,9 @@ class PlaylistTrackList extends ConsumerWidget {
       onReorder: (oldIndex, newIndex) {
         viewModel.reorderTracks(oldIndex, newIndex);
       },
-      itemCount: playlist.tracks.length,
+      itemCount: tracksToShow.length,
       itemBuilder: (context, index) {
-        final item = playlist.tracks[index];
+        final item = tracksToShow[index];
         final isSelected = state.selectedTracks.contains(item);
 
         return PlaylistTrackListTile(

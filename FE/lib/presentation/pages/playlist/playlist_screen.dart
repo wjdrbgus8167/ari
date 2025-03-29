@@ -6,16 +6,25 @@ import 'package:ari/presentation/widgets/common/listening_queue_appbar.dart';
 import 'package:ari/presentation/widgets/playlist/playlist_selectbar.dart';
 import 'package:ari/presentation/viewmodels/playlist/playlist_viewmodel.dart';
 import 'package:ari/presentation/widgets/common/global_bottom_widget.dart';
+import 'package:ari/presentation/widgets/common/search_bar.dart';
 
-class PlaylistScreen extends ConsumerWidget {
+class PlaylistScreen extends ConsumerStatefulWidget {
   const PlaylistScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PlaylistScreen> createState() => _PlaylistScreenState();
+}
+
+class _PlaylistScreenState extends ConsumerState<PlaylistScreen> {
+  final TextEditingController searchController = TextEditingController();
+  bool isSearchVisible = false;
+
+  @override
+  Widget build(BuildContext context) {
     final playlistState = ref.watch(playlistViewModelProvider);
     final playlistViewModel = ref.read(playlistViewModelProvider.notifier);
 
-    // 전체 선택 여부: 만약 선택된 플레이리스트가 있다면 모든 트랙이 선택되었는지 확인
+    // 전체 선택 여부 판단
     bool allSelected = false;
     if (playlistState.selectedPlaylist != null &&
         playlistState.selectedPlaylist!.tracks.isNotEmpty) {
@@ -26,80 +35,59 @@ class PlaylistScreen extends ConsumerWidget {
 
     return GlobalBottomWidget(
       child: Container(
-        color: Colors.black, // 배경색을 검정색으로 지정
+        color: Colors.black,
         child: Column(
           children: [
+            // 상단 앱바
             ListeningQueueAppBar(
               onBack: () => Navigator.pop(context),
               onSearch: () {
-                _showSearchDialog(context, playlistViewModel);
+                setState(() {
+                  isSearchVisible = !isSearchVisible;
+                });
               },
               selectedTab: ListeningTab.playlist,
-              onTabChanged: (ListeningTab tab) {
+              onTabChanged: (tab) {
                 if (tab == ListeningTab.listeningQueue) {
                   Navigator.pushReplacementNamed(context, '/listeningqueue');
                 }
               },
             ),
-            const SizedBox(height: 20),
-            // PlaylistSelectbar를 통해 플레이리스트 선택
+
+            // 검색창
+            if (isSearchVisible)
+              SearchBarWidget(
+                controller: searchController,
+                hintText: "곡 제목 또는 아티스트 검색",
+                onChanged: (query) {
+                  playlistViewModel.searchTracks(query);
+                },
+                onSubmitted: (query) {
+                  playlistViewModel.searchTracks(query);
+                },
+              ),
+
+            const SizedBox(height: 10),
+
+            // 플레이리스트 선택 바
             PlaylistSelectbar(
               onPlaylistSelected: (playlist) {
                 playlistViewModel.setPlaylist(playlist);
               },
             ),
+
             const SizedBox(height: 10),
-            // 전체 트랙 선택 바
+
+            // 전체 선택 / 삭제 컨트롤 바
             PlaylistTrackControls(),
+
             const SizedBox(height: 10),
-            // 트랙 목록
-            Expanded(
-              child: PlaylistTrackList(), // 모듈화된 리스트 위젯 사용
-            ),
+
+            // 트랙 리스트
+            const Expanded(child: PlaylistTrackList()),
           ],
         ),
       ),
-    );
-  }
-
-  void _showSearchDialog(BuildContext context, PlaylistViewModel viewModel) {
-    final TextEditingController searchController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.black,
-          title: const Text("곡 검색", style: TextStyle(color: Colors.white)),
-          content: TextField(
-            controller: searchController,
-            style: const TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-              hintText: "곡 제목 또는 아티스트 입력",
-              hintStyle: const TextStyle(color: Colors.white70),
-              enabledBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: Colors.white70),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: Colors.blueAccent),
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                searchController.clear();
-                Navigator.pop(context);
-              },
-              child: const Text(
-                "닫기",
-                style: TextStyle(color: Colors.redAccent),
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 }

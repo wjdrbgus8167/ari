@@ -69,7 +69,7 @@ class _CommentOverlayState extends State<CommentOverlay> {
                   itemBuilder: (context, index) => const CommentItem(),
                 ),
               ),
-              _CommentInputField(),
+              _CommentInputField(timestamp: widget.timestamp),
             ],
           ),
         ),
@@ -79,6 +79,11 @@ class _CommentOverlayState extends State<CommentOverlay> {
 }
 
 class _CommentInputField extends StatelessWidget {
+  final String timestamp;
+
+  const _CommentInputField({Key? key, required this.timestamp})
+    : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -86,24 +91,22 @@ class _CommentInputField extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border(top: BorderSide(color: Colors.grey[300]!)),
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: "댓글을 남겨보세요...",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 4,
-                ),
-              ),
+      child: TextField(
+        decoration: InputDecoration(
+          hintText: "댓글을 남겨보세요...",
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: 4,
+          ),
+          suffix: Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: Text(
+              timestamp,
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
           ),
-          IconButton(icon: const Icon(Icons.send), onPressed: () {}),
-        ],
+        ),
       ),
     );
   }
