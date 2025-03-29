@@ -89,8 +89,9 @@ final signUpViewModelProvider = StateNotifierProvider<SignUpViewModel, SignUpSta
 final loginViewModelProvider = StateNotifierProvider<LoginViewModel, LoginState>((ref) {
   
   return LoginViewModel(
-    loginUseCase: ref.watch(loginUseCaseProvider),
-    saveTokensUseCase: ref.watch(saveTokensUseCaseProvider),
+    loginUseCase: ref.read(loginUseCaseProvider),
+    saveTokensUseCase: ref.read(saveTokensUseCaseProvider),
+    authStateNotifier: ref.read(authStateProvider.notifier),
   );
 });
 
@@ -105,38 +106,62 @@ class AuthStateNotifier extends StateNotifier<AsyncValue<bool>> {
     required this.loginUseCase,
     required this.logoutUseCase,
   }) : super(const AsyncValue.loading()) {
+    print('[AuthStateNotifier] 초기화 시작');
     _initialize();
   }
 
   Future<void> _initialize() async {
+    print('[AuthStateNotifier] _initialize 호출됨');
     state = const AsyncValue.loading();
     try {
+      print('[AuthStateNotifier] 인증 상태 확인 중...');
       final isAuthenticated = await getAuthStatusUseCase();
+      print('[AuthStateNotifier] 인증 상태 확인 결과: $isAuthenticated');
       state = AsyncValue.data(isAuthenticated);
     } catch (e, stackTrace) {
+      print('[AuthStateNotifier] 인증 상태 확인 오류: $e');
       state = AsyncValue.error(e, stackTrace);
     }
   }
-
+  
+  // 인증 상태 재확인 메서드 추가 (public으로 외부에서 호출 가능)
+  Future<void> refreshAuthState() async {
+    print('[AuthStateNotifier] refreshAuthState 호출됨');
+    await _initialize();
+  }
   
   Future<void> login(String email, String password) async {
+    print('[AuthStateNotifier] 로그인 시도: $email');
     try {
       await loginUseCase(email, password);
-
+      print('[AuthStateNotifier] 로그인 성공');
       state = const AsyncValue.data(true);
     } catch (e, stackTrace) {
+      print('[AuthStateNotifier] 로그인 실패: $e');
       state = AsyncValue.error(e, stackTrace);
     }
   }
 
-
   Future<void> logout() async {
+    print('[AuthStateNotifier] 로그아웃 시도');
     state = const AsyncValue.loading();
     try {
       await logoutUseCase();
+      print('[AuthStateNotifier] 로그아웃 성공');
       state = const AsyncValue.data(false);
     } catch (e, stackTrace) {
+      print('[AuthStateNotifier] 로그아웃 실패: $e');
       state = AsyncValue.error(e, stackTrace);
     }
+  }
+  
+  // 현재 상태를 로그로 출력하는 도우미 메서드
+  void logCurrentState() {
+    print('[AuthStateNotifier] 현재 상태: $state');
+    state.when(
+      data: (isLoggedIn) => print('[AuthStateNotifier] 로그인 상태: $isLoggedIn'),
+      loading: () => print('[AuthStateNotifier] 상태: 로딩 중'),
+      error: (e, _) => print('[AuthStateNotifier] 상태: 오류 - $e'),
+    );
   }
 }
