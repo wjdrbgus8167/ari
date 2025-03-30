@@ -25,6 +25,7 @@ class AppRoutes {
 
 class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
+    final args = settings.arguments as Map<String, dynamic>?;
     switch (settings.name) {
       case AppRoutes.home:
         return MaterialPageRoute(builder: (_) => const HomeScreen());
@@ -39,14 +40,17 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const MyPageScreen());
 
       case AppRoutes.album:
-        return MaterialPageRoute(builder: (_) => AlbumDetailScreen(albumId: 1));
+        final albumId = args?['albumId'] as int? ?? 1;
+        return MaterialPageRoute(builder: (_) => AlbumDetailScreen(albumId: albumId));
 
       case AppRoutes.listeningqueue:
         return MaterialPageRoute(builder: (_) => const ListeningQueueScreen());
 
       case AppRoutes.track:
+        final albumId = args?['albumId'] as int? ?? 1;
+        final trackId = args?['trackId'] as int? ?? 1;
         return MaterialPageRoute(
-          builder: (_) => const TrackDetailScreen(albumId: 1, trackId: 1),
+          builder: (_) => TrackDetailScreen(albumId: albumId, trackId: trackId),
         );
 
       case AppRoutes.playlist:

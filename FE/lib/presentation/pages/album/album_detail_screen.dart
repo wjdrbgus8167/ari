@@ -1,3 +1,4 @@
+import 'package:ari/domain/entities/album_comment.dart';
 import 'package:ari/presentation/widgets/album_detail/album_detail_comment_header.dart';
 import 'package:ari/presentation/widgets/album_detail/album_detail_comments.dart';
 import 'package:ari/presentation/widgets/album_detail/album_detail_cover.dart';
@@ -95,17 +96,24 @@ class _AlbumDetailScreenState extends ConsumerState<AlbumDetailScreen> {
                       ),
                       // 댓글 목록 처리
                       if (albumDetailState.album!.comments.isNotEmpty) ...[
-                        // 첫 번째 댓글
+                        // 댓글 작성
                         AlbumDetailComments(
-                          comment: albumDetailState.album!.comments[0],
+                          comment: albumDetailState.album!.comments.isNotEmpty 
+                              ? albumDetailState.album!.comments[0]  // 첫 번째 댓글 정보 전달 (또는 빈 댓글 객체)
+                              : AlbumComment(id: 0, memberId: 0, nickname: "", content: "", createdAt: "", userAvatar: ""),
+                          isCommentInput: true,  // 댓글 작성 위젯임을 명시
                         ),
-                        // 두 번째 댓글 (있는 경우)
-                        if (albumDetailState.album!.comments.length > 1)
-                          AlbumDetailComments(
-                            comment: albumDetailState.album!.comments[1],
+
+                        // 그 다음 댓글 목록 표시
+                        if (albumDetailState.album!.comments.isNotEmpty) ...[
+                          ...albumDetailState.album!.comments.map((comment) => 
+                            AlbumDetailComments(
+                              comment: comment,
+                              isCommentInput: false,  // 명시적으로 일반 댓글 위젯임을 표시 (기본값이라 생략 가능)
+                            )
                           ),
-                      ],
-                      // AlbumDetailBottomNavigation(),
+                        ],
+                      ]
                     ],
                   )
                   : const Center(

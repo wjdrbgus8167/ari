@@ -2,7 +2,9 @@ import 'package:ari/core/exceptions/failure.dart';
 import 'package:ari/core/utils/extract_token_from_cookie.dart';
 import 'package:ari/data/models/login_request.dart';
 import 'package:ari/data/models/token_model.dart';
+import 'package:ari/providers/global_providers.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/sign_up_request.dart';
@@ -25,13 +27,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<TokenModel?> refreshTokens(String refreshToken) async {
     try {
-      final dio = Dio(BaseOptions(
-        baseUrl: 'https://ari-music.duckdns.org',
-        contentType: 'application/json',
-      ));
+      final dio = ref.read(dioProvider);
       final response = await dio.post(
         refreshUrl,
-        data: {'refresh_token': refreshToken},
       );
 
       // 응답 헤더에서 쿠키 가져오기
@@ -91,8 +89,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         baseUrl: 'https://ari-music.duckdns.org',
         contentType: 'application/json',
       ));
-      print('로그인 요청 시작: ${loginRequest.email}');
-      print('요청 URL: ${dio.options.baseUrl}/api/v1/auth/members/login');
+      debugPrint('로그인 요청 시작: ${loginRequest.email}');
+      debugPrint('요청 URL: ${dio.options.baseUrl}/api/v1/auth/members/login');
       
       final response = await dio.post(
         '/api/v1/auth/members/login',
@@ -105,14 +103,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       
       // 응답 로그
-      print('로그인 응답 코드: ${response.statusCode}');
-      print('로그인 응답 데이터: ${response.data}');
-      print(response);
+      debugPrint('로그인 응답 코드: ${response.statusCode}');
+      debugPrint('로그인 응답 데이터: ${response.data}');
+      debugPrint(response.toString());
 
       // 응답 헤더에서 쿠키 가져오기
       final cookies = response.headers.map['set-cookie'];
       if (cookies != null && cookies.isNotEmpty) {
-        print(cookies);
+        debugPrint(cookies.toString());
         String? accessToken;
         String? refreshToken;
         

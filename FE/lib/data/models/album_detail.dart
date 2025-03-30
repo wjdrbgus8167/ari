@@ -44,37 +44,33 @@ class AlbumDetailModel extends Album {
 
 
 class AlbumCommentModel extends AlbumComment {
-  final int albumId;
+  final int memberId;
   final int commentId;
   final String nickname;
   final String content;
-  final String contentTimestamp;
   final String createdAt;
 
   AlbumCommentModel({
-    required this.albumId,
+    required this.memberId,
     required this.commentId,
     required this.nickname,
     required this.content,
-    required this.contentTimestamp,
     required this.createdAt,
   }): super(
     id: commentId,  // 부모 클래스의 id에 commentId 값 전달
-    albumId: albumId,
+    memberId: memberId,
     nickname: nickname,
     content: content,
-    contentTimestamp: contentTimestamp,
     createdAt: createdAt,
     userAvatar: "",
   );
 
   factory AlbumCommentModel.fromJson(Map<String, dynamic> json) {
     return AlbumCommentModel(
-      albumId: json['trackId'],
+      memberId: json['memberId'],
       commentId: json['commentId'],
       nickname: json['nickname'],
       content: json['content'],
-      contentTimestamp: json['contentTimestamp'],
       createdAt: json['createdAt'],
     );
   }
