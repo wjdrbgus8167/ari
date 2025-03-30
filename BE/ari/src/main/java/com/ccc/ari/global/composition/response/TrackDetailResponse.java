@@ -16,6 +16,8 @@ public class TrackDetailResponse {
 
     private final Integer trackId;
     private final String trackTitle;
+    private final String albumTitle;
+    private final String artist;
     private final String composer;
     private final String lyricist;
     private final String lyric;

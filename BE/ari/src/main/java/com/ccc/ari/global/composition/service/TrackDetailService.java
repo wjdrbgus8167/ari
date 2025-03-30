@@ -6,6 +6,9 @@ import com.ccc.ari.global.composition.infrastructure.StreamingLogClientImpl;
 import com.ccc.ari.global.composition.infrastructure.TrackCommentClient;
 import com.ccc.ari.global.composition.response.TrackDetailResponse;
 import com.ccc.ari.member.domain.client.MemberClient;
+import com.ccc.ari.member.domain.member.MemberDto;
+import com.ccc.ari.music.domain.album.AlbumDto;
+import com.ccc.ari.music.domain.album.client.AlbumClient;
 import com.ccc.ari.music.domain.track.TrackDto;
 import com.ccc.ari.music.domain.track.client.TrackClient;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TrackDetailService {
 
+    private final AlbumClient albumClient;
     private final TrackClient trackClient;
     private final TrackCommentClient trackCommentClient;
     private final MemberClient memberClient;
@@ -27,15 +31,15 @@ public class TrackDetailService {
 
     public TrackDetailResponse getTrackDetail(Integer trackId) {
 
-        // 1. 트랙 조회
+        // 1. 트랙, 앨범, 멤버 조회
         TrackDto track = trackClient.getTrackById(trackId);
+        AlbumDto album = albumClient.getAlbumById(track.getAlbumId());
+        MemberDto member  = memberClient.getMemberByMemberId(album.getMemberId());
 
         // 2. 트랙 댓글 조회
         List<TrackComment> trackComments = trackCommentClient.getTrackCommentsByTrackId(track.getTrackId());
 
-        // 3. 트랙 스트리밍 집계 데이터 조회
-
-        // 4. 트랙 댓글 리스트
+        // 3. 트랙 댓글 리스트
         List<TrackDetailResponse.TrackComment> comments = trackComments.stream()
                 .map(comment -> TrackDetailResponse.TrackComment.builder()
                         .commentId(comment.getCommentId())
@@ -47,6 +51,7 @@ public class TrackDetailService {
                         .build())
                 .toList();
 
+        // 4. 트랙 스트리밍 집계 데이터 조회
         List<StreamingLog> logs = streamingLogClient.getStreamingLog(track.getTrackId());
 
         List<TrackDetailResponse.StreamingLogData> streamingLogData = logs.stream()
@@ -59,6 +64,8 @@ public class TrackDetailService {
         return TrackDetailResponse.builder()
                 .trackId(track.getTrackId())
                 .trackTitle(track.getTitle())
+                .albumTitle(album.getTitle())
+                .artist(member.getNickname())
                 .composer(track.getComposer())
                 .lyricist(track.getLyricist())
                 .lyric(track.getLyrics())
