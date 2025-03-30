@@ -8,6 +8,7 @@ import 'package:ari/providers/playback/playback_state_provider.dart';
 import 'playback_info.dart';
 import 'playback_controls.dart';
 import 'package:ari/presentation/widgets/lyrics/lyrics_view.dart';
+import 'package:ari/providers/playback/playback_progress_provider.dart';
 
 class ExpandedPlaybackScreen extends ConsumerStatefulWidget {
   const ExpandedPlaybackScreen({Key? key}) : super(key: key);
@@ -20,16 +21,25 @@ class _ExpandedPlaybackScreenState
     extends ConsumerState<ExpandedPlaybackScreen> {
   bool _showCommentOverlay = false;
 
-  String getCurrentPlaybackTime() {
-    return "0:32";
+  String _formatDuration(Duration duration) {
+    final minutes = duration.inMinutes;
+    final seconds = duration.inSeconds % 60;
+    return "$minutes:${seconds.toString().padLeft(2, '0')}";
   }
 
   @override
   Widget build(BuildContext context) {
     final playbackState = ref.watch(playbackProvider);
     final playbackService = ref.read(playbackServiceProvider);
-
     final coverImage = ref.watch(coverImageProvider);
+
+    final positionAsyncValue = ref.watch(playbackPositionProvider);
+    final Duration currentPosition = positionAsyncValue.when(
+      data: (duration) => duration,
+      loading: () => Duration.zero,
+      error: (_, __) => Duration.zero,
+    );
+    final String currentTimestamp = _formatDuration(currentPosition);
 
     return GestureDetector(
       onTap: () {
@@ -114,7 +124,7 @@ class _ExpandedPlaybackScreenState
               );
             },
           ),
-          // 댓글 오버레이 (생략)
+          // 댓글 오버레이
           if (_showCommentOverlay)
             Positioned.fill(
               child: GestureDetector(
@@ -124,11 +134,10 @@ class _ExpandedPlaybackScreenState
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                     child: CommentOverlay(
-                      trackTitle: playbackState.trackTitle, // 트랙 제목 전달
-                      artist: playbackState.artist, // 아티스트 전달
-                      coverImageUrl:
-                          playbackState.coverImageUrl, // 커버 이미지 URL 전달
-                      timestamp: getCurrentPlaybackTime(),
+                      trackTitle: playbackState.trackTitle,
+                      artist: playbackState.artist,
+                      coverImageUrl: playbackState.coverImageUrl,
+                      timestamp: currentTimestamp,
                       onClose: () {
                         setState(() {
                           _showCommentOverlay = false;

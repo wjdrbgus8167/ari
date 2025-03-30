@@ -28,6 +28,24 @@ class PlaylistViewModel extends StateNotifier<PlaylistState> {
     }
   }
 
+  void searchTracks(String query) {
+    if (state.selectedPlaylist == null) {
+      return;
+    }
+
+    final allTracks = state.selectedPlaylist!.tracks;
+
+    final filtered =
+        allTracks.where((item) {
+          final title = item.track.trackTitle.toLowerCase();
+          final artist = item.track.artist.toLowerCase();
+          return title.contains(query.toLowerCase()) ||
+              artist.contains(query.toLowerCase());
+        }).toList();
+
+    state = state.copyWith(filteredTracks: filtered);
+  }
+
   void deselectAllTracks() {
     state = state.copyWith(selectedTracks: {});
   }

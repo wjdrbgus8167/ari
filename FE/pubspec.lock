@@ -544,13 +544,18 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.5.4"
+<<<<<<< HEAD
   image_picker:
+=======
+  intl:
+>>>>>>> develop-fe
     dependency: "direct main"
     description:
       name: image_picker
       sha256: "021834d9c0c3de46bf0fe40341fa07168407f694d9b2bb18d532dc1261867f7a"
       url: "https://pub.dev"
     source: hosted
+<<<<<<< HEAD
     version: "1.1.2"
   image_picker_android:
     dependency: transitive
@@ -615,6 +620,8 @@ packages:
       sha256: "3df61194eb431efc39c4ceba583b95633a403f46c9fd341e550ce0bfa50e9aa5"
       url: "https://pub.dev"
     source: hosted
+=======
+>>>>>>> develop-fe
     version: "0.20.2"
   js:
     dependency: transitive
