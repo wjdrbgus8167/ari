@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Builder
 public class AlbumDto {
     private Integer albumId;
+    private Integer memberId;
     private String title;
     private String artist; // 앨범의 member nickname
     private String description;

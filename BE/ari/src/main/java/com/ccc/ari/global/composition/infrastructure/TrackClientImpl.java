@@ -18,4 +18,9 @@ public class TrackClientImpl implements TrackClient {
     public List<TrackDto> getTracksByAlbumId(Integer albumId) {
         return trackService.getTracksByAlbumId(albumId);
     }
+
+    @Override
+    public TrackDto getTrackById(Integer trackId) {
+        return trackService.getTrackById(trackId);
+    }
 }

@@ -2,7 +2,7 @@ package com.ccc.ari.global.composition.service;
 
 import com.ccc.ari.community.domain.comment.entity.AlbumComment;
 import com.ccc.ari.global.composition.infrastructure.AlbumCommentClient;
-import com.ccc.ari.global.composition.response.AlbumDetailCompositionResponse;
+import com.ccc.ari.global.composition.response.AlbumDetailResponse;
 import com.ccc.ari.member.domain.client.MemberClient;
 import com.ccc.ari.music.domain.album.AlbumDto;
 import com.ccc.ari.music.domain.album.client.AlbumClient;
@@ -18,14 +18,14 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
-public class AlbumDetailCompositionService {
+public class AlbumDetailService {
 
     private final AlbumClient albumClient;
     private final TrackClient trackClient;
     private final AlbumCommentClient albumCommentClient;
     private final MemberClient memberClient;
 
-    public AlbumDetailCompositionResponse getAlbumDetail(Integer albumId) {
+    public AlbumDetailResponse getAlbumDetail(Integer albumId) {
 
         // 1. 앨범 정보 조회
         AlbumDto album = albumClient.getAlbumById(albumId);
@@ -37,8 +37,8 @@ public class AlbumDetailCompositionService {
         List<AlbumComment> albumComments = albumCommentClient.getAlbumCommentsByAlbumId(albumId);
 
         // 4. 트랙 리스트
-        List<AlbumDetailCompositionResponse.TrackDetail> tracks = trackList.stream()
-                .map(track -> AlbumDetailCompositionResponse.TrackDetail.builder()
+        List<AlbumDetailResponse.TrackDetail> tracks = trackList.stream()
+                .map(track -> AlbumDetailResponse.TrackDetail.builder()
                         .trackId(track.getTrackId())
                         .trackTitle(track.getTitle())
                         .composer(track.getComposer())
@@ -51,8 +51,8 @@ public class AlbumDetailCompositionService {
                 .toList();
 
         // 5. 앨범 댓글 리스트
-        List<AlbumDetailCompositionResponse.AlbumComment> comments = albumComments.stream()
-                .map(comment -> AlbumDetailCompositionResponse.AlbumComment.builder()
+        List<AlbumDetailResponse.AlbumComment> comments = albumComments.stream()
+                .map(comment -> AlbumDetailResponse.AlbumComment.builder()
                         .commentId(comment.getCommentId())
                         .memberId(comment.getMemberId())
                         .nickname(memberClient.getNicknameByMemberId(comment.getMemberId()))
@@ -62,7 +62,7 @@ public class AlbumDetailCompositionService {
                 .toList();
 
         //6. 앨범 상세 Response return
-        return AlbumDetailCompositionResponse.builder()
+        return AlbumDetailResponse.builder()
                 .albumId(album.getAlbumId())
                 .albumTitle(album.getTitle())
                 .artist(album.getArtist())

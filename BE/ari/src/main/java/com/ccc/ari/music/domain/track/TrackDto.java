@@ -14,4 +14,7 @@ public class TrackDto {
     private Integer trackNumber;
     private String trackFileUrl;
     private Integer trackLikeCount;
+    private Integer albumId;
+    // TODO :추후 genre 구현되고 수정해야됨.
+    private String gereName;
 }

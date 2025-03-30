@@ -26,4 +26,11 @@ public class TrackService {
                 .toList();
 
     }
+
+    public TrackDto getTrackById(Integer trackId){
+        TrackEntity entity = jpaTrackRepository.findById(trackId)
+                .orElseThrow(() -> new ApiException(ErrorCode.MUSIC_FILE_NOT_FOUND));
+
+        return TrackMapper.toDto(entity);
+    }
 }

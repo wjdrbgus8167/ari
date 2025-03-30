@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface TrackClient {
     List<TrackDto> getTracksByAlbumId(Integer albumId);
+    TrackDto getTrackById(Integer trackId);
 }
