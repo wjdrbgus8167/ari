@@ -3,7 +3,8 @@ package com.ccc.ari.global.composition.infrastructure;
 import com.ccc.ari.community.domain.comment.entity.AlbumComment;
 import com.ccc.ari.community.infrastructure.comment.entity.AlbumCommentJpaEntity;
 import com.ccc.ari.community.infrastructure.comment.repository.AlbumCommentJpaRepository;
-import com.ccc.ari.music.mapper.TrackMapper;
+import com.ccc.ari.global.error.ApiException;
+import com.ccc.ari.global.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +21,10 @@ public class AlbumCommentClientImpl implements AlbumCommentClient {
 
     @Override
     public List<AlbumComment> getAlbumCommentsByAlbumId(Integer albumId) {
-        List<AlbumCommentJpaEntity> entities = albumCommentJpaRepository.findAllByAlbumId(albumId);
+
+        List<AlbumCommentJpaEntity> entities = albumCommentJpaRepository.findAllByAlbumId(albumId)
+                .orElseThrow(()-> new ApiException(ErrorCode.ALBUM_COMMENT_NOT_FOUND));
+
         return entities.stream()
                 .map(AlbumCommentJpaEntity::toDomain)
                 .toList();
