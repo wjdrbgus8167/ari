@@ -1,6 +1,7 @@
 import 'package:ari/presentation/pages/login/login_screen.dart';
 import 'package:ari/presentation/pages/sign_up/sign_up_screen.dart';
-import 'package:ari/presentation/pages/subscribe/subscribe_payment_screen.dart';
+import 'package:ari/presentation/pages/subscription/my_subscription_screen.dart';
+import 'package:ari/presentation/pages/subscription/subscription_payment_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:ari/presentation/pages/album/album_detail_screen.dart';
 import 'package:ari/presentation/pages/track_detail/track_detail_screen.dart';
@@ -20,7 +21,8 @@ class AppRoutes {
   static const String listeningqueue = '/listeningqueue';
   static const String track = '/track';
   static const String myChannel = '/mychannel';
-  static const String subscribe = '/subscribe';
+  static const String subscription = '/subscription';
+  static const String subscriptionPayment = '/subscription/payment';
 }
 
 class AppRouter {
@@ -63,8 +65,12 @@ class AppRouter {
           builder: (_) => MyChannelScreen(memberId: memberId),
         );
 
-      case AppRoutes.subscribe:
-        return MaterialPageRoute(builder: (_) => const PageWallet());
+      case AppRoutes.subscription:
+        return MaterialPageRoute(builder: (_) => const MySubscriptionScreen());
+
+      case AppRoutes.subscriptionPayment:
+        return MaterialPageRoute(builder: (_) => const SubscriptionPaymentScreen());
+
       default:
         // 없는 경로는 홈으로 리다이렉트, 스낵바로 알림
         return MaterialPageRoute(
