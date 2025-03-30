@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../core/utils/auth_interceptor.dart';
 import '../core/constants/app_constants.dart';
 import '../providers/auth/auth_providers.dart'; // 인증 관련 provider
 import '../providers/global_providers.dart'; // dioProvider 등 전역 provider 참조용
@@ -23,31 +24,53 @@ import '../domain/usecases/my_channel/artist_notice_usecases.dart' as notice;
 // viewmodel
 import '../presentation/viewmodels/my_channel_viewmodel.dart';
 
-/// TODO: 토큰 provider - 추후 Secure Storage에서 토큰을 가져올 예정!!!!!!!
-final authTokenProvider = Provider<String>((ref) {
-  // 이 부분 Secure Storage에서 가져오기!!!!!
-  return 'dummy-token';
-});
+/// 채널 기능용 Dio 인스턴스 - 인증 인터셉터 포함
+final channelDioProvider = Provider<Dio>((ref) {
+  final dio = Dio(
+    BaseOptions(
+      baseUrl: baseUrl,
+      contentType: 'application/json',
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+    ),
+  );
 
-/// Dio HTTP 클라이언트 provider
-final dioProvider = Provider<Dio>((ref) {
-  return Dio();
+  // 인증 인터셉터 추가
+  final authInterceptor = AuthInterceptor(
+    refreshTokensUseCase: ref.watch(refreshTokensUseCaseProvider),
+    getAuthStatusUseCase: ref.watch(getAuthStatusUseCaseProvider),
+    getTokensUseCase: ref.watch(getTokensUseCaseProvider),
+    dio: dio,
+  );
+
+  dio.interceptors.add(authInterceptor);
+
+  // 로깅 인터셉터 (디버그 모드에서만)
+  dio.interceptors.add(
+    LogInterceptor(
+      request: true,
+      requestHeader: true,
+      requestBody: true,
+      responseHeader: true,
+      responseBody: true,
+      error: true,
+    ),
+  );
+
+  return dio;
 });
 
 /// 나의 채널 원격 데이터 소스 provider
 final myChannelRemoteDataSourceProvider = Provider<MyChannelRemoteDataSource>((
   ref,
 ) {
-  final dio = ref.watch(dioProvider);
-  final token = ref.watch(authTokenProvider);
-
-  return MyChannelRemoteDataSourceImpl(dio: dio, token: token);
+  final dio = ref.watch(channelDioProvider);
+  return MyChannelRemoteDataSourceImpl(dio: dio);
 });
 
 /// 나의 채널 repository provider
 final myChannelRepositoryProvider = Provider<MyChannelRepository>((ref) {
   final remoteDataSource = ref.watch(myChannelRemoteDataSourceProvider);
-
   return MyChannelRepositoryImpl(remoteDataSource: remoteDataSource);
 });
 
@@ -131,8 +154,11 @@ final createArtistNoticeUseCaseProvider =
 // 아티스트 공지사항 데이터소스 provider
 final artistNoticeRemoteDataSourceProvider =
     Provider<ArtistNoticeRemoteDataSource>((ref) {
-      final dio = ref.watch(dioProvider);
-      return ArtistNoticeRemoteDataSourceImpl(dio: dio);
+      final dio = ref.watch(channelDioProvider);
+      return ArtistNoticeRemoteDataSourceImpl(
+        dio: dio,
+        getTokensUseCase: ref.watch(getTokensUseCaseProvider),
+      );
     });
 
 // 아티스트 공지사항 repository provider

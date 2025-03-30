@@ -12,31 +12,18 @@ import 'my_channel_remote_datasource.dart';
 
 /// 나의 채널 원격 데이터 소스 구현체
 /// 마이 채널 관련 API 호출을 실제로 수행하는 클래스
-/// Dio를 사용하여 HTTP 요청을 통해 서버로부터 데이터를 받아오고, 모델 객체로 변환
+/// Dio를 사용하여 HTTP 요청을 통해 서버로부터This 데이터를 받아오고, 모델 객체로 변환
 class MyChannelRemoteDataSourceImpl implements MyChannelRemoteDataSource {
   /// Dio HTTP 클라이언트
   final Dio dio;
 
-  /// 인증 토큰(JWT)
-  final String token;
-
   /// 생성자
   /// [dio] : Dio HTTP 클라이언트 객체
-  /// [token] : API 요청에 사용할 인증 토큰
-  MyChannelRemoteDataSourceImpl({required this.dio, required this.token}) {
-    // Dio 기본 설정
-    dio.options.baseUrl = baseUrl;
-    dio.options.headers = _headers;
-    dio.options.connectTimeout = const Duration(milliseconds: 30000);
-    dio.options.receiveTimeout = const Duration(milliseconds: 30000);
+  /// 인증 인터셉터가 설정된 dio 객체를 사용
+  MyChannelRemoteDataSourceImpl({required this.dio}) {
+    // 기본 URL과 타임아웃 설정은 Provider에서 이미 설정되었음
+    // 인증 토큰은 AuthInterceptor에서 자동으로 헤더에 추가됨
   }
-
-  /// API 요청에 사용할 공통 헤더를 생성
-  /// [return] : 인증 토큰이 포함된 HTTP 헤더 맵
-  Map<String, String> get _headers => {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer $token',
-  };
 
   /// API 요청을 처리하고 결과를 반환
   /// [url] : API 엔드포인트 URL
