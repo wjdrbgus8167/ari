@@ -115,7 +115,7 @@ class MyChannelState {
   }
 }
 
-/// 나의 채널 뷰모델 제공자
+/// 나의 채널 뷰모델 provider 
 /// Riverpod로 나의 채널 상태 관리
 class MyChannelNotifier extends StateNotifier<MyChannelState> {
   final GetChannelInfoUseCase getChannelInfoUseCase;

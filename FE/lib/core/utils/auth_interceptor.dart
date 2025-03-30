@@ -24,7 +24,7 @@ class AuthInterceptor extends Interceptor {
       final accessToken = tokens?.accessToken;
 
       if (accessToken != null) {
-        // Authorization 헤더 대신 쿠키로 토큰 추가
+        // 쿠키로 토큰 추가
         String cookieHeader = options.headers['Cookie'] ?? '';
         List<String> cookies = [];
 

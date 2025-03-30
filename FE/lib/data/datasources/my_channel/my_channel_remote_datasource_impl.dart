@@ -10,22 +10,20 @@ import '../../models/my_channel/public_playlist.dart';
 import '../../models/my_channel/neighbor.dart';
 import 'my_channel_remote_datasource.dart';
 
-/// 나의 채널 원격 데이터 소스 구현체
-/// 마이 채널 관련 API 호출을 실제로 수행하는 클래스
-/// Dio를 사용하여 HTTP 요청을 통해 서버로부터This 데이터를 받아오고, 모델 객체로 변환
+/// 나의 채널 관련 API 호출 실제로! 수행
+/// Dio -> HTTP 요청 -> 서버로부터 This 데이터를 받아오고 모델로 변환
 class MyChannelRemoteDataSourceImpl implements MyChannelRemoteDataSource {
   /// Dio HTTP 클라이언트
   final Dio dio;
 
-  /// 생성자
   /// [dio] : Dio HTTP 클라이언트 객체
-  /// 인증 인터셉터가 설정된 dio 객체를 사용
+  /// 인증 인터셉터 설정된 dio 객체 사용
   MyChannelRemoteDataSourceImpl({required this.dio}) {
     // 기본 URL과 타임아웃 설정은 Provider에서 이미 설정되었음
     // 인증 토큰은 AuthInterceptor에서 자동으로 헤더에 추가됨
   }
 
-  /// API 요청을 처리하고 결과를 반환
+  /// API 요청 처리, 결과를 반환
   /// [url] : API 엔드포인트 URL
   /// [method] : HTTP 메서드 (GET, POST, DELETE 등)
   /// [fromJson] : API 응답 데이터를 객체로 변환하는 함수
@@ -64,7 +62,7 @@ class MyChannelRemoteDataSourceImpl implements MyChannelRemoteDataSource {
       // API 응답 처리
       final apiResponse = ApiResponse.fromJson(response.data, fromJson);
 
-      // 오류 체크
+      // 오류 check
       if (apiResponse.error != null) {
         throw Failure(
           message: apiResponse.error?.message ?? 'Unknown error',
@@ -84,7 +82,7 @@ class MyChannelRemoteDataSourceImpl implements MyChannelRemoteDataSource {
       if (e is Failure) {
         rethrow;
       }
-      throw Failure(message: '알 수 없는 오류가 발생했습니다: ${e.toString()}');
+      throw Failure(message: '😞알 수 없는 오류가 발생했습니다: ${e.toString()}');
     }
   }
 
@@ -108,7 +106,7 @@ class MyChannelRemoteDataSourceImpl implements MyChannelRemoteDataSource {
     );
   }
 
-  /// 회원 언팔로우 메서드
+  /// 회원 언팔로우
   @override
   Future<void> unfollowMember(String followId) async {
     await _request<void>(
@@ -118,7 +116,7 @@ class MyChannelRemoteDataSourceImpl implements MyChannelRemoteDataSource {
     );
   }
 
-  /// 아티스트 앨범 목록 조회 메서드
+  /// 아티스트 앨범 목록 조회
   @override
   Future<List<ArtistAlbum>> getArtistAlbums(String memberId) async {
     return _request<List<ArtistAlbum>>(
@@ -133,7 +131,7 @@ class MyChannelRemoteDataSourceImpl implements MyChannelRemoteDataSource {
     );
   }
 
-  /// 아티스트 공지사항 조회 메서드
+  /// 아티스트 공지사항 조회
   @override
   Future<ArtistNoticeResponse> getArtistNotices(String memberId) async {
     return _request<ArtistNoticeResponse>(
@@ -143,7 +141,7 @@ class MyChannelRemoteDataSourceImpl implements MyChannelRemoteDataSource {
     );
   }
 
-  /// 팬톡 목록 조회 메서드 구현
+  /// 팬톡 목록 조회
   @override
   Future<FanTalkResponse> getFanTalks(String fantalkChannelId) async {
     return _request<FanTalkResponse>(
@@ -153,7 +151,7 @@ class MyChannelRemoteDataSourceImpl implements MyChannelRemoteDataSource {
     );
   }
 
-  /// 공개된 플레이리스트 조회 메서드
+  /// 공개된 플레이리스트 조회
   @override
   Future<PublicPlaylistResponse> getPublicPlaylists(String memberId) async {
     return _request<PublicPlaylistResponse>(
@@ -164,7 +162,7 @@ class MyChannelRemoteDataSourceImpl implements MyChannelRemoteDataSource {
     );
   }
 
-  /// 팔로워 목록 조회 메서드
+  /// 팔로워 목록 조회
   @override
   Future<FollowerResponse> getFollowers(String memberId) async {
     return _request<FollowerResponse>(
@@ -174,7 +172,7 @@ class MyChannelRemoteDataSourceImpl implements MyChannelRemoteDataSource {
     );
   }
 
-  /// 팔로잉 목록 조회 메서드
+  /// 팔로잉 목록 조회
   @override
   Future<FollowingResponse> getFollowings(String memberId) async {
     return _request<FollowingResponse>(
