@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart'; // 날짜/숫자 포맷팅과 파싱
+import 'package:intl/intl.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../providers/my_channel_providers.dart';
 import '../../../providers/user_provider.dart';
@@ -12,7 +12,7 @@ import '../../pages/my_channel/artist_notice_detail_screen.dart';
 import '../../pages/my_channel/create_notice_screen.dart';
 
 /// 아티스트 공지사항 섹션 위젯: 아티스트가 작성한 공지사항 표시
-/// 최근 1개의 공지사항만 표시하고, 클릭 시 공지사항 상세 페이지로 이동
+/// 최근 1개의 공지사항만 표시, 클릭 시 공지사항 상세 페이지로 이동
 /// 본인의 채널인 경우 공지사항 작성 버튼 표시
 class ArtistNoticeSection extends ConsumerWidget {
   final String memberId;
@@ -28,19 +28,19 @@ class ArtistNoticeSection extends ConsumerWidget {
     final isLoading =
         channelState.artistNoticesStatus == MyChannelStatus.loading;
     final hasError = channelState.artistNoticesStatus == MyChannelStatus.error;
-    // TODO: final isArtist = channelState.isArtist; // 아티스트 회원인지 여부 확인
+    // TODO: final isArtist = channelState.isArtist; // 이거 주석 해제, 밑코드 주석: 아티스트 회원인지 여부 확인
     final isArtist = true;
 
     // 현재 로그인한 사용자 ID 가져오기 (내 채널 여부 확인용)
     final currentUserId = ref.watch(userIdProvider);
     final isMyChannel = currentUserId != null && currentUserId == memberId;
 
-    // 아티스트가 아닌 경우 위젯을 표시하지 않음
+    // 아티스트가 아닌 경우 위젯을 표시x
     if (!isArtist) {
       return const SizedBox.shrink();
     }
 
-    // 채널 소유자 이름 가져오기 (상세화면 타이틀용)
+    // 채널 아티스트 이름 가져오기 (상세화면 타이틀용)
     final channelInfo = channelState.channelInfo;
     final artistName = channelInfo?.memberName ?? '아티스트';
 
@@ -54,85 +54,70 @@ class ArtistNoticeSection extends ConsumerWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  '아티스트 공지',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                // 작업 버튼 영역
+                // 섹션 제목 영역
                 Row(
                   children: [
-                    // 공지사항이 있고 '더보기' 버튼이 필요한 경우
-                    if (noticeResponse != null &&
-                        noticeResponse.notices.isNotEmpty)
-                      GestureDetector(
-                        onTap: () {
-                          // 첫 번째 공지사항의 상세 페이지로 이동
-                          _navigateToNoticeDetail(
-                            context,
-                            noticeResponse.notices[0].noticeId,
-                            artistName,
-                          );
-                        },
-                        child: Text(
-                          '더 보기',
-                          style: TextStyle(
-                            color: AppColors.mediumPurple,
-                            fontSize: 14,
-                          ),
-                        ),
+                    const Text(
+                      '아티스트 공지',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
-
-                    // 내 채널일 경우 공지 작성 버튼 추가 (공백으로 버튼 간격 조정)
-                    if (isMyChannel) ...[
-                      const SizedBox(width: 16),
-                      GestureDetector(
-                        onTap: () => _navigateToCreateNotice(context, ref),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.mediumPurple.withValues(
-                              alpha: 0.2,
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: AppColors.mediumPurple.withValues(
-                                alpha: 0.5,
-                              ),
-                              width: 1,
-                            ),
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.add,
-                                color: AppColors.mediumPurple,
-                                size: 16,
-                              ),
-                              SizedBox(width: 4),
-                              Text(
-                                '작성',
-                                style: TextStyle(
-                                  color: AppColors.mediumPurple,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
+                    ),
+                    // 공지사항 개수 표시
+                    if (noticeResponse != null &&
+                        noticeResponse.notices.isNotEmpty) ...[
+                      const SizedBox(width: 8),
+                      Text(
+                        '(${noticeResponse.noticeCount})',
+                        style: TextStyle(
+                          color: AppColors.mediumPurple,
+                          fontSize: 14,
                         ),
                       ),
                     ],
                   ],
                 ),
+
+                // 내 채널일 경우 공지 작성 버튼 추가 (공백으로 버튼 간격 조정)
+                if (isMyChannel)
+                  GestureDetector(
+                    onTap: () => _navigateToCreateNotice(context, ref),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.mediumPurple.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.mediumPurple.withValues(alpha: 0.5),
+                          width: 1,
+                        ),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.add,
+                            color: AppColors.mediumPurple,
+                            size: 16,
+                          ),
+                          SizedBox(width: 4),
+                          Text(
+                            '작성',
+                            style: TextStyle(
+                              color: AppColors.mediumPurple,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -248,10 +233,10 @@ class ArtistNoticeSection extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // 제목 영역에 공지사항 개수 표시 추가
-                Text(
-                  '공지사항 (${noticeResponse.noticeCount})',
-                  style: const TextStyle(
+                // 제목 영역에 공지사항 표시
+                const Text(
+                  '최근 공지사항',
+                  style: TextStyle(
                     color: AppColors.mediumPurple,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -316,20 +301,6 @@ class ArtistNoticeSection extends ConsumerWidget {
                 ),
               ),
             ],
-            const SizedBox(height: 8),
-            // 공지사항이 더 있음을 알리는 '더보기' 링크
-            if (noticeResponse.noticeCount > 1)
-              Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  '더보기 ›',
-                  style: TextStyle(
-                    color: AppColors.mediumPurple,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
           ],
         ),
       ),
