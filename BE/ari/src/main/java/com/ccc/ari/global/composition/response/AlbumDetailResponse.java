@@ -12,7 +12,7 @@ import java.util.List;
  */
 @Getter
 @Builder
-public class AlbumDetailCompositionResponse {
+public class AlbumDetailResponse {
 
     private final Integer albumId;
     private final String albumTitle;
