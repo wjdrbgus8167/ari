@@ -11,14 +11,14 @@ class PlaylistRemoteDataSourceImpl implements IPlaylistRemoteDataSource {
 
   @override
   Future<List<Playlist>> fetchPlaylists() async {
-    final response = await dio.get('$baseUrl/api/v1/playlists');
+    final response = await dio.get('/api/v1/playlists');
     final List<dynamic> data = response.data['data'];
     return data.map((json) => Playlist.fromJson(json)).toList();
   }
 
   @override
   Future<Playlist> getPlaylistDetail(int playlistId) async {
-    final response = await dio.get('$baseUrl/api/v1/playlists/$playlistId');
+    final response = await dio.get('/api/v1/playlists/$playlistId');
     final data = response.data['data'];
     return Playlist.fromJson(data);
   }

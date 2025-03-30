@@ -1,3 +1,4 @@
+import 'package:ari/providers/global_providers.dart';
 import 'package:dio/dio.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:ari/core/constants/app_constants.dart';
@@ -19,7 +20,7 @@ class PlaybackService {
     required int trackId,
     required WidgetRef ref,
   }) async {
-    final url = '$baseUrl/api/v1/albums/$albumId/tracks/$trackId';
+    final url = '/api/v1/albums/$albumId/tracks/$trackId';
     try {
       final response = await dio.post(url);
       print('[DEBUG] playTrack: 응답 상태 코드: ${response.statusCode}');
@@ -69,5 +70,5 @@ class PlaybackService {
 }
 
 final playbackServiceProvider = Provider<PlaybackService>(
-  (ref) => PlaybackService(dio: Dio(), audioPlayer: AudioPlayer()),
+  (ref) => PlaybackService(dio: ref.read(dioProvider), audioPlayer: AudioPlayer()),
 );
