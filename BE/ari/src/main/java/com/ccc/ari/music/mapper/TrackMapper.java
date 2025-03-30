@@ -15,6 +15,7 @@ public class TrackMapper {
                 .trackNumber(entity.getTrackNumber())
                 .trackFileUrl(entity.getTrackFileUrl())
                 .trackLikeCount(entity.getTrackLikeCount())
+                .gereName(entity.getAlbum().getGenre().getGenreName())
                 .build();
     }
 }

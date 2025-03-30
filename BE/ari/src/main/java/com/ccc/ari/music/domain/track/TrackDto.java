@@ -14,4 +14,5 @@ public class TrackDto {
     private Integer trackNumber;
     private String trackFileUrl;
     private Integer trackLikeCount;
+    private String gereName;
 }
