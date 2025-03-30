@@ -235,7 +235,7 @@ class ArtistNoticeSection extends ConsumerWidget {
               children: [
                 // 제목 영역에 공지사항 표시
                 const Text(
-                  '최근 공지사항',
+                  '최근 공지',
                   style: TextStyle(
                     color: AppColors.mediumPurple,
                     fontSize: 12,
@@ -264,8 +264,8 @@ class ArtistNoticeSection extends ConsumerWidget {
                   child: Image.network(
                     notice.noticeImageUrl!,
                     width: double.infinity,
-                    height: 120,
-                    fit: BoxFit.cover,
+                    height: 160,
+                    fit: BoxFit.fitHeight,
                     loadingBuilder: (ctx, child, loadingProgress) {
                       if (loadingProgress == null) return child;
                       return Container(
