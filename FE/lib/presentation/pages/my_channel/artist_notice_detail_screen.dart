@@ -222,65 +222,27 @@ class _ArtistNoticeDetailScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 공지사항 헤더 (제목 + 날짜)
-        const Text(
-          '아티스트 공지',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          formattedDate,
-          style: TextStyle(color: Colors.grey[400], fontSize: 14),
+        // 공지사항 헤더 (제목 + 날짜) - 수정: 제목 색상 변경 및 날짜 우측 배치
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              '현재 공지',
+              style: TextStyle(
+                color: AppColors.mediumPurple, // 색상 변경
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              formattedDate, // 날짜 우측 배치
+              style: TextStyle(color: Colors.grey[400], fontSize: 14),
+            ),
+          ],
         ),
         const SizedBox(height: 24),
 
-        // 이미지가 있는 경우 표시
-        if (notice.noticeImageUrl != null) ...[
-          Hero(
-            tag: 'notice_image_${notice.noticeId}',
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  notice.noticeImageUrl!,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 200,
-                      color: Colors.grey[800],
-                      child: const Center(
-                        child: Icon(
-                          Icons.error_outline,
-                          color: Colors.white,
-                          size: 48,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-        ],
-
-        // 공지사항 내용
+        // 공지사항 내용과 이미지를 하나의 카드에 배치
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(16),
@@ -292,13 +254,49 @@ class _ArtistNoticeDetailScreenState
               width: 1,
             ),
           ),
-          child: Text(
-            notice.noticeContent,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              height: 1.6,
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 공지사항 내용
+              Text(
+                notice.noticeContent,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  height: 1.6,
+                ),
+              ),
+
+              // 텍스트 밑에 이미지 배치
+              if (notice.noticeImageUrl != null) ...[
+                const SizedBox(height: 16),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Hero(
+                    tag: 'notice_image_${notice.noticeId}',
+                    child: Image.network(
+                      notice.noticeImageUrl!,
+                      width: double.infinity,
+                      height: 300, // 이미지 높이 제한
+                      fit: BoxFit.cover, // 이미지 비율 유지하면서 크기 조절
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: 150, // 에러 시 컨테이너 높이
+                          color: Colors.grey[800],
+                          child: const Center(
+                            child: Icon(
+                              Icons.error_outline,
+                              color: Colors.white,
+                              size: 36,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
         ),
       ],
@@ -314,7 +312,7 @@ class _ArtistNoticeDetailScreenState
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '댓글',
+              ' 댓글',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 18,
@@ -352,7 +350,7 @@ class _ArtistNoticeDetailScreenState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          '이전 공지',
+          ' 공지 목록',
           style: TextStyle(
             color: Colors.white,
             fontSize: 18,
