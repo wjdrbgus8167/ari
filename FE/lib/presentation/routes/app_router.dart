@@ -1,6 +1,6 @@
 import 'package:ari/presentation/pages/login/login_screen.dart';
 import 'package:ari/presentation/pages/sign_up/sign_up_screen.dart';
-import 'package:ari/presentation/widgets/wallet_connect_widget.dart';
+import 'package:ari/presentation/pages/subscribe/subscribe_payment_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:ari/presentation/pages/album/album_detail_screen.dart';
 import 'package:ari/presentation/pages/track_detail/track_detail_screen.dart';

@@ -1,5 +1,6 @@
 import 'package:ari/domain/entities/token.dart';
 import 'package:ari/domain/usecases/auth_usecase.dart';
+import 'package:ari/providers/auth/auth_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -36,10 +37,12 @@ class LoginState {
 class LoginViewModel extends StateNotifier<LoginState> {
   final LoginUseCase loginUseCase;
   final SaveTokensUseCase saveTokensUseCase;
+  final AuthStateNotifier authStateNotifier;
 
   LoginViewModel({
     required this.loginUseCase,
     required this.saveTokensUseCase,
+    required this.authStateNotifier,
   }) : super(LoginState());
 
   void setEmail(String value) {
@@ -63,8 +66,9 @@ class LoginViewModel extends StateNotifier<LoginState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       print(state.email);
-      await loginUseCase(state.email, state.password);
+      await authStateNotifier.login(state.email, state.password);
       state = state.copyWith(isLoading: false);
+      await authStateNotifier.refreshAuthState(); 
       return true;
     } catch (e) {
       state = state.copyWith(
