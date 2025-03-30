@@ -29,7 +29,7 @@ class SubscriptionProcessButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(width: 10),
+            SizedBox(width: 15),
             Text(
               '지금 구독하러 가기',
               style: TextStyle(
