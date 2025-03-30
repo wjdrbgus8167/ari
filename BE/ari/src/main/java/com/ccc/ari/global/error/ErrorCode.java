@@ -42,7 +42,10 @@ public enum ErrorCode {
     PLAYLIST_TRACK_ADD_FAIL(HttpStatus.NOT_FOUND,"P001","해당 트랙을 추가하는데 실패했습니다."),
     PLAYLIST_NOT_FOUND(HttpStatus.NOT_FOUND,"P002","해당 플레이리스트를 조회하는데 실패했습니다."),
     PLAYLIST_NOT_PUBLIC(HttpStatus.CONFLICT,"P003","해당 플레이리스트는 공개된 플레이리스트가 아닙니다."),
-    PLAYLIST_TRACK_NOT_FOUND(HttpStatus.NOT_FOUND,"P004","트랙을 찾을 수 없습니다.");
+    PLAYLIST_TRACK_NOT_FOUND(HttpStatus.NOT_FOUND,"P004","트랙을 찾을 수 없습니다."),
+
+    //앨범 댓글 관련
+    ALBUM_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND,"C001","앨범 댓글을 조회하는데 실패했습니다.");
 
     private final HttpStatus status;
     private final String code;
