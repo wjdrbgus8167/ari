@@ -1,24 +1,24 @@
-// lib\presentation\pages\my_channel\artist_notice_detail_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../providers/my_channel_providers.dart';
+import '../../../data/models/my_channel/artist_notice.dart';
 import '../../viewmodels/my_channel_viewmodel.dart';
 import '../../widgets/common/custom_toast.dart';
 
 /// 아티스트 공지사항 상세 화면
-/// 공지사항의 전체 내용과 이미지(있는 경우)를 표시
+/// 공지사항 전체 내용, 이미지 표시, 댓글과 이전 공지사항 목록 표시
 class ArtistNoticeDetailScreen extends ConsumerStatefulWidget {
   final int noticeId;
-  final String artistName; // 아티스트 이름 매개변수 추가
+  final String artistName;
 
   /// [noticeId] : 표시할 공지사항 ID
   /// [artistName] : 아티스트 이름 (AppBar 타이틀 표시용)
   const ArtistNoticeDetailScreen({
     super.key,
     required this.noticeId,
-    required this.artistName, // 필수 매개변수로 추가
+    required this.artistName,
   });
 
   @override
@@ -29,13 +29,17 @@ class ArtistNoticeDetailScreen extends ConsumerStatefulWidget {
 class _ArtistNoticeDetailScreenState
     extends ConsumerState<ArtistNoticeDetailScreen> {
   bool _isLoading = true;
+  late int _currentNoticeId;
 
   @override
   void initState() {
     super.initState();
+    _currentNoticeId = widget.noticeId;
+
     // 화면 렌더링 후 공지사항 상세 정보 로드
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadNoticeDetail();
+      _loadNoticesList();
     });
   }
 
@@ -49,7 +53,7 @@ class _ArtistNoticeDetailScreenState
       // 공지사항 상세 정보 요청
       await ref
           .read(myChannelProvider.notifier)
-          .loadArtistNoticeDetail(widget.noticeId);
+          .loadArtistNoticeDetail(_currentNoticeId);
     } catch (e) {
       if (mounted) {
         context.showToast('공지사항을 불러오는데 실패했습니다');
@@ -63,11 +67,31 @@ class _ArtistNoticeDetailScreenState
     }
   }
 
+  /// 공지사항 목록 로드 (이미 로드되어 있지 않은 경우)
+  Future<void> _loadNoticesList() async {
+    final noticeResponse = ref.read(myChannelProvider).artistNotices;
+    if (noticeResponse == null || noticeResponse.notices.isEmpty) {
+      // 공지사항 정보가 없으면 아티스트 ID를 통해 목록 로드 해야됨
+      // 여기서는 아티스트 ID를 얻을 수 없음
+      // P3 TODO: 아티스트 ID를 상세화면 진입 시 전달하도록 수정
+    }
+  }
+
+  /// 다른 공지사항으로 전환
+  void _switchToNotice(int noticeId) {
+    setState(() {
+      _currentNoticeId = noticeId;
+    });
+    _loadNoticeDetail();
+  }
+
   @override
   Widget build(BuildContext context) {
     // 공지사항 상세 정보와 상태 구독
     final channelState = ref.watch(myChannelProvider);
     final notice = channelState.artistNoticeDetail;
+    final noticesList = channelState.artistNotices?.notices ?? [];
+
     final isLoading =
         _isLoading ||
         channelState.artistNoticeDetailStatus == MyChannelStatus.loading;
@@ -80,7 +104,7 @@ class _ArtistNoticeDetailScreenState
         backgroundColor: Colors.black,
         elevation: 0,
         title: Text(
-          '${widget.artistName}의 공지사항', // 아티스트 이름 표시
+          '${widget.artistName}의 공지사항',
           style: const TextStyle(
             color: Colors.white,
             fontSize: 18,
@@ -101,7 +125,7 @@ class _ArtistNoticeDetailScreenState
               ? _buildErrorView()
               : notice == null
               ? _buildEmptyView()
-              : _buildNoticeDetailView(notice),
+              : _buildDetailPageContent(notice, noticesList),
     );
   }
 
@@ -152,95 +176,315 @@ class _ArtistNoticeDetailScreenState
     );
   }
 
-  /// 공지사항 상세 화면
-  Widget _buildNoticeDetailView(notice) {
-    // 날짜 포맷팅
-    final dateFormatter = DateFormat('yyyy.MM.dd HH:mm');
-    final dateTime = DateTime.parse(notice.createdAt);
-    final formattedDate = dateFormatter.format(dateTime);
-
+  /// 공지사항 상세 페이지
+  Widget _buildDetailPageContent(
+    ArtistNotice notice,
+    List<ArtistNotice> noticesList,
+  ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 공지사항 메타 정보 (날짜)
-          Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              formattedDate,
-              style: TextStyle(color: Colors.grey[400], fontSize: 14),
+          // 공지사항 상세 영역
+          _buildCurrentNotice(notice),
+
+          // 구분선
+          const SizedBox(height: 32),
+          const Divider(color: Colors.grey, height: 1),
+          const SizedBox(height: 24),
+
+          // 댓글 영역 (TODO 표시)
+          _buildCommentsSection(),
+
+          // 구분선
+          const SizedBox(height: 32),
+          const Divider(color: Colors.grey, height: 1),
+          const SizedBox(height: 24),
+
+          // 이전 공지사항 목록
+          _buildPreviousNotices(noticesList),
+
+          // 하단 여백
+          const SizedBox(height: 40),
+        ],
+      ),
+    );
+  }
+
+  /// 현재 선택된 공지사항 상세 정보
+  Widget _buildCurrentNotice(ArtistNotice notice) {
+    // 날짜 포맷팅
+    final dateFormatter = DateFormat('yyyy.MM.dd');
+    final dateTime = DateTime.parse(notice.createdAt);
+    final formattedDate = dateFormatter.format(dateTime);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 공지사항 헤더 (제목 + 날짜)
+        const Text(
+          '아티스트 공지',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          formattedDate,
+          style: TextStyle(color: Colors.grey[400], fontSize: 14),
+        ),
+        const SizedBox(height: 24),
+
+        // 이미지가 있는 경우 표시
+        if (notice.noticeImageUrl != null) ...[
+          Hero(
+            tag: 'notice_image_${notice.noticeId}',
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  notice.noticeImageUrl!,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 200,
+                      color: Colors.grey[800],
+                      child: const Center(
+                        child: Icon(
+                          Icons.error_outline,
+                          color: Colors.white,
+                          size: 48,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 24),
+        ],
 
-          // 이미지가 있는 경우 표시
-          if (notice.noticeImageUrl != null) ...[
-            Hero(
-              tag: 'notice_image_${notice.noticeId}', // Hero 태그 추가 (목록과 연결)
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.3),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    notice.noticeImageUrl!,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        height: 200,
-                        color: Colors.grey[800],
-                        child: const Center(
-                          child: Icon(
-                            Icons.error_outline,
-                            color: Colors.white,
-                            size: 48,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-          ],
-
-          // 공지사항 내용
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.grey[900],
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.mediumPurple.withValues(alpha: 0.3),
-                width: 1,
-              ),
-            ),
-            child: Text(
-              notice.noticeContent,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                height: 1.6,
-              ),
+        // 공지사항 내용
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.grey[900],
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: AppColors.mediumPurple.withValues(alpha: 0.3),
+              width: 1,
             ),
           ),
+          child: Text(
+            notice.noticeContent,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              height: 1.6,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
-          // 하단 공간
-          const SizedBox(height: 40),
-        ],
+  /// 댓글 섹션 (TODO로 비워놓음)
+  Widget _buildCommentsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '댓글',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              '댓글 작성',
+              style: TextStyle(
+                color: AppColors.mediumPurple,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        // TODO: 댓글 목록 구현
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Text(
+              '댓글 기능 준비 중입니다.',
+              style: TextStyle(color: Colors.grey[400], fontSize: 14),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 이전 공지사항 목록
+  Widget _buildPreviousNotices(List<ArtistNotice> noticesList) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          '이전 공지',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // 이전 공지사항 목록이 비어있는 경우
+        if (noticesList.isEmpty)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Text(
+                '이전 공지사항이 없습니다.',
+                style: TextStyle(color: Colors.grey[400], fontSize: 14),
+              ),
+            ),
+          )
+        // 이전 공지사항 목록 표시
+        else
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: noticesList.length,
+            itemBuilder: (context, index) {
+              final notice = noticesList[index];
+              return _buildPreviousNoticeItem(notice);
+            },
+          ),
+      ],
+    );
+  }
+
+  /// 이전 공지사항 아이템
+  Widget _buildPreviousNoticeItem(ArtistNotice notice) {
+    // 날짜 포맷팅
+    final dateFormatter = DateFormat('yyyy.MM.dd');
+    final dateTime = DateTime.parse(notice.createdAt);
+    final formattedDate = dateFormatter.format(dateTime);
+
+    // 현재 선택된 공지사항인지 확인
+    final isSelected = notice.noticeId == _currentNoticeId;
+
+    return GestureDetector(
+      onTap: () {
+        if (!isSelected) {
+          _switchToNotice(notice.noticeId);
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color:
+              isSelected
+                  ? AppColors.mediumPurple.withValues(alpha: 0.15)
+                  : Colors.transparent,
+          border: Border.all(
+            color:
+                isSelected
+                    ? AppColors.mediumPurple
+                    : Colors.grey.withValues(alpha: 0.3),
+            width: 1,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  formattedDate,
+                  style: TextStyle(
+                    color:
+                        isSelected ? AppColors.mediumPurple : Colors.grey[400],
+                    fontSize: 14,
+                    fontWeight:
+                        isSelected ? FontWeight.bold : FontWeight.normal,
+                  ),
+                ),
+                if (isSelected)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.mediumPurple.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      '현재 공지',
+                      style: TextStyle(
+                        color: AppColors.mediumPurple,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              notice.noticeContent,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+
+            // 이미지 미리보기 (있는 경우)
+            if (notice.noticeImageUrl != null) ...[
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  const Icon(Icons.image, color: Colors.grey, size: 16),
+                  const SizedBox(width: 4),
+                  Text(
+                    '이미지 첨부됨',
+                    style: TextStyle(color: Colors.grey[400], fontSize: 12),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
