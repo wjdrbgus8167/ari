@@ -20,16 +20,37 @@ class AuthInterceptor extends Interceptor {
       final tokens = await getTokensUseCase();
       final accessToken = tokens?.accessToken;
       
-      print("요청 전 토큰: $tokens");
-      print("Authorization 헤더 추가: Bearer $accessToken");
-      
       if (accessToken != null) {
-        options.headers['Authorization'] = 'Bearer $accessToken';
+        // Authorization 헤더 대신 쿠키로 토큰 추가
+        String cookieHeader = options.headers['Cookie'] ?? '';
+        List<String> cookies = [];
+        
+        // 기존 쿠키가 있는 경우 분리
+        if (cookieHeader.isNotEmpty) {
+          cookies = cookieHeader.split('; ');
+        }
+        
+        // 기존 access_token 쿠키가 있으면 제거 (중복 방지)
+        cookies.removeWhere((cookie) => cookie.startsWith('access_token='));
+        
+        // access_token 쿠키로 추가
+        cookies.add('access_token=$accessToken');
+        
+        // refresh_token이 있으면 추가
+        final refreshToken = tokens?.refreshToken;
+        if (refreshToken != null) {
+          // 기존 refresh_token 쿠키가 있으면 제거
+          cookies.removeWhere((cookie) => cookie.startsWith('refresh_token='));
+          // refresh_token 쿠키로 추가
+          cookies.add('refresh_token=$refreshToken');
+        }
+        
+        // 쿠키 헤더 설정
+        options.headers['Cookie'] = cookies.join('; ');
       }
       
       print("최종 요청 헤더: ${options.headers}");
       print("요청 URL: ${options.path}");
-      
       handler.next(options);
     } catch (e) {
       print("요청 인터셉터 오류: $e");
@@ -45,7 +66,7 @@ class AuthInterceptor extends Interceptor {
       return handler.next(err);
     }
       
-      // 토큰 갱신 시도
+    // 토큰 갱신 시도
     final newTokens = await refreshTokensUseCase();
     if (newTokens != null) {
       // 원래 요청 재시도

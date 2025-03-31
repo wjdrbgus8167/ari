@@ -7,29 +7,25 @@ import 'package:ari/providers/global_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final albumDataSourceProvider = Provider((ref) {
-  return AlbumMockDataSourceImpl(
-    dio: ref.watch(dioProvider), 
-    baseUrl: const String.fromEnvironment(
-      'BASE_URL',
-      defaultValue: 'https://ari-music.duckdns.org',
-    ),
+  return AlbumDataSourceImpl(
+    dio: ref.read(dioProvider),
   );
 });
 
 // 리포지토리 Provider
 final albumRepositoryProvider = Provider((ref) {
-  final dataSource = ref.watch(albumDataSourceProvider);
+  final dataSource = ref.read(albumDataSourceProvider);
   return AlbumRepositoryImpl(dataSource: dataSource);
 });
 
 // UseCase Provider
 final getAlbumDetailProvider = Provider((ref) {
-  final repository = ref.watch(albumRepositoryProvider);
+  final repository = ref.read(albumRepositoryProvider);
   return GetAlbumDetail(repository);
 });
 
 // ViewModel Provider
 final albumDetailViewModelProvider = StateNotifierProvider<AlbumDetailViewModel, AlbumDetailState>((ref) {
-  final getAlbumDetail = ref.watch(getAlbumDetailProvider);
+  final getAlbumDetail = ref.read(getAlbumDetailProvider);
   return AlbumDetailViewModel(getAlbumDetail: getAlbumDetail);
 });

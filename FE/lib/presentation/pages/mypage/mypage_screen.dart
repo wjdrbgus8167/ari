@@ -83,28 +83,28 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
                     // 메뉴 아이템들
                     MypageMenuItem(
                       title: '나의 구독',
-                      routeName: AppRoutes.subscribe,
-                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.subscribe),
+                      routeName: AppRoutes.subscription,
+                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.subscription),
                     ),
                     MypageMenuItem(
                       title: '구독 내역',
-                      routeName: AppRoutes.subscribe,
-                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.subscribe),
+                      routeName: AppRoutes.subscription,
+                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.subscription),
                     ),
                     MypageMenuItem(
                       title: '앨범 업로드',
-                      routeName: AppRoutes.subscribe,
-                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.subscribe),
+                      routeName: AppRoutes.subscription,
+                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.subscription),
                     ),
                     MypageMenuItem(
                       title: '아티스트 대시보드',
-                      routeName: AppRoutes.subscribe,
-                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.subscribe),
+                      routeName: AppRoutes.subscription,
+                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.subscription),
                     ),
                     MypageMenuItem(
                       title: '정산 내역',
-                      routeName: AppRoutes.subscribe,
-                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.subscribe),
+                      routeName: AppRoutes.subscription,
+                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.subscription),
                     ),
                     MypageMenuItem(
                       title: '로그아웃',
