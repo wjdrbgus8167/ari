@@ -39,7 +39,7 @@ class PlaylistTrackList extends ConsumerWidget {
         final isSelected = state.selectedTracks.contains(item);
 
         return PlaylistTrackListTile(
-          key: ValueKey(item.track.id),
+          key: ValueKey(item.track.trackId),
           item: item,
           isSelected: isSelected,
           selectionMode: state.selectedTracks.isNotEmpty,

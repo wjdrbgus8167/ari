@@ -57,7 +57,8 @@ class TrackDetailModel {
       artist: json['artist'] ?? '',
       composer: json['composer'] ?? '',
       lyricist: json['lylist'] ?? '',
-      description: json['discription'] ?? '', // 오타 주의 (API에서 'discription'으로 오고 있음)
+      description:
+          json['discription'] ?? '', // 오타 주의 (API에서 'discription'으로 오고 있음)
       albumLikeCount: json['albumLikeCount'] ?? 0,
       genre: json['genre'] ?? '',
       trackLikeCount: json['trackLikeCount'] ?? 0,
@@ -69,53 +70,59 @@ class TrackDetailModel {
     );
   }
 
-    // Entity로 변환하는 메서드
+  // Entity로 변환하는 메서드
   Track toEntity() {
     // lyricist와 composer가 문자열로 저장되어 있으므로 리스트로 변환
     // 쉼표로 구분되어 있다고 가정
-    List<String> lyricistList = lyricist.isEmpty 
-        ? [] 
-        : lyricist.split(',').map((item) => item.trim()).toList();
-    
-    List<String> composerList = composer.isEmpty 
-        ? [] 
-        : composer.split(',').map((item) => item.trim()).toList();
-    
+    List<String> lyricistList =
+        lyricist.isEmpty
+            ? []
+            : lyricist.split(',').map((item) => item.trim()).toList();
+
+    List<String> composerList =
+        composer.isEmpty
+            ? []
+            : composer.split(',').map((item) => item.trim()).toList();
+
     // 댓글 변환
-    List<TrackComment> trackComments = comments.map((comment) => 
-      TrackComment(
-        trackId: comment.trackId,
-        commentId: comment.commentId,
-        nickname: comment.nickname,
-        content: comment.content,
-        timestamp: comment.contentTimestamp,
-        createdAt: comment.createdAt
-      )
-    ).toList();
-    
+    List<TrackComment> trackComments =
+        comments
+            .map(
+              (comment) => TrackComment(
+                trackId: comment.trackId,
+                commentId: comment.commentId,
+                nickname: comment.nickname,
+                content: comment.content,
+                timestamp: comment.contentTimestamp,
+                createdAt: comment.createdAt,
+              ),
+            )
+            .toList();
+
     // playTime과 trackNumber 정보가 모델에 없으므로 기본값 설정
     // 실제 구현에서는 이 값들이 어떻게 제공되는지에 따라 수정 필요
-    const int defaultPlayTime = 0; // 적절한 기본값으로 변경
     const int defaultTrackNumber = 1; // 적절한 기본값으로 변경
-    
+
     return Track(
       albumId: albumId,
       trackId: trackId,
       trackTitle: trackTitle,
       artistName: artist,
       lyric: lyric,
-      playTime: defaultPlayTime,
       trackNumber: defaultTrackNumber,
       commentCount: commentCount,
       lyricist: lyricistList,
       composer: composerList,
       comments: trackComments,
       createdAt: createdAt,
+      coverUrl: coverImageUrl,
+      trackFileUrl: '',
+      trackLikeCount: trackLikeCount,
     );
   }
 }
 
-  // 트랙 댓글에 대한 데이터 모델
+// 트랙 댓글에 대한 데이터 모델
 class TrackCommentModel {
   final int trackId;
   final int commentId;
@@ -135,7 +142,6 @@ class TrackCommentModel {
 
   // JSON에서 모델로 변환하는 팩토리 생성자
   factory TrackCommentModel.fromJson(Map<String, dynamic> json) {
-
     return TrackCommentModel(
       trackId: json['trackId'] ?? 0,
       commentId: json['commentId'] ?? 0,
@@ -153,7 +159,7 @@ class TrackCommentModel {
       nickname: nickname,
       content: content,
       timestamp: contentTimestamp,
-      createdAt: createdAt
+      createdAt: createdAt,
     );
   }
 }

@@ -1,5 +1,7 @@
+import 'package:ari/data/datasources/playlist/playlist_remote_datasource.dart';
 import 'package:ari/data/models/playlist.dart';
 import 'package:ari/data/models/track.dart';
+import 'package:ari/providers/global_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/core/utils/album_filter.dart';
 import 'package:ari/dummy_data/mock_data.dart';
@@ -9,20 +11,24 @@ import 'package:ari/domain/usecases/get_charts_usecase.dart';
 
 class HomeViewModel extends StateNotifier<HomeState> {
   final GetChartsUseCase getChartsUseCase;
+  final IPlaylistRemoteDataSource playlistRemoteDataSource;
 
-  HomeViewModel({required this.getChartsUseCase})
-    : super(
-        HomeState(
-          selectedGenreLatest: Genre.all,
-          selectedGenrePopular: Genre.all,
-          latestAlbums: MockData.getLatestAlbums(),
-          popularAlbums: MockData.getPopularAlbums(),
-          popularPlaylists: MockData.getPopularPlaylists(),
-          hot50Titles: [],
-        ),
-      ) {
+  HomeViewModel({
+    required this.getChartsUseCase,
+    required this.playlistRemoteDataSource,
+  }) : super(
+         HomeState(
+           selectedGenreLatest: Genre.all,
+           selectedGenrePopular: Genre.all,
+           latestAlbums: MockData.getLatestAlbums(),
+           popularAlbums: MockData.getPopularAlbums(),
+           popularPlaylists: [],
+           hot50Titles: [],
+         ),
+       ) {
     // 생성자에서 차트 데이터를 비동기로 로드
     loadHot50Titles();
+    loadPopularPlaylists();
   }
 
   Future<void> loadHot50Titles() async {
@@ -55,6 +61,21 @@ class HomeViewModel extends StateNotifier<HomeState> {
       print('[DEBUG] loadHot50Titles: 상태 업데이트 완료');
     } catch (e) {
       print('[ERROR] loadHot50Titles: 차트 데이터 로드 실패: $e');
+    }
+  }
+
+  Future<void> loadPopularPlaylists() async {
+    try {
+      print('[DEBUG] loadPopularPlaylists: API 호출 전');
+      // provider 대신 주입받은 playlistRemoteDataSource를 사용
+      final popular = await playlistRemoteDataSource.fetchPopularPlaylists();
+      print('[DEBUG] loadPopularPlaylists: API 응답 받은 인기 플레이리스트: $popular');
+
+      // 상태 업데이트
+      state = state.copyWith(popularPlaylists: popular);
+      print('[DEBUG] loadPopularPlaylists: 상태 업데이트 완료');
+    } catch (e) {
+      print('[ERROR] loadPopularPlaylists: 인기 플레이리스트 로드 실패: $e');
     }
   }
 
@@ -103,6 +124,7 @@ class HomeState {
     Genre? selectedGenrePopular,
     List<Album>? filteredLatestAlbums,
     List<Album>? filteredPopularAlbums,
+    List<Playlist>? popularPlaylists,
     List<Track>? hot50Titles,
   }) {
     return HomeState(
@@ -113,7 +135,7 @@ class HomeState {
       filteredLatestAlbums: filteredLatestAlbums ?? this.filteredLatestAlbums,
       filteredPopularAlbums:
           filteredPopularAlbums ?? this.filteredPopularAlbums,
-      popularPlaylists: popularPlaylists,
+      popularPlaylists: popularPlaylists ?? this.popularPlaylists,
       hot50Titles: hot50Titles ?? this.hot50Titles,
     );
   }

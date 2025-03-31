@@ -1,66 +1,112 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../dummy_data/mock_data.dart';
-import '../../../data/models/track.dart';
+import 'package:ari/data/datasources/local/local_listening_queue_datasource.dart';
+import 'package:ari/data/models/listening_queue_item.dart';
+import 'package:ari/data/dto/playlist_create_request.dart';
 
+import 'package:ari/domain/entities/track.dart';
+import 'package:ari/domain/entities/playlist.dart';
+import 'package:ari/domain/repositories/playlist_repository.dart';
+
+/// 재생목록 상태 클래스
 class ListeningQueueState {
-  final List<Track> playlist;
-  final List<Track> filteredPlaylist;
-  final Set<Track> selectedTracks;
+  final List<ListeningQueueItem> playlist;
+  final List<ListeningQueueItem> filteredPlaylist;
+  final Set<ListeningQueueItem> selectedTracks;
+  final List<Playlist> playlists;
 
   ListeningQueueState({
     required this.playlist,
     required this.filteredPlaylist,
     required this.selectedTracks,
+    this.playlists = const [],
   });
 
   ListeningQueueState copyWith({
-    List<Track>? playlist,
-    List<Track>? filteredPlaylist,
-    Set<Track>? selectedTracks,
+    List<ListeningQueueItem>? playlist,
+    List<ListeningQueueItem>? filteredPlaylist,
+    Set<ListeningQueueItem>? selectedTracks,
+    List<Playlist>? playlists,
   }) {
     return ListeningQueueState(
       playlist: playlist ?? this.playlist,
       filteredPlaylist: filteredPlaylist ?? this.filteredPlaylist,
       selectedTracks: selectedTracks ?? this.selectedTracks,
+      playlists: playlists ?? this.playlists,
     );
   }
 }
 
+/// ViewModel: 로컬 저장소(Hive)에 저장된 사용자별 재생목록을 관리하며,
+/// PlaylistRepository를 통해 플레이리스트 관련 작업을 수행합니다.
 class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
-  ListeningQueueViewModel()
-    : super(
-        ListeningQueueState(
-          playlist: MockData.getListeningQueue(),
-          filteredPlaylist: MockData.getListeningQueue(),
-          selectedTracks: {},
-        ),
-      );
+  final String userId;
+  final IPlaylistRepository playlistRepository; // repository 주입
 
+  ListeningQueueViewModel({
+    required this.userId,
+    required this.playlistRepository,
+  }) : super(
+         ListeningQueueState(
+           playlist: [],
+           filteredPlaylist: [],
+           selectedTracks: {},
+           playlists: [],
+         ),
+       ) {
+    _loadQueue();
+    _loadPlaylists();
+  }
+
+  /// 로컬 저장소에서 재생목록을 불러옵니다.
+  Future<void> _loadQueue() async {
+    final tracks = await loadListeningQueue(userId);
+    final items =
+        tracks.map((track) => ListeningQueueItem(track: track)).toList();
+    state = state.copyWith(playlist: items, filteredPlaylist: List.from(items));
+  }
+
+  /// PlaylistRepository를 통해 플레이리스트 목록을 불러옵니다.
+  Future<void> _loadPlaylists() async {
+    final playlists = await playlistRepository.fetchPlaylists();
+    state = state.copyWith(playlists: playlists);
+  }
+
+  /// 특정 트랙이 재생될 때 자동으로 재생목록에 추가합니다.
+  Future<void> trackPlayed(Track track) async {
+    await addTrackToListeningQueue(userId, track);
+    await _loadQueue();
+  }
+
+  /// 검색어에 따라 재생목록을 필터링합니다.
   void filterTracks(String query) {
     if (query.isEmpty) {
       state = state.copyWith(filteredPlaylist: List.from(state.playlist));
     } else {
       final filtered =
-          state.playlist.where((track) {
-            return track.trackTitle.toLowerCase().contains(
+          state.playlist.where((item) {
+            return item.track.trackTitle.toLowerCase().contains(
                   query.toLowerCase(),
                 ) ||
-                track.artist.toLowerCase().contains(query.toLowerCase());
+                item.track.artistName.toLowerCase().contains(
+                  query.toLowerCase(),
+                );
           }).toList();
       state = state.copyWith(filteredPlaylist: filtered);
     }
   }
 
-  void toggleTrackSelection(Track track) {
-    final newSelected = Set<Track>.from(state.selectedTracks);
-    if (newSelected.contains(track)) {
-      newSelected.remove(track);
+  /// 특정 항목의 선택 여부를 토글합니다.
+  void toggleTrackSelection(ListeningQueueItem item) {
+    final newSelected = Set<ListeningQueueItem>.from(state.selectedTracks);
+    if (newSelected.contains(item)) {
+      newSelected.remove(item);
     } else {
-      newSelected.add(track);
+      newSelected.add(item);
     }
     state = state.copyWith(selectedTracks: newSelected);
   }
 
+  /// 전체 선택 또는 해제 기능.
   void toggleSelectAll() {
     final allSelected =
         state.filteredPlaylist.isNotEmpty &&
@@ -72,29 +118,56 @@ class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
     }
   }
 
-  void reorderTracks(int oldIndex, int newIndex) {
-    final updatedList = List<Track>.from(state.filteredPlaylist);
+  /// 재생목록의 순서를 변경하고, 로컬 저장소에 업데이트합니다.
+  Future<void> reorderTracks(int oldIndex, int newIndex) async {
+    final updatedList = List<ListeningQueueItem>.from(state.filteredPlaylist);
     if (newIndex > oldIndex) newIndex -= 1;
-    final track = updatedList.removeAt(oldIndex);
-    updatedList.insert(newIndex, track);
+    final item = updatedList.removeAt(oldIndex);
+    updatedList.insert(newIndex, item);
+    final tracksOrder = updatedList.map((i) => i.track).toList();
+    await updateListeningQueueOrder(userId, tracksOrder);
     state = state.copyWith(filteredPlaylist: updatedList);
-    // 원본 playlist도 재정렬할 필요가 있다면 업데이트
+    await _loadQueue();
   }
 
-  void removeTrack(Track track) {
-    // 기존 플레이리스트에서 해당 트랙 삭제
-    final newPlaylist = List<Track>.from(state.playlist)..remove(track);
-    // 필터링된 플레이리스트에서도 삭제
-    final newFilteredPlaylist = List<Track>.from(state.filteredPlaylist)
-      ..remove(track);
-    // 선택된 트랙에서도 삭제
-    final newSelectedTracks = Set<Track>.from(state.selectedTracks)
-      ..remove(track);
+  /// 재생목록에서 특정 항목을 삭제하고, 상태를 업데이트합니다.
+  Future<void> removeTrack(ListeningQueueItem item) async {
+    await removeTrackFromListeningQueue(userId, item.track.trackId);
+    await _loadQueue();
+    final newSelected = Set<ListeningQueueItem>.from(state.selectedTracks)
+      ..remove(item);
+    state = state.copyWith(selectedTracks: newSelected);
+  }
 
-    state = state.copyWith(
-      playlist: newPlaylist,
-      filteredPlaylist: newFilteredPlaylist,
-      selectedTracks: newSelectedTracks,
-    );
+  /// 선택된 트랙들을 기존 플레이리스트에 추가합니다.
+  Future<void> addSelectedTracksToPlaylist(
+    Playlist selectedPlaylist,
+    List<ListeningQueueItem> selectedItems,
+  ) async {
+    for (var item in selectedItems) {
+      await playlistRepository.addTrack(
+        selectedPlaylist.id,
+        item.track.trackId,
+      );
+    }
+    // 추가 후 선택 상태 초기화
+    state = state.copyWith(selectedTracks: {});
+  }
+
+  /// 새 플레이리스트를 생성한 후 선택된 트랙들을 추가합니다.
+  Future<void> createPlaylistAndAddTracks(
+    String title,
+    bool publicYn,
+    List<ListeningQueueItem> selectedItems,
+  ) async {
+    // 생성자 매개변수 이름에 맞춰 수정 (publicYn -> isPublic)
+    final request = PlaylistCreateRequest(title: title, isPublic: publicYn);
+    final newPlaylist = await playlistRepository.createPlaylist(request);
+    for (var item in selectedItems) {
+      await playlistRepository.addTrack(newPlaylist.id, item.track.trackId);
+    }
+    // 새 플레이리스트 생성 후 플레이리스트 목록 업데이트
+    await _loadPlaylists();
+    state = state.copyWith(selectedTracks: {});
   }
 }

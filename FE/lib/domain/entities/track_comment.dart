@@ -14,4 +14,21 @@ class TrackComment {
     required this.timestamp,
     required this.createdAt,
   });
+
+  factory TrackComment.fromJson(Map<String, dynamic> json) {
+    return TrackComment(
+      trackId:
+          json['trackId'] is int
+              ? json['trackId']
+              : int.tryParse(json['trackId']?.toString() ?? '0') ?? 0,
+      commentId:
+          json['commentId'] is int
+              ? json['commentId']
+              : int.tryParse(json['commentId']?.toString() ?? '0') ?? 0,
+      nickname: json['nickname'] as String? ?? '',
+      content: json['content'] as String? ?? '',
+      timestamp: json['timestamp'] as String? ?? '',
+      createdAt: json['createdAt'] as String? ?? '',
+    );
+  }
 }

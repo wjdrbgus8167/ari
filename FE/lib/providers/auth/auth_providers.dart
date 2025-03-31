@@ -15,16 +15,11 @@ final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
 });
 
 final authLocalDataSourceProvider = Provider<AuthLocalDataSource>((ref) {
-  return AuthLocalDataSourceImpl(
-    storage: ref.watch(secureStorageProvider),
-  );
+  return AuthLocalDataSourceImpl(storage: ref.watch(secureStorageProvider));
 });
 
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
-  return AuthRemoteDataSourceImpl(
-    refreshUrl: '/api/v1/auth/refresh',
-    ref: ref,
-  );
+  return AuthRemoteDataSourceImpl(refreshUrl: '/api/v1/auth/refresh', ref: ref);
 });
 
 final getAuthStatusUseCaseProvider = Provider<GetAuthStatusUseCase>((ref) {
@@ -55,13 +50,14 @@ final refreshTokensUseCaseProvider = Provider<RefreshTokensUseCase>((ref) {
   return RefreshTokensUseCase(ref.watch(authRepositoryProvider));
 });
 
-final authStateProvider = StateNotifierProvider<AuthStateNotifier, AsyncValue<bool>>((ref) {
-  return AuthStateNotifier(
-    getAuthStatusUseCase: ref.watch(getAuthStatusUseCaseProvider),
-    loginUseCase: ref.watch(loginUseCaseProvider),
-    logoutUseCase: ref.watch(logoutUseCaseProvider),
-  );
-});
+final authStateProvider =
+    StateNotifierProvider<AuthStateNotifier, AsyncValue<bool>>((ref) {
+      return AuthStateNotifier(
+        getAuthStatusUseCase: ref.watch(getAuthStatusUseCaseProvider),
+        loginUseCase: ref.watch(loginUseCaseProvider),
+        logoutUseCase: ref.watch(logoutUseCaseProvider),
+      );
+    });
 
 // 인증 인터셉터 제공자. 인증 인터셉터는 request시 자동으로 authorization 삽입하는 역할을 함
 final authInterceptorProvider = Provider<AuthInterceptor>((ref) {
@@ -80,19 +76,18 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
   );
 });
 
-final signUpViewModelProvider = StateNotifierProvider<SignUpViewModel, SignUpState>((ref) { 
-  return SignUpViewModel(
-    signUpUseCase: ref.watch(signUpUseCaseProvider),
-  );
-});
+final signUpViewModelProvider =
+    StateNotifierProvider<SignUpViewModel, SignUpState>((ref) {
+      return SignUpViewModel(signUpUseCase: ref.watch(signUpUseCaseProvider));
+    });
 
-final loginViewModelProvider = StateNotifierProvider<LoginViewModel, LoginState>((ref) {
-  
-  return LoginViewModel(
-    loginUseCase: ref.watch(loginUseCaseProvider),
-    saveTokensUseCase: ref.watch(saveTokensUseCaseProvider),
-  );
-});
+final loginViewModelProvider =
+    StateNotifierProvider<LoginViewModel, LoginState>((ref) {
+      return LoginViewModel(
+        loginUseCase: ref.watch(loginUseCaseProvider),
+        saveTokensUseCase: ref.watch(saveTokensUseCaseProvider),
+      );
+    });
 
 // 유저 로그인 여부를 관리
 class AuthStateNotifier extends StateNotifier<AsyncValue<bool>> {
@@ -118,7 +113,6 @@ class AuthStateNotifier extends StateNotifier<AsyncValue<bool>> {
     }
   }
 
-  
   Future<void> login(String email, String password) async {
     try {
       await loginUseCase(email, password);
@@ -128,7 +122,6 @@ class AuthStateNotifier extends StateNotifier<AsyncValue<bool>> {
       state = AsyncValue.error(e, stackTrace);
     }
   }
-
 
   Future<void> logout() async {
     state = const AsyncValue.loading();

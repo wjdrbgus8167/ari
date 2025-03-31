@@ -30,18 +30,25 @@ class AlbumDetailModel extends Album {
       rating: json['rating'],
       createdAt: json['createdAt'] ?? '',
       coverImageUrl: json['coverImageUrl'] ?? '',
-      comments: json['comments'] != null
-          ? List<AlbumCommentModel>.from(
-              json['comments'].map((comment) => AlbumCommentModel.fromJson(comment)))
-          : [],
-      tracks: json['track'] != null
-          ? List<TrackModel>.from(
-              json['track'].map((track) => TrackModel.fromJson(track, json['albumId'])))
-          : [],
+      comments:
+          json['comments'] != null
+              ? List<AlbumCommentModel>.from(
+                json['comments'].map(
+                  (comment) => AlbumCommentModel.fromJson(comment),
+                ),
+              )
+              : [],
+      tracks:
+          json['track'] != null
+              ? List<TrackModel>.from(
+                json['track'].map(
+                  (track) => TrackModel.fromJson(track, json['albumId']),
+                ),
+              )
+              : [],
     );
   }
 }
-
 
 class AlbumCommentModel extends AlbumComment {
   final int albumId;
@@ -58,15 +65,15 @@ class AlbumCommentModel extends AlbumComment {
     required this.content,
     required this.contentTimestamp,
     required this.createdAt,
-  }): super(
-    id: commentId,  // 부모 클래스의 id에 commentId 값 전달
-    albumId: albumId,
-    nickname: nickname,
-    content: content,
-    contentTimestamp: contentTimestamp,
-    createdAt: createdAt,
-    userAvatar: "",
-  );
+  }) : super(
+         id: commentId, // 부모 클래스의 id에 commentId 값 전달
+         albumId: albumId,
+         nickname: nickname,
+         content: content,
+         contentTimestamp: contentTimestamp,
+         createdAt: createdAt,
+         userAvatar: "",
+       );
 
   factory AlbumCommentModel.fromJson(Map<String, dynamic> json) {
     return AlbumCommentModel(
@@ -86,19 +93,21 @@ class TrackModel extends Track {
     required int albumId,
     required String title,
   }) : super(
-    trackId: trackId,
-    albumId: albumId,
-    trackTitle: title,
-    trackNumber: 0,
-    artistName: '',        // 누락된 필수 매개변수 추가
-    lyric: '',             // 누락된 필수 매개변수 추가
-    playTime: 0,           // 누락된 필수 매개변수 추가
-    comments: const [],    // 누락된 필수 매개변수 추가
-    commentCount: 0,       // 필요한 경우 추가
-    lyricist: const [],    // 필요한 경우 추가
-    composer: const [],    // 필요한 경우 추가
-    createdAt: '',         // 필요한 경우 추가
-  );
+         trackId: trackId,
+         albumId: albumId,
+         trackTitle: title,
+         trackNumber: 0,
+         artistName: '', // 누락된 필수 매개변수 추가
+         lyric: '', // 누락된 필수 매개변수 추가
+         comments: const [], // 누락된 필수 매개변수 추가
+         commentCount: 0, // 필요한 경우 추가
+         lyricist: const [], // 필요한 경우 추가
+         composer: const [], // 필요한 경우 추가
+         createdAt: '', // 필요한 경우 추가
+         trackFileUrl: '', // 필요한 경우 추가
+         coverUrl: '', // 필요한 경우 추가
+         trackLikeCount: 0, // 필요한 경우 추가
+       );
 
   factory TrackModel.fromJson(Map<String, dynamic> json, int albumId) {
     return TrackModel(

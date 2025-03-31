@@ -13,4 +13,5 @@ abstract class IPlaylistRemoteDataSource {
   Future<void> deletePlaylist(int playlistId);
   Future<void> reorderTracks(int playlistId, List<int> trackOrder);
   Future<void> sharePlaylist(int playlistId);
+  Future<List<Playlist>> fetchPopularPlaylists();
 }

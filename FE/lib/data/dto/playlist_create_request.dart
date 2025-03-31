@@ -4,5 +4,5 @@ class PlaylistCreateRequest {
 
   PlaylistCreateRequest({required this.title, required this.isPublic});
 
-  Map<String, dynamic> toJson() => {'title': title, 'publicYn': isPublic};
+  Map<String, dynamic> toJson() => {'title': title, 'public_yn': isPublic};
 }

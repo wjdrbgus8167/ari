@@ -66,4 +66,17 @@ class PlaylistRemoteDataSourceImpl implements IPlaylistRemoteDataSource {
       data: {"playlistId": playlistId},
     );
   }
+
+  // 플레이리스트를 공개로 전환하는 엔드포인트 추가
+  @override
+  Future<void> publishPlaylist(int playlistId) async {
+    await dio.put('$baseUrl/api/v1/playlists/$playlistId/publiced');
+  }
+
+  @override
+  Future<List<Playlist>> fetchPopularPlaylists() async {
+    final response = await dio.get('$baseUrl/api/v1/playlists/popular');
+    final List<dynamic> data = response.data['data'];
+    return data.map((json) => Playlist.fromJson(json)).toList();
+  }
 }
