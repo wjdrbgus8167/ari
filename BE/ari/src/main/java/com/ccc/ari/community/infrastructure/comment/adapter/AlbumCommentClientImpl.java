@@ -27,7 +27,7 @@ public class AlbumCommentClientImpl implements AlbumCommentClient {
     @Override
     public List<AlbumComment> getAlbumCommentsByAlbumId(Integer albumId) {
 
-        List<AlbumCommentJpaEntity> entities = albumCommentJpaRepository.findAllByAlbumIdAndDeletedYnFalse(albumId)
+        List<AlbumCommentJpaEntity> entities = albumCommentJpaRepository.findAllByAlbumIdAndDeletedYnFalseOrderByCreatedAtDesc(albumId)
                 .orElseThrow(()-> new ApiException(ErrorCode.ALBUM_COMMENT_NOT_FOUND));
 
         return entities.stream()
