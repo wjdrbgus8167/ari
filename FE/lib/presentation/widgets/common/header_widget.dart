@@ -40,7 +40,14 @@ class HeaderWidget extends StatelessWidget {
       return Container();
     }
 
-    // 헤더 타입에 따라
+     // SafeArea로 헤더 감싸기
+    return SafeArea(
+      bottom: false, // 하단은 SafeArea 적용 안함
+      child: _buildHeaderByType(),
+    );
+  }
+
+  Widget _buildHeaderByType() {
     switch (type) {
       case HeaderType.main:
         return _buildMainHeader();
@@ -148,3 +155,4 @@ class HeaderWidget extends StatelessWidget {
     );
   }
 }
+

@@ -1,301 +1,132 @@
 import 'package:ari/presentation/routes/app_router.dart';
+import 'package:ari/presentation/viewmodels/mypage/mypage_viewmodel.dart';
+import 'package:ari/presentation/widgets/common/custom_dialog.dart';
+import 'package:ari/presentation/widgets/common/header_widget.dart';
+import 'package:ari/presentation/widgets/mypage/mypage_menu_item.dart';
+import 'package:ari/presentation/widgets/mypage/mypage_profile.dart';
+import 'package:ari/providers/auth/auth_providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MyPageScreen extends StatefulWidget {
+// MyPageViewModel Provider 정의
+final myPageViewModelProvider = Provider.autoDispose<MyPageViewModel>((ref) {
+  return MyPageViewModel(ref);
+});
+
+class MyPageScreen extends ConsumerStatefulWidget {
   const MyPageScreen({super.key});
 
   @override
-  State<MyPageScreen> createState() => _MyPageScreenState();
+  ConsumerState<MyPageScreen> createState() => _MyPageScreenState();
 }
 
-class _MyPageScreenState extends State<MyPageScreen> {
+class _MyPageScreenState extends ConsumerState<MyPageScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // 뷰모델 초기화 (화면이 렌더링된 후)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(myPageViewModelProvider).initialize();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final viewModel = ref.watch(myPageViewModelProvider);
+    
+    // 로그인 상태 확인
+    final authState = ref.watch(authStateProvider);
+    final isLoggedIn = authState.maybeWhen(
+      data: (value) => value,
+      orElse: () => false,
+    );
+    print("로그인 여부 :$isLoggedIn");
+    
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('마이페이지'),
-        backgroundColor: const Color(0xFF121212),
-      ),
       body: Container(
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(color: Colors.black),
-        child: Stack(
+        height: double.infinity,
+        color: Colors.black,
+        child: Column(
           children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Profile Section
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  clipBehavior: Clip.antiAlias,
-                  decoration: ShapeDecoration(
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(
-                        width: 0.50,
-                        color: const Color(0xFF838282),
-                      ),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      // Left side - Profile information
-                      SizedBox(
-                        width: 154,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Profile images
-                            Container(
-                              width: 100,
-                              height: 100,
-                              decoration: ShapeDecoration(
-                                image: DecorationImage(
-                                  image: NetworkImage("https://placehold.co/100x100"),
-                                  fit: BoxFit.cover,
-                                ),
-                                shape: OvalBorder(),
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            Container(
-                              width: 100,
-                              height: 100,
-                              decoration: ShapeDecoration(
-                                image: DecorationImage(
-                                  image: NetworkImage("https://placehold.co/100x100"),
-                                  fit: BoxFit.cover,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(50),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            
-                            // Name and instagram ID
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  '진우석',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontFamily: 'Pretendard',
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                const SizedBox(width: 5),
-                                Text(
-                                  '@인스타그램ID',
-                                  style: TextStyle(
-                                    color: const Color(0xFFD9D9D9),
-                                    fontSize: 12,
-                                    fontFamily: 'Pretendard',
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                          
-                            // Bio
-                            Text(
-                              '안녕하세요~',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontFamily: 'Pretendard',
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                            const SizedBox(height: 15),
-                          
-                            // Followers and Following
-                            Row(
-                              children: [
-                                Text(
-                                  '0 Followers',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontFamily: 'Pretendard',
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                                const SizedBox(width: 7),
-                                Text(
-                                  '0 Following',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontFamily: 'Pretendard',
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      
-                      // Edit profile button
-                      Text(
-                        '내 정보 수정',
-                        style: TextStyle(
-                          color: const Color(0xFFD9D9D9),
-                          fontSize: 12,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w400,
-                          decoration: TextDecoration.underline,
-                          decorationColor: Colors.white,
-                          decorationThickness: 1.0,
-                          decorationStyle: TextDecorationStyle.solid,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                
-                // Menu items
-                _buildMenuItem('나의 구독', context: context, routeName: AppRoutes.subscribe),
-                _buildMenuItem('구독 내역', context: context, routeName: AppRoutes.subscribe),
-                _buildMenuItem('앨범 업로드', context: context, routeName: AppRoutes.subscribe),
-                
-                Container(
-                  width: double.infinity,
-                  height: 50,
-                  padding: const EdgeInsets.symmetric(horizontal: 21, vertical: 18),
-                  child: Text(
-                    '아티스트 대시보드',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ),
-                _buildMenuItem('로그아웃', context: context, routeName: AppRoutes.login),
-              ],
+            // 헤더 위젯
+            HeaderWidget(
+              type: HeaderType.backWithTitle,
+              title: "마이페이지",
+              onBackPressed: () {
+                Navigator.pop(context);
+              },
             ),
             
-            // Bottom music player and navigation
-            Positioned(
-              left: 0,
-              top: 708,
-              child: Column(
-                children: [
-                  // Music player
-                  Container(
-                    width: 360,           
-                    height: 45,
-                    color: const Color(0xFF282828),
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Row(
-                      children: [
-                        // Album art and info
-                        Container(
-                          width: 238,
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 35,
-                                height: 35,
-                                decoration: ShapeDecoration(
-                                  image: DecorationImage(
-                                    image: NetworkImage("https://placehold.co/35x35"),
-                                    fit: BoxFit.cover,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5)
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Looking For Love (Lee Dagger Dub Remix)',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12,
-                                        fontFamily: 'Pretendard Variable',
-                                        fontWeight: FontWeight.w600,
-                                        letterSpacing: -0.12,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          'Listen Again',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 8,
-                                            fontFamily: 'Pretendard',
-                                            fontWeight: FontWeight.w400,
-                                            letterSpacing: -0.08,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Container(
-                                          width: 6,
-                                          height: 6,
-                                          decoration: ShapeDecoration(
-                                            color: const Color(0xFFD9D9D9),
-                                            shape: OvalBorder(),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          'Listen Again',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 8,
-                                            fontFamily: 'Pretendard',
-                                            fontWeight: FontWeight.w400,
-                                            letterSpacing: -0.08,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        
-                        // Control buttons
-                        Container(
-                          width: 29,
-                          height: 28,
-                          child: Container(
-                            width: 32,
-                            height: 32,
-                            color: const Color(0xFFD9D9D9),
-                          ),
-                        ),
-                        const SizedBox(width: 15),
-                        Container(
-                          width: 19.04,
-                          height: 19.04,
-                        ),
-                      ],
+            // 로딩 표시
+            if (viewModel.isLoading)
+              const LinearProgressIndicator(),
+            
+            // 컨텐츠 부분 (스크롤 가능)
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 프로필 위젯
+                    MypageProfile(
+                      name: viewModel.name,
+                      instagramId: viewModel.instagramId,
+                      bio: viewModel.bio,
+                      followers: viewModel.followers,
+                      following: viewModel.following,
+                      profileImage: viewModel.profileImage,
+                      secondaryImage: viewModel.secondaryImage,
+                      onEditPressed: () => viewModel.navigateToEditProfile(context),
                     ),
-                  ),
-                  // Progress bar & Bottom navigation could be added here
-                ],
+                    
+                    // 메뉴 아이템들
+                    MypageMenuItem(
+                      title: '나의 구독',
+                      routeName: AppRoutes.subscription,
+                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.subscription),
+                    ),
+                    MypageMenuItem(
+                      title: '구독 내역',
+                      routeName: AppRoutes.subscription,
+                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.subscription),
+                    ),
+                    MypageMenuItem(
+                      title: '앨범 업로드',
+                      routeName: AppRoutes.subscription,
+                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.subscription),
+                    ),
+                    MypageMenuItem(
+                      title: '아티스트 대시보드',
+                      routeName: AppRoutes.subscription,
+                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.subscription),
+                    ),
+                    MypageMenuItem(
+                      title: '정산 내역',
+                      routeName: AppRoutes.subscription,
+                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.subscription),
+                    ),
+                    MypageMenuItem(
+                      title: '로그아웃',
+                      routeName: AppRoutes.home,
+                      onTap: () async {
+                        final shouldLogout = await context.showConfirmDialog(
+                          title: "로그아웃",
+                          content: "로그아웃하시겠습니까?",
+                          confirmText: "확인",
+                          cancelText: "취소",
+                        );
+                        
+                        // 사용자가 확인(true)을 선택한 경우에만 로그아웃 실행
+                        if (shouldLogout == true) {
+                          await viewModel.logout(context);
+                        }
+                      }
+                    ),
+                    // 하단 여백
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
             ),
           ],
@@ -303,27 +134,4 @@ class _MyPageScreenState extends State<MyPageScreen> {
       ),
     );
   }
-}
-
-// Helper method for menu items
-Widget _buildMenuItem(String title, {required BuildContext context, required String routeName}) {
-  return InkWell(
-    onTap: () {
-      Navigator.of(context).pushNamed(routeName);
-    },
-    child: Container(
-      width: double.infinity,
-      height: 60,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-      child: Text(
-        title,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 12,
-          fontFamily: 'Pretendard',
-          fontWeight: FontWeight.w400,
-        ),
-      ),
-    ),
-  );
 }

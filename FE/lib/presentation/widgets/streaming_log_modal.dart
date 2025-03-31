@@ -1,5 +1,5 @@
 import 'package:ari/domain/entities/streaming_log.dart';
-import 'package:ari/presentation/viewmodels/streaming_log_viewmodel.dart';
+import 'package:ari/presentation/viewmodels/track/streaming_log_viewmodel.dart';
 import 'package:ari/providers/track/streaming_log_providers.dart';
 // Provider 정의가 있는 파일을 임포트합니다
 // 만약 StreamingLogViewmodel 파일에 Provider가 정의되어 있지 않다면

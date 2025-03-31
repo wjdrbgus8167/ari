@@ -28,10 +28,7 @@ class AuthInterceptor extends Interceptor {
         String cookieHeader = options.headers['Cookie'] ?? '';
         List<String> cookies = [];
 
-        // 기존 쿠키가 있는 경우 분리
-        if (cookieHeader.isNotEmpty) {
-          cookies = cookieHeader.split('; ');
-        }
+        cookies = cookieHeader.split('; ');
 
         // 기존 access_token 쿠키가 있으면 제거 (중복 방지)
         cookies.removeWhere((cookie) => cookie.startsWith('access_token='));
@@ -82,17 +79,48 @@ class AuthInterceptor extends Interceptor {
       );
 
       try {
-        final response = await dio.request(
-          err.requestOptions.path,
-          options: options,
-          data: err.requestOptions.data,
-          queryParameters: err.requestOptions.queryParameters,
-        );
-        return handler.resolve(response);
-      } on DioException catch (e) {
-        return handler.next(e);
+        // 토큰 갱신 시도
+        final newTokens = await refreshTokensUseCase();
+        if (newTokens != null) {
+          // 원래 요청 재시도
+          final response = await _retryRequest(
+            err.requestOptions,
+            newTokens.accessToken,
+          );
+          return handler.resolve(response);
+        }
+      } catch (e) {
+        print("토큰 갱신 실패: $e");
       }
     }
+
     return handler.next(err);
+  }
+
+  // 재시도 요청을 처리하는 메서드 분리
+  Future<Response<dynamic>> _retryRequest(
+    RequestOptions requestOptions,
+    String accessToken,
+  ) async {
+    return await dio.fetch(
+      requestOptions.copyWith(
+        headers: {
+          ...requestOptions.headers,
+          'Cookie': _updateCookies(
+            requestOptions.headers['Cookie'] ?? '',
+            accessToken,
+          ),
+        },
+      ),
+    );
+  }
+
+  // 쿠키 업데이트 로직 분리
+  String _updateCookies(String originalCookies, String accessToken) {
+    List<String> cookies =
+        originalCookies.isEmpty ? [] : originalCookies.split('; ');
+    cookies.removeWhere((cookie) => cookie.startsWith('access_token='));
+    cookies.add('access_token=$accessToken');
+    return cookies.join('; ');
   }
 }

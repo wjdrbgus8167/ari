@@ -19,69 +19,69 @@ class AlbumDetailModel extends Album {
   });
 
   factory AlbumDetailModel.fromJson(Map<String, dynamic> json) {
-    return AlbumDetailModel(
-      albumId: json['albumId'],
-      albumTitle: json['albumTitle'],
-      artist: json['artist'],
-      description: json['discription'] ?? '',
-      albumLikeCount: json['albumLikeCount'] ?? 0,
-      genre: json['genre'] ?? '',
-      commentCount: json['commentCount'] ?? 0,
-      rating: json['rating'],
-      createdAt: json['createdAt'] ?? '',
-      coverImageUrl: json['coverImageUrl'] ?? '',
-      comments:
-          json['comments'] != null
-              ? List<AlbumCommentModel>.from(
-                json['comments'].map(
-                  (comment) => AlbumCommentModel.fromJson(comment),
-                ),
-              )
-              : [],
-      tracks:
-          json['track'] != null
-              ? List<TrackModel>.from(
-                json['track'].map(
-                  (track) => TrackModel.fromJson(track, json['albumId']),
-                ),
-              )
-              : [],
-    );
+    try {
+      return AlbumDetailModel(
+        albumId: json['albumId'],
+        albumTitle: json['albumTitle'],
+        artist: json['artist'],
+        description: json['description'] ?? '',
+        albumLikeCount: json['albumLikeCount'] ?? 0,
+        genre: json['genreName'] ?? '',
+        commentCount: json['albumCommentCount'] ?? 0,
+        rating: "0",
+        createdAt: json['releasedAt'].toString().substring(0, 10) ?? '',
+        coverImageUrl: json['coverImageUrl'],
+        comments:
+            json['albumComments'] != null
+                ? List<AlbumCommentModel>.from(
+                  json['albumComments'].map(
+                    (comment) => AlbumCommentModel.fromJson(comment),
+                  ),
+                )
+                : [],
+        tracks:
+            json['tracks'] != null
+                ? List<TrackModel>.from(
+                  json['tracks'].map(
+                    (track) => TrackModel.fromJson(track, json['albumId']),
+                  ),
+                )
+                : [],
+      );
+    } catch (e) {
+      throw e;
+    }
   }
 }
 
 class AlbumCommentModel extends AlbumComment {
-  final int albumId;
+  final int memberId;
   final int commentId;
   final String nickname;
   final String content;
-  final String contentTimestamp;
   final String createdAt;
 
   AlbumCommentModel({
-    required this.albumId,
+    required this.memberId,
     required this.commentId,
     required this.nickname,
     required this.content,
-    required this.contentTimestamp,
     required this.createdAt,
   }) : super(
          id: commentId, // 부모 클래스의 id에 commentId 값 전달
-         albumId: albumId,
+         memberId: memberId,
          nickname: nickname,
          content: content,
-         contentTimestamp: contentTimestamp,
          createdAt: createdAt,
          userAvatar: "",
        );
 
   factory AlbumCommentModel.fromJson(Map<String, dynamic> json) {
     return AlbumCommentModel(
-      albumId: json['trackId'],
+      memberId: json['memberId'],
       commentId: json['commentId'],
       nickname: json['nickname'],
       content: json['content'],
-      contentTimestamp: json['contentTimestamp'],
       createdAt: json['createdAt'],
     );
   }
