@@ -7,10 +7,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.web3j.abi.EventEncoder;
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.request.EthFilter;
 import org.web3j.protocol.core.methods.response.EthLog;
 import org.web3j.protocol.core.methods.response.Log;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -76,6 +78,46 @@ public class BlockChainEventListener {
         } catch (IOException e) {
             // 네트워크 또는 이벤트 조회 중 예외 처리
             logger.error("모든 이벤트 조회 중 네트워크 오류 발생", e);
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * 특정 트랜잭션 해쉬로부터 RawAllTracksUpdated 이벤트 로그를 조회합니다.
+     *
+     * @param txHash 이벤트의 트랜잭션
+     * @return 트랜잭션에 해당하는 RawAllTracksUpdated 이벤트 응답 목록
+     */
+    public List<StreamingAggregationContract.RawAllTracksUpdatedEventResponse> getRawAllTracksUpdatedEventsByTxHash(
+            String txHash) {
+        logger.info("Transaction hash로부터 이벤트 조회를 시작합니다. TxHash: {}", txHash);
+        try {
+            // 트랜잭션 해시로 트랜잭션 영수증 조회
+            TransactionReceipt receipt = web3j.ethGetTransactionReceipt(txHash).send().getTransactionReceipt().orElse(null);
+            if (receipt == null) {
+                logger.info("트랜잭션 receipt를 찾을 수 없습니다. TxHash: {}", txHash);
+                return Collections.emptyList();
+            }
+    
+            logger.info("트랜잭션 receipt 조회 성공. 블록 번호: {}", receipt.getBlockNumber());
+    
+            // 이벤트 응답 리스트 생성
+            List<StreamingAggregationContract.RawAllTracksUpdatedEventResponse> eventResponses = new ArrayList<>();
+    
+            // 트랜잭션 로그 처리
+            List<Log> logs = receipt.getLogs();
+            for (Log log : logs) {
+                StreamingAggregationContract.RawAllTracksUpdatedEventResponse event =
+                        StreamingAggregationContract.getRawAllTracksUpdatedEventFromLog(log);
+    
+                eventResponses.add(event);
+            }
+    
+            logger.info("Transaction hash로부터 이벤트 조회를 성공적으로 완료했습니다. TxHash: {}", txHash);
+            return eventResponses;
+    
+        } catch (IOException e) {
+            logger.error("이벤트 조회 중 네트워크 오류 발생", e);
             return Collections.emptyList();
         }
     }
