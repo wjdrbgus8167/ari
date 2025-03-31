@@ -71,14 +71,19 @@ public class MemberController {
     public ApiUtils.ApiResponse<?> refreshAccessToken(
             HttpServletRequest request,
             HttpServletResponse response
-    )
-    {
+    ) {
         RefreshAccessTokenCommand command = RefreshAccessTokenCommand.builder()
                 .refreshToken(CookieUtils.getRefreshToken(request))
                 .build();
 
-        CookieUtils.addAccessTokenCookie(response, memberService.refreshAccessToken(command));
+        AuthTokens newTokens = memberService.refreshAccessToken(command);
+
+        // 새로운 토큰 쿠키에 담기
+        CookieUtils.addAccessTokenCookie(response, newTokens.accessToken());
+        CookieUtils.addRefreshTokenCookie(response, newTokens.refreshToken());
+
         return ApiUtils.success("토큰이 재발급 되었습니다.");
     }
+
 
 }
