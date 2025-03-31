@@ -49,4 +49,10 @@ public class NoticeRepositoryImpl implements NoticeRepository {
         return noticeJpaRepository.findByNoticeIdAndDeletedYnFalse(noticeId)
                 .map(NoticeJpaEntity::toDomain);
     }
+
+    @Override
+    public Optional<Notice> findByMemberId(Integer memberId) {
+        return noticeJpaRepository.findFirstByArtistIdAndDeletedYnFalseOrderByCreatedAtDesc(memberId)
+                .map(NoticeJpaEntity::toDomain);
+    }
 }

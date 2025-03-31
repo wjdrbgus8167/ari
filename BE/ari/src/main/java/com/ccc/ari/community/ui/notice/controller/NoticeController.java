@@ -57,4 +57,13 @@ public class NoticeController {
         NoticeResponseDto responseDto = noticeService.getNotice(noticeId);
         return ApiUtils.success(responseDto);
     }
+
+    /**
+     * 최근 공지사항 조회 API
+     */
+    @GetMapping("/{memberId}/notices/latest")
+    public ApiUtils.ApiResponse<NoticeResponseDto> getLatestNotice(@PathVariable Integer memberId) {
+        NoticeResponseDto response = noticeService.getLatestNotice(memberId);
+        return ApiUtils.success(response);
+    }
 }
