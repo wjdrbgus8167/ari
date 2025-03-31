@@ -20,4 +20,7 @@ public interface NoticeRepository {
 
     // 공지사항 상세 조회
     Optional<Notice> findById(Integer noticeId);
+
+    // 최근 공지사항 조회
+    Optional<Notice> findByMemberId(Integer memberId);
 }

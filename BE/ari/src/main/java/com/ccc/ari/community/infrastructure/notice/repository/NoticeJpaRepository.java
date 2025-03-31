@@ -17,4 +17,6 @@ public interface NoticeJpaRepository extends JpaRepository<NoticeJpaEntity, Inte
     int countByArtistIdAndDeletedYnFalse(Integer artistId);
 
     Optional<NoticeJpaEntity> findByNoticeIdAndDeletedYnFalse(Integer artistId);
+
+    Optional<NoticeJpaEntity> findFirstByArtistIdAndDeletedYnFalseOrderByCreatedAtDesc(Integer memberId);
 }
