@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
-import '../models/my_channel/channel_info.dart';
-import '../models/my_channel/artist_album.dart';
-import '../models/my_channel/artist_notice.dart';
-import '../models/my_channel/fantalk.dart';
-import '../models/my_channel/public_playlist.dart';
-import '../models/my_channel/neighbor.dart';
+import '../../models/my_channel/channel_info.dart';
+import '../../models/my_channel/artist_album.dart';
+import '../../models/my_channel/artist_notice.dart';
+import '../../models/my_channel/fantalk.dart';
+import '../../models/my_channel/public_playlist.dart';
+import '../../models/my_channel/neighbor.dart';
 
 abstract class MyChannelRemoteDataSource {
   /// 채널 정보 조회

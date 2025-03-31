@@ -1,10 +1,10 @@
-import '../../data/models/my_channel/channel_info.dart';
-import '../../data/models/my_channel/artist_album.dart';
-import '../../data/models/my_channel/artist_notice.dart';
-import '../../data/models/my_channel/fantalk.dart';
-import '../../data/models/my_channel/public_playlist.dart';
-import '../../data/models/my_channel/neighbor.dart';
-import '../../core/exceptions/failure.dart';
+import '../../../data/models/my_channel/channel_info.dart';
+import '../../../data/models/my_channel/artist_album.dart';
+import '../../../data/models/my_channel/artist_notice.dart';
+import '../../../data/models/my_channel/fantalk.dart';
+import '../../../data/models/my_channel/public_playlist.dart';
+import '../../../data/models/my_channel/neighbor.dart';
+import '../../../core/exceptions/failure.dart';
 import 'package:dartz/dartz.dart';
 
 /// 나의 채널 관련 리포지토리 인터페이스

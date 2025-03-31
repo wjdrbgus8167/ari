@@ -1,13 +1,13 @@
 import 'package:dartz/dartz.dart';
-import '../../core/exceptions/failure.dart';
-import '../../domain/repositories/my_channel_repository.dart';
-import '../datasources/my_channel_remote_datasource.dart';
-import '../models/my_channel/channel_info.dart';
-import '../models/my_channel/artist_album.dart';
-import '../models/my_channel/artist_notice.dart';
-import '../models/my_channel/fantalk.dart';
-import '../models/my_channel/public_playlist.dart';
-import '../models/my_channel/neighbor.dart';
+import '../../../core/exceptions/failure.dart';
+import '../../../domain/repositories/my_channel/my_channel_repository.dart';
+import '../../datasources/my_channel/my_channel_remote_datasource.dart';
+import '../../models/my_channel/channel_info.dart';
+import '../../models/my_channel/artist_album.dart';
+import '../../models/my_channel/artist_notice.dart';
+import '../../models/my_channel/fantalk.dart';
+import '../../models/my_channel/public_playlist.dart';
+import '../../models/my_channel/neighbor.dart';
 
 class MyChannelRepositoryImpl implements MyChannelRepository {
   final MyChannelRemoteDataSource remoteDataSource;

@@ -6,7 +6,7 @@ class AuthInterceptor extends Interceptor {
   final GetAuthStatusUseCase getAuthStatusUseCase;
   final GetTokensUseCase getTokensUseCase;
   final Dio dio;
-  
+
   AuthInterceptor({
     required this.refreshTokensUseCase,
     required this.getAuthStatusUseCase,
@@ -15,7 +15,10 @@ class AuthInterceptor extends Interceptor {
   });
 
   @override
-  Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     try {
       final tokens = await getTokensUseCase();
       final accessToken = tokens?.accessToken;
@@ -48,7 +51,7 @@ class AuthInterceptor extends Interceptor {
         // 쿠키 헤더 설정
         options.headers['Cookie'] = cookies.join('; ');
       }
-      
+
       print("최종 요청 헤더: ${options.headers}");
       print("요청 URL: ${options.path}");
       handler.next(options);
@@ -79,17 +82,48 @@ class AuthInterceptor extends Interceptor {
       );
         
       try {
-        final response = await dio.request(
-          err.requestOptions.path,
-          options: options,
-          data: err.requestOptions.data,
-          queryParameters: err.requestOptions.queryParameters,
-        );
-        return handler.resolve(response);
-      } on DioException catch (e) {
-        return handler.next(e);
+        // 토큰 갱신 시도
+        final newTokens = await refreshTokensUseCase();
+        if (newTokens != null) {
+          // 원래 요청 재시도
+          final response = await _retryRequest(
+            err.requestOptions,
+            newTokens.accessToken,
+          );
+          return handler.resolve(response);
+        }
+      } catch (e) {
+        print("토큰 갱신 실패: $e");
       }
     }
+
     return handler.next(err);
+  }
+
+  // 재시도 요청을 처리하는 메서드 분리
+  Future<Response<dynamic>> _retryRequest(
+    RequestOptions requestOptions,
+    String accessToken,
+  ) async {
+    return await dio.fetch(
+      requestOptions.copyWith(
+        headers: {
+          ...requestOptions.headers,
+          'Cookie': _updateCookies(
+            requestOptions.headers['Cookie'] ?? '',
+            accessToken,
+          ),
+        },
+      ),
+    );
+  }
+
+  // 쿠키 업데이트 로직 분리
+  String _updateCookies(String originalCookies, String accessToken) {
+    List<String> cookies =
+        originalCookies.isEmpty ? [] : originalCookies.split('; ');
+    cookies.removeWhere((cookie) => cookie.startsWith('access_token='));
+    cookies.add('access_token=$accessToken');
+    return cookies.join('; ');
   }
 }

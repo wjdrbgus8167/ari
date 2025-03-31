@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dio/dio.dart'; // MultipartFile 사용
 import '../../core/exceptions/failure.dart';
 import '../../data/models/my_channel/channel_info.dart';
 import '../../data/models/my_channel/artist_album.dart';
@@ -6,7 +7,8 @@ import '../../data/models/my_channel/artist_notice.dart';
 import '../../data/models/my_channel/fantalk.dart';
 import '../../data/models/my_channel/public_playlist.dart';
 import '../../data/models/my_channel/neighbor.dart';
-import '../../domain/usecases/my_channel_usecases.dart';
+import '../../domain/usecases/my_channel/my_channel_usecases.dart';
+import '../../domain/usecases/my_channel/artist_notice_usecases.dart' as notice;
 
 /// 나의 채널 데이터 로딩 상태
 enum MyChannelStatus { initial, loading, success, error }
@@ -20,6 +22,8 @@ class MyChannelState {
   final MyChannelStatus publicPlaylistsStatus;
   final MyChannelStatus followersStatus;
   final MyChannelStatus followingsStatus;
+  final MyChannelStatus artistNoticeDetailStatus;
+  final MyChannelStatus createNoticeStatus;
 
   final ChannelInfo? channelInfo;
   final List<ArtistAlbum>? artistAlbums;
@@ -28,6 +32,7 @@ class MyChannelState {
   final PublicPlaylistResponse? publicPlaylists;
   final FollowerResponse? followers;
   final FollowingResponse? followings;
+  final ArtistNotice? artistNoticeDetail;
 
   final Failure? error;
 
@@ -39,6 +44,8 @@ class MyChannelState {
     this.publicPlaylistsStatus = MyChannelStatus.initial,
     this.followersStatus = MyChannelStatus.initial,
     this.followingsStatus = MyChannelStatus.initial,
+    this.artistNoticeDetailStatus = MyChannelStatus.initial,
+    this.createNoticeStatus = MyChannelStatus.initial,
 
     this.channelInfo,
     this.artistAlbums,
@@ -47,6 +54,7 @@ class MyChannelState {
     this.publicPlaylists,
     this.followers,
     this.followings,
+    this.artistNoticeDetail,
 
     this.error,
   });
@@ -60,6 +68,8 @@ class MyChannelState {
     MyChannelStatus? publicPlaylistsStatus,
     MyChannelStatus? followersStatus,
     MyChannelStatus? followingsStatus,
+    MyChannelStatus? artistNoticeDetailStatus,
+    MyChannelStatus? createNoticeStatus,
 
     ChannelInfo? channelInfo,
     List<ArtistAlbum>? artistAlbums,
@@ -68,6 +78,7 @@ class MyChannelState {
     PublicPlaylistResponse? publicPlaylists,
     FollowerResponse? followers,
     FollowingResponse? followings,
+    ArtistNotice? artistNoticeDetail,
 
     Failure? error,
   }) {
@@ -80,6 +91,9 @@ class MyChannelState {
           publicPlaylistsStatus ?? this.publicPlaylistsStatus,
       followersStatus: followersStatus ?? this.followersStatus,
       followingsStatus: followingsStatus ?? this.followingsStatus,
+      artistNoticeDetailStatus:
+          artistNoticeDetailStatus ?? this.artistNoticeDetailStatus,
+      createNoticeStatus: createNoticeStatus ?? this.createNoticeStatus,
 
       channelInfo: channelInfo ?? this.channelInfo,
       artistAlbums: artistAlbums ?? this.artistAlbums,
@@ -88,6 +102,7 @@ class MyChannelState {
       publicPlaylists: publicPlaylists ?? this.publicPlaylists,
       followers: followers ?? this.followers,
       followings: followings ?? this.followings,
+      artistNoticeDetail: artistNoticeDetail ?? this.artistNoticeDetail,
 
       error: error ?? this.error,
     );
@@ -100,18 +115,20 @@ class MyChannelState {
   }
 }
 
-/// 나의 채널 뷰모델 제공자
+/// 나의 채널 뷰모델 provider 
 /// Riverpod로 나의 채널 상태 관리
 class MyChannelNotifier extends StateNotifier<MyChannelState> {
   final GetChannelInfoUseCase getChannelInfoUseCase;
   final FollowMemberUseCase followMemberUseCase;
   final UnfollowMemberUseCase unfollowMemberUseCase;
   final GetArtistAlbumsUseCase getArtistAlbumsUseCase;
-  final GetArtistNoticesUseCase getArtistNoticesUseCase;
+  final GetChannelRecentNoticesUseCase getArtistNoticesUseCase;
   final GetFanTalksUseCase getFanTalksUseCase;
   final GetPublicPlaylistsUseCase getPublicPlaylistsUseCase;
   final GetFollowersUseCase getFollowersUseCase;
   final GetFollowingsUseCase getFollowingsUseCase;
+  final notice.GetArtistNoticeDetailUseCase getArtistNoticeDetailUseCase;
+  final notice.CreateArtistNoticeUseCase createArtistNoticeUseCase;
 
   MyChannelNotifier({
     required this.getChannelInfoUseCase,
@@ -123,6 +140,8 @@ class MyChannelNotifier extends StateNotifier<MyChannelState> {
     required this.getPublicPlaylistsUseCase,
     required this.getFollowersUseCase,
     required this.getFollowingsUseCase,
+    required this.getArtistNoticeDetailUseCase,
+    required this.createArtistNoticeUseCase,
   }) : super(MyChannelState());
 
   /// 채널 정보 로딩
@@ -303,5 +322,48 @@ class MyChannelNotifier extends StateNotifier<MyChannelState> {
     await loadPublicPlaylists(memberId);
     await loadFollowers(memberId);
     await loadFollowings(memberId);
+  }
+
+  ///////// 공지사항 관련 /////////
+  /// 공지사항 상세 정보 조회
+  Future<void> loadArtistNoticeDetail(int noticeId) async {
+    state = state.copyWith(artistNoticeDetailStatus: MyChannelStatus.loading);
+
+    try {
+      final noticeDetail = await getArtistNoticeDetailUseCase(noticeId);
+      state = state.copyWith(
+        artistNoticeDetailStatus: MyChannelStatus.success,
+        artistNoticeDetail: noticeDetail,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        artistNoticeDetailStatus: MyChannelStatus.error,
+        error: e is Failure ? e : Failure(message: e.toString()),
+      );
+    }
+  }
+
+  /// 새 공지사항 작성
+  Future<bool> createArtistNotice(
+    String content, {
+    MultipartFile? noticeImage,
+  }) async {
+    state = state.copyWith(createNoticeStatus: MyChannelStatus.loading);
+
+    try {
+      await createArtistNoticeUseCase(content, noticeImage: noticeImage);
+      state = state.copyWith(createNoticeStatus: MyChannelStatus.success);
+
+      // 공지사항 생성 후 공지사항 목록 새로고침 (현재 로그인한 사용자의 ID 필요)
+      // 성공 후 로직 구현은 호출하는 쪽에서 처리
+
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        createNoticeStatus: MyChannelStatus.error,
+        error: e is Failure ? e : Failure(message: e.toString()),
+      );
+      return false;
+    }
   }
 }
