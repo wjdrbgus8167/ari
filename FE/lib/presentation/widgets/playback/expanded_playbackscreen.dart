@@ -76,7 +76,14 @@ class _ExpandedPlaybackScreenState
                     ),
                   ),
                   // 좌측 상단 PlaybackInfo
-                  const Positioned(top: 40, left: 16, child: PlaybackInfo()),
+                  Positioned(
+                    top: 40,
+                    left: 16,
+                    child: PlaybackInfo(
+                      trackTitle: playbackState.trackTitle,
+                      artist: playbackState.artist,
+                    ),
+                  ),
                   // 하단 재생 컨트롤 영역
                   Positioned(
                     left: 0,
