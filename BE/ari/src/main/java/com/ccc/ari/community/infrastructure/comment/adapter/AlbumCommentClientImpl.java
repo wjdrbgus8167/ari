@@ -1,6 +1,7 @@
-package com.ccc.ari.global.composition.infrastructure;
+package com.ccc.ari.community.infrastructure.comment.adapter;
 
 import com.ccc.ari.community.domain.comment.entity.AlbumComment;
+import com.ccc.ari.community.domain.comment.client.AlbumCommentClient;
 import com.ccc.ari.community.infrastructure.comment.entity.AlbumCommentJpaEntity;
 import com.ccc.ari.community.infrastructure.comment.repository.AlbumCommentJpaRepository;
 import com.ccc.ari.global.error.ApiException;
@@ -12,6 +13,10 @@ import java.util.List;
 
 /*
 TODO : 임시 AlbumCommentClient 구현체
+ */
+
+/**
+ * AlbumCommentClient 구현체
  */
 @Component
 @RequiredArgsConstructor

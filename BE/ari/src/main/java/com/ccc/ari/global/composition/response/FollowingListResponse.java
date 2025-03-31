@@ -1,6 +1,7 @@
 package com.ccc.ari.global.composition.response;
 
 import com.ccc.ari.community.domain.follow.client.FollowingDto;
+import com.ccc.ari.member.domain.member.MemberDto;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -17,16 +18,17 @@ public class FollowingListResponse {
     private List<FollowingMember> followings;
     private int followingCount;
 
-    public static FollowingListResponse from(List<FollowingDto> followings, int followingCount, Map<Integer, Integer> followerCountMap) {
+    public static FollowingListResponse from(List<FollowingDto> followings, int followingCount, Map<Integer, Integer> followerCountMap, Map<Integer, MemberDto> memberInfoMap) {
         List<FollowingMember> followingMembers = followings.stream()
                 .map(following -> {
                         Integer followingId = following.getFollowingId();
                         int followerCount = followerCountMap.getOrDefault(followingId, 0);
+                    MemberDto memberInfo = memberInfoMap.get(followingId);
 
                         return FollowingMember.builder()
                             .memberId(following.getFollowingId())
-                            .memberName("더미 사용자 이름")
-                            .profileImageUrl("더미 프로필 이미지 URL")
+                            .memberName(memberInfo.getNickname())
+                            .profileImageUrl(memberInfo.getProfileImageUrl())
                             .followerCount(followerCount)
                             .build();
                 })

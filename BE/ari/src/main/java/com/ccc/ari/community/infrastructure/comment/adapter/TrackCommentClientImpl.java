@@ -1,5 +1,6 @@
-package com.ccc.ari.global.composition.infrastructure;
+package com.ccc.ari.community.infrastructure.comment.adapter;
 
+import com.ccc.ari.community.domain.comment.client.TrackCommentClient;
 import com.ccc.ari.community.domain.comment.entity.TrackComment;
 import com.ccc.ari.community.infrastructure.comment.entity.TrackCommentJpaEntity;
 import com.ccc.ari.community.infrastructure.comment.repository.TrackCommentJpaRepository;

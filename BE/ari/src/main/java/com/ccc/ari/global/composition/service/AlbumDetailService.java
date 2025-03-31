@@ -1,7 +1,7 @@
 package com.ccc.ari.global.composition.service;
 
 import com.ccc.ari.community.domain.comment.entity.AlbumComment;
-import com.ccc.ari.global.composition.infrastructure.AlbumCommentClient;
+import com.ccc.ari.community.domain.comment.client.AlbumCommentClient;
 import com.ccc.ari.global.composition.response.AlbumDetailResponse;
 import com.ccc.ari.member.domain.client.MemberClient;
 import com.ccc.ari.music.domain.album.AlbumDto;
