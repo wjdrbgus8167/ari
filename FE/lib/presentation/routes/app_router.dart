@@ -9,7 +9,11 @@ import 'package:ari/presentation/pages/home/home_screen.dart';
 import 'package:ari/presentation/pages/mypage/mypage_screen.dart';
 import 'package:ari/presentation/pages/listeningqueue/listening_queue_screen.dart';
 import 'package:ari/presentation/pages/playlist/playlist_screen.dart';
+// 나의 채널
 import 'package:ari/presentation/pages/my_channel/my_channel_screen.dart';
+// 음원 업로드
+import 'package:ari/presentation/pages/mypage/album_upload_screen.dart';
+import 'package:ari/presentation/pages/mypage/track_upload_screen.dart';
 
 class AppRoutes {
   static const String home = '/';
@@ -23,6 +27,8 @@ class AppRoutes {
   static const String myChannel = '/mychannel';
   static const String subscription = '/subscription';
   static const String subscriptionPayment = '/subscription/payment';
+  static const String albumUpload = '/album-upload';
+  static const String trackUpload = '/album-upload/add-track';
 }
 
 class AppRouter {
@@ -43,8 +49,16 @@ class AppRouter {
 
       case AppRoutes.album:
         final albumId = args?['albumId'] as int? ?? 1;
-        return MaterialPageRoute(builder: (_) => AlbumDetailScreen(albumId: albumId));
+        return MaterialPageRoute(
+          builder: (_) => AlbumDetailScreen(albumId: albumId),
+        );
 
+      // 앨범 업로드
+      case AppRoutes.albumUpload:
+        return MaterialPageRoute(builder: (_) => const AlbumUploadScreen());
+      // 트랙 업로드 
+      case AppRoutes.trackUpload:
+        return MaterialPageRoute(builder: (_) => const TrackUploadScreen());
       case AppRoutes.listeningqueue:
         return MaterialPageRoute(builder: (_) => const ListeningQueueScreen());
 
@@ -69,7 +83,9 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const MySubscriptionScreen());
 
       case AppRoutes.subscriptionPayment:
-        return MaterialPageRoute(builder: (_) => const SubscriptionPaymentScreen());
+        return MaterialPageRoute(
+          builder: (_) => const SubscriptionPaymentScreen(),
+        );
 
       default:
         // 없는 경로는 홈으로 리다이렉트, 스낵바로 알림
