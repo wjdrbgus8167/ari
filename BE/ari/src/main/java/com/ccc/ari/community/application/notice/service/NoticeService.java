@@ -76,4 +76,14 @@ public class NoticeService {
         // 2. 도메인 엔티티를 DTO로 변환하여 반환합니다.
         return NoticeResponseDto.from(notice);
     }
+
+    @Transactional(readOnly = true)
+    public NoticeResponseDto getLatestNotice(Integer memberId) {
+        // 1. 최근 공지사항을 조회합니다.
+        Notice notice = noticeRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new EntityNotFoundException("등록된 공지사항이 없습니다."));
+
+        // 2. 도메인 엔티티를 DTO로 변환하여 반환합니다.
+        return NoticeResponseDto.from(notice);
+    }
 }

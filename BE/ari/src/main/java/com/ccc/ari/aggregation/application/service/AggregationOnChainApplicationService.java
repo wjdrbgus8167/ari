@@ -3,9 +3,11 @@ package com.ccc.ari.aggregation.application.service;
 import com.ccc.ari.aggregation.domain.AggregatedData;
 import com.ccc.ari.aggregation.domain.service.AggregationOnChainService;
 import com.ccc.ari.aggregation.event.AggregationCompletedEvent;
+import com.ccc.ari.aggregation.event.OnChainCommitCompletedEvent;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 public class AggregationOnChainApplicationService {
 
     private final AggregationOnChainService aggregationOnChainService;
+    private final ApplicationEventPublisher eventPublisher;
     private final Logger logger = LoggerFactory.getLogger(AggregationOnChainApplicationService.class);
 
     /**
@@ -45,6 +48,10 @@ public class AggregationOnChainApplicationService {
         // 도메인 서비스 aggregationOnChainService를 사용해 IPFS 저장 및 온체인 커밋
         String txHash = aggregationOnChainService.publishAggregatedData(aggregatedData);
         logger.info("집계된 데이터가 블록체인에 게시되었습니다, 트랜잭션 해시: {}", txHash);
+
+        // OnChainCommitCompletedEvent 발행
+        eventPublisher.publishEvent(new OnChainCommitCompletedEvent(txHash));
+        logger.info("전체 커밋 완료 이벤트가 성공적으로 발행되었습니다.");
     }
 
     // 장르별 집계 이벤트 처리

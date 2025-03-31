@@ -89,20 +89,39 @@ public class MemberService {
     /**
      * access token 재발급
      */
-    public String refreshAccessToken(RefreshAccessTokenCommand command) {
-        String refreshToken = command.getRefreshToken().orElseThrow(
-                (() -> new ApiException(ErrorCode.MISSING_REFRESH_TOKEN))
-        );
+    @Transactional
+    public AuthTokens refreshAccessToken(RefreshAccessTokenCommand command) {
+        String oldRefreshToken = command.getRefreshToken()
+                .orElseThrow(() -> new ApiException(ErrorCode.MISSING_REFRESH_TOKEN));
 
-        String email = jwtTokenProvider.getEmail(refreshToken);
-        int userId = jwtTokenProvider.getUserId(refreshToken);
-        RefreshTokenEntity refreshTokenEntity = refreshTokenRepository.findRefreshTokenEntityByEmail(email);
+        String email = jwtTokenProvider.getEmail(oldRefreshToken);
+        int userId = jwtTokenProvider.getUserId(oldRefreshToken);
 
-        if(!refreshTokenEntity.getRefreshToken().equals(refreshToken) || !refreshTokenEntity.getUserId().equals(userId)){
+        RefreshTokenEntity refreshTokenEntity = refreshTokenRepository.findByEmail(email)
+                .orElseThrow(() -> new ApiException(ErrorCode.INVALID_TOKEN));
+
+        if (!refreshTokenEntity.getRefreshToken().equals(oldRefreshToken)
+                || !refreshTokenEntity.getUserId().equals(userId)) {
             throw new ApiException(ErrorCode.INVALID_TOKEN);
         }
 
-        return jwtTokenProvider.createAccessToken(userId, email);
+        //새 토큰들 발급
+        String newAccessToken = jwtTokenProvider.createAccessToken(userId, email);
+        String newRefreshToken = jwtTokenProvider.createRefreshToken(userId, email);
+
+        //Redis 갱신
+        saveRefreshToken(RefreshToken.builder()
+                .email(email)
+                .userId(userId)
+                .refreshToken(newRefreshToken)
+                .expiration(jwtTokenProvider.getRefreshExpiration())
+                .build());
+
+        return AuthTokens.builder()
+                .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken)
+                .build();
     }
+
 
 }
