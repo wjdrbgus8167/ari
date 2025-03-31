@@ -19,7 +19,6 @@ public enum ErrorCode {
     INVALID_TOKEN_SIGNATURE(HttpStatus.UNAUTHORIZED, "A007", "잘못된 JWT 서명입니다."),
     UNSUPPORTED_TOKEN(HttpStatus.BAD_REQUEST, "A008", "지원되지 않는 JWT 토큰입니다."),
     INVALID_TOKEN_FORMAT(HttpStatus.BAD_REQUEST, "A009", "JWT 토큰 형식이 잘못되었습니다."),
-    INVALID_INPUT_PARAMETER(HttpStatus.BAD_REQUEST, "V001", "입력값이 유효하지 않습니다."),
 
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND,"M001", "해당 이메일로 등록된 사용자를 찾을 수 없습니다."),
     EMAIL_ALREADY_IN_USE(HttpStatus.CONFLICT, "M002", "이미 사용 중인 이메일입니다."),
@@ -46,7 +45,18 @@ public enum ErrorCode {
 
     //댓글 관련
     ALBUM_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND,"C001","앨범 댓글을 조회하는데 실패했습니다."),
-    TRACK_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND,"C002","트랙 댓글을 찾을 수 없습니다.");
+    TRACK_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND,"C002","트랙 댓글을 찾을 수 없습니다."),
+
+    INVALID_INPUT_PARAMETER(HttpStatus.BAD_REQUEST, "V001", "입력값이 유효하지 않습니다."),
+    PASSWORD_REQUIRED(HttpStatus.BAD_REQUEST, "V002", "비밀번호는 필수입니다."),
+    PASSWORD_TOO_SHORT(HttpStatus.BAD_REQUEST, "V003", "비밀번호는 최소 8자 이상이어야 합니다."),
+    PASSWORD_TOO_LONG(HttpStatus.BAD_REQUEST, "V004", "비밀번호는 72자 이하여야 합니다."),
+    EMAIL_REQUIRED(HttpStatus.BAD_REQUEST, "V005", "이메일은 필수입니다."),
+    INVALID_EMAIL_FORMAT(HttpStatus.BAD_REQUEST, "V006", "유효하지 않은 이메일 형식입니다."),
+    EMAIL_TOO_LONG(HttpStatus.BAD_REQUEST, "V007", "이메일은 30자 이하여야 합니다."),
+    MEMBER_NICKNAME_REQUIRED(HttpStatus.BAD_REQUEST, "V008", "닉네임은 필수입니다."),
+    MEMBER_NICKNAME_TOO_LONG(HttpStatus.BAD_REQUEST, "V009", "닉네임은 100자 이하여야 합니다.");
+
     private final HttpStatus status;
     private final String code;
     private final String message;
