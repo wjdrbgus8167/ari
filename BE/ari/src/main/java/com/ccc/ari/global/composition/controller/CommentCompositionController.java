@@ -1,8 +1,7 @@
 package com.ccc.ari.global.composition.controller;
 
-import com.ccc.ari.community.application.notice.service.NoticeCommentService;
-import com.ccc.ari.community.domain.notice.client.NoticeCommentClient;
 import com.ccc.ari.global.composition.response.NoticeCommentListResponse;
+import com.ccc.ari.global.composition.response.TrackCommentListResponse;
 import com.ccc.ari.global.composition.service.CommentListService;
 import com.ccc.ari.global.util.ApiUtils;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +19,14 @@ public class CommentCompositionController {
     public ApiUtils.ApiResponse<NoticeCommentListResponse> getNoticeCommentList(@PathVariable Integer noticeId) {
 
         NoticeCommentListResponse response = commentListService.getNoticeCommentList(noticeId);
+
+        return ApiUtils.success(response);
+    }
+
+    @GetMapping("/api/v1/albums/tracks/{trackId}/comments")
+    public ApiUtils.ApiResponse<TrackCommentListResponse> getTrackCommentsList(@PathVariable Integer trackId) {
+
+        TrackCommentListResponse response = commentListService.getTrackCommentList(trackId);
 
         return ApiUtils.success(response);
     }

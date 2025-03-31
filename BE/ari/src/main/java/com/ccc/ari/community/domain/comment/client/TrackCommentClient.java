@@ -10,4 +10,6 @@ import java.util.List;
 public interface TrackCommentClient {
 
     List<TrackComment> getTrackCommentsByTrackId(Integer trackId);
+
+    int countCommentsByTrackId(Integer trackId);
 }

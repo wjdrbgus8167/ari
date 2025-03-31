@@ -11,10 +11,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/*
-    트랙 댓글 구현체
-    TODO : 추후에 수정 or 변경 예정. 아직 임시
- */
 @Component
 @RequiredArgsConstructor
 public class TrackCommentClientImpl implements TrackCommentClient {
@@ -23,7 +19,7 @@ public class TrackCommentClientImpl implements TrackCommentClient {
 
     @Override
     public List<TrackComment> getTrackCommentsByTrackId(Integer trackId) {
-        List<TrackCommentJpaEntity> entities = trackCommentJpaRepository.findAllByTrackId(trackId)
+        List<TrackCommentJpaEntity> entities = trackCommentJpaRepository.findAllByTrackIdAndDeletedYnFalse(trackId)
                 .orElseThrow(()-> new ApiException(ErrorCode.TRACK_COMMENT_NOT_FOUND));
 
         return entities.stream()
@@ -31,4 +27,8 @@ public class TrackCommentClientImpl implements TrackCommentClient {
                 .toList();
     }
 
+    @Override
+    public int countCommentsByTrackId(Integer trackId) {
+        return trackCommentJpaRepository.countAllByTrackIdAndDeletedYnFalse(trackId);
+    }
 }

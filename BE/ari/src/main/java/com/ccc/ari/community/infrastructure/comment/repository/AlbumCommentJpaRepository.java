@@ -9,5 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface AlbumCommentJpaRepository extends JpaRepository<AlbumCommentJpaEntity, Integer> {
-    Optional<List<AlbumCommentJpaEntity>> findAllByAlbumId(Integer albumId);
+    Optional<List<AlbumCommentJpaEntity>> findAllByAlbumIdAndDeletedYnFalse(Integer albumId);
 }
