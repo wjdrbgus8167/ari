@@ -1,12 +1,16 @@
 package com.ccc.ari.global.composition.response;
 
 import com.ccc.ari.community.domain.fantalk.client.FantalkDto;
+import com.ccc.ari.member.domain.member.MemberDto;
+import com.ccc.ari.music.domain.album.AlbumDto;
+import com.ccc.ari.music.domain.track.TrackDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 팬톡 목록 조회 응답 DTO
@@ -18,36 +22,50 @@ public class FantalkListResponse {
     private List<FantalkItem> fantalks;
     private int fantalkCount;
 
-    public static FantalkListResponse from(List<FantalkDto> fantalks) {
+    public static FantalkListResponse from(List<FantalkDto> fantalks, Map<Integer, MemberDto> memberMap, Map<Integer, TrackDto> trackMap, Map<Integer, AlbumDto> albumMap) {
         List<FantalkItem> fantalkItems = fantalks.stream()
-                .map(fantalk -> FantalkItem.builder()
-                        .fantalkId(fantalk.getFantalkId())
-                        .memberId(fantalk.getMemberId())
-                        .memberName("더미 작성자 이름")
-                        .profileImageUrl("더미 작성자 프로필")
-                        .content(fantalk.getContent())
-                        .fantalkImageUrl(fantalk.getFantalkImageUrl())
-                        .track(fantalk.getTrackId() != null ? placeholderTrack(fantalk.getTrackId()) : null)
-                        .createdAt(fantalk.getCreatedAt())
-                        .build())
+                .map(fantalk -> {
+
+                    // 회원 정보 조회
+                    MemberDto member = memberMap.get(fantalk.getMemberId());
+                    String memberName = member.getNickname();
+                    String profileImageUrl = member.getProfileImageUrl();
+
+                    // 트랙 정보 조회
+                    TrackItem trackItem = null;
+                    if (fantalk.getTrackId() != null) {
+                        TrackDto track = trackMap.get(fantalk.getTrackId());
+                        if (track != null) {
+                            // 앨범 정보 조회
+                            AlbumDto album = albumMap.get(track.getAlbumId());
+                            String artistName = album.getArtist();
+                            String coverImageUrl = album.getCoverImageUrl();
+
+                            trackItem = TrackItem.builder()
+                                    .trackId(track.getTrackId())
+                                    .trackName(track.getTitle())
+                                    .artist(artistName)
+                                    .coverImageUrl(coverImageUrl)
+                                    .build();
+                        }
+                    }
+
+                    return FantalkItem.builder()
+                            .fantalkId(fantalk.getFantalkId())
+                            .memberId(fantalk.getMemberId())
+                            .memberName(memberName)
+                            .profileImageUrl(profileImageUrl)
+                            .content(fantalk.getContent())
+                            .fantalkImageUrl(fantalk.getFantalkImageUrl())
+                            .track(trackItem)
+                            .createdAt(fantalk.getCreatedAt())
+                            .build();
+                })
                 .toList();
 
         return FantalkListResponse.builder()
                 .fantalks(fantalkItems)
                 .fantalkCount(fantalks.size())
-                .build();
-    }
-
-    /**
-     * 임시 트랙 정보 생성
-     * TODO: 트랙 Client 구현 시 수정하겠습니다.
-     */
-    private static TrackItem placeholderTrack(Integer trackId) {
-        return TrackItem.builder()
-                .trackId(trackId)
-                .trackName("더미 트랙")
-                .artist("더미 아티스트 이름")
-                .coverImageUrl(null)
                 .build();
     }
 
