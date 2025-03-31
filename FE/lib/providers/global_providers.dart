@@ -73,7 +73,7 @@ final playlistProvider = StateProvider<List<Track>>((ref) => []);
 
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(
-    BaseOptions(baseUrl: baseUrl, contentType: 'application/json'),
+    BaseOptions(baseUrl: baseUrl),
   );
 
   dio.interceptors.add(

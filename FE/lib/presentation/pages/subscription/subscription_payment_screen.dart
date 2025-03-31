@@ -1,21 +1,21 @@
 // lib/pages/wallet/page_wallet.dart
 import 'package:ari/core/services/wallet_service.dart';
 import 'package:ari/core/utils/app_lifecycle_observer.dart';
-import 'package:ari/presentation/widgets/wallet/balance_dialog.dart';
-import 'package:ari/presentation/widgets/wallet/transaction_dialogs.dart';
-import 'package:ari/presentation/widgets/wallet/transfer_modal.dart';
+import 'package:ari/presentation/widgets/subscription/payment/balance_dialog.dart';
+import 'package:ari/presentation/widgets/subscription/payment/transaction_dialogs.dart';
+import 'package:ari/presentation/widgets/subscription/payment/transfer_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:reown_appkit/reown_appkit.dart';
 import 'dart:developer' as dev;
 
-class PageWallet extends StatefulWidget {
-  const PageWallet({super.key});
+class SubscriptionPaymentScreen extends StatefulWidget {
+  const SubscriptionPaymentScreen({super.key});
   
   @override
-  State<PageWallet> createState() => _PageWalletState();
+  State<SubscriptionPaymentScreen> createState() => _SubscriptionPaymentScreen();
 }
  
-class _PageWalletState extends State<PageWallet> {
+class _SubscriptionPaymentScreen extends State<SubscriptionPaymentScreen> {
   // 지갑 서비스
   late WalletService _walletService;
   
@@ -41,14 +41,14 @@ class _PageWalletState extends State<PageWallet> {
     final WidgetsBinding binding = WidgetsFlutterBinding.ensureInitialized();
     _lifecycleObserver = AppLifecycleObserver(
       onResume: () {
-        dev.log('[PageWallet] 앱 상태: resumed - 상태 업데이트');
+        dev.log('[SubscriptionPayment] 앱 상태: resumed - 상태 업데이트');
         setState(() {}); // UI 업데이트
       },
       onInactive: () {
-        dev.log('[PageWallet] 앱 상태: inactive');
+        dev.log('[SubscriptionPayment] 앱 상태: inactive');
       },
       onPaused: () {
-        dev.log('[PageWallet] 앱 상태: paused');
+        dev.log('[SubscriptionPayment] 앱 상태: paused');
       },
     );
     binding.addObserver(_lifecycleObserver);
@@ -56,7 +56,7 @@ class _PageWalletState extends State<PageWallet> {
 
   // 트랜잭션 상태 변경 이벤트 핸들러
   void _handleTransactionStateChanged(TransactionState state) {
-    dev.log('[PageWallet] 트랜잭션 상태 변경: $state');
+    dev.log('[SubscriptionPayment] 트랜잭션 상태 변경: $state');
     setState(() {}); // UI 갱신
   }
 
