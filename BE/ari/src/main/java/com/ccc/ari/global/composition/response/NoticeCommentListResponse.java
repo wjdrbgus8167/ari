@@ -1,12 +1,14 @@
 package com.ccc.ari.global.composition.response;
 
 import com.ccc.ari.community.domain.notice.client.NoticeCommentDto;
+import com.ccc.ari.member.domain.member.MemberDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 공지사항 댓글 목록 조회 응답 DTO
@@ -18,16 +20,21 @@ public class NoticeCommentListResponse {
     private List<CommentItem> comments;
     private int commentCount;
 
-    public static NoticeCommentListResponse from(List<NoticeCommentDto> comments) {
+    public static NoticeCommentListResponse from(List<NoticeCommentDto> comments, Map<Integer, MemberDto> memberInfoMap) {
         List<CommentItem> commentItems = comments.stream()
-                .map(comment -> CommentItem.builder()
-                        .commentId(comment.getNoticeCommentId())
-                        .memberId(comment.getMemberId())
-                        .memberName("더미 작성자 이름")
-                        .profileImageUrl("더미 프로필 이미지")
-                        .content(comment.getContent())
-                        .createdAt(comment.getCreatedAt())
-                        .build())
+                .map(comment -> {
+                    Integer memberId = comment.getMemberId();
+                    MemberDto memberInfo = memberInfoMap.get(memberId);
+
+                    return CommentItem.builder()
+                            .commentId(comment.getNoticeCommentId())
+                            .memberId(comment.getMemberId())
+                            .memberName(memberInfo.getNickname())
+                            .profileImageUrl(memberInfo.getProfileImageUrl())
+                            .content(comment.getContent())
+                            .createdAt(comment.getCreatedAt())
+                            .build();
+                })
                 .toList();
 
         return NoticeCommentListResponse.builder()
