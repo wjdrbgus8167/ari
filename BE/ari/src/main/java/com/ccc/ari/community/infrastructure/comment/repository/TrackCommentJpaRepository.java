@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface TrackCommentJpaRepository extends JpaRepository<TrackCommentJpaEntity, Integer> {
-    Optional<List<TrackCommentJpaEntity>> findAllByTrackIdAndDeletedYnFalse(Integer trackId);
+    Optional<List<TrackCommentJpaEntity>> findAllByTrackIdAndDeletedYnFalseOrderByCreatedAtDesc(Integer trackId);
 
     int countAllByTrackIdAndDeletedYnFalse(Integer trackId);
 }

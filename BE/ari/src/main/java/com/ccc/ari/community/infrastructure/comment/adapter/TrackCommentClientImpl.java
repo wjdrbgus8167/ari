@@ -19,7 +19,7 @@ public class TrackCommentClientImpl implements TrackCommentClient {
 
     @Override
     public List<TrackComment> getTrackCommentsByTrackId(Integer trackId) {
-        List<TrackCommentJpaEntity> entities = trackCommentJpaRepository.findAllByTrackIdAndDeletedYnFalse(trackId)
+        List<TrackCommentJpaEntity> entities = trackCommentJpaRepository.findAllByTrackIdAndDeletedYnFalseOrderByCreatedAtDesc(trackId)
                 .orElseThrow(()-> new ApiException(ErrorCode.TRACK_COMMENT_NOT_FOUND));
 
         return entities.stream()
