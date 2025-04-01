@@ -3,12 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/upload_album_request.dart';
 import '../../domain/usecases/upload_album_usecase.dart';
 
-enum AlbumUploadStatus {
-  initial,
-  loading,
-  success,
-  error,
-}
+enum AlbumUploadStatus { initial, loading, success, error }
 
 // 앨범 업로드 화면 상태 클래스(불변)
 class AlbumUploadState {
@@ -50,11 +45,11 @@ class AlbumUploadState {
     );
   }
 
-  bool get isFormValid => 
-    albumTitle.isNotEmpty && 
-    selectedGenre.isNotEmpty && 
-    coverImageFile != null && 
-    tracks.isNotEmpty;
+  bool get isFormValid =>
+      albumTitle.isNotEmpty &&
+      selectedGenre.isNotEmpty &&
+      coverImageFile != null &&
+      tracks.isNotEmpty;
 }
 
 // Riverpod StateNotifier 상속받아 앨범 업로드 구현
@@ -62,8 +57,8 @@ class AlbumUploadViewModel extends StateNotifier<AlbumUploadState> {
   final UploadAlbumUseCase _uploadAlbumUseCase;
 
   AlbumUploadViewModel({required UploadAlbumUseCase uploadAlbumUseCase})
-      : _uploadAlbumUseCase = uploadAlbumUseCase,
-        super(AlbumUploadState());
+    : _uploadAlbumUseCase = uploadAlbumUseCase,
+      super(AlbumUploadState());
 
   void setAlbumTitle(String title) {
     state = state.copyWith(albumTitle: title);
@@ -119,7 +114,7 @@ class AlbumUploadViewModel extends StateNotifier<AlbumUploadState> {
       for (int i = 0; i < state.tracks.length; i++) {
         final trackNumber = i + 1;
         final track = state.tracks[i];
-        
+
         trackRequests.add(
           TrackUploadRequest(
             trackNumber: trackNumber,
@@ -136,7 +131,7 @@ class AlbumUploadViewModel extends StateNotifier<AlbumUploadState> {
       final albumRequest = UploadAlbumRequest(
         genreName: state.selectedGenre,
         albumTitle: state.albumTitle,
-        discription: state.albumDescription,
+        description: state.albumDescription,
         coverImage: 'cover.jpg',
         tracks: trackRequests,
       );
@@ -156,9 +151,7 @@ class AlbumUploadViewModel extends StateNotifier<AlbumUploadState> {
           );
         },
         (success) {
-          state = state.copyWith(
-            status: AlbumUploadStatus.success,
-          );
+          state = state.copyWith(status: AlbumUploadStatus.success);
           _resetForm();
         },
       );
