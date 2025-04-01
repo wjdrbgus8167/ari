@@ -9,6 +9,9 @@ import 'playback_info.dart';
 import 'playback_controls.dart';
 import 'package:ari/presentation/widgets/lyrics/lyrics_view.dart';
 import 'package:ari/providers/playback/playback_progress_provider.dart';
+import 'package:ari/presentation/widgets/common/like_btn.dart';
+import 'package:ari/data/datasources/like_remote_datasource.dart';
+import 'package:ari/providers/global_providers.dart' as gb;
 
 class ExpandedPlaybackScreen extends ConsumerStatefulWidget {
   const ExpandedPlaybackScreen({Key? key}) : super(key: key);
@@ -59,23 +62,34 @@ class _ExpandedPlaybackScreenState
             builder: (context, scrollController) {
               return Stack(
                 children: [
-                  // 배경: API의 coverImageUrl 사용 (없으면 기본 asset)
                   Positioned.fill(
                     child: Image(image: coverImage, fit: BoxFit.cover),
                   ),
-                  // 우측 상단 즐겨찾기 버튼
+                  // 우측 상단 좋아요 버튼
                   Positioned(
                     top: 40,
                     right: 16,
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.favorite_border,
-                        color: Colors.white,
-                        size: 28,
-                      ),
-                      onPressed: () {},
+                    child: LikeButton(
+                      fetchLikeStatus: () {
+                        final likeDatasource = LikeRemoteDatasource(
+                          dio: ref.read(gb.dioProvider),
+                        );
+                        return likeDatasource.fetchLikeStatus(
+                          playbackState.currentTrackId ?? 0,
+                        );
+                      },
+                      toggleLike: () {
+                        final likeDatasource = LikeRemoteDatasource(
+                          dio: ref.read(gb.dioProvider),
+                        );
+                        return likeDatasource.toggleLikeStatus(
+                          albumId: playbackState.albumId ?? 0,
+                          trackId: playbackState.currentTrackId ?? 0,
+                        );
+                      },
                     ),
                   ),
+
                   // 좌측 상단 PlaybackInfo
                   Positioned(
                     top: 40,
