@@ -111,7 +111,11 @@ class PlaylistRemoteDataSourceImpl implements IPlaylistRemoteDataSource {
     await _request<void>(
       url: '/api/v1/playlists/$playlistId/tracks',
       method: 'POST',
-      data: {"trackId": trackId},
+      data: {
+        "tracks": [
+          {"trackId": trackId},
+        ],
+      },
       fromJson: (_) {},
     );
   }

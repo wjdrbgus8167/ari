@@ -79,26 +79,26 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                           );
                         },
                         onCreatePlaylist: () {
-                          // 현재 플레이리스트 시트를 닫은 후 새 모달 창 표시
-                          Navigator.pop(context);
-                          Future.delayed(const Duration(milliseconds: 300), () {
-                            showModalBottomSheet(
-                              context: context,
-                              isScrollControlled: true,
-                              backgroundColor: Colors.transparent,
-                              builder:
-                                  (context) => CreatePlaylistModal(
-                                    onCreate: (title, publicYn) {
-                                      // 새 플레이리스트 생성 및 선택된 트랙 추가 메서드 (viewModel에 구현)
-                                      viewModel.createPlaylistAndAddTracks(
-                                        title,
-                                        publicYn,
-                                        state.selectedTracks.toList(),
-                                      );
-                                    },
-                                  ),
-                            );
-                          });
+                          Navigator.pop(context); // 기존 BottomSheet 닫기
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(20),
+                              ),
+                            ),
+                            builder: (context) {
+                              return CreatePlaylistModal(
+                                onCreate: (title, publicYn) {
+                                  // 새 플레이리스트 생성 로직 (API 호출 등)
+                                  debugPrint(
+                                    "플레이리스트 생성: $title / 공개여부: $publicYn",
+                                  );
+                                },
+                              );
+                            },
+                          );
                         },
                       ),
                 );

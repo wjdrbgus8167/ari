@@ -1,8 +1,8 @@
 class PlaylistCreateRequest {
   final String title;
-  final bool isPublic;
+  // publicYn은 제거하거나 필요 시 별도의 필드로 추가
 
-  PlaylistCreateRequest({required this.title, required this.isPublic});
+  PlaylistCreateRequest({required this.title});
 
-  Map<String, dynamic> toJson() => {'title': title, 'public_yn': isPublic};
+  Map<String, dynamic> toJson() => {'playlistTitle': title};
 }
