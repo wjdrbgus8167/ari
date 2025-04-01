@@ -1,6 +1,7 @@
 package com.ccc.ari.community.application.like.service;
 
 import com.ccc.ari.community.application.like.command.LikeCommand;
+import com.ccc.ari.community.application.like.command.LikeStatusCommand;
 import com.ccc.ari.community.application.like.repository.LikeRepository;
 import com.ccc.ari.community.domain.like.LikeType;
 import com.ccc.ari.community.domain.like.entity.Like;
@@ -64,5 +65,10 @@ public class LikeService {
     @Transactional
     public void updateTrackLike(LikeCommand command) {
         updateLike(command, LikeType.TRACK);
+    }
+
+    @Transactional(readOnly = true)
+    public Boolean hasLiked(LikeStatusCommand command, LikeType type) {
+        return likeRepository.existsActiveByTargetAndMember(command.getTargetId(), command.getMemberId(), type);
     }
 }

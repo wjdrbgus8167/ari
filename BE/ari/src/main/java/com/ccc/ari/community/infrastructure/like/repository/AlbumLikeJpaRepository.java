@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface AlbumLikeJpaRepository extends JpaRepository<AlbumLikeJpaEntity, Integer> {
     Optional<AlbumLikeJpaEntity> findByAlbumIdAndMemberId(Integer albumId, Integer memberId);
+
+    Boolean existsByAlbumIdAndMemberIdAndActivateYnTrue(Integer albumId, Integer memberId);
 }
