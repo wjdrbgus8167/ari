@@ -194,10 +194,24 @@ final userEmailProvider = Provider<String?>((ref) {
 
 /// 사용자 로그인 상태 확인
 final isUserLoggedInProvider = Provider<bool>((ref) {
+  // authStateProvider의 상태를 우선 확인
+  final authState = ref.watch(authStateProvider);
+  final isAuthenticatedFromAuth = authState.when(
+    data: (isAuth) => isAuth,
+    loading: () => false,
+    error: (_, __) => false,
+  );
+
+  // 인증 상태가 false면 즉시 false 반환
+  if (!isAuthenticatedFromAuth) {
+    return false;
+  }
+
+  // 인증 상태가 true인 경우에만 사용자 정보 확인
   final userState = ref.watch(userProvider);
   return userState.when(
     data: (user) => user != null,
-    loading: () => false,
+    loading: () => true, // 인증 상태가 true라면 로딩 중에도 true로 간주
     error: (_, __) => false,
   );
 });
