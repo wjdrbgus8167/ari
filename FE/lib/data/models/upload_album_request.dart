@@ -1,14 +1,14 @@
 class UploadAlbumRequest {
   final String genreName;
   final String albumTitle;
-  final String discription;
+  final String description;
   final String coverImage;
   final List<TrackUploadRequest> tracks;
 
   UploadAlbumRequest({
     required this.genreName,
     required this.albumTitle,
-    required this.discription,
+    required this.description,
     required this.coverImage,
     required this.tracks,
   });
@@ -17,9 +17,9 @@ class UploadAlbumRequest {
     return {
       'genreName': genreName,
       'albumTitle': albumTitle,
-      'discription': discription,
+      'description': description,
       'coverImage': coverImage,
-      'Tracks': tracks.map((track) => track.toJson()).toList(),
+      'tracks': tracks.map((track) => track.toJson()).toList(),
     };
   }
 }

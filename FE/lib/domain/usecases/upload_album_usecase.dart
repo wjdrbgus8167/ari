@@ -13,11 +13,13 @@ class UploadAlbumUseCase {
     required UploadAlbumRequest albumRequest,
     required File coverImageFile,
     required Map<String, File> trackFiles,
+    Function(double progress)? onProgress, // 콜백 파라미터
   }) async {
     return await repository.uploadAlbum(
       albumRequest: albumRequest,
       coverImageFile: coverImageFile,
       trackFiles: trackFiles,
+      onProgress: onProgress, // 콜백 전달
     );
   }
 }

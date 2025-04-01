@@ -22,23 +22,26 @@ class AuthInterceptor extends Interceptor {
     try {
       final tokens = await getTokensUseCase();
       final accessToken = tokens?.accessToken;
-      
+
       if (accessToken != null) {
         // Authorization 헤더 대신 쿠키로 토큰 추가
+        print('요청 전 헤더: ${options.headers}');
+
+        // 쿠키 설정 로직
         String cookieHeader = options.headers['Cookie'] ?? '';
         List<String> cookies = [];
-        
+
         // 기존 쿠키가 있는 경우 분리
         if (cookieHeader.isNotEmpty) {
           cookies = cookieHeader.split('; ');
         }
-        
+
         // 기존 access_token 쿠키가 있으면 제거 (중복 방지)
         cookies.removeWhere((cookie) => cookie.startsWith('access_token='));
-        
+
         // access_token 쿠키로 추가
         cookies.add('access_token=$accessToken');
-        
+
         // refresh_token이 있으면 추가
         final refreshToken = tokens?.refreshToken;
         if (refreshToken != null) {
@@ -47,7 +50,7 @@ class AuthInterceptor extends Interceptor {
           // refresh_token 쿠키로 추가
           cookies.add('refresh_token=$refreshToken');
         }
-        
+
         // 쿠키 헤더 설정
         options.headers['Cookie'] = cookies.join('; ');
       }
@@ -63,12 +66,6 @@ class AuthInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     // 401 에러 처리 (인증 실패)
     if (err.response?.statusCode == 401) {
-      return handler.next(err);
-    }
-      
-    // 토큰 갱신 시도
-    final newTokens = await refreshTokensUseCase();
-    if (newTokens != null) {
       try {
         // 원래 요청 재시도
         final response = await _retryRequest(

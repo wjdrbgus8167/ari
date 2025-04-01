@@ -15,12 +15,14 @@ class AlbumUploadRepositoryImpl implements AlbumUploadRepository {
     required UploadAlbumRequest albumRequest,
     required File coverImageFile,
     required Map<String, File> trackFiles,
+    Function(double progress)? onProgress, // 콜백 파라미터
   }) async {
     try {
       final result = await dataSource.uploadAlbum(
         albumRequest: albumRequest,
         coverImageFile: coverImageFile,
         trackFiles: trackFiles,
+        onProgress: onProgress, // 콜백 전달
       );
       return Right(result);
     } on Failure catch (failure) {

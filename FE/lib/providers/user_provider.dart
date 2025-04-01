@@ -1,3 +1,10 @@
+// 로그인한 사용자의 상세 정보 관리
+// UserNotifier: JWT 토큰에서 사용자 정보(IX, 이메일 등) 추출 및 관리
+// 로컬 스토리지에 사용자 정보 저장, 로드, 삭제
+// 사용자 ID, 이메일 등 편리한 접근 제공
+// auth_providers.dart가 변경되면(로그인/로그아웃) user_provider가 반응
+// 인증 상태가 변경될 때 사용자 정보도 자동으로 업데이트/삭제
+
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -187,10 +194,24 @@ final userEmailProvider = Provider<String?>((ref) {
 
 /// 사용자 로그인 상태 확인
 final isUserLoggedInProvider = Provider<bool>((ref) {
+  // authStateProvider의 상태를 우선 확인
+  final authState = ref.watch(authStateProvider);
+  final isAuthenticatedFromAuth = authState.when(
+    data: (isAuth) => isAuth,
+    loading: () => false,
+    error: (_, __) => false,
+  );
+
+  // 인증 상태가 false면 즉시 false 반환
+  if (!isAuthenticatedFromAuth) {
+    return false;
+  }
+
+  // 인증 상태가 true인 경우에만 사용자 정보 확인
   final userState = ref.watch(userProvider);
   return userState.when(
     data: (user) => user != null,
-    loading: () => false,
+    loading: () => true, // 인증 상태가 true라면 로딩 중에도 true로 간주
     error: (_, __) => false,
   );
 });
