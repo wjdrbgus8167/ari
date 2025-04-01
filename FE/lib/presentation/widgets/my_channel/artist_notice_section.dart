@@ -7,7 +7,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../providers/my_channel/my_channel_providers.dart';
 import '../../../providers/user_provider.dart';
 import '../../../data/models/my_channel/artist_notice.dart';
-import '../../viewmodels/my_channel_viewmodel.dart';
+import '../../viewmodels/my_channel/my_channel_viewmodel.dart';
 import '../../pages/my_channel/artist_notice_detail_screen.dart';
 import '../../pages/my_channel/create_notice_screen.dart';
 

@@ -22,7 +22,7 @@ import '../../domain/usecases/my_channel/my_channel_usecases.dart' as channel;
 import '../../domain/usecases/my_channel/artist_notice_usecases.dart' as notice;
 
 // viewmodel
-import '../../presentation/viewmodels/my_channel_viewmodel.dart';
+import '../../presentation/viewmodels/my_channel/my_channel_viewmodel.dart';
 
 /// 채널 기능용 Dio 인스턴스 - 인증 인터셉터 포함
 final channelDioProvider = Provider<Dio>((ref) {

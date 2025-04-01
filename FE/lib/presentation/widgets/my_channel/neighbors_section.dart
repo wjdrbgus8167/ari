@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/my_channel/my_channel_providers.dart';
 import '../../../data/models/my_channel/neighbor.dart';
-import '../../viewmodels/my_channel_viewmodel.dart';
+import '../../viewmodels/my_channel/my_channel_viewmodel.dart';
 
 /// 이웃(팔로워/팔로잉) 섹션 탭 인덱스
 enum NeighborTab { followers, followings }

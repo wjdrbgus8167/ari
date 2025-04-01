@@ -6,7 +6,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../providers/my_channel/my_channel_providers.dart';
 import '../../../data/models/my_channel/artist_notice.dart';
 import '../../../presentation/widgets/my_channel/notice_comment_section.dart';
-import '../../../presentation/viewmodels/my_channel_viewmodel.dart';
+import '../../viewmodels/my_channel/my_channel_viewmodel.dart';
 import '../../../presentation/widgets/common/custom_toast.dart';
 
 /// 아티스트 공지사항 상세 화면

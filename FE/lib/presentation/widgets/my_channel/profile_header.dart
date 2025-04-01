@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/my_channel/my_channel_providers.dart';
 import '../../../data/models/my_channel/channel_info.dart';
-import '../../../presentation/viewmodels/my_channel_viewmodel.dart';
+import '../../viewmodels/my_channel/my_channel_viewmodel.dart';
 
 /// 나의 채널 프로필 헤더 위젯
 /// 사용자 이름, 프로필 이미지, 팔로우 버튼 등
