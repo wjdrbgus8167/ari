@@ -251,7 +251,7 @@ class _NoticeCommentSectionState extends ConsumerState<NoticeCommentSection> {
             itemCount: comments.length,
             separatorBuilder:
                 (context, index) =>
-                    const Divider(color: Colors.grey, height: 1),
+                    const Divider(color: Colors.black, height: 1),
             itemBuilder: (context, index) {
               final comment = comments[index];
               return _buildCommentItem(comment);

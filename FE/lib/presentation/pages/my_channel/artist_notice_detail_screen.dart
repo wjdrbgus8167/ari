@@ -196,7 +196,7 @@ class _ArtistNoticeDetailScreenState
           const Divider(color: Colors.grey, height: 1),
           const SizedBox(height: 24),
 
-          // 댓글 섹션 - 이전 TODO 대신 실제 댓글 위젯으로 교체
+          // 댓글 섹션
           NoticeCommentSection(noticeId: _currentNoticeId),
 
           // 구분선
