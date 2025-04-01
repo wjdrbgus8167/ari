@@ -1,5 +1,3 @@
-// lib/presentation/pages/album/album_upload_screen.dart
-
 import 'dart:io';
 import 'package:ari/core/constants/app_colors.dart';
 import 'package:ari/presentation/routes/app_router.dart';
@@ -124,43 +122,36 @@ class _AlbumUploadScreenState extends ConsumerState<AlbumUploadScreen> {
       final state = ref.read(albumUploadViewModelProvider);
 
       if (state.status == AlbumUploadStatus.success && mounted) {
-        // TODO: 업로드 성공 시 성공 다이얼로그 표시 후 마이페이지로 이동
-        await showDialog(
-          context: context,
-          builder:
-              (context) => AlertDialog(
-                title: const Text("업로드 성공"),
-                content: const Text("앨범이 성공적으로 업로드되었습니다."),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text("확인"),
-                  ),
-                ],
-              ),
+        // 업로드 성공 시 다이얼로그 표시
+        await context.showCustomDialog(
+          title: "업로드 성공",
+          content: "앨범이 성공적으로 업로드되었습니다.\n이동할 페이지를 선택해주세요.",
+          confirmText: "My Channel",
+          cancelText: "My Page",
+          confirmButtonColor: AppColors.mediumPurple,
+          cancelButtonColor: AppColors.darkPurple,
+          onConfirm: () {
+            // 나의 채널로 이동
+            Navigator.of(
+              context,
+            ).popUntil((route) => route.settings.name == AppRoutes.home);
+            Navigator.of(context).pushNamed(AppRoutes.myChannel);
+          },
+          onCancel: () {
+            // 마이페이지로 이동
+            Navigator.of(
+              context,
+            ).popUntil((route) => route.settings.name == AppRoutes.home);
+            Navigator.of(context).pushNamed(AppRoutes.myPage);
+          },
         );
-        Navigator.of(
-          context,
-        ).popUntil((route) => route.settings.name == AppRoutes.myPage);
       } else if (state.status == AlbumUploadStatus.error && mounted) {
-        // TODO: 실패 시 에러 다이얼로그 common을 활용하기기
-        showDialog(
-          context: context,
-          builder:
-              (context) => AlertDialog(
-                title: const Text("업로드 실패"),
-                content: Text(state.errorMessage ?? "알 수 없는 오류가 발생했습니다."),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text("확인"),
-                  ),
-                ],
-              ),
+        // 실패 시 에러 다이얼로그 표시
+        context.showCustomDialog(
+          title: "업로드 실패",
+          content: state.errorMessage ?? "알 수 없는 오류가 발생했습니다.",
+          singleButtonMode: true,
+          confirmButtonColor: Colors.red,
         );
       }
     }
@@ -340,7 +331,7 @@ class _AlbumUploadScreenState extends ConsumerState<AlbumUploadScreen> {
 
                         // 앨범 설명
                         const Text(
-                          "앨범설명",
+                          "앨범 설명",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
