@@ -31,7 +31,7 @@ class HomeScreen extends ConsumerWidget {
               child: HeaderWidget(
                 type: HeaderType.main,
                 onMyPagePressed: () {
-                  Navigator.of(context).pushNamed(AppRoutes.myPage);
+                  AppRouter.navigateTo(context, ref, AppRoutes.myPage);
                 },
               ),
             ),
