@@ -34,4 +34,28 @@ class AppColors {
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
+
+  static const LinearGradient blueToMintGradient = LinearGradient(
+    colors: [
+      Color(0xFF2CA0FF),  // 밝은 파란색
+      Color(0xFF7DDCFF),  // 하늘색
+      Color(0xFF5DEDFA),  // 청록색
+      Color(0xFFCAFFFB),  // 밝은 민트색
+    ],
+    stops: [0.0, 0.33, 0.65, 1.0],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+  );
+
+  static const LinearGradient purpleGradient = LinearGradient(
+    colors: [
+      Color(0xFFDE85FC),  // 연한 보라색
+      Color(0xFFC78BF9),  // 중간 보라색
+      Color(0xFFC78BF9),  // 중간 보라색 (반복)
+      Color(0xFF8A4FFF),  // 진한 보라색
+    ],
+    stops: [0.0, 0.44, 0.44, 1.0],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+  );
 }
