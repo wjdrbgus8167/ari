@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:ari/core/constants/app_colors.dart';
 import 'package:ari/presentation/viewmodels/album_upload_viewmodel.dart';
 import 'package:ari/presentation/widgets/common/header_widget.dart';
+import 'package:ari/presentation/widgets/common/custom_toast.dart';
 import 'package:ari/providers/album/album_upload_providers.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -93,9 +94,10 @@ class _TrackUploadScreenState extends ConsumerState<TrackUploadScreen> {
   void _addTrack() {
     if (_formKey.currentState!.validate()) {
       if (audioFile == null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('음원 파일을 선택해주세요')));
+        context.showToast(
+          '음원 파일을 선택해주세요',
+          duration: const Duration(milliseconds: 1500),
+        );
         return;
       }
 
@@ -109,17 +111,15 @@ class _TrackUploadScreenState extends ConsumerState<TrackUploadScreen> {
         'lyrics': _lyricsController.text,
         'audioFilePath': audioFile!.path,
         'audioFileName': audioFileName,
-        'title': _trackTitleController.text, // ViewModel에서 사용하는 필드명과 일치시키기
+        'title': _trackTitleController.text,
       };
 
       ref.read(albumUploadViewModelProvider.notifier).addTrack(trackData);
 
-      // 성공 메시지 표시
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('트랙이 추가되었습니다'),
-          backgroundColor: Colors.green,
-        ),
+      // 성공 메시지
+      context.showToast(
+        '트랙이 추가되었습니다',
+        duration: const Duration(milliseconds: 1500),
       );
 
       // 앨범 업로드 화면으로 돌아가기
