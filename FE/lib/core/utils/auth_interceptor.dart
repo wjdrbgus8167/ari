@@ -22,23 +22,26 @@ class AuthInterceptor extends Interceptor {
     try {
       final tokens = await getTokensUseCase();
       final accessToken = tokens?.accessToken;
-      
+
       if (accessToken != null) {
         // Authorization 헤더 대신 쿠키로 토큰 추가
+        print('요청 전 헤더: ${options.headers}');
+
+        // 쿠키 설정 로직
         String cookieHeader = options.headers['Cookie'] ?? '';
         List<String> cookies = [];
-        
+
         // 기존 쿠키가 있는 경우 분리
         if (cookieHeader.isNotEmpty) {
           cookies = cookieHeader.split('; ');
         }
-        
+
         // 기존 access_token 쿠키가 있으면 제거 (중복 방지)
         cookies.removeWhere((cookie) => cookie.startsWith('access_token='));
-        
+
         // access_token 쿠키로 추가
         cookies.add('access_token=$accessToken');
-        
+
         // refresh_token이 있으면 추가
         final refreshToken = tokens?.refreshToken;
         if (refreshToken != null) {
@@ -47,7 +50,7 @@ class AuthInterceptor extends Interceptor {
           // refresh_token 쿠키로 추가
           cookies.add('refresh_token=$refreshToken');
         }
-        
+
         // 쿠키 헤더 설정
         options.headers['Cookie'] = cookies.join('; ');
       }
@@ -63,19 +66,10 @@ class AuthInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     // 401 에러 처리 (인증 실패)
     if (err.response?.statusCode == 401) {
-      return handler.next(err);
-    }
-      
-    // 토큰 갱신 시도
-    final newTokens = await refreshTokensUseCase();
-    if (newTokens != null) {
       try {
         // 원래 요청 재시도
-        final response = await _retryRequest(
-          err.requestOptions,
-          newTokens.accessToken,
-          newTokens.refreshToken,
-        );
+        await refreshTokensUseCase();
+        final response = await _retryRequest(err.requestOptions);
         return handler.resolve(response);
       } catch (e) {
         print("토큰 갱신 실패: $e");
@@ -86,27 +80,18 @@ class AuthInterceptor extends Interceptor {
   }
 
   // 재시도 요청을 처리하는 메서드 분리
-  Future<Response<dynamic>> _retryRequest(
-    RequestOptions requestOptions,
-    String accessToken,
-     String refreshToken,
-  ) async {
+  Future<Response<dynamic>> _retryRequest(RequestOptions requestOptions) async {
     return await dio.fetch(
-      requestOptions.copyWith(
-        headers: {
-          ...requestOptions.headers,
-          'Cookie': _updateCookies(
-            requestOptions.headers['Cookie'] ?? '',
-            accessToken,
-            refreshToken,
-          ),
-        },
-      ),
+      requestOptions.copyWith(headers: {...requestOptions.headers}),
     );
   }
 
   // 쿠키 업데이트 로직 분리
-  String _updateCookies(String originalCookies, String accessToken, String refreshToken) {
+  String _updateCookies(
+    String originalCookies,
+    String accessToken,
+    String refreshToken,
+  ) {
     List<String> cookies =
         originalCookies.isEmpty ? [] : originalCookies.split('; ');
     cookies.removeWhere((cookie) => cookie.startsWith('access_token='));

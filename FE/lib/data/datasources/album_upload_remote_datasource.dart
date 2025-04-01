@@ -11,5 +11,6 @@ abstract class AlbumUploadRemoteDataSource {
     required UploadAlbumRequest albumRequest,
     required File coverImageFile,
     required Map<String, File> trackFiles,
+    Function(double progress)? onProgress, // 진행률 콜백 추가
   });
 }
