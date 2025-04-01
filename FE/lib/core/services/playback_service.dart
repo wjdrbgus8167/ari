@@ -5,7 +5,7 @@ import 'package:ari/providers/playback/playback_state_provider.dart';
 import 'package:ari/core/services/audio_service.dart';
 import 'package:ari/data/models/api_response.dart';
 import 'package:ari/providers/global_providers.dart';
-import 'package:ari/domain/entities/track.dart';
+import 'package:ari/domain/entities/track.dart' as domain;
 import 'package:ari/providers/listening_queue/listening_queue_provider.dart'
     as lq;
 
@@ -61,26 +61,28 @@ class PlaybackService {
               trackUrl: trackFileUrl,
             );
 
-        // 새 Track 객체 생성 (composer, lyricist는 빈 문자열로 처리)
-        final trackObj = Track(
+        // 새 도메인 Track 객체 생성 (composer, lyricist는 빈 문자열 리스트로 처리)
+        final domain.Track trackObj = domain.Track(
           trackId: trackId,
+          albumId: albumId,
           trackTitle: title,
           artistName: artist,
-          composer: [''],
-          lyricist: [''],
-          albumId: albumId,
-          trackFileUrl: trackFileUrl,
           lyric: lyrics,
-          coverUrl: coverImageUrl,
-          trackLikeCount: 0,
-          commentCount: 0,
-          createdAt: DateTime.now().toString(),
           trackNumber: 0,
-          comments: [], // 댓글은 빈 리스트로 초기화
+          commentCount: 0,
+          lyricist: [''],
+          composer: [''],
+          comments: [],
+          createdAt: DateTime.now().toString(),
+          coverUrl: coverImageUrl,
+          trackFileUrl: trackFileUrl,
+          trackLikeCount: 0,
         );
 
-        // 재생목록에 추가
-        ref.read(lq.listeningQueueProvider.notifier).trackPlayed(trackObj);
+        // 도메인 엔티티를 데이터 모델로 변환한 후 재생목록에 추가
+        ref
+            .read(lq.listeningQueueProvider.notifier)
+            .trackPlayed(trackObj.toDataModel());
       } else {
         throw Exception('재생 API 호출 실패: ${response.data['message']}');
       }

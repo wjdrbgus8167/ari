@@ -20,6 +20,7 @@ class ExpandedPlaybackScreen extends ConsumerStatefulWidget {
 class _ExpandedPlaybackScreenState
     extends ConsumerState<ExpandedPlaybackScreen> {
   bool _showCommentOverlay = false;
+  String? _fixedTimestamp; // 댓글창이 열릴 때 캡처한 고정 타임스탬프
 
   String _formatDuration(Duration duration) {
     final minutes = duration.inMinutes;
@@ -39,11 +40,11 @@ class _ExpandedPlaybackScreenState
       loading: () => Duration.zero,
       error: (_, __) => Duration.zero,
     );
-    final String currentTimestamp = _formatDuration(currentPosition);
 
     return GestureDetector(
       onTap: () {
         if (!_showCommentOverlay) {
+          _fixedTimestamp = _formatDuration(currentPosition);
           setState(() {
             _showCommentOverlay = true;
           });
@@ -91,7 +92,6 @@ class _ExpandedPlaybackScreenState
                     bottom: 40,
                     child: PlaybackControls(
                       onToggle: () async {
-                        print('[DEBUG] PlaybackControls onToggle 호출됨');
                         if (playbackState.isPlaying) {
                           await playbackService.audioPlayer.pause();
                           ref
@@ -144,7 +144,10 @@ class _ExpandedPlaybackScreenState
                       trackTitle: playbackState.trackTitle,
                       artist: playbackState.artist,
                       coverImageUrl: playbackState.coverImageUrl,
-                      timestamp: currentTimestamp,
+                      timestamp:
+                          _fixedTimestamp ?? _formatDuration(currentPosition),
+                      trackId: playbackState.currentTrackId ?? 0,
+                      albumId: playbackState.albumId ?? 0,
                       onClose: () {
                         setState(() {
                           _showCommentOverlay = false;

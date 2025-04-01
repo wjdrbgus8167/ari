@@ -1,11 +1,32 @@
+import 'package:ari/data/models/track.dart' as data;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/data/datasources/local/local_listening_queue_datasource.dart';
 import 'package:ari/data/models/listening_queue_item.dart';
 import 'package:ari/data/dto/playlist_create_request.dart';
-
-import 'package:ari/domain/entities/track.dart';
+import 'package:ari/domain/entities/track.dart' as domain;
 import 'package:ari/domain/entities/playlist.dart';
 import 'package:ari/domain/repositories/playlist_repository.dart';
+
+/// 데이터 모델인 data.Track을 도메인 엔티티 domain.Track으로 변환하는 매핑 함수
+domain.Track mapDataTrackToDomain(data.Track dataTrack) {
+  return domain.Track(
+    trackId: dataTrack.id,
+    trackTitle: dataTrack.trackTitle,
+    artistName: dataTrack.artist,
+    // 단일 문자열을 리스트로 감싸서 전달 (필요시 로직 변경)
+    composer: [dataTrack.composer],
+    lyricist: [dataTrack.lyricist],
+    albumId: int.parse(dataTrack.albumId),
+    trackFileUrl: dataTrack.trackFileUrl,
+    lyric: dataTrack.lyrics,
+    coverUrl: dataTrack.coverUrl,
+    trackLikeCount: dataTrack.trackLikeCount,
+    commentCount: 0, // 기본값 (필요에 따라 수정)
+    comments: [], // 기본값 (필요에 따라 수정)
+    trackNumber: 0, // 기본값 (필요에 따라 수정)
+    createdAt: DateTime.now().toString(), // 생성 시각 (필요시 변경)
+  );
+}
 
 /// 재생목록 상태 클래스
 class ListeningQueueState {
@@ -59,20 +80,30 @@ class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
 
   /// 로컬 저장소에서 재생목록을 불러옵니다.
   Future<void> _loadQueue() async {
-    final tracks = await loadListeningQueue(userId);
+    // data 모델 타입의 트랙을 불러옴
+    final dataTracks = await loadListeningQueue(userId); // List<data.Track>
+    // data 모델을 도메인 엔티티로 변환
+    final domainTracks =
+        dataTracks.map((dataTrack) => mapDataTrackToDomain(dataTrack)).toList();
     final items =
-        tracks.map((track) => ListeningQueueItem(track: track)).toList();
+        domainTracks.map((track) => ListeningQueueItem(track: track)).toList();
     state = state.copyWith(playlist: items, filteredPlaylist: List.from(items));
   }
 
   /// PlaylistRepository를 통해 플레이리스트 목록을 불러옵니다.
   Future<void> _loadPlaylists() async {
-    final playlists = await playlistRepository.fetchPlaylists();
-    state = state.copyWith(playlists: playlists);
+    try {
+      print('[DEBUG] 플레이리스트 조회 시작');
+      final playlists = await playlistRepository.fetchPlaylists();
+      print('[DEBUG] 조회된 플레이리스트: $playlists');
+      state = state.copyWith(playlists: playlists);
+    } catch (e) {
+      print('[ERROR] 플레이리스트 조회 중 에러 발생: $e');
+    }
   }
 
   /// 특정 트랙이 재생될 때 자동으로 재생목록에 추가합니다.
-  Future<void> trackPlayed(Track track) async {
+  Future<void> trackPlayed(data.Track track) async {
     await addTrackToListeningQueue(userId, track);
     await _loadQueue();
   }
@@ -124,7 +155,8 @@ class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
     if (newIndex > oldIndex) newIndex -= 1;
     final item = updatedList.removeAt(oldIndex);
     updatedList.insert(newIndex, item);
-    final tracksOrder = updatedList.map((i) => i.track).toList();
+    // domain.Track 리스트를 data.Track 리스트로 변환
+    final tracksOrder = updatedList.map((i) => i.track.toDataModel()).toList();
     await updateListeningQueueOrder(userId, tracksOrder);
     state = state.copyWith(filteredPlaylist: updatedList);
     await _loadQueue();
@@ -160,7 +192,6 @@ class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
     bool publicYn,
     List<ListeningQueueItem> selectedItems,
   ) async {
-    // 생성자 매개변수 이름에 맞춰 수정 (publicYn -> isPublic)
     final request = PlaylistCreateRequest(title: title, isPublic: publicYn);
     final newPlaylist = await playlistRepository.createPlaylist(request);
     for (var item in selectedItems) {

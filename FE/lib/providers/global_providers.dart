@@ -1,18 +1,12 @@
 import 'package:ari/core/utils/auth_interceptor.dart';
-import 'package:ari/data/datasources/my_channel/my_channel_remote_datasource.dart';
-import 'package:ari/data/datasources/my_channel/my_channel_remote_datasource_impl.dart';
 import 'package:ari/data/datasources/playlist/playlist_remote_datasource.dart';
 import 'package:ari/data/datasources/playlist/playlist_remote_datasource_impl.dart';
-import 'package:ari/data/repositories/my_channel/my_channel_repository_impl.dart';
 import 'package:ari/data/repositories/playlist_repository_impl.dart';
-import 'package:ari/domain/repositories/my_channel/my_channel_repository.dart';
 import 'package:ari/domain/repositories/playlist_repository.dart';
-import 'package:ari/presentation/viewmodels/my_channel_viewmodel.dart';
 
 import 'package:ari/providers/auth/auth_providers.dart';
 import 'package:ari/providers/user_provider.dart';
 
-import 'package:ari/providers/my_channel_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import 'package:audioplayers/audioplayers.dart';

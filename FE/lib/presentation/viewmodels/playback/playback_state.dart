@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 class PlaybackState {
   final int? currentTrackId;
+  final int? albumId;
   final String trackUrl;
   final String trackTitle;
   final String artist;
@@ -13,6 +14,7 @@ class PlaybackState {
 
   PlaybackState({
     this.currentTrackId,
+    this.albumId,
     this.trackUrl = '',
     this.trackTitle = '',
     this.artist = '',
@@ -23,6 +25,7 @@ class PlaybackState {
 
   PlaybackState copyWith({
     int? currentTrackId,
+    int? albumId,
     String? trackUrl,
     String? trackTitle,
     String? artist,
@@ -32,6 +35,7 @@ class PlaybackState {
   }) {
     return PlaybackState(
       currentTrackId: currentTrackId ?? this.currentTrackId,
+      albumId: albumId ?? this.albumId,
       trackUrl: trackUrl ?? this.trackUrl,
       trackTitle: trackTitle ?? this.trackTitle,
       artist: artist ?? this.artist,

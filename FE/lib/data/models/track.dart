@@ -1,4 +1,7 @@
+import 'package:ari/domain/entities/track.dart' as domain;
+import 'package:ari/data/models/track.dart' as model;
 import 'package:ari/data/models/album.dart';
+
 import 'package:hive/hive.dart';
 
 part 'track.g.dart';
@@ -63,4 +66,23 @@ class Track extends HiveObject {
       trackLikeCount: track.trackLikeCount,
     );
   }
+}
+
+domain.Track mapDataTrackToDomain(model.Track dataTrack) {
+  return domain.Track(
+    trackId: dataTrack.id,
+    trackTitle: dataTrack.trackTitle,
+    artistName: dataTrack.artist,
+    composer: [dataTrack.composer],
+    lyricist: [dataTrack.lyricist],
+    albumId: int.parse(dataTrack.albumId),
+    trackFileUrl: dataTrack.trackFileUrl,
+    lyric: dataTrack.lyrics,
+    coverUrl: dataTrack.coverUrl,
+    trackLikeCount: dataTrack.trackLikeCount,
+    commentCount: 0,
+    comments: [],
+    trackNumber: 0,
+    createdAt: DateTime.now().toString(),
+  );
 }

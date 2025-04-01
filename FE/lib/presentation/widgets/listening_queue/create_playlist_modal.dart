@@ -26,7 +26,7 @@ class _CreatePlaylistModalState extends State<CreatePlaylistModal> {
           bottom: MediaQuery.of(context).viewInsets.bottom + 16,
         ),
         decoration: const BoxDecoration(
-          color: Colors.white,
+          color: Colors.grey,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(

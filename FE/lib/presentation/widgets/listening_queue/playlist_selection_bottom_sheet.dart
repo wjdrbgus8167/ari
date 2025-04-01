@@ -18,7 +18,7 @@ class PlaylistSelectionBottomSheet extends StatelessWidget {
     return Container(
       height: 400,
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: Colors.grey,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(

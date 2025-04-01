@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-import 'package:ari/domain/entities/track.dart';
+import 'package:ari/data/models/track.dart';
 
 /// 사용자별 재생목록을 저장하는 Box를 엽니다.
 Future<Box<Track>> openListeningQueueBox(String userId) async {
@@ -24,8 +24,16 @@ Future<void> saveListeningQueue(String userId, List<Track> tracks) async {
 }
 
 /// 재생목록에 새로운 트랙을 추가하는 함수
+/// 만약 마지막 트랙과 동일하면 중복 추가하지 않고, 다른 곡 후 다시 추가되면 중복 저장되도록 함.
 Future<void> addTrackToListeningQueue(String userId, Track track) async {
   final box = await openListeningQueueBox(userId);
+  if (box.values.isNotEmpty) {
+    final lastTrack = box.values.last;
+    // 마지막 트랙과 동일한 경우, 추가하지 않음 (연속 재생 시 중복 방지)
+    if (lastTrack.id == track.id) {
+      return;
+    }
+  }
   await box.add(track);
 }
 
@@ -35,7 +43,7 @@ Future<void> removeTrackFromListeningQueue(String userId, int trackId) async {
   // 박스 내의 key를 순회하며, 해당 트랙 id와 일치하는 항목을 찾아 삭제합니다.
   final keyToRemove = box.keys.firstWhere((key) {
     final storedTrack = box.get(key) as Track;
-    return storedTrack.trackId == trackId;
+    return storedTrack.id == trackId;
   }, orElse: () => null);
   if (keyToRemove != null) {
     await box.delete(keyToRemove);
