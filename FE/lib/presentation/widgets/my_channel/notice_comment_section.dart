@@ -265,13 +265,13 @@ class _NoticeCommentSectionState extends ConsumerState<NoticeCommentSection> {
   Widget _buildCommentInput() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey[900],
+        color: Colors.black,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey.withValues(alpha: 0.3), width: 1),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 1),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end, // 정렬 수정
+        crossAxisAlignment: CrossAxisAlignment.center, // 정렬 수정
         children: [
           // 댓글 입력 필드
           Expanded(
@@ -312,7 +312,7 @@ class _NoticeCommentSectionState extends ConsumerState<NoticeCommentSection> {
                       : const Icon(
                         Icons.send_rounded,
                         color: AppColors.mediumPurple,
-                        size: 20,
+                        size: 10,
                       ),
             ),
           ),
