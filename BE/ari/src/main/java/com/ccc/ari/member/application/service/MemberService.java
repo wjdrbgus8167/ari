@@ -1,4 +1,4 @@
-package com.ccc.ari.member.application;
+package com.ccc.ari.member.application.service;
 
 import com.ccc.ari.global.error.ApiException;
 import com.ccc.ari.global.error.ErrorCode;
@@ -10,8 +10,8 @@ import com.ccc.ari.member.domain.AuthTokens;
 import com.ccc.ari.member.domain.member.MemberEntity;
 import com.ccc.ari.member.domain.refreshToken.RefreshToken;
 import com.ccc.ari.member.domain.refreshToken.RefreshTokenEntity;
-import com.ccc.ari.member.infrastructure.JpaMemberRepository;
-import com.ccc.ari.member.infrastructure.RefreshTokenRepository;
+import com.ccc.ari.member.infrastructure.repository.member.JpaMemberRepository;
+import com.ccc.ari.member.infrastructure.repository.refreshtoken.RefreshTokenRepository;
 import com.ccc.ari.member.mapper.RefreshTokenMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

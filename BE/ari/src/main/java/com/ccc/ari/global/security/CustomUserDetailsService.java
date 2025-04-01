@@ -1,6 +1,6 @@
 package com.ccc.ari.global.security;
 
-import com.ccc.ari.member.infrastructure.JpaMemberRepository;
+import com.ccc.ari.member.infrastructure.repository.member.JpaMemberRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

@@ -2,7 +2,7 @@ package com.ccc.ari.member.ui;
 
 import com.ccc.ari.global.util.ApiUtils;
 import com.ccc.ari.global.util.CookieUtils;
-import com.ccc.ari.member.application.MemberService;
+import com.ccc.ari.member.application.service.MemberService;
 import com.ccc.ari.member.application.command.MemberLoginCommand;
 import com.ccc.ari.member.application.command.MemberRegisterCommand;
 import com.ccc.ari.member.application.command.RefreshAccessTokenCommand;

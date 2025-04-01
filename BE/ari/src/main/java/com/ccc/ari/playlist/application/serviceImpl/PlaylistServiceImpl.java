@@ -2,16 +2,13 @@ package com.ccc.ari.playlist.application.serviceImpl;
 
 import com.ccc.ari.global.error.ApiException;
 import com.ccc.ari.global.error.ErrorCode;
-import com.ccc.ari.member.domain.member.MemberEntity;
-import com.ccc.ari.member.infrastructure.JpaMemberRepository;
 import com.ccc.ari.music.domain.track.TrackEntity;
-import com.ccc.ari.music.infrastructure.track.JpaTrackRepository;
+import com.ccc.ari.music.infrastructure.repository.track.JpaTrackRepository;
 import com.ccc.ari.playlist.application.PlaylistService;
 import com.ccc.ari.playlist.application.command.*;
 import com.ccc.ari.playlist.application.composition.PlaylistCompositionService;
 import com.ccc.ari.playlist.domain.playlist.Playlist;
 import com.ccc.ari.playlist.domain.playlist.PlaylistEntity;
-import com.ccc.ari.playlist.domain.playlisttrack.PlaylistTrackEntity;
 import com.ccc.ari.playlist.domain.sharedplaylist.SharedPlaylistEntity;
 import com.ccc.ari.playlist.domain.vo.TrackOrder;
 import com.ccc.ari.playlist.infrastructure.JpaPlaylistRepository;
@@ -24,7 +21,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;

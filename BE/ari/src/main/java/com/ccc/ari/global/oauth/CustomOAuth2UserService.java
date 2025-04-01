@@ -1,7 +1,7 @@
 package com.ccc.ari.global.oauth;
 
 import com.ccc.ari.member.domain.member.MemberEntity;
-import com.ccc.ari.member.infrastructure.JpaMemberRepository;
+import com.ccc.ari.member.infrastructure.repository.member.JpaMemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;

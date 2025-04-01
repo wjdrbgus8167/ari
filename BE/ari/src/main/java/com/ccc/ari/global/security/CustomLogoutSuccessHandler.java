@@ -3,7 +3,7 @@ package com.ccc.ari.global.security;
 import com.ccc.ari.global.util.ApiUtils;
 import com.ccc.ari.global.util.CookieUtils;
 import com.ccc.ari.global.util.JsonResponseUtils;
-import com.ccc.ari.member.infrastructure.RefreshTokenRepository;
+import com.ccc.ari.member.infrastructure.repository.refreshtoken.RefreshTokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;

@@ -1,4 +1,4 @@
-package com.ccc.ari.music.infrastructure.album;
+package com.ccc.ari.music.infrastructure.repository.album;
 
 import com.ccc.ari.music.domain.album.AlbumEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
