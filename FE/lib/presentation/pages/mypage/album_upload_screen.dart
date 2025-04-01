@@ -123,23 +123,28 @@ class _AlbumUploadScreenState extends ConsumerState<AlbumUploadScreen> {
           confirmButtonColor: AppColors.mediumPurple,
           cancelButtonColor: AppColors.darkPurple,
           onConfirm: () {
-            // 나의 채널로 이동
-            Navigator.of(
-              context,
-            ).popUntil((route) => route.settings.name == AppRoutes.home);
-            Navigator.of(context).pushNamed(AppRoutes.myChannel);
-            // 다이얼로그 표시 후 상태 초기화
-            viewModel.resetForm();
+            // 다이얼로그가 닫힌 후 네비게이션 실행하기 위해 지연 처리
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              // 나의 채널로 이동
+              Navigator.of(
+                context,
+              ).popUntil((route) => route.settings.name == AppRoutes.home);
+              Navigator.of(context).pushNamed(AppRoutes.myChannel);
+              // 상태 초기화
+              viewModel.resetForm();
+            });
           },
           onCancel: () {
-            // 마이페이지로 이동
-            Navigator.of(
-              context,
-            ).popUntil((route) => route.settings.name == AppRoutes.home);
-            Navigator.of(context).pushNamed(AppRoutes.myPage);
-
-            // 다이얼로그 표시 후 상태 초기화
-            viewModel.resetForm();
+            // 다이얼로그가 닫힌 후 네비게이션 실행하기 위해 지연 처리
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              // 마이페이지로 이동
+              Navigator.of(
+                context,
+              ).popUntil((route) => route.settings.name == AppRoutes.home);
+              Navigator.of(context).pushNamed(AppRoutes.myPage);
+              // 상태 초기화
+              viewModel.resetForm();
+            });
           },
         );
       } else if (state.status == AlbumUploadStatus.error && mounted) {
