@@ -12,7 +12,7 @@ public enum ErrorCode {
     // 인증 관련
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "A001", "접근 권한이 없습니다."),
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "A002", "토큰이 만료되었습니다."),
-    INVALID_TOKEN(HttpStatus.BAD_REQUEST, "A003", "토큰이 유효하지 않습니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "A003", "토큰이 유효하지 않습니다."),
     AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "A004", "인증에 실패하였습니다."),
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "A005", "비밀번호가 일치하지 않습니다."),
     MISSING_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "A006", "Refresh Token이 존재하지 않습니다."),
@@ -55,7 +55,9 @@ public enum ErrorCode {
     INVALID_EMAIL_FORMAT(HttpStatus.BAD_REQUEST, "V006", "유효하지 않은 이메일 형식입니다."),
     EMAIL_TOO_LONG(HttpStatus.BAD_REQUEST, "V007", "이메일은 30자 이하여야 합니다."),
     MEMBER_NICKNAME_REQUIRED(HttpStatus.BAD_REQUEST, "V008", "닉네임은 필수입니다."),
-    MEMBER_NICKNAME_TOO_LONG(HttpStatus.BAD_REQUEST, "V009", "닉네임은 100자 이하여야 합니다.");
+    MEMBER_NICKNAME_TOO_LONG(HttpStatus.BAD_REQUEST, "V009", "닉네임은 100자 이하여야 합니다."),
+
+    GENRE_NOT_FOUND(HttpStatus.NOT_FOUND,"G001","존재하지 않는 장르입니다.");
 
     private final HttpStatus status;
     private final String code;
