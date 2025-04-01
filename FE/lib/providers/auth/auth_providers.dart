@@ -1,3 +1,7 @@
+// 인증 관련 모든 의존성 제공 및 인증상태(로그인 로그아웃) 관리
+// AuthStateNotifier는 사용자 로그인 상태만을 관리
+// 토큰 관리, 인증 인터셉터 설정 
+
 import 'package:ari/core/utils/auth_interceptor.dart';
 import 'package:ari/data/datasources/auth_local_data_source.dart';
 import 'package:ari/data/datasources/auth_remote_data_source.dart';
