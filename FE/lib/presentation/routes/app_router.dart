@@ -2,6 +2,7 @@ import 'package:ari/presentation/pages/login/login_screen.dart';
 import 'package:ari/presentation/pages/sign_up/sign_up_screen.dart';
 import 'package:ari/presentation/pages/subscription/my_subscription_screen.dart';
 import 'package:ari/presentation/pages/subscription/subscription_payment_screen.dart';
+import 'package:ari/presentation/pages/subscription/subscription_select_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:ari/presentation/pages/album/album_detail_screen.dart';
 import 'package:ari/presentation/pages/track_detail/track_detail_screen.dart';
@@ -23,6 +24,7 @@ class AppRoutes {
   static const String myChannel = '/mychannel';
   static const String subscription = '/subscription';
   static const String subscriptionPayment = '/subscription/payment';
+  static const String subscriptionSelect = '/subscription/select';
 }
 
 class AppRouter {
@@ -68,6 +70,9 @@ class AppRouter {
       case AppRoutes.subscription:
         return MaterialPageRoute(builder: (_) => const MySubscriptionScreen());
 
+      case AppRoutes.subscriptionSelect:
+        return MaterialPageRoute(builder: (_) => const SubscriptionSelectScreen());
+
       case AppRoutes.subscriptionPayment:
         return MaterialPageRoute(builder: (_) => const SubscriptionPaymentScreen());
 
@@ -75,7 +80,7 @@ class AppRouter {
         // 없는 경로는 홈으로 리다이렉트, 스낵바로 알림
         return MaterialPageRoute(
           builder: (context) {
-            // 화면 빌드 후 SnackBar 표시
+            // 화면 빌드
             WidgetsBinding.instance.addPostFrameCallback((_) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
