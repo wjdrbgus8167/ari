@@ -38,14 +38,8 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Token?> refreshTokens() async {
-    //토큰을 가져온다.
-    final currentTokens = await localDataSource.getTokens();
-    if (currentTokens == null) {
-      return null;
-    }
-
     // refresh dataSource를 구현하여 새로운 토큰을 받는다.
-    final newTokens = await remoteDataSource.refreshTokens(currentTokens.refreshToken);
+    final newTokens = await remoteDataSource.refreshTokens();
     if (newTokens != null) {
       // 그 토큰을 저장한다.
       await localDataSource.saveTokens(newTokens);

@@ -54,10 +54,7 @@ class AuthInterceptor extends Interceptor {
         // 쿠키 헤더 설정
         options.headers['Cookie'] = cookies.join('; ');
       }
-      // Authorization 헤더도 추가 (서버가 둘 다 지원하는 경우를 위해)
-      options.headers['Authorization'] = 'Bearer $accessToken';
-      print("최종 요청 헤더: ${options.headers}");
-      print("요청 URL: ${options.path}");
+
       handler.next(options);
     } catch (e) {
       print("요청 인터셉터 오류: $e");
@@ -68,19 +65,15 @@ class AuthInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     // 401 에러 처리 (인증 실패)
-    print(err);
     if (err.response?.statusCode == 401) {
       try {
-        // 토큰 갱신 시도
-        final newTokens = await refreshTokensUseCase();
-        if (newTokens != null) {
-          // 원래 요청 재시도
-          final response = await _retryRequest(
-            err.requestOptions,
-            newTokens.accessToken,
-          );
-          return handler.resolve(response);
-        }
+        // 원래 요청 재시도
+        final response = await _retryRequest(
+          err.requestOptions,
+          newTokens.accessToken,
+          newTokens.refreshToken,
+        );
+        return handler.resolve(response);
       } catch (e) {
         print("토큰 갱신 실패: $e");
       }
@@ -93,6 +86,7 @@ class AuthInterceptor extends Interceptor {
   Future<Response<dynamic>> _retryRequest(
     RequestOptions requestOptions,
     String accessToken,
+     String refreshToken,
   ) async {
     return await dio.fetch(
       requestOptions.copyWith(
@@ -101,6 +95,7 @@ class AuthInterceptor extends Interceptor {
           'Cookie': _updateCookies(
             requestOptions.headers['Cookie'] ?? '',
             accessToken,
+            refreshToken,
           ),
         },
       ),
@@ -108,11 +103,15 @@ class AuthInterceptor extends Interceptor {
   }
 
   // 쿠키 업데이트 로직 분리
-  String _updateCookies(String originalCookies, String accessToken) {
+  String _updateCookies(String originalCookies, String accessToken, String refreshToken) {
     List<String> cookies =
         originalCookies.isEmpty ? [] : originalCookies.split('; ');
     cookies.removeWhere((cookie) => cookie.startsWith('access_token='));
     cookies.add('access_token=$accessToken');
+    // 기존 refresh_token 쿠키가 있으면 제거
+    cookies.removeWhere((cookie) => cookie.startsWith('refresh_token='));
+    // refresh_token 쿠키로 추가
+    cookies.add('refresh_token=$refreshToken');
     return cookies.join('; ');
   }
 }
