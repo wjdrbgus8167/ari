@@ -31,8 +31,6 @@ class MySubscriptionScreenState extends ConsumerState<MySubscriptionScreen> {
       body: viewModel.isLoading
         ? const Center(child: CircularProgressIndicator())
         : Container(
-          width: 360,
-          height: 800,
           padding: const EdgeInsets.symmetric(horizontal: 20),
           clipBehavior: Clip.antiAlias,
           decoration: const BoxDecoration(color: Colors.black),
