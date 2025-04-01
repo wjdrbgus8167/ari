@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+
 import '../../../core/constants/app_colors.dart';
 import '../../../providers/my_channel_providers.dart';
 import '../../../data/models/my_channel/artist_notice.dart';
-import '../../viewmodels/my_channel_viewmodel.dart';
-import '../../widgets/common/custom_toast.dart';
+import '../../../presentation/widgets/my_channel/notice_comment_section.dart';
+import '../../../presentation/viewmodels/my_channel_viewmodel.dart';
+import '../../../presentation/widgets/common/custom_toast.dart';
 
 /// 아티스트 공지사항 상세 화면
 /// 공지사항 전체 내용, 이미지 표시, 댓글과 이전 공지사항 목록 표시
@@ -194,8 +196,8 @@ class _ArtistNoticeDetailScreenState
           const Divider(color: Colors.grey, height: 1),
           const SizedBox(height: 24),
 
-          // 댓글 영역 (TODO 표시)
-          _buildCommentsSection(),
+          // 댓글 섹션 - 이전 TODO 대신 실제 댓글 위젯으로 교체
+          NoticeCommentSection(noticeId: _currentNoticeId),
 
           // 구분선
           const SizedBox(height: 32),
@@ -297,47 +299,6 @@ class _ArtistNoticeDetailScreenState
                 ),
               ],
             ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// 댓글 섹션 (TODO로 비워놓음)
-  Widget _buildCommentsSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              ' 댓글',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              '댓글 작성',
-              style: TextStyle(
-                color: AppColors.mediumPurple,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        // TODO: 댓글 목록 구현
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Text(
-              '댓글 기능 준비 중입니다.',
-              style: TextStyle(color: Colors.grey[400], fontSize: 14),
-            ),
           ),
         ),
       ],
