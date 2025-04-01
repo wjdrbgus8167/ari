@@ -120,6 +120,7 @@ class _AlbumUploadScreenState extends ConsumerState<AlbumUploadScreen> {
       await viewModel.uploadAlbum();
 
       final state = ref.read(albumUploadViewModelProvider);
+      print("업로드 후 상태: ${state.status}");
 
       if (state.status == AlbumUploadStatus.success && mounted) {
         // 업로드 성공 시 다이얼로그 표시
@@ -136,6 +137,8 @@ class _AlbumUploadScreenState extends ConsumerState<AlbumUploadScreen> {
               context,
             ).popUntil((route) => route.settings.name == AppRoutes.home);
             Navigator.of(context).pushNamed(AppRoutes.myChannel);
+            // 다이얼로그 표시 후 상태 초기화
+            viewModel.resetForm();
           },
           onCancel: () {
             // 마이페이지로 이동
@@ -143,6 +146,9 @@ class _AlbumUploadScreenState extends ConsumerState<AlbumUploadScreen> {
               context,
             ).popUntil((route) => route.settings.name == AppRoutes.home);
             Navigator.of(context).pushNamed(AppRoutes.myPage);
+
+            // 다이얼로그 표시 후 상태 초기화
+            viewModel.resetForm();
           },
         );
       } else if (state.status == AlbumUploadStatus.error && mounted) {

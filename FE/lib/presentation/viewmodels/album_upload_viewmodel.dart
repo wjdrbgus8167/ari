@@ -52,7 +52,7 @@ class AlbumUploadState {
       tracks.isNotEmpty;
 }
 
-// Riverpod StateNotifier 상속받아 앨범 업로드 구현
+// Riverpod StateNotifier 상속받기
 class AlbumUploadViewModel extends StateNotifier<AlbumUploadState> {
   final UploadAlbumUseCase _uploadAlbumUseCase;
 
@@ -90,6 +90,7 @@ class AlbumUploadViewModel extends StateNotifier<AlbumUploadState> {
 
   Future<void> uploadAlbum() async {
     if (!state.isFormValid) {
+      print("앨범 업로드 폼 유효성 검증 실패");
       state = state.copyWith(
         status: AlbumUploadStatus.error,
         errorMessage: '모든 항목을 입력해주세요',
@@ -98,6 +99,7 @@ class AlbumUploadViewModel extends StateNotifier<AlbumUploadState> {
     }
 
     try {
+      print("앨범 업로드 시작");
       state = state.copyWith(status: AlbumUploadStatus.loading);
 
       // 트랙 파일 맵 준비
@@ -107,6 +109,7 @@ class AlbumUploadViewModel extends StateNotifier<AlbumUploadState> {
         final track = state.tracks[i];
         final audioFile = File(track['audioFilePath']);
         trackFiles['track$trackNumber'] = audioFile;
+        print("트랙 $trackNumber 파일 경로: ${track['audioFilePath']}");
       }
 
       // 트랙 업로드 요청 생성
@@ -114,6 +117,8 @@ class AlbumUploadViewModel extends StateNotifier<AlbumUploadState> {
       for (int i = 0; i < state.tracks.length; i++) {
         final trackNumber = i + 1;
         final track = state.tracks[i];
+
+        print("트랙 $trackNumber 정보: ${track['title']}");
 
         trackRequests.add(
           TrackUploadRequest(
@@ -145,17 +150,24 @@ class AlbumUploadViewModel extends StateNotifier<AlbumUploadState> {
 
       result.fold(
         (failure) {
+          print("앨범 업로드 실패: ${failure.message}");
           state = state.copyWith(
             status: AlbumUploadStatus.error,
             errorMessage: failure.message,
           );
         },
         (success) {
+          print("앨범 업로드 성공!");
+          // 성공 상태로 업데이트하되 초기화는 안함
           state = state.copyWith(status: AlbumUploadStatus.success);
-          _resetForm();
+          // 업로드 성공 다이얼로그를 표시한 후에 초기화하도록 수정
+          // _resetForm(); // 여기서 호출 안함
         },
       );
+
+      print("현재 상태: ${state.status}");
     } catch (e) {
+      print("앨범 업로드 예외 발생: $e");
       state = state.copyWith(
         status: AlbumUploadStatus.error,
         errorMessage: e.toString(),
@@ -163,14 +175,14 @@ class AlbumUploadViewModel extends StateNotifier<AlbumUploadState> {
     }
   }
 
-  void _resetForm() {
+  void resetForm() {
     state = AlbumUploadState();
   }
 
-  void resetError() {
-    state = state.copyWith(
-      status: AlbumUploadStatus.initial,
-      errorMessage: null,
-    );
-  }
+  // void resetError() {
+  //   state = state.copyWith(
+  //     status: AlbumUploadStatus.initial,
+  //     errorMessage: null,
+  //   );
+  // }
 }
