@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../providers/my_channel_providers.dart';
+import '../../../providers/my_channel/my_channel_providers.dart';
 import '../../../providers/user_provider.dart';
 import '../../../data/models/my_channel/artist_notice.dart';
 import '../../viewmodels/my_channel_viewmodel.dart';

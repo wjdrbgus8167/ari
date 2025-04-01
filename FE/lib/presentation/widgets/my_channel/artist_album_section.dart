@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../providers/my_channel_providers.dart';
+import '../../../providers/my_channel/my_channel_providers.dart';
 import '../../../data/models/my_channel/artist_album.dart';
 import '../../../presentation/viewmodels/my_channel_viewmodel.dart';
 import '../common/carousel_container.dart';

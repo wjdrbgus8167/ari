@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../../core/constants/app_colors.dart';
-import '../../../providers/my_channel_providers.dart';
+import '../../../providers/my_channel/my_channel_providers.dart';
 import '../../../presentation/viewmodels/my_channel_viewmodel.dart';
 import '../../widgets/common/custom_toast.dart';
 

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../providers/my_channel_providers.dart';
+import '../../../providers/my_channel/my_channel_providers.dart';
 import '../../../data/models/my_channel/artist_notice.dart';
 import '../../../presentation/widgets/my_channel/notice_comment_section.dart';
 import '../../../presentation/viewmodels/my_channel_viewmodel.dart';
