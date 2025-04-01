@@ -68,11 +68,8 @@ class AuthInterceptor extends Interceptor {
     if (err.response?.statusCode == 401) {
       try {
         // 원래 요청 재시도
-        final response = await _retryRequest(
-          err.requestOptions,
-          newTokens.accessToken,
-          newTokens.refreshToken,
-        );
+        await refreshTokensUseCase();
+        final response = await _retryRequest(err.requestOptions);
         return handler.resolve(response);
       } catch (e) {
         print("토큰 갱신 실패: $e");
@@ -83,22 +80,9 @@ class AuthInterceptor extends Interceptor {
   }
 
   // 재시도 요청을 처리하는 메서드 분리
-  Future<Response<dynamic>> _retryRequest(
-    RequestOptions requestOptions,
-    String accessToken,
-    String refreshToken,
-  ) async {
+  Future<Response<dynamic>> _retryRequest(RequestOptions requestOptions) async {
     return await dio.fetch(
-      requestOptions.copyWith(
-        headers: {
-          ...requestOptions.headers,
-          'Cookie': _updateCookies(
-            requestOptions.headers['Cookie'] ?? '',
-            accessToken,
-            refreshToken,
-          ),
-        },
-      ),
+      requestOptions.copyWith(headers: {...requestOptions.headers}),
     );
   }
 
