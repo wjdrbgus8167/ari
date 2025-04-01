@@ -2,6 +2,8 @@ package com.ccc.ari.global.composition.service;
 
 import com.ccc.ari.aggregation.domain.vo.StreamingLog;
 import com.ccc.ari.community.domain.comment.entity.TrackComment;
+import com.ccc.ari.community.domain.like.LikeType;
+import com.ccc.ari.community.domain.like.client.LikeClient;
 import com.ccc.ari.global.composition.infrastructure.StreamingLogClientImpl;
 import com.ccc.ari.community.domain.comment.client.TrackCommentClient;
 import com.ccc.ari.global.composition.response.TrackDetailResponse;
@@ -28,14 +30,14 @@ public class TrackDetailService {
     private final TrackCommentClient trackCommentClient;
     private final MemberClient memberClient;
     private final StreamingLogClientImpl streamingLogClient;
-
-    public TrackDetailResponse getTrackDetail(Integer trackId) {
+    private final LikeClient likeClient;
+    public TrackDetailResponse getTrackDetail(Integer trackId,Integer memberId) {
 
         // 1. 트랙, 앨범, 멤버 조회
         TrackDto track = trackClient.getTrackById(trackId);
         AlbumDto album = albumClient.getAlbumById(track.getAlbumId());
         MemberDto member  = memberClient.getMemberByMemberId(album.getMemberId());
-
+        boolean trackLikedYn = likeClient.isLiked(trackId,memberId, LikeType.TRACK);
         // 2. 트랙 댓글 조회
         List<TrackComment> trackComments = trackCommentClient.getTrackCommentsByTrackId(track.getTrackId());
 
@@ -51,16 +53,6 @@ public class TrackDetailService {
                         .build())
                 .toList();
 
-        // 4. 트랙 스트리밍 집계 데이터 조회
-        List<StreamingLog> logs = streamingLogClient.getStreamingLog(track.getTrackId());
-
-        List<TrackDetailResponse.StreamingLogData> streamingLogData = logs.stream()
-                .map(streamingLog -> TrackDetailResponse.StreamingLogData.builder()
-                        .name(streamingLog.getMemberNickname())
-                        .datetime(streamingLog.timestampToString())
-                        .build())
-                .toList();
-
         return TrackDetailResponse.builder()
                 .trackId(track.getTrackId())
                 .trackTitle(track.getTitle())
@@ -71,12 +63,11 @@ public class TrackDetailService {
                 .lyric(track.getLyrics())
                 .trackNumber(track.getTrackNumber())
                 .trackLikeCount(track.getTrackLikeCount())
+                .trackLikedYn(trackLikedYn)
                 .genreName(track.getGereName())
                 .trackFileUrl(track.getTrackFileUrl())
                 .trackComments(comments)
                 .trackCommentCount(comments.size())
-                .trackStreamingCount(streamingLogData.size())
-                .trackLogs(streamingLogData)
                 .build();
     }
 

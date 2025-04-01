@@ -2,6 +2,8 @@ package com.ccc.ari.global.composition.service;
 
 import com.ccc.ari.community.domain.comment.entity.AlbumComment;
 import com.ccc.ari.community.domain.comment.client.AlbumCommentClient;
+import com.ccc.ari.community.domain.like.LikeType;
+import com.ccc.ari.community.domain.like.client.LikeClient;
 import com.ccc.ari.global.composition.response.AlbumDetailResponse;
 import com.ccc.ari.member.domain.client.MemberClient;
 import com.ccc.ari.music.domain.album.AlbumDto;
@@ -24,12 +26,13 @@ public class AlbumDetailService {
     private final TrackClient trackClient;
     private final AlbumCommentClient albumCommentClient;
     private final MemberClient memberClient;
+    private final LikeClient likeClient;
 
-    public AlbumDetailResponse getAlbumDetail(Integer albumId) {
+    public AlbumDetailResponse getAlbumDetail(Integer albumId,Integer memberId) {
 
         // 1. 앨범 정보 조회
         AlbumDto album = albumClient.getAlbumById(albumId);
-
+        boolean albumLikedYn = likeClient.isLiked(albumId,memberId, LikeType.ALBUM);
         // 2. 앨범에 포함된 트랙 목록 조회
         List<TrackDto> trackList = trackClient.getTracksByAlbumId(albumId);
 
@@ -72,6 +75,7 @@ public class AlbumDetailService {
                 .releasedAt(album.getReleasedAt())
                 .albumLikeCount(album.getAlbumLikeCount())
                 .albumCommentCount(comments.size())
+                .albumLikedYn(albumLikedYn)
                 .tracks(tracks)
                 .albumComments(comments)
                 .build();
