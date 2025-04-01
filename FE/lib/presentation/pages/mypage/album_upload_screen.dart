@@ -159,6 +159,62 @@ class _AlbumUploadScreenState extends ConsumerState<AlbumUploadScreen> {
     }
   }
 
+  // 업로드 버튼 또는 진행률 UI 빌드
+  Widget _buildUploadButton() {
+    final state = ref.watch(albumUploadViewModelProvider);
+
+    if (state.status == AlbumUploadStatus.loading) {
+      // 로딩 상태일 때 진행률 표시
+      return Column(
+        children: [
+          // 진행률 표시 (%)
+          Text(
+            '업로드 중... ${(state.uploadProgress * 100).toStringAsFixed(0)}%',
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          // 진행 상태 바
+          LinearProgressIndicator(
+            value: state.uploadProgress,
+            backgroundColor: Colors.grey[700],
+            valueColor: AlwaysStoppedAnimation<Color>(AppColors.mediumPurple),
+            minHeight: 10,
+            borderRadius: BorderRadius.circular(5),
+          ),
+          const SizedBox(height: 16),
+        ],
+      );
+    } else {
+      // 기존 업로드 버튼
+      return SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed:
+              state.isFormValid && state.status != AlbumUploadStatus.loading
+                  ? _uploadAlbum
+                  : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            padding: const EdgeInsets.symmetric(vertical: 15),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            disabledBackgroundColor: Colors.grey,
+          ),
+          child: const Text(
+            "앨범 등록",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(albumUploadViewModelProvider);
@@ -183,9 +239,9 @@ class _AlbumUploadScreenState extends ConsumerState<AlbumUploadScreen> {
                 onBackPressed: () => Navigator.pop(context),
               ),
 
-              // 로딩 인디케이터
-              if (state.status == AlbumUploadStatus.loading)
-                const LinearProgressIndicator(color: AppColors.mediumPurple),
+              // 로딩 인디케이터 (기존 코드는 제거)
+              // if (state.status == AlbumUploadStatus.loading)
+              //   const LinearProgressIndicator(color: AppColors.mediumPurple),
 
               // 메인 컨텐츠
               Expanded(
@@ -472,40 +528,8 @@ class _AlbumUploadScreenState extends ConsumerState<AlbumUploadScreen> {
                         ),
                         const SizedBox(height: 30),
 
-                        // 앨범 등록 버튼
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed:
-                                isFormValid &&
-                                        state.status !=
-                                            AlbumUploadStatus.loading
-                                    ? _uploadAlbum
-                                    : null,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Colors.black,
-                              padding: const EdgeInsets.symmetric(vertical: 15),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              disabledBackgroundColor: Colors.grey,
-                            ),
-                            child:
-                                state.status == AlbumUploadStatus.loading
-                                    ? const CircularProgressIndicator(
-                                      color: Colors.black,
-                                      strokeWidth: 3,
-                                    )
-                                    : const Text(
-                                      "앨범 등록",
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                          ),
-                        ),
+                        // 앨범 등록 버튼 (새로운 진행률 UI로 대체)
+                        _buildUploadButton(),
                       ],
                     ),
                   ),
