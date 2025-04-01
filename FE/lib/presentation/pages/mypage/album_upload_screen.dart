@@ -43,42 +43,33 @@ class _AlbumUploadScreenState extends ConsumerState<AlbumUploadScreen> {
       final isLoggedIn = ref.read(isUserLoggedInProvider);
 
       if (!isLoggedIn) {
-        // 로그인되지 않은 경우, 로그인 화면으로 이동
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder:
-              (context) => AlertDialog(
-                title: const Text("로그인 필요"),
-                content: const Text("앨범 업로드는 로그인이 필요한 기능입니다."),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      Navigator.of(
-                        context,
-                      ).pushReplacementNamed(AppRoutes.login);
-                    },
-                    child: const Text("로그인"),
-                  ),
-                ],
-              ),
+        // 로그인되지 않은 경우, custom 다이얼로그 사용하여 로그인 화면으로 이동
+        context.showCustomDialog(
+          title: "로그인 필요",
+          content: "앨범 업로드는 로그인이 필요한 기능입니다.",
+          singleButtonMode: true,
+          confirmText: "로그인",
+          confirmButtonColor: AppColors.mediumPurple,
+          onConfirm: () {
+            // 다이얼로그가 닫힌 후 로그인 페이지로 이동하기 위해 지연 실행
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+            });
+          },
         );
-        return;
-      }
 
-      // 기존 코드
-      final state = ref.read(albumUploadViewModelProvider);
-      if (state.albumTitle.isNotEmpty) {
-        _albumTitleController.text = state.albumTitle;
-      }
-      if (state.albumDescription.isNotEmpty) {
-        _albumDescriptionController.text = state.albumDescription;
-      }
-      if (state.selectedGenre.isNotEmpty) {
-        setState(() {
-          selectedGenre = state.selectedGenre;
-        });
+        final state = ref.read(albumUploadViewModelProvider);
+        if (state.albumTitle.isNotEmpty) {
+          _albumTitleController.text = state.albumTitle;
+        }
+        if (state.albumDescription.isNotEmpty) {
+          _albumDescriptionController.text = state.albumDescription;
+        }
+        if (state.selectedGenre.isNotEmpty) {
+          setState(() {
+            selectedGenre = state.selectedGenre;
+          });
+        }
       }
     });
   }
