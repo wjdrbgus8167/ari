@@ -1,16 +1,15 @@
-package com.ccc.ari.music.domain.service;
+package com.ccc.ari.music.infrastructure.adapter;
 
 import com.ccc.ari.global.infrastructure.S3Service;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.UUID;
 
-@Service
+@Component("musicS3ClientImpl")
 @RequiredArgsConstructor
-public class UploadAlbumService {
+public class S3ClientImpl {
 
     private final S3Service s3Service;
 
@@ -49,6 +48,5 @@ public class UploadAlbumService {
         }
         return filename.substring(filename.lastIndexOf(".")); // ".mp3" 또는 ".jpg" 형태로 반환
     }
-
 
 }

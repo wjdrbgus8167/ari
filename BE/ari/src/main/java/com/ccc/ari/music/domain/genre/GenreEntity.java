@@ -23,7 +23,8 @@ public class GenreEntity {
   private String genreName;
 
   @Builder
-  public GenreEntity(String genreName) {
+  public GenreEntity(Integer genreId,String genreName) {
+    this.genreId = genreId;
     this.genreName = genreName;
   }
 }

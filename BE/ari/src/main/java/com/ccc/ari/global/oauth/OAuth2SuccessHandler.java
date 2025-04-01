@@ -4,7 +4,7 @@ import com.ccc.ari.global.config.AppConfig;
 import com.ccc.ari.global.jwt.JwtTokenProvider;
 import com.ccc.ari.global.util.CookieUtils;
 import com.ccc.ari.member.domain.member.MemberEntity;
-import com.ccc.ari.member.infrastructure.JpaMemberRepository;
+import com.ccc.ari.member.infrastructure.repository.member.JpaMemberRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

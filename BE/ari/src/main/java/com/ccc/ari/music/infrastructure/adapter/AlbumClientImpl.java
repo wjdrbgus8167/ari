@@ -1,4 +1,4 @@
-package com.ccc.ari.global.composition.infrastructure;
+package com.ccc.ari.music.infrastructure.adapter;
 
 import com.ccc.ari.music.application.service.AlbumService;
 import com.ccc.ari.music.domain.album.AlbumDto;
@@ -18,4 +18,10 @@ public class AlbumClientImpl implements AlbumClient {
         return albumService.getAlbumById(albumId);
 
     }
+
+    @Override
+    public AlbumEntity savedAlbum(AlbumEntity albumEntity) {
+        return albumService.saveAlbum(albumEntity);
+    }
+
 }

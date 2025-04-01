@@ -1,4 +1,4 @@
-package com.ccc.ari.member.infrastructure;
+package com.ccc.ari.member.infrastructure.repository.member;
 
 import com.ccc.ari.member.domain.member.MemberEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
