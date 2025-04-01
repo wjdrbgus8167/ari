@@ -1,10 +1,11 @@
+// lib/presentation/pages/playlist/playlist_screen.dart
 import 'package:ari/presentation/widgets/playlist/playlist_track_controls.dart';
 import 'package:ari/presentation/widgets/playlist/playlist_track_list.dart';
+import 'package:ari/providers/global_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/presentation/widgets/common/listening_queue_appbar.dart';
 import 'package:ari/presentation/widgets/playlist/playlist_selectbar.dart';
-import 'package:ari/presentation/viewmodels/playlist/playlist_viewmodel.dart';
 import 'package:ari/presentation/widgets/common/global_bottom_widget.dart';
 import 'package:ari/presentation/widgets/common/search_bar.dart';
 
@@ -18,6 +19,14 @@ class PlaylistScreen extends ConsumerStatefulWidget {
 class _PlaylistScreenState extends ConsumerState<PlaylistScreen> {
   final TextEditingController searchController = TextEditingController();
   bool isSearchVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(playlistViewModelProvider.notifier).fetchPlaylists();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +62,6 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen> {
                 }
               },
             ),
-
             // 검색창
             if (isSearchVisible)
               SearchBarWidget(
@@ -66,23 +74,17 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen> {
                   playlistViewModel.searchTracks(query);
                 },
               ),
-
             const SizedBox(height: 10),
-
             // 플레이리스트 선택 바
             PlaylistSelectbar(
               onPlaylistSelected: (playlist) {
                 playlistViewModel.setPlaylist(playlist);
               },
             ),
-
             const SizedBox(height: 10),
-
             // 전체 선택 / 삭제 컨트롤 바
             PlaylistTrackControls(),
-
             const SizedBox(height: 10),
-
             // 트랙 리스트
             const Expanded(child: PlaylistTrackList()),
           ],

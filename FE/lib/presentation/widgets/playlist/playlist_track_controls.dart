@@ -1,7 +1,7 @@
 // 전체 트랙 선택 라디오버튼, 곡수표시, 하나이상 선택시 우측 삭제버튼
+import 'package:ari/providers/global_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ari/presentation/viewmodels/playlist/playlist_viewmodel.dart';
 
 class PlaylistTrackControls extends ConsumerWidget {
   const PlaylistTrackControls({Key? key}) : super(key: key);

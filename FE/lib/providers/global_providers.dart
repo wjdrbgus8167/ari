@@ -3,6 +3,8 @@ import 'package:ari/data/datasources/playlist/playlist_remote_datasource.dart';
 import 'package:ari/data/datasources/playlist/playlist_remote_datasource_impl.dart';
 import 'package:ari/data/repositories/playlist_repository_impl.dart';
 import 'package:ari/domain/repositories/playlist_repository.dart';
+import 'package:ari/presentation/viewmodels/playlist/playlist_state.dart';
+import 'package:ari/presentation/viewmodels/playlist/playlist_viewmodel.dart';
 
 import 'package:ari/providers/auth/auth_providers.dart';
 import 'package:ari/providers/user_provider.dart';
@@ -152,6 +154,13 @@ final playlistRepositoryProvider = Provider<IPlaylistRepository>((ref) {
     remoteDataSource: ref.watch(playlistRemoteDataSourceProvider),
   );
 });
+
+final playlistViewModelProvider =
+    StateNotifierProvider<PlaylistViewModel, PlaylistState>((ref) {
+      return PlaylistViewModel(
+        playlistRepository: ref.watch(playlistRepositoryProvider),
+      );
+    });
 
 // ListeningQueueViewModel(재생목록) 전역 상태
 final listeningQueueProvider =

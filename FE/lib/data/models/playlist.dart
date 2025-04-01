@@ -1,54 +1,39 @@
-import 'package:ari/domain/entities/playlist_trackitem.dart';
-import 'package:ari/domain/entities/track.dart';
-
+// lib/data/models/playlist.dart
 class Playlist {
   final int playlistId;
-  final String playlistTitle;
-  final bool publicYn;
   final int shareCount;
-  final List<PlaylistTrackItem> tracks;
+  final bool publicYn;
+  final String playlistTitle;
 
   Playlist({
     required this.playlistId,
-    required this.playlistTitle,
-    required this.publicYn,
     required this.shareCount,
-    required this.tracks,
+    required this.publicYn,
+    required this.playlistTitle,
   });
 
   factory Playlist.fromJson(Map<String, dynamic> json) {
-    final List<dynamic> tracksJson = json['tracks'] ?? [];
-
-    final tracksList =
-        tracksJson.map((json) {
-          final track = Track(
-            albumId: int.tryParse(json['album_id']?.toString() ?? '0') ?? 0,
-            trackId: json['id'],
-            trackTitle: json['track_title'],
-            artistName: json['artist'],
-            composer: json['composer'] ?? '',
-            lyricist: json['lyricist'] ?? '',
-            trackFileUrl: json['track_file_url'] ?? '',
-            lyric: json['lyrics'] ?? '',
-            coverUrl: json['cover_url'],
-            trackNumber: json['track_number'] ?? 0,
-            commentCount: json['comment_count'] ?? 0,
-            createdAt: json['created_at'] ?? '',
-            trackLikeCount: json['track_like_count'] ?? 0,
-            comments: [], // 댓글은 포함하지 않음
-          );
-
-          final int trackOrder = json['playlist_tracks']?['track_order'] ?? 0;
-
-          return PlaylistTrackItem(track: track, trackOrder: trackOrder);
-        }).toList();
-
     return Playlist(
-      playlistId: json['playlistId'],
-      playlistTitle: json['playlistTitle'],
-      publicYn: json['public_yn'] == 'Y' || json['public_yn'] == true,
-      shareCount: json['share_count'],
-      tracks: tracksList,
+      // API 응답에서는 'playlistId' 키를 사용합니다.
+      playlistId: json['playlistId'] as int,
+      // API 응답에 memberId가 없다면 기본값 0을 사용
+      // API 응답의 trackCount를 shareCount로 사용 (또는 별도의 매핑이 필요하다면 수정)
+      shareCount: json['trackCount'] != null ? json['trackCount'] as int : 0,
+      // API 응답에 publicYn 필드가 없다면 기본값 false 사용
+      publicYn: json['publicYn'] is bool ? json['publicYn'] as bool : false,
+      // API 응답에서는 'playlistTitle' 키를 사용합니다.
+      playlistTitle: json['playlistTitle'] as String,
+
+      // deletedAt 및 createdAt은 응답에 없으므로 기본값 또는 현재 시간을 할당
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'playlistId': playlistId,
+      'trackCount': shareCount,
+      'publicYn': publicYn,
+      'playlistTitle': playlistTitle,
+    };
   }
 }

@@ -114,7 +114,7 @@ class _ExpandedPlaybackScreenState
                         } else {
                           await playbackService.playTrack(
                             albumId: 1,
-                            trackId: 1,
+                            trackId: 2,
                             ref: ref,
                           );
                           ref

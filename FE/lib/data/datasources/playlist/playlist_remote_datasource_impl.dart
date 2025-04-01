@@ -78,8 +78,14 @@ class PlaylistRemoteDataSourceImpl implements IPlaylistRemoteDataSource {
       url: '/api/v1/playlists',
       method: 'GET',
       fromJson: (data) {
-        final List<dynamic> list = data as List<dynamic>;
-        return list.map((json) => Playlist.fromJson(json)).toList();
+        final dynamic playlistsData = data['playlists'];
+        if (playlistsData is List) {
+          return playlistsData.map((json) => Playlist.fromJson(json)).toList();
+        } else if (playlistsData is Map<String, dynamic>) {
+          return [Playlist.fromJson(playlistsData)];
+        } else {
+          return [];
+        }
       },
     );
   }

@@ -1,7 +1,7 @@
 import 'package:ari/presentation/widgets/playlist/playlist_tile.dart';
+import 'package:ari/providers/global_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ari/presentation/viewmodels/playlist/playlist_viewmodel.dart';
 
 class PlaylistTrackList extends ConsumerWidget {
   const PlaylistTrackList({Key? key}) : super(key: key);
@@ -15,11 +15,11 @@ class PlaylistTrackList extends ConsumerWidget {
 
     // ✅ 렌더링할 트랙 리스트를 filteredTracks 기준으로 결정
     final tracksToShow =
-        state.filteredTracks.isNotEmpty
+        state.filteredTracks?.isNotEmpty == true
             ? state.filteredTracks
             : playlist?.tracks ?? [];
 
-    if (tracksToShow.isEmpty) {
+    if (tracksToShow?.isEmpty ?? true) {
       return const Center(
         child: Text(
           "플레이리스트가 없습니다.",
@@ -33,9 +33,9 @@ class PlaylistTrackList extends ConsumerWidget {
       onReorder: (oldIndex, newIndex) {
         viewModel.reorderTracks(oldIndex, newIndex);
       },
-      itemCount: tracksToShow.length,
+      itemCount: tracksToShow?.length ?? 0,
       itemBuilder: (context, index) {
-        final item = tracksToShow[index];
+        final item = tracksToShow![index];
         final isSelected = state.selectedTracks.contains(item);
 
         return PlaylistTrackListTile(

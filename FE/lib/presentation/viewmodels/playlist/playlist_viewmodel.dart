@@ -2,9 +2,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/domain/entities/playlist.dart';
 import 'package:ari/domain/entities/playlist_trackitem.dart';
 import 'playlist_state.dart';
+import 'package:ari/domain/repositories/playlist_repository.dart';
 
 class PlaylistViewModel extends StateNotifier<PlaylistState> {
-  PlaylistViewModel() : super(PlaylistState(selectedTracks: {}));
+  final IPlaylistRepository playlistRepository;
+
+  PlaylistViewModel({required this.playlistRepository})
+    : super(PlaylistState(selectedTracks: {}));
+
+  /// 원격 API로부터 플레이리스트 목록을 가져와 상태를 업데이트합니다.
+  Future<void> fetchPlaylists() async {
+    try {
+      final playlists = await playlistRepository.fetchPlaylists();
+      if (playlists.isNotEmpty) {
+        setPlaylist(playlists.first);
+      }
+    } catch (e) {
+      // 오류 처리 (예: 로그 출력, 에러 상태 업데이트 등)
+      print('플레이리스트 조회 오류: $e');
+    }
+  }
 
   void setPlaylist(Playlist playlist) {
     state = state.copyWith(selectedPlaylist: playlist, selectedTracks: {});
@@ -32,9 +49,7 @@ class PlaylistViewModel extends StateNotifier<PlaylistState> {
     if (state.selectedPlaylist == null) {
       return;
     }
-
     final allTracks = state.selectedPlaylist!.tracks;
-
     final filtered =
         allTracks.where((item) {
           final title = item.track.trackTitle.toLowerCase();
@@ -42,7 +57,6 @@ class PlaylistViewModel extends StateNotifier<PlaylistState> {
           return title.contains(query.toLowerCase()) ||
               artist.contains(query.toLowerCase());
         }).toList();
-
     state = state.copyWith(filteredTracks: filtered);
   }
 
@@ -100,8 +114,3 @@ class PlaylistViewModel extends StateNotifier<PlaylistState> {
     );
   }
 }
-
-final playlistViewModelProvider =
-    StateNotifierProvider<PlaylistViewModel, PlaylistState>(
-      (ref) => PlaylistViewModel(),
-    );
