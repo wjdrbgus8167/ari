@@ -10,7 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/sign_up_request.dart';
 
 abstract class AuthRemoteDataSource {
-  Future<TokenModel?> refreshTokens(String refreshToken);
+  Future<TokenModel?> refreshTokens();
   Future<void> signUp(SignUpRequest signUpRequest);
   Future<TokenModel?> login(LoginRequest loginRequest);
 }
@@ -25,7 +25,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   });
 
   @override
-  Future<TokenModel?> refreshTokens(String refreshToken) async {
+  Future<TokenModel?> refreshTokens() async {
     try {
       final dio = ref.read(dioProvider);
       final response = await dio.post(

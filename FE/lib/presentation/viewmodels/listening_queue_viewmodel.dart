@@ -192,7 +192,7 @@ class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
     bool publicYn,
     List<ListeningQueueItem> selectedItems,
   ) async {
-    final request = PlaylistCreateRequest(title: title, isPublic: publicYn);
+    final request = PlaylistCreateRequest(title: title);
     final newPlaylist = await playlistRepository.createPlaylist(request);
     for (var item in selectedItems) {
       await playlistRepository.addTrack(newPlaylist.id, item.track.trackId);
