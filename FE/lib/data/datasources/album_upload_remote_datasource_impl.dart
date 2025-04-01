@@ -27,22 +27,26 @@ class AlbumUploadRemoteDataSourceImpl implements AlbumUploadRemoteDataSource {
       final formData = FormData();
 
       // 메타데이터 구성
+      final tracksList = <Map<String, dynamic>>[];
+      int trackIndex = 1;
+
+      // 트랙 메타데이터 생성 (순차적인 trackNumber로)
+      for (final track in albumRequest.tracks) {
+        tracksList.add({
+          "trackNumber": trackIndex, // 순차적인 트랙 번호 부여
+          "trackTitle": track.trackTitle,
+          "composer": track.composer,
+          "lyricist": track.lyricist,
+          "lyrics": track.lyrics,
+        });
+        trackIndex++;
+      }
+
       final Map<String, dynamic> metadataMap = {
         "genreName": albumRequest.genreName,
         "albumTitle": albumRequest.albumTitle,
         "description": albumRequest.description,
-        "tracks":
-            albumRequest.tracks
-                .map(
-                  (track) => {
-                    "trackNumber": track.trackNumber,
-                    "trackTitle": track.trackTitle,
-                    "composer": track.composer,
-                    "lyricist": track.lyricist,
-                    "lyrics": track.lyrics,
-                  },
-                )
-                .toList(),
+        "tracks": tracksList,
       };
 
       // JSON으로 변환
@@ -50,38 +54,53 @@ class AlbumUploadRemoteDataSourceImpl implements AlbumUploadRemoteDataSource {
       print('📀 메타데이터(수정됨): $metadataJson');
       formData.fields.add(MapEntry('metadata', metadataJson));
 
-      // 커버 이미지
+      // 커버 이미지 - 원본 확장자 감지하여 처리
+      final imageExt = path.extension(coverImageFile.path).toLowerCase();
+      String coverFileName =
+          imageExt.contains('.png') ? 'cover.png' : 'cover.jpg';
+
       final coverFile = await MultipartFile.fromFile(
         coverImageFile.path,
-        filename: 'cover.jpg', // 항상 jpg로 통일
+        filename: coverFileName,
       );
       formData.files.add(MapEntry('coverImage', coverFile));
-      print('📀 커버 이미지 추가: ${coverImageFile.path}, 파일명: cover.jpg');
+      print('📀 커버 이미지 추가: ${coverImageFile.path}, 파일명: $coverFileName');
 
-      // 트랙 파일 - 하나만 추가
-      if (trackFiles.isNotEmpty) {
-        final entry = trackFiles.entries.first;
+      // 중요: 트랙 순서와 이름 설정
+      // 서버가 'tracks' 필드에 여러 파일이 올 때 순서를 보장하지 않을 수 있음
+      // 따라서 각 트랙 파일에 고유한 필드 이름 부여
+      trackIndex = 1;
+      for (final entry in trackFiles.entries) {
         final trackFile = await MultipartFile.fromFile(
           entry.value.path,
-          filename: 'track.mp3',
+          filename: 'track$trackIndex.mp3', // 파일명에 순번 포함
         );
+        // 여기가 중요: Postman과 동일하게 모든 트랙 파일에 'tracks' 필드명 사용
         formData.files.add(MapEntry('tracks', trackFile));
-        print('📀 트랙 파일 추가: ${entry.value.path}, 파일명: track.mp3');
+        print(
+          '📀 트랙 파일 추가: ${entry.value.path}, 필드명: tracks, 파일명: track$trackIndex.mp3',
+        );
+        trackIndex++;
       }
 
       print(
         '📀 FormData 준비 완료, 필드: ${formData.fields.length}, 파일: ${formData.files.length}',
       );
 
-      // 요청 전송
+      // 요청 전송 - 로깅 추가
+      print('📀 요청 URL: $baseUrl/api/v1/albums/upload');
+      print(
+        '📀 요청 헤더: contentType=multipart/form-data, Accept=application/json',
+      );
+
       final response = await dio.post(
         '$baseUrl/api/v1/albums/upload',
         data: formData,
         options: Options(
           contentType: 'multipart/form-data',
           headers: {'Accept': 'application/json'},
-          sendTimeout: const Duration(minutes: 10),
-          receiveTimeout: const Duration(minutes: 10),
+          sendTimeout: const Duration(minutes: 15),
+          receiveTimeout: const Duration(minutes: 15),
         ),
         onSendProgress: (sent, total) {
           if (total != -1) {
