@@ -5,8 +5,11 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+// Chainlink Automation 사용을 위한 인터페이스 추가
+// 로컬 인터페이스 파일 사용
+import "./AutomationCompatibleInterface.sol";
 
-contract SubscriptionContract is Ownable {
+contract SubscriptionContract is Ownable, AutomationCompatibleInterface {
     using SafeERC20 for IERC20;
 
     struct RegularSubscription {
@@ -55,6 +58,24 @@ contract SubscriptionContract is Ownable {
 
     // 각 사용자가 구독한 아티스트 ID 목록
     mapping(uint256 => uint256[]) public userSubscribedArtists;
+
+    // Chainlink Automation을 위한 데이터 구조
+    // 모든 활성 정기 구독 사용자 ID 목록
+    uint256[] public activeRegularSubscribers;
+    // 정기 구독 사용자 ID => 활성 구독자 배열 내 인덱스
+    mapping(uint256 => uint256) public regularSubscriberIndex;
+
+    // 모든 활성 아티스트 구독 정보 배열 (구독자ID, 아티스트ID 쌍)
+    struct ArtistSubscriptionPair {
+        uint256 subscriberId;
+        uint256 artistId;
+    }
+    ArtistSubscriptionPair[] public activeArtistSubscriptions;
+    // 구독자ID, 아티스트ID 쌍 => 활성 구독 배열 내 인덱스
+    mapping(uint256 => mapping(uint256 => uint256)) public artistSubscriptionIndex;
+
+    // 한 번의 upkeep에서 처리할 최대 구독 수
+    uint256 public constant MAX_UPKEEP_SUBSCRIPTIONS = 10;
 
     // 기본 이벤트들
     event RegularSubscriptionCreated(uint256 userId, uint256 amount, uint256 interval);
@@ -139,6 +160,9 @@ contract SubscriptionContract is Ownable {
             tokenAddress: defaultTokenAddress
         });
 
+        // 활성 정기 구독 목록에 추가
+        _addToRegularSubscriberList(userId);
+
         // 첫 결제 처리: 사용자의 토큰을 컨트랙트로 송금
         IERC20(defaultTokenAddress).safeTransferFrom(msg.sender, address(this), defaultRegularAmount);
 
@@ -157,6 +181,9 @@ contract SubscriptionContract is Ownable {
         if (!artistSubscriptions[subscriberId][artistId].active) {
             artistSubscribers[artistId].push(subscriberId);
             userSubscribedArtists[subscriberId].push(artistId);
+
+            // 활성 아티스트 구독 목록에 추가
+            _addToArtistSubscriptionList(subscriberId, artistId);
         }
 
         // 구독 정보 업데이트
@@ -181,6 +208,10 @@ contract SubscriptionContract is Ownable {
         require(regularSubscriptions[userId].active, "No active subscription");
 
         regularSubscriptions[userId].active = false;
+
+        // 활성 정기 구독 목록에서 제거
+        _removeFromRegularSubscriberList(userId);
+
         emit RegularSubscriptionCancelled(userId);
     }
 
@@ -196,55 +227,156 @@ contract SubscriptionContract is Ownable {
         // userSubscribedArtists 배열에서 artistId 제거
         _removeFromArray(userSubscribedArtists[subscriberId], artistId);
 
+        // 활성 아티스트 구독 목록에서 제거
+        _removeFromArtistSubscriptionList(subscriberId, artistId);
+
         emit ArtistSubscriptionCancelled(subscriberId, artistId);
     }
 
-    // 정기구독 결제 처리
-    // 체인링크 Keepers 등이 조건을 감시하여 호출할 수 있도록 onlyOwner 제한을 제거
-    function processRegularPayment(uint256 userId) external returns (bool) {
+    // 정기구독 결제 처리 (내부 함수)
+    function _processRegularPayment(uint256 userId) internal returns (bool) {
         RegularSubscription storage sub = regularSubscriptions[userId];
-        require(sub.active, "Subscription not active");
+        if (!sub.active) return false;
 
         // 다음 결제 시간인지 확인
         uint256 nextPaymentTime = sub.lastPaymentTime + sub.interval;
-        require(block.timestamp >= nextPaymentTime, "Not time for payment yet");
+        if (block.timestamp < nextPaymentTime) return false;
 
         // 결제 전, 구독 기간에 대한 정산 요청 이벤트 발생
         emit SettlementRequestedRegular(userId, sub.lastPaymentTime, nextPaymentTime, sub.amount);
 
-        // 새 결제 처리: 사용자의 토큰을 컨트랙트로 송금
-        IERC20(sub.tokenAddress).safeTransferFrom(userAddresses[userId], address(this), sub.amount);
+        IERC20 token = IERC20(sub.tokenAddress);
+        // low-level call을 통해 transferFrom 호출
+        (bool success, bytes memory data) = address(token).call(
+            abi.encodeWithSelector(token.transferFrom.selector, userAddresses[userId], address(this), sub.amount)
+        );
+        // 반환값 검사: data가 없거나 true를 반환하면 성공
+        bool transferSuccess = success && (data.length == 0 || abi.decode(data, (bool)));
 
-        sub.lastPaymentTime = block.timestamp;
-        emit PaymentProcessed(userId, sub.tokenAddress, sub.amount, "regular");
-        return true;
+        if (transferSuccess) {
+            sub.lastPaymentTime = block.timestamp;
+            emit PaymentProcessed(userId, sub.tokenAddress, sub.amount, "regular");
+            return true;
+        } else {
+            // 결제 실패 시 구독 취소 처리
+            sub.active = false;
+            _removeFromRegularSubscriberList(userId);
+            emit RegularSubscriptionCancelled(userId);
+            return false;
+        }
     }
 
-    // 아티스트 구독 결제 처리
-    function processArtistPayment(uint256 subscriberId, uint256 artistId) external returns (bool) {
+    // 아티스트 구독 결제 처리 (내부 함수)
+    function _processArtistPayment(uint256 subscriberId, uint256 artistId) internal returns (bool) {
         ArtistSubscription storage sub = artistSubscriptions[subscriberId][artistId];
-        require(sub.active, "Subscription not active");
+        if (!sub.active) return false;
 
         // 다음 결제 시간인지 확인
         uint256 nextPaymentTime = sub.lastPaymentTime + sub.interval;
-        require(block.timestamp >= nextPaymentTime, "Not time for payment yet");
+        if (block.timestamp < nextPaymentTime) return false;
 
         // 정산 요청 이벤트 발생
         emit SettlementRequestedArtist(artistId, subscriberId, sub.lastPaymentTime, nextPaymentTime, sub.amount);
 
-        // 새 결제 처리: 사용자의 토큰을 컨트랙트로 송금
-        IERC20(sub.tokenAddress).safeTransferFrom(userAddresses[subscriberId], address(this), sub.amount);
+        IERC20 token = IERC20(sub.tokenAddress);
+        // low-level call을 사용하여 transferFrom 호출
+        (bool success, bytes memory data) = address(token).call(
+            abi.encodeWithSelector(token.transferFrom.selector, userAddresses[subscriberId], address(this), sub.amount)
+        );
+        // ERC20 함수의 반환값 확인: 데이터가 없거나, true를 반환하는 경우 성공
+        bool transferSuccess = success && (data.length == 0 || abi.decode(data, (bool)));
 
-        sub.lastPaymentTime = block.timestamp;
-        emit PaymentProcessed(subscriberId, sub.tokenAddress, sub.amount, "artist");
-        return true;
+        if (transferSuccess) {
+            sub.lastPaymentTime = block.timestamp;
+            emit PaymentProcessed(subscriberId, sub.tokenAddress, sub.amount, "artist");
+            return true;
+        } else {
+            // 결제 실패 시 구독 취소 처리
+            sub.active = false;
+            _removeFromArtistSubscriptionList(subscriberId, artistId);
+            _removeFromArray(artistSubscribers[artistId], subscriberId);
+            _removeFromArray(userSubscribedArtists[subscriberId], artistId);
+            emit ArtistSubscriptionCancelled(subscriberId, artistId);
+            return false;
+        }
+    }
+
+    // 외부 호출용 함수 (이전 코드와의 호환성 유지)
+    function processRegularPayment(uint256 userId) external returns (bool) {
+        return _processRegularPayment(userId);
+    }
+
+    // 외부 호출용 함수 (이전 코드와의 호환성 유지)
+    function processArtistPayment(uint256 subscriberId, uint256 artistId) external returns (bool) {
+        return _processArtistPayment(subscriberId, artistId);
+    }
+
+    // Chainlink Keeper 호환 인터페이스 구현
+    function checkUpkeep(bytes calldata /* checkData */) external view override returns (bool upkeepNeeded, bytes memory performData) {
+        // 1. 정기 구독 확인
+        uint256[] memory regularIds = new uint256[](MAX_UPKEEP_SUBSCRIPTIONS);
+        uint256 regularCount = 0;
+
+        for (uint256 i = 0; i < activeRegularSubscribers.length && regularCount < MAX_UPKEEP_SUBSCRIPTIONS; i++) {
+            uint256 userId = activeRegularSubscribers[i];
+            RegularSubscription storage sub = regularSubscriptions[userId];
+
+            if (sub.active && block.timestamp >= sub.lastPaymentTime + sub.interval) {
+                regularIds[regularCount] = userId;
+                regularCount++;
+            }
+        }
+
+        // 2. 아티스트 구독 확인
+        uint256[] memory subscriberIds = new uint256[](MAX_UPKEEP_SUBSCRIPTIONS);
+        uint256[] memory artistIds = new uint256[](MAX_UPKEEP_SUBSCRIPTIONS);
+        uint256 artistSubCount = 0;
+
+        for (uint256 i = 0; i < activeArtistSubscriptions.length && artistSubCount < MAX_UPKEEP_SUBSCRIPTIONS; i++) {
+            uint256 subId = activeArtistSubscriptions[i].subscriberId;
+            uint256 artId = activeArtistSubscriptions[i].artistId;
+            ArtistSubscription storage sub = artistSubscriptions[subId][artId];
+
+            if (sub.active && block.timestamp >= sub.lastPaymentTime + sub.interval) {
+                subscriberIds[artistSubCount] = subId;
+                artistIds[artistSubCount] = artId;
+                artistSubCount++;
+            }
+        }
+
+        // 처리할 구독이 없으면 false 반환
+        upkeepNeeded = (regularCount > 0 || artistSubCount > 0);
+
+        // 처리할 ID 목록 인코딩
+        performData = abi.encode(regularIds, regularCount, subscriberIds, artistIds, artistSubCount);
+
+        return (upkeepNeeded, performData);
+    }
+
+    // Chainlink Keeper 호환 인터페이스 구현
+    function performUpkeep(bytes calldata performData) external override {
+        // 디코딩
+        (
+            uint256[] memory regularIds,
+            uint256 regularCount,
+            uint256[] memory subscriberIds,
+            uint256[] memory artistIds,
+            uint256 artistSubCount
+        ) = abi.decode(performData, (uint256[], uint256, uint256[], uint256[], uint256));
+
+        // 1. 정기 구독 처리
+        for (uint256 i = 0; i < regularCount; i++) {
+            _processRegularPayment(regularIds[i]);
+        }
+
+        // 2. 아티스트 구독 처리
+        for (uint256 i = 0; i < artistSubCount; i++) {
+            _processArtistPayment(subscriberIds[i], artistIds[i]);
+        }
     }
 
     // 정산 함수: 오프체인에서 전달받은 아티스트 별 스트리밍 횟수 데이터를 사용하여
     // 컨트랙트에 보관 중인 해당 구독자의 결제 토큰을 분배합니다.
-    // 전달 파라미터: artistIds와 streamingCounts 배열은 각각 아티스트 ID와 해당 아티스트의 스트리밍 횟수를 나타냅니다.
-    // 예를 들어, artistIds: [1, 2, 3] 그리고 streamingCounts: [20, 60, 120] 이런 식으로 전달하면
-    // 함수 내부에서 총 스트리밍 횟수(200)를 계산한 후, 각 아티스트의 비율(20/200, 60/200, 120/200)을 산출하여 분배합니다.
     function settleArtistPayments(
         uint256 subscriberId,
         uint256 totalAmount, // 정산할 총 금액
@@ -291,6 +423,65 @@ contract SubscriptionContract is Ownable {
                 array.pop();
                 break;
             }
+        }
+    }
+
+    // 헬퍼 함수: 활성 정기 구독자 목록에 추가
+    function _addToRegularSubscriberList(uint256 userId) internal {
+        if (regularSubscriberIndex[userId] == 0) {
+            activeRegularSubscribers.push(userId);
+            regularSubscriberIndex[userId] = activeRegularSubscribers.length;
+        }
+    }
+
+    // 헬퍼 함수: 활성 정기 구독자 목록에서 제거
+    function _removeFromRegularSubscriberList(uint256 userId) internal {
+        uint256 index = regularSubscriberIndex[userId];
+        if (index > 0) {
+            // 인덱스는 1부터 시작하므로 1을 빼줌
+            index--;
+
+            // 마지막 요소가 아니면 스왑
+            if (index < activeRegularSubscribers.length - 1) {
+                uint256 lastUserId = activeRegularSubscribers[activeRegularSubscribers.length - 1];
+                activeRegularSubscribers[index] = lastUserId;
+                regularSubscriberIndex[lastUserId] = index + 1;
+            }
+
+            // 마지막 요소 제거
+            activeRegularSubscribers.pop();
+            regularSubscriberIndex[userId] = 0;
+        }
+    }
+
+    // 헬퍼 함수: 활성 아티스트 구독 목록에 추가
+    function _addToArtistSubscriptionList(uint256 subscriberId, uint256 artistId) internal {
+        if (artistSubscriptionIndex[subscriberId][artistId] == 0) {
+            activeArtistSubscriptions.push(ArtistSubscriptionPair({
+                subscriberId: subscriberId,
+                artistId: artistId
+            }));
+            artistSubscriptionIndex[subscriberId][artistId] = activeArtistSubscriptions.length;
+        }
+    }
+
+    // 헬퍼 함수: 활성 아티스트 구독 목록에서 제거
+    function _removeFromArtistSubscriptionList(uint256 subscriberId, uint256 artistId) internal {
+        uint256 index = artistSubscriptionIndex[subscriberId][artistId];
+        if (index > 0) {
+            // 인덱스는 1부터 시작하므로 1을 빼줌
+            index--;
+
+            // 마지막 요소가 아니면 스왑
+            if (index < activeArtistSubscriptions.length - 1) {
+                ArtistSubscriptionPair storage lastItem = activeArtistSubscriptions[activeArtistSubscriptions.length - 1];
+                activeArtistSubscriptions[index] = lastItem;
+                artistSubscriptionIndex[lastItem.subscriberId][lastItem.artistId] = index + 1;
+            }
+
+            // 마지막 요소 제거
+            activeArtistSubscriptions.pop();
+            artistSubscriptionIndex[subscriberId][artistId] = 0;
         }
     }
 
@@ -358,5 +549,26 @@ contract SubscriptionContract is Ownable {
     // 아티스트 ID로 아티스트 주소 조회
     function getArtistAddressById(uint256 artistId) external view returns (address) {
         return artistAddresses[artistId];
+    }
+
+    // 현재 활성 정기구독 사용자 목록 조회
+    function getActiveRegularSubscribers() external view returns (uint256[] memory) {
+        return activeRegularSubscribers;
+    }
+
+    // 현재 활성 아티스트 구독 목록 조회
+    function getActiveArtistSubscriptions() external view returns (
+        uint256[] memory subscriberIds,
+        uint256[] memory artistIds
+    ) {
+        subscriberIds = new uint256[](activeArtistSubscriptions.length);
+        artistIds = new uint256[](activeArtistSubscriptions.length);
+
+        for (uint256 i = 0; i < activeArtistSubscriptions.length; i++) {
+            subscriberIds[i] = activeArtistSubscriptions[i].subscriberId;
+            artistIds[i] = activeArtistSubscriptions[i].artistId;
+        }
+
+        return (subscriberIds, artistIds);
     }
 }
