@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ari/core/constants/app_colors.dart';
 
 class CustomToast {
   /// [context] - 토스트 표시할 컨텍스트
@@ -17,10 +18,7 @@ class CustomToast {
     final overlay = Overlay.of(context);
     final overlayEntry = OverlayEntry(
       builder:
-          (context) => _ToastOverlay(
-            message: message,
-            onDismiss: _removeToast,
-          ),
+          (context) => _ToastOverlay(message: message, onDismiss: _removeToast),
     );
 
     // 전역 변수에 현재 토스트 저장
@@ -93,9 +91,9 @@ class _ToastOverlayState extends State<_ToastOverlay>
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      bottom: MediaQuery.of(context).viewPadding.bottom + 50,
-      left: 20,
-      right: 20,
+      bottom: MediaQuery.of(context).viewPadding.bottom + 70,
+      left: MediaQuery.of(context).size.width * 0.2, // 좌우 여백
+      right: MediaQuery.of(context).size.width * 0.2, // 좌우 여백
       child: GestureDetector(
         onTap: () {
           // 터치하면 토스트 없어짐
@@ -108,13 +106,14 @@ class _ToastOverlayState extends State<_ToastOverlay>
           child: Material(
             color: Colors.transparent,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              width: MediaQuery.of(context).size.width * 0.6, // 토스트 가로 길이
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
                 color: _getBackgroundColor(),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12), // 라운딩
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black,
+                    color: Colors.black.withValues(alpha: 0.2),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -140,10 +139,10 @@ class _ToastOverlayState extends State<_ToastOverlay>
 
   // 배경색
   Color _getBackgroundColor() {
-    return Colors.black;
+    // return Colors.black;
+    return AppColors.lightPurple;
   }
 }
-
 
 // 확장 메서드(다이얼로그 쉽게 호출 가능)
 // 원본 클래스 수정하지 않아도 기능 확장 가능
@@ -153,10 +152,6 @@ extension ToastExtension on BuildContext {
     String message, {
     Duration duration = const Duration(seconds: 2),
   }) {
-    CustomToast.show(
-      context: this,
-      message: message,
-      duration: duration,
-    );
+    CustomToast.show(context: this, message: message, duration: duration);
   }
 }
