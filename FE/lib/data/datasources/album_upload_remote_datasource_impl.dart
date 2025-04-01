@@ -19,6 +19,7 @@ class AlbumUploadRemoteDataSourceImpl implements AlbumUploadRemoteDataSource {
     required UploadAlbumRequest albumRequest,
     required File coverImageFile,
     required Map<String, File> trackFiles,
+    Function(double progress)? onProgress, // 콜백 파라미터
   }) async {
     try {
       print('📀 앨범 업로드 시작: ${albumRequest.albumTitle}');
@@ -104,8 +105,13 @@ class AlbumUploadRemoteDataSourceImpl implements AlbumUploadRemoteDataSource {
         ),
         onSendProgress: (sent, total) {
           if (total != -1) {
-            final percentage = (sent / total * 100).toStringAsFixed(2);
-            print('📀 업로드 진행률: $percentage% ($sent/$total)');
+            final progress = sent / total;
+            print(
+              '📀 업로드 진행률: ${(progress * 100).toStringAsFixed(2)}% ($sent/$total)',
+            );
+
+            // 콜백이 제공된 경우 진행률 전달
+            onProgress?.call(progress);
           }
         },
       );

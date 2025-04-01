@@ -15,5 +15,6 @@ abstract class AlbumUploadRepository {
     required UploadAlbumRequest albumRequest,
     required File coverImageFile,
     required Map<String, File> trackFiles,
+    Function(double progress)? onProgress, // 콜백 파라미터
   });
 }

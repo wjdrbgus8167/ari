@@ -14,6 +14,7 @@ class AlbumUploadState {
   final String selectedGenre;
   final File? coverImageFile;
   final List<Map<String, dynamic>> tracks;
+  final double uploadProgress; // 진행률 추가 (0.0 ~ 1.0)
 
   AlbumUploadState({
     this.status = AlbumUploadStatus.initial,
@@ -23,6 +24,7 @@ class AlbumUploadState {
     this.selectedGenre = '',
     this.coverImageFile,
     this.tracks = const [],
+    this.uploadProgress = 0.0, // 기본값 0
   });
 
   AlbumUploadState copyWith({
@@ -33,6 +35,7 @@ class AlbumUploadState {
     String? selectedGenre,
     File? coverImageFile,
     List<Map<String, dynamic>>? tracks,
+    double? uploadProgress, // 업로드 진행률
   }) {
     return AlbumUploadState(
       status: status ?? this.status,
@@ -42,6 +45,7 @@ class AlbumUploadState {
       selectedGenre: selectedGenre ?? this.selectedGenre,
       coverImageFile: coverImageFile ?? this.coverImageFile,
       tracks: tracks ?? this.tracks,
+      uploadProgress: uploadProgress ?? this.uploadProgress, // 업로드 진행률
     );
   }
 
@@ -88,9 +92,14 @@ class AlbumUploadViewModel extends StateNotifier<AlbumUploadState> {
     }
   }
 
+  // 진행률 업데이트 메서드
+  void updateProgress(double progress) {
+    state = state.copyWith(uploadProgress: progress);
+  }
+
   Future<void> uploadAlbum() async {
     if (!state.isFormValid) {
-      print("앨범 업로드 폼 유효성 검증 실패");
+      // print("앨범 업로드 폼 유효성 검증 실패");
       state = state.copyWith(
         status: AlbumUploadStatus.error,
         errorMessage: '모든 항목을 입력해주세요',
@@ -99,6 +108,11 @@ class AlbumUploadViewModel extends StateNotifier<AlbumUploadState> {
     }
 
     try {
+      // 로딩 상태로 변경하고 진행률 초기화
+      state = state.copyWith(
+        status: AlbumUploadStatus.loading,
+        uploadProgress: 0.0,
+      );
       print("앨범 업로드 시작");
       state = state.copyWith(status: AlbumUploadStatus.loading);
 
@@ -146,6 +160,7 @@ class AlbumUploadViewModel extends StateNotifier<AlbumUploadState> {
         albumRequest: albumRequest,
         coverImageFile: state.coverImageFile!,
         trackFiles: trackFiles,
+        onProgress: updateProgress, //진행률 콜백 전달
       );
 
       result.fold(

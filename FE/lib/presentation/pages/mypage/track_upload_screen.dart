@@ -127,6 +127,68 @@ class _TrackUploadScreenState extends ConsumerState<TrackUploadScreen> {
     }
   }
 
+  // 업로드 버튼 또는 진행률 UI 빌드
+  Widget _buildUploadButton() {
+    final state = ref.watch(albumUploadViewModelProvider);
+
+    if (state.status == AlbumUploadStatus.loading) {
+      // 로딩 상태일 때 진행률 표시
+      return Column(
+        children: [
+          // 진행률 표시 (%)
+          Text(
+            '업로드 중... ${(state.uploadProgress * 100).toStringAsFixed(0)}%',
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          // 진행 상태 바
+          LinearProgressIndicator(
+            value: state.uploadProgress,
+            backgroundColor: Colors.grey[700],
+            valueColor: AlwaysStoppedAnimation<Color>(AppColors.mediumPurple),
+            minHeight: 10,
+            borderRadius: BorderRadius.circular(5),
+          ),
+          const SizedBox(height: 16),
+
+          // 취소 버튼
+          TextButton.icon(
+            onPressed: () {
+              // 업로드 취소 로직 (필요시)
+              // 현재의 Dio 구현에서는 요청 취소 기능이 있음
+            },
+            icon: const Icon(Icons.cancel, color: Colors.white),
+            label: const Text('취소', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      );
+    } else {
+      // 트랙 등록 버튼
+      return SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: _addTrack,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            padding: const EdgeInsets.symmetric(vertical: 15),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+          ),
+          child: const Text(
+            "트랙 등록",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -425,28 +487,8 @@ class _TrackUploadScreenState extends ConsumerState<TrackUploadScreen> {
                         ),
                         const SizedBox(height: 30),
 
-                        // 트랙 등록 버튼
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: _addTrack,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Colors.black,
-                              padding: const EdgeInsets.symmetric(vertical: 15),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                            ),
-                            child: const Text(
-                              "트랙 등록",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
+                        // 트랙 등록 버튼 (대신 _buildUploadButton)
+                        _buildUploadButton(),
                       ],
                     ),
                   ),
