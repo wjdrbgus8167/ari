@@ -40,4 +40,12 @@ public class AlbumRepositoryImpl implements LikeRepository {
                     .map(TrackLikeJpaEntity::toDomain);
         };
     }
+
+    @Override
+    public Boolean existsActiveByTargetAndMember(Integer targetId, Integer memberId, LikeType type) {
+        return switch (type) {
+            case ALBUM -> albumLikeJpaRepository.existsByAlbumIdAndMemberIdAndActivateYnTrue(targetId, memberId);
+            case TRACK -> trackLikeJpaRepository.existsByTrackIdAndMemberIdAndActivateYnTrue(targetId, memberId);
+        };
+    }
 }

@@ -11,5 +11,8 @@ public interface LikeRepository {
     void saveLike(Like like, LikeType type);
 
     //  좋아요 조회
-    Optional<Like> findByTargetAndMember(Integer albumId, Integer memberId, LikeType type);
+    Optional<Like> findByTargetAndMember(Integer targetId, Integer memberId, LikeType type);
+
+    // 좋아요 상태 확인
+    Boolean existsActiveByTargetAndMember(Integer targetId, Integer memberId, LikeType type);
 }
