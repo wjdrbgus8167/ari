@@ -86,7 +86,7 @@ class AuthInterceptor extends Interceptor {
   Future<Response<dynamic>> _retryRequest(
     RequestOptions requestOptions,
     String accessToken,
-     String refreshToken,
+    String refreshToken,
   ) async {
     return await dio.fetch(
       requestOptions.copyWith(
@@ -103,7 +103,11 @@ class AuthInterceptor extends Interceptor {
   }
 
   // 쿠키 업데이트 로직 분리
-  String _updateCookies(String originalCookies, String accessToken, String refreshToken) {
+  String _updateCookies(
+    String originalCookies,
+    String accessToken,
+    String refreshToken,
+  ) {
     List<String> cookies =
         originalCookies.isEmpty ? [] : originalCookies.split('; ');
     cookies.removeWhere((cookie) => cookie.startsWith('access_token='));
