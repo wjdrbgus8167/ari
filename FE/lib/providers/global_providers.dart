@@ -5,8 +5,8 @@ import 'package:ari/data/repositories/playlist_repository_impl.dart';
 import 'package:ari/domain/repositories/playlist_repository.dart';
 
 import 'package:ari/providers/auth/auth_providers.dart';
+import 'package:ari/providers/my_channel/my_channel_providers.dart';
 import 'package:ari/providers/user_provider.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import 'package:audioplayers/audioplayers.dart';

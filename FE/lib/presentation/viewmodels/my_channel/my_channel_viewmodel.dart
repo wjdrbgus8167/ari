@@ -1,14 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart'; // MultipartFile 사용
-import '../../core/exceptions/failure.dart';
-import '../../data/models/my_channel/channel_info.dart';
-import '../../data/models/my_channel/artist_album.dart';
-import '../../data/models/my_channel/artist_notice.dart';
-import '../../data/models/my_channel/fantalk.dart';
-import '../../data/models/my_channel/public_playlist.dart';
-import '../../data/models/my_channel/neighbor.dart';
-import '../../domain/usecases/my_channel/my_channel_usecases.dart';
-import '../../domain/usecases/my_channel/artist_notice_usecases.dart' as notice;
+import '../../../core/exceptions/failure.dart';
+import '../../../data/models/my_channel/channel_info.dart';
+import '../../../data/models/my_channel/artist_album.dart';
+import '../../../data/models/my_channel/artist_notice.dart';
+import '../../../data/models/my_channel/fantalk.dart';
+import '../../../data/models/my_channel/public_playlist.dart';
+import '../../../data/models/my_channel/neighbor.dart';
+import '../../../domain/usecases/my_channel/my_channel_usecases.dart';
+import '../../../domain/usecases/my_channel/artist_notice_usecases.dart' as notice;
 
 /// 나의 채널 데이터 로딩 상태
 enum MyChannelStatus { initial, loading, success, error }
