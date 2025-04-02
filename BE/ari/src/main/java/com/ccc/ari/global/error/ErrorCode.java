@@ -57,6 +57,9 @@ public enum ErrorCode {
     MEMBER_NICKNAME_REQUIRED(HttpStatus.BAD_REQUEST, "V008", "닉네임은 필수입니다."),
     MEMBER_NICKNAME_TOO_LONG(HttpStatus.BAD_REQUEST, "V009", "닉네임은 100자 이하여야 합니다."),
 
+    // 차트 관련
+    CHART_NOT_FOUND(HttpStatus.NOT_FOUND, "H001", "차트를 조회하는데 실패했습니다."),
+
     GENRE_NOT_FOUND(HttpStatus.NOT_FOUND,"G001","존재하지 않는 장르입니다.");
 
     private final HttpStatus status;

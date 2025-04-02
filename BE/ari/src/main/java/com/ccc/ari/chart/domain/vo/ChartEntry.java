@@ -1,5 +1,7 @@
 package com.ccc.ari.chart.domain.vo;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.util.Objects;
@@ -8,19 +10,21 @@ import java.util.Objects;
 public class ChartEntry {
 
     private final Integer trackId;
-    private final String trackTitle;
-    private final int rank;
     private final long streamCount;
-    private final String artist;
-    private final String coverImageUrl;
+    private final int rank;
 
-    public ChartEntry(Integer trackId, String trackTitle, int rank, long streamCount, String artist, String coverImageUrl) {
+    @Builder
+    public ChartEntry(Integer trackId, long streamCount, int rank) {
         this.trackId = trackId;
-        this.trackTitle = trackTitle;
-        this.rank = rank;
         this.streamCount = streamCount;
-        this.artist = artist;
-        this.coverImageUrl = coverImageUrl;
+        this.rank = rank;
+    }
+
+    @JsonCreator
+    protected ChartEntry() {
+        this.trackId = null;
+        this.streamCount = 0;
+        this.rank = 0;
     }
 
     @Override
@@ -38,6 +42,6 @@ public class ChartEntry {
 
     @Override
     public String toString() {
-        return rank + "위: " + trackTitle + "(id:" + trackId + "), 스트리밍 횟수: " + streamCount;
+        return rank + "위: 트랙 ID (" + trackId + "), 스트리밍 횟수: " + streamCount;
     }
 }
