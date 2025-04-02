@@ -15,6 +15,8 @@ class PlaylistState {
     this.filteredTracks,
   });
 
+  bool get selectionMode => selectedTracks.isNotEmpty;
+
   PlaylistState copyWith({
     Playlist? selectedPlaylist,
     List<Playlist>? playlists,

@@ -1,4 +1,3 @@
-// lib/domain/entities/playlist.dart
 import 'package:ari/domain/entities/playlist_trackitem.dart';
 import 'package:ari/data/models/playlist.dart' as data;
 
@@ -6,7 +5,8 @@ class Playlist {
   final int id;
   final String title;
   final bool isPublic;
-  final int shareCount;
+  final int shareCount; // 공유 횟수
+  final int trackCount; // 트랙 갯수
   final List<PlaylistTrackItem> tracks;
 
   const Playlist({
@@ -14,15 +14,17 @@ class Playlist {
     required this.title,
     required this.isPublic,
     required this.shareCount,
+    required this.trackCount,
     required this.tracks,
   });
 
   factory Playlist.fromJson(Map<String, dynamic> json) {
     return Playlist(
-      id: json['id'] as int,
-      title: json['title'] as String,
-      isPublic: json['isPublic'] as bool,
+      id: json['playlistId'] as int,
+      title: json['playlistTitle'] as String,
+      isPublic: json['publicYn'] as bool,
       shareCount: json['shareCount'] as int,
+      trackCount: json['trackCount'] as int,
       tracks:
           (json['tracks'] as List<dynamic>?)
               ?.map(
@@ -38,6 +40,7 @@ class Playlist {
   data.Playlist toDataModel() {
     return data.Playlist(
       playlistId: id,
+      trackCount: trackCount,
       shareCount: shareCount,
       publicYn: isPublic,
       playlistTitle: title,

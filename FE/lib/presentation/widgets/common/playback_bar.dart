@@ -93,7 +93,7 @@ class PlaybackBar extends ConsumerWidget {
                       } else {
                         // 최초 재생: PlaybackService를 사용하여 API를 호출하고 재생 시작
                         await playbackService.playTrack(
-                          albumId: 1,
+                          albumId: 2,
                           trackId: 2,
                           ref: ref,
                         );

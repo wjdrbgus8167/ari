@@ -1,5 +1,5 @@
-import 'package:ari/presentation/widgets/playlist/playlist_tile.dart';
 import 'package:ari/providers/global_providers.dart';
+import 'package:ari/presentation/widgets/playlist/playlist_track_list_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,44 +8,41 @@ class PlaylistTrackList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(playlistViewModelProvider);
-    final viewModel = ref.read(playlistViewModelProvider.notifier);
+    final playlistState = ref.watch(playlistViewModelProvider);
 
-    final playlist = state.selectedPlaylist;
-
-    // ✅ 렌더링할 트랙 리스트를 filteredTracks 기준으로 결정
-    final tracksToShow =
-        state.filteredTracks?.isNotEmpty == true
-            ? state.filteredTracks
-            : playlist?.tracks ?? [];
-
-    if (tracksToShow?.isEmpty ?? true) {
+    if (playlistState.selectedPlaylist == null) {
       return const Center(
-        child: Text(
-          "플레이리스트가 없습니다.",
-          style: TextStyle(color: Colors.white70, fontSize: 18),
-        ),
+        child: Text('플레이리스트를 선택해 주세요.', style: TextStyle(color: Colors.white)),
       );
     }
 
-    return ReorderableListView.builder(
-      padding: const EdgeInsets.only(bottom: 20),
-      onReorder: (oldIndex, newIndex) {
-        viewModel.reorderTracks(oldIndex, newIndex);
-      },
-      itemCount: tracksToShow?.length ?? 0,
-      itemBuilder: (context, index) {
-        final item = tracksToShow![index];
-        final isSelected = state.selectedTracks.contains(item);
+    final tracks = playlistState.selectedPlaylist!.tracks;
+    if (tracks.isEmpty) {
+      return const Center(
+        child: Text('트랙이 존재하지 않습니다.', style: TextStyle(color: Colors.white)),
+      );
+    }
 
+    return ListView.builder(
+      itemCount: tracks.length,
+      itemBuilder: (context, index) {
+        final trackItem = tracks[index];
+        final isSelected = playlistState.selectedTracks.contains(trackItem);
         return PlaylistTrackListTile(
-          key: ValueKey(item.track.trackId),
-          item: item,
+          item: trackItem,
           isSelected: isSelected,
-          selectionMode: state.selectedTracks.isNotEmpty,
-          onToggleSelection: () => viewModel.toggleTrackSelection(item),
-          onTap: () => print("${item.track.trackTitle} 선택됨!"),
-          onDelete: () {},
+          selectionMode: playlistState.selectionMode,
+          onTap: () {
+            // 트랙 클릭 시 동작을 구현합니다.
+          },
+          onToggleSelection: () {
+            ref
+                .read(playlistViewModelProvider.notifier)
+                .toggleTrackSelection(trackItem);
+          },
+          onDelete: () {
+            ref.read(playlistViewModelProvider.notifier).deleteTrack(trackItem);
+          },
         );
       },
     );

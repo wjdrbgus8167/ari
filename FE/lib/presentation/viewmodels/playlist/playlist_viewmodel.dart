@@ -23,8 +23,28 @@ class PlaylistViewModel extends StateNotifier<PlaylistState> {
     }
   }
 
-  void setPlaylist(Playlist playlist) {
-    state = state.copyWith(selectedPlaylist: playlist, selectedTracks: {});
+  Future<void> setPlaylist(Playlist basePlaylist) async {
+    // 우선 목록 조회 API로 받아온 기본 정보를 상태에 설정합니다.
+    state = state.copyWith(selectedPlaylist: basePlaylist, selectedTracks: {});
+
+    try {
+      // 상세조회 API 호출하여 트랙 목록만 가져옵니다.
+      final detailedPlaylist = await playlistRepository.getPlaylistDetail(
+        basePlaylist.id,
+      );
+      // 목록 API의 기본 정보와 상세조회 API의 트랙 목록을 병합합니다.
+      final mergedPlaylist = Playlist(
+        id: basePlaylist.id,
+        title: basePlaylist.title,
+        isPublic: basePlaylist.isPublic,
+        trackCount: detailedPlaylist.tracks.length,
+        shareCount: basePlaylist.shareCount,
+        tracks: detailedPlaylist.tracks,
+      );
+      state = state.copyWith(selectedPlaylist: mergedPlaylist);
+    } catch (e) {
+      print('플레이리스트 상세조회 오류: $e');
+    }
   }
 
   void toggleTrackSelection(PlaylistTrackItem item) {
@@ -88,8 +108,9 @@ class PlaylistViewModel extends StateNotifier<PlaylistState> {
       id: state.selectedPlaylist!.id,
       title: state.selectedPlaylist!.title,
       isPublic: state.selectedPlaylist!.isPublic,
-      tracks: updatedList,
+      trackCount: updatedList.length,
       shareCount: state.selectedPlaylist!.shareCount,
+      tracks: updatedList,
     );
     state = state.copyWith(selectedPlaylist: newPlaylist);
   }
@@ -105,12 +126,17 @@ class PlaylistViewModel extends StateNotifier<PlaylistState> {
       id: state.selectedPlaylist!.id,
       title: state.selectedPlaylist!.title,
       isPublic: state.selectedPlaylist!.isPublic,
-      tracks: newPlaylistTracks,
+      trackCount: newPlaylistTracks.length,
       shareCount: state.selectedPlaylist!.shareCount,
+      tracks: newPlaylistTracks,
     );
     state = state.copyWith(
       selectedPlaylist: newPlaylist,
       selectedTracks: newSelectedTracks,
     );
+  }
+
+  void deleteTrack(PlaylistTrackItem item) {
+    removeTrack(item);
   }
 }

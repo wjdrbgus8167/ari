@@ -3,6 +3,7 @@ import 'package:ari/data/dto/playlist_create_request.dart';
 import 'package:ari/data/datasources/playlist/playlist_remote_datasource.dart';
 import 'package:ari/data/models/api_response.dart';
 import 'package:ari/data/models/playlist.dart';
+import 'package:ari/data/models/playlist_trackitem.dart';
 import 'package:dio/dio.dart';
 
 class PlaylistRemoteDataSourceImpl implements IPlaylistRemoteDataSource {
@@ -96,7 +97,29 @@ class PlaylistRemoteDataSourceImpl implements IPlaylistRemoteDataSource {
     return _request<Playlist>(
       url: '/api/v1/playlists/$playlistId',
       method: 'GET',
-      fromJson: (data) => Playlist.fromJson(data),
+      fromJson: (data) {
+        // ApiResponse 내부에서 이미 "data" 필드만 전달받으므로,
+        // data는 {"tracks": [...]} 형태입니다.
+        final dataMap = data as Map<String, dynamic>;
+        final tracksData = dataMap['tracks'] as List<dynamic>;
+        final tracks =
+            tracksData
+                .map(
+                  (json) =>
+                      PlaylistTrackItem.fromJson(json as Map<String, dynamic>),
+                )
+                .toList();
+
+        // 상세조회 API는 트랙 목록만 반환하므로, 기본 정보는 빈 값 또는 기본값으로 지정합니다.
+        return Playlist(
+          playlistId: playlistId,
+          playlistTitle: '', // ViewModel에서 목록 조회 결과와 병합할 예정
+          publicYn: false, // ViewModel에서 목록 조회 결과와 병합할 예정
+          shareCount: 0, // ViewModel에서 목록 조회 결과와 병합할 예정,
+          trackCount: 0, // ViewModel에서 목록 조회 결과와 병합할 예정
+          tracks: tracks,
+        );
+      },
     );
   }
 
