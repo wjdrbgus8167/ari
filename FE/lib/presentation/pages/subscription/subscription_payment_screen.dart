@@ -38,7 +38,7 @@ class SubscriptionPaymentScreenState extends ConsumerState<SubscriptionPaymentSc
       // mounted 체크 추가
       if (mounted) {
         dev.log("[SubscriptionPaymentScreen] 초기화 완료");
-        final walletState = ref.read(walletStateProvider);
+        final walletState = ref.watch(walletStateProvider);
         dev.log("[SubscriptionPaymentScreen] 초기 지갑 상태: 연결=${walletState.isConnected}, 전송 중=${walletState.isTransferring}");
       }
     });

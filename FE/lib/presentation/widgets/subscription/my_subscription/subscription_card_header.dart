@@ -28,7 +28,7 @@ class CardHeader extends StatelessWidget {
                 Text(
                   subscriptionModel.title,
                   style: TextStyle(
-                    color: subscriptionModel.accentColor,
+                    color: Colors.white,
                     fontSize: 12,
                     fontFamily: 'Pretendard',
                     fontWeight: FontWeight.w700,
