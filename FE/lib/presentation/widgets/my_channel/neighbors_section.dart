@@ -338,7 +338,7 @@ class _NeighborsSectionState extends ConsumerState<NeighborsSection> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: AppColors.mediumPurple,
                   foregroundColor: Colors.white,
                 ),
                 child: const Text('다시 시도'),
@@ -395,7 +395,7 @@ class _NeighborsSectionState extends ConsumerState<NeighborsSection> {
                     height: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Colors.blue,
+                      color: AppColors.mediumPurple,
                     ),
                   ),
                 );
