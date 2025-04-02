@@ -5,6 +5,7 @@ import '../../../data/models/my_channel/artist_album.dart';
 import '../../viewmodels/my_channel/my_channel_viewmodel.dart';
 import '../common/carousel_container.dart';
 import '../../routes/app_router.dart';
+import '../../../core/constants/app_colors.dart';
 
 /// 아티스트 앨범 섹션 위젯
 /// 아티스트가 발매한 앨범 목록을 표시
@@ -113,10 +114,11 @@ class ArtistAlbumSection extends ConsumerWidget {
                   horizontal: 16,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withValues(alpha: 0.1),
+                  // 그라데이션 대신 단색 배경에 투명도 적용
+                  color: AppColors.lightPurple.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: Colors.blue.withValues(alpha: 0.3),
+                    color: AppColors.mediumPurple.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -128,29 +130,31 @@ class ArtistAlbumSection extends ConsumerWidget {
                       style: TextStyle(color: Colors.white, fontSize: 14),
                     ),
                     const SizedBox(height: 16),
-                    // 업로드 버튼 추가
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
+                    // 업로드 버튼 추가 - 그라데이션 적용
+                    DecoratedBox(
                       decoration: BoxDecoration(
-                        color: Colors.blue,
+                        gradient: AppColors.purpleGradient,
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.upload, color: Colors.white, size: 16),
-                          SizedBox(width: 8),
-                          Text(
-                            '앨범 업로드하기',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.upload, color: Colors.white, size: 16),
+                            SizedBox(width: 8),
+                            Text(
+                              '앨범 업로드하기',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ],
