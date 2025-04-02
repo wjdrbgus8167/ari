@@ -17,4 +17,16 @@ public class MemberMapper {
                 .registeredAt(entity.getRegisteredAt())
                 .build();
     }
+
+    public static MemberEntity toEntity(MemberDto dto) {
+       return MemberEntity.builder()
+               .memberId(dto.getMemberId())
+               .nickname(dto.getNickname())
+               .bio(dto.getBio())
+               .registeredAt(dto.getRegisteredAt())
+               .email(dto.getEmail())
+               .instagramId(dto.getInstagramId())
+               .profileImageUrl(dto.getProfileImageUrl())
+               .build();
+    }
 }

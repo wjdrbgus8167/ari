@@ -25,10 +25,9 @@ public class TrackDetailResponse {
     private final Integer trackLikeCount;
     private final String trackFileUrl;
     private final String genreName;
+    private final boolean trackLikedYn;
     private final Integer trackCommentCount;
-    private final Integer trackStreamingCount;
     private final List<TrackComment> trackComments;
-    private final List<StreamingLogData> trackLogs ;
 
 
     @Getter
@@ -43,10 +42,4 @@ public class TrackDetailResponse {
         private final LocalDateTime createdAt;
     }
 
-    @Getter
-    @Builder
-    public static class StreamingLogData {
-        String name;
-        String datetime;
-    }
 }

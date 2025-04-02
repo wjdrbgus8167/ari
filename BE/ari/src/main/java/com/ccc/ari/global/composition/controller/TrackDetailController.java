@@ -2,8 +2,10 @@ package com.ccc.ari.global.composition.controller;
 
 import com.ccc.ari.global.composition.response.TrackDetailResponse;
 import com.ccc.ari.global.composition.service.TrackDetailService;
+import com.ccc.ari.global.security.MemberUserDetails;
 import com.ccc.ari.global.util.ApiUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,9 +22,10 @@ public class TrackDetailController {
     @GetMapping("/api/v1/albums/{albumId}/tracks/{trackId}")
     public ApiUtils.ApiResponse<TrackDetailResponse> getTrackDetail(
             @PathVariable Integer albumId,
-            @PathVariable Integer trackId) {
+            @PathVariable Integer trackId,
+            @AuthenticationPrincipal MemberUserDetails member) {
 
-        TrackDetailResponse response = trackDetailService.getTrackDetail(trackId);
+        TrackDetailResponse response = trackDetailService.getTrackDetail(trackId,member.getMemberId());
 
         return ApiUtils.success(response);
     }

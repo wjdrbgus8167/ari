@@ -20,4 +20,14 @@ public class AlbumMapper {
                 .albumLikeCount(entity.getAlbumLikeCount())
                 .build();
     }
+
+    public static AlbumEntity toEntity(AlbumDto dto) {
+        return AlbumEntity.builder()
+                .albumTitle(dto.getTitle())
+                .description(dto.getDescription())
+                .albumLikeCount(dto.getAlbumLikeCount())
+                .releasedAt(dto.getReleasedAt())
+                .coverImageUrl(dto.getCoverImageUrl())
+                .build();
+    }
 }

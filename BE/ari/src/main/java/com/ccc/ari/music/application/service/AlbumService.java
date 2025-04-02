@@ -4,7 +4,7 @@ import com.ccc.ari.global.error.ApiException;
 import com.ccc.ari.global.error.ErrorCode;
 import com.ccc.ari.music.domain.album.AlbumDto;
 import com.ccc.ari.music.domain.album.AlbumEntity;
-import com.ccc.ari.music.infrastructure.album.JpaAlbumRepository;
+import com.ccc.ari.music.infrastructure.repository.album.JpaAlbumRepository;
 import com.ccc.ari.music.mapper.AlbumMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,5 +20,12 @@ public class AlbumService {
                 .orElseThrow(() -> new ApiException(ErrorCode.MUSIC_FILE_NOT_FOUND));
 
         return AlbumMapper.toDto(entity);
+    }
+
+    public AlbumEntity saveAlbum(AlbumEntity album) {
+
+        AlbumEntity entity =jpaAlbumRepository.save(album);
+
+        return entity;
     }
 }

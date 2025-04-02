@@ -25,6 +25,7 @@ public class AlbumDetailResponse {
 
     private final Integer albumLikeCount;
     private final Integer albumCommentCount;
+    private boolean albumLikedYn;
 
     private final List<TrackDetail> tracks;
     private final List<AlbumComment> albumComments;

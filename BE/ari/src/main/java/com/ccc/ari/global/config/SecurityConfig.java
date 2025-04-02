@@ -4,7 +4,7 @@ import com.ccc.ari.global.jwt.JwtTokenProvider;
 import com.ccc.ari.global.oauth.CustomOAuth2UserService;
 import com.ccc.ari.global.oauth.OAuth2SuccessHandler;
 import com.ccc.ari.global.security.*;
-import com.ccc.ari.member.infrastructure.JpaMemberRepository;
+import com.ccc.ari.member.infrastructure.repository.member.JpaMemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +19,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
 

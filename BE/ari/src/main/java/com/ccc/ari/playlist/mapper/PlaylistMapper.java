@@ -3,7 +3,7 @@ package com.ccc.ari.playlist.mapper;
 import com.ccc.ari.global.error.ApiException;
 import com.ccc.ari.global.error.ErrorCode;
 import com.ccc.ari.member.domain.member.MemberEntity;
-import com.ccc.ari.member.infrastructure.JpaMemberRepository;
+import com.ccc.ari.member.infrastructure.repository.member.JpaMemberRepository;
 import com.ccc.ari.playlist.domain.playlist.Playlist;
 import com.ccc.ari.playlist.domain.playlist.PlaylistEntity;
 import lombok.RequiredArgsConstructor;

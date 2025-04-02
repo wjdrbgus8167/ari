@@ -4,7 +4,7 @@ import com.ccc.ari.global.error.ApiException;
 import com.ccc.ari.global.error.ErrorCode;
 import com.ccc.ari.music.domain.track.TrackDto;
 import com.ccc.ari.music.domain.track.TrackEntity;
-import com.ccc.ari.music.infrastructure.track.JpaTrackRepository;
+import com.ccc.ari.music.infrastructure.repository.track.JpaTrackRepository;
 import com.ccc.ari.music.mapper.TrackMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,5 +32,19 @@ public class TrackService {
                 .orElseThrow(() -> new ApiException(ErrorCode.MUSIC_FILE_NOT_FOUND));
 
         return TrackMapper.toDto(entity);
+    }
+
+    public List<TrackEntity> saveTracks(List<TrackEntity> entities){
+        List<TrackEntity> tracks = jpaTrackRepository.saveAll(entities);
+
+        return tracks;
+
+    }
+
+    public TrackDto getTrackByAlbumIdAndTrackId(Integer albumId, Integer trackId){
+        TrackEntity trackEntity = jpaTrackRepository.findByAlbum_AlbumIdAndTrackId(albumId, trackId)
+                .orElseThrow(() -> new ApiException(ErrorCode.MUSIC_FILE_NOT_FOUND));
+
+        return TrackMapper.toDto(trackEntity);
     }
 }
