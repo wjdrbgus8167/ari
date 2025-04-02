@@ -1,5 +1,5 @@
-import 'package:ari/data/models/playlist.dart';
-import 'package:ari/data/models/playlist_trackitem.dart';
+import 'package:ari/domain/entities/playlist.dart';
+import 'package:ari/domain/entities/playlist_trackitem.dart';
 
 class PlaylistState {
   final Playlist? selectedPlaylist;

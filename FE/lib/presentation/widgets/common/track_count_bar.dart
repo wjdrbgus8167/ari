@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ari/core/constants/app_colors.dart';
-import '../../../data/models/track.dart';
+import 'package:ari/domain/entities/track.dart';
 
 class TrackCountBar extends StatelessWidget {
   final int trackCount;

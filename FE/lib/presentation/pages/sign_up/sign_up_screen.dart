@@ -14,7 +14,7 @@ class SignUpScreen extends ConsumerWidget {
     final signUpState = ref.watch(signUpViewModelProvider);
     // ViewModel 인스턴스에 접근
     final viewModel = ref.read(signUpViewModelProvider.notifier);
-    
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
@@ -37,21 +37,21 @@ class SignUpScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 58),
-                  
+
                   // 이메일 입력 필드
                   SignUpTextField(
                     hintText: '이메일',
                     onChanged: viewModel.setEmail,
                   ),
                   const SizedBox(height: 14),
-                  
+
                   // 닉네임 입력 필드
                   SignUpTextField(
                     hintText: '닉네임',
                     onChanged: viewModel.setNickname,
                   ),
                   const SizedBox(height: 14),
-                  
+
                   // 비밀번호 입력 필드
                   SignUpTextField(
                     hintText: '비밀번호',
@@ -59,7 +59,7 @@ class SignUpScreen extends ConsumerWidget {
                     onChanged: viewModel.setPassword,
                   ),
                   const SizedBox(height: 14),
-                  
+
                   // 비밀번호 확인 필드
                   SignUpTextField(
                     hintText: '비밀번호 확인',
@@ -67,22 +67,19 @@ class SignUpScreen extends ConsumerWidget {
                     onChanged: viewModel.setConfirmPassword,
                   ),
                   const SizedBox(height: 14),
-                  
+
                   // 에러 메시지 표시
                   if (signUpState.errorMessage != null)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 10),
                       child: Text(
                         signUpState.errorMessage!,
-                        style: const TextStyle(
-                          color: Colors.red,
-                          fontSize: 14,
-                        ),
+                        style: const TextStyle(color: Colors.red, fontSize: 14),
                       ),
                     ),
-                  
+
                   const SizedBox(height: 20),
-                  
+
                   // 회원가입 버튼
                   ButtonLarge(
                     text: '회원가입 완료하기',

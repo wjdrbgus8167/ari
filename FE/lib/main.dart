@@ -3,8 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'presentation/pages/home/home_screen.dart';
 import 'presentation/widgets/common/global_bottom_widget.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:ari/data/models/track.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Hive 초기화
+  await Hive.initFlutter();
+  // Hive 어댑터 등록 (Track 모델에 대한 TypeAdapter)
+  Hive.registerAdapter(TrackAdapter());
+
   runApp(const ProviderScope(child: MyApp()));
 }
 

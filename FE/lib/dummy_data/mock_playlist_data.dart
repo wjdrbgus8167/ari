@@ -1,48 +1,101 @@
-import 'package:ari/data/models/playlist.dart';
-import 'package:ari/data/models/playlist_trackitem.dart';
-import 'package:ari/data/models/track.dart';
+import 'package:ari/domain/entities/playlist.dart';
+import 'package:ari/domain/entities/playlist_trackitem.dart';
+import 'package:ari/domain/entities/track.dart';
 
 class MockPlaylistData {
   static List<Playlist> getMockPlaylists() {
     return [
       Playlist(
-        playlistId: 1,
-        playlistTitle: 'Mock Playlist 1',
-        publicYn: true,
+        id: 1,
+        title: 'Mock Playlist 1',
+        isPublic: true,
+        shareCount: 5, // 예시 값: 5
         tracks: [
           PlaylistTrackItem(
             track: Track(
-              id: 1,
+              trackId: 1,
               trackTitle: 'song1',
-              artist: 'Artist1',
-              composer: '',
-              lyricist: '',
-              albumId: 'album1',
+              artistName: 'Artist1',
+              composer: [''],
+              lyricist: [''],
+              albumId: 1,
               trackFileUrl: '',
-              lyrics: '',
+              lyric: '',
+              trackNumber: 1,
+              commentCount: 0,
+              createdAt: DateTime.now().toString(),
+              coverUrl: null,
+              trackLikeCount: 0,
+              comments: [],
             ),
             trackOrder: 1,
           ),
           PlaylistTrackItem(
             track: Track(
-              id: 2,
+              trackId: 2,
               trackTitle: 'song2',
-              artist: 'Artist2',
-              composer: '',
-              lyricist: '',
-              albumId: 'album1',
+              artistName: 'Artist2',
+              composer: [''],
+              lyricist: [''],
+              albumId: 2,
               trackFileUrl: '',
-              lyrics: '',
+              lyric: '',
+              trackNumber: 1,
+              commentCount: 0,
+              createdAt: DateTime.now().toString(),
+              coverUrl: null,
+              trackLikeCount: 0,
+              comments: [],
             ),
             trackOrder: 2,
           ),
         ],
       ),
       Playlist(
-        playlistId: 2,
-        playlistTitle: 'Mock Playlist 2',
-        publicYn: false,
-        tracks: [],
+        id: 2,
+        title: 'Mock Playlist 2',
+        isPublic: false,
+        shareCount: 2, // 예시 값: 2
+        tracks: [
+          PlaylistTrackItem(
+            track: Track(
+              trackId: 3,
+              trackTitle: 'song3',
+              artistName: 'Artist3',
+              composer: ['Composer3'],
+              lyricist: ['Lyricist3'],
+              albumId: 3,
+              trackFileUrl: 'https://example.com/song3.mp3',
+              lyric: 'Lyrics for song3',
+              trackNumber: 1,
+              commentCount: 0,
+              createdAt: DateTime.now().toString(),
+              coverUrl: 'https://example.com/cover3.jpg',
+              trackLikeCount: 10,
+              comments: [],
+            ),
+            trackOrder: 1,
+          ),
+          PlaylistTrackItem(
+            track: Track(
+              trackId: 4,
+              trackTitle: 'song4',
+              artistName: 'Artist4',
+              composer: ['Composer4'],
+              lyricist: ['Lyricist4'],
+              albumId: 3,
+              trackFileUrl: 'https://example.com/song4.mp3',
+              lyric: 'Lyrics for song4',
+              trackNumber: 2,
+              commentCount: 0,
+              createdAt: DateTime.now().toString(),
+              coverUrl: 'https://example.com/cover4.jpg',
+              trackLikeCount: 5,
+              comments: [],
+            ),
+            trackOrder: 2,
+          ),
+        ],
       ),
     ];
   }

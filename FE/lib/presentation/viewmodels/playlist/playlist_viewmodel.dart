@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ari/data/models/playlist.dart';
-import 'package:ari/data/models/playlist_trackitem.dart';
-import 'playlist_state.dart'; // import 분리된 state
+import 'package:ari/domain/entities/playlist.dart';
+import 'package:ari/domain/entities/playlist_trackitem.dart';
+import 'playlist_state.dart';
 
 class PlaylistViewModel extends StateNotifier<PlaylistState> {
   PlaylistViewModel() : super(PlaylistState(selectedTracks: {}));
@@ -38,7 +38,7 @@ class PlaylistViewModel extends StateNotifier<PlaylistState> {
     final filtered =
         allTracks.where((item) {
           final title = item.track.trackTitle.toLowerCase();
-          final artist = item.track.artist.toLowerCase();
+          final artist = item.track.artistName.toLowerCase();
           return title.contains(query.toLowerCase()) ||
               artist.contains(query.toLowerCase());
         }).toList();
@@ -71,10 +71,11 @@ class PlaylistViewModel extends StateNotifier<PlaylistState> {
     final item = updatedList.removeAt(oldIndex);
     updatedList.insert(newIndex, item);
     final newPlaylist = Playlist(
-      playlistId: state.selectedPlaylist!.playlistId,
-      playlistTitle: state.selectedPlaylist!.playlistTitle,
-      publicYn: state.selectedPlaylist!.publicYn,
+      id: state.selectedPlaylist!.id,
+      title: state.selectedPlaylist!.title,
+      isPublic: state.selectedPlaylist!.isPublic,
       tracks: updatedList,
+      shareCount: state.selectedPlaylist!.shareCount,
     );
     state = state.copyWith(selectedPlaylist: newPlaylist);
   }
@@ -87,10 +88,11 @@ class PlaylistViewModel extends StateNotifier<PlaylistState> {
     final newSelectedTracks = Set<PlaylistTrackItem>.from(state.selectedTracks)
       ..remove(item);
     final newPlaylist = Playlist(
-      playlistId: state.selectedPlaylist!.playlistId,
-      playlistTitle: state.selectedPlaylist!.playlistTitle,
-      publicYn: state.selectedPlaylist!.publicYn,
+      id: state.selectedPlaylist!.id,
+      title: state.selectedPlaylist!.title,
+      isPublic: state.selectedPlaylist!.isPublic,
       tracks: newPlaylistTracks,
+      shareCount: state.selectedPlaylist!.shareCount,
     );
     state = state.copyWith(
       selectedPlaylist: newPlaylist,
