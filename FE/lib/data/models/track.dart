@@ -1,15 +1,41 @@
-import './album.dart';
+import 'package:ari/domain/entities/track.dart' as domain;
+import 'package:ari/data/models/track.dart' as model;
+import 'package:ari/data/models/album.dart';
 
-class Track {
+import 'package:hive/hive.dart';
+
+part 'track.g.dart';
+
+@HiveType(typeId: 0)
+class Track extends HiveObject {
+  @HiveField(0)
   final int id;
+
+  @HiveField(1)
   final String trackTitle; // 🔹 트랙 제목
+
+  @HiveField(2)
   final String artist;
+
+  @HiveField(3)
   final String composer; // 🔹 작곡가
+
+  @HiveField(4)
   final String lyricist; // 🔹 작사가
+
+  @HiveField(5)
   final String albumId;
+
+  @HiveField(6)
   final String trackFileUrl; // 🔹 음원 파일 URL
+
+  @HiveField(7)
   final String lyrics; // 🔹 가사
+
+  @HiveField(8)
   final int trackLikeCount; // 🔹 좋아요 수
+
+  @HiveField(9)
   final String? coverUrl; // 🔹 앨범 커버 이미지 URL (nullable)
 
   Track({
@@ -21,7 +47,7 @@ class Track {
     required this.albumId,
     required this.trackFileUrl,
     required this.lyrics,
-    this.coverUrl, // ✅ 앨범에서 자동으로 가져오기 위해 nullable 설정
+    this.coverUrl,
     this.trackLikeCount = 0,
   });
 
@@ -36,8 +62,27 @@ class Track {
       albumId: track.albumId,
       trackFileUrl: track.trackFileUrl,
       lyrics: track.lyrics,
-      coverUrl: album.coverUrl, // ✅ album에서 coverUrl 가져오기
+      coverUrl: album.coverUrl,
       trackLikeCount: track.trackLikeCount,
     );
   }
+}
+
+domain.Track mapDataTrackToDomain(model.Track dataTrack) {
+  return domain.Track(
+    trackId: dataTrack.id,
+    trackTitle: dataTrack.trackTitle,
+    artistName: dataTrack.artist,
+    composer: [dataTrack.composer],
+    lyricist: [dataTrack.lyricist],
+    albumId: int.parse(dataTrack.albumId),
+    trackFileUrl: dataTrack.trackFileUrl,
+    lyric: dataTrack.lyrics,
+    coverUrl: dataTrack.coverUrl,
+    trackLikeCount: dataTrack.trackLikeCount,
+    commentCount: 0,
+    comments: [],
+    trackNumber: 0,
+    createdAt: DateTime.now().toString(),
+  );
 }

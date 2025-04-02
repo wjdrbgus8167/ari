@@ -1,6 +1,8 @@
+import 'package:ari/data/datasources/playlist/playlist_remote_datasource_impl.dart';
+import 'package:ari/domain/repositories/playlist_repository.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:ari/data/datasources/playlist/playlist_mock_datasource.dart';
-import 'package:ari/data/models/playlist.dart';
+import 'package:ari/domain/entities/playlist.dart';
 import 'package:ari/data/repositories/playlist_repository_impl.dart';
 
 class PlaylistSelectbar extends StatefulWidget {
@@ -13,8 +15,9 @@ class PlaylistSelectbar extends StatefulWidget {
 }
 
 class _PlaylistSelectbarState extends State<PlaylistSelectbar> {
+  // 실제 원격 데이터 소스를 사용하도록 변경 (Dio 인스턴스 전달)
   final IPlaylistRepository _playlistRepository = PlaylistRepositoryImpl(
-    PlaylistMockDataSource(),
+    remoteDataSource: PlaylistRemoteDataSourceImpl(dio: Dio()),
   );
 
   List<Playlist> playlists = [];
@@ -145,7 +148,7 @@ class _PlaylistSelectbarState extends State<PlaylistSelectbar> {
                                             MainAxisAlignment.center,
                                         children: [
                                           Text(
-                                            playlist.playlistTitle,
+                                            playlist.title,
                                             style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 12,
@@ -186,7 +189,7 @@ class _PlaylistSelectbarState extends State<PlaylistSelectbar> {
   @override
   Widget build(BuildContext context) {
     // 버튼 텍스트는 선택된 플레이리스트가 있으면 해당 제목, 없으면 기본 텍스트
-    final buttonText = selectedPlaylist?.playlistTitle ?? '나의 플레이리스트 보기';
+    final buttonText = selectedPlaylist?.title ?? '나의 플레이리스트 보기';
     return GestureDetector(
       onTap: _showPlaylistModal,
       child: Container(

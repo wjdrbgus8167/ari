@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 class PlaybackInfo extends StatelessWidget {
-  const PlaybackInfo({Key? key}) : super(key: key);
+  final String trackTitle;
+  final String artist;
+  const PlaybackInfo({Key? key, required this.trackTitle, required this.artist})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -14,18 +17,18 @@ class PlaybackInfo extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
             Text(
-              "노래 제목",
-              style: TextStyle(
+              trackTitle,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
             Text(
-              "아티스트 이름",
-              style: TextStyle(color: Colors.white70, fontSize: 18),
+              artist,
+              style: const TextStyle(color: Colors.white70, fontSize: 18),
             ),
           ],
         ),
