@@ -4,6 +4,7 @@ import '../../../providers/my_channel/my_channel_providers.dart';
 import '../../../data/models/my_channel/artist_album.dart';
 import '../../viewmodels/my_channel/my_channel_viewmodel.dart';
 import '../common/carousel_container.dart';
+import '../../routes/app_router.dart';
 
 /// 아티스트 앨범 섹션 위젯
 /// 아티스트가 발매한 앨범 목록을 표시
@@ -16,8 +17,7 @@ class ArtistAlbumSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // 아티스트 앨범 상태
     final channelState = ref.watch(myChannelProvider);
-    final artistAlbums =
-        channelState.artistAlbums; // 변수명 수정: albums -> artistAlbums
+    final artistAlbums = channelState.artistAlbums;
     final isLoading =
         channelState.artistAlbumsStatus == MyChannelStatus.loading;
     final hasError = channelState.artistAlbumsStatus == MyChannelStatus.error;
@@ -100,21 +100,61 @@ class ArtistAlbumSection extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 12),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-              decoration: BoxDecoration(
-                color: Colors.blue.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: Colors.blue.withValues(alpha: 0.3),
-                  width: 1,
+            // 탭 가능한 컨테이너로 변경
+            InkWell(
+              onTap: () {
+                // 앨범 업로드 페이지로 라우팅
+                Navigator.pushNamed(context, AppRoutes.albumUpload);
+              },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 24,
+                  horizontal: 16,
                 ),
-              ),
-              child: const Text(
-                '앨범을 업로드해보세요. 누구나 아티스트가 될 수 있습니다.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white, fontSize: 14),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Colors.blue.withValues(alpha: 0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    const Text(
+                      '앨범을 업로드해보세요. 누구나 아티스트가 될 수 있습니다.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                    const SizedBox(height: 16),
+                    // 업로드 버튼 추가
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.upload, color: Colors.white, size: 16),
+                          SizedBox(width: 8),
+                          Text(
+                            '앨범 업로드하기',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
