@@ -217,11 +217,9 @@ class _ArtistNoticeDetailScreenState
   /// 현재 선택된 공지사항 상세 정보
   Widget _buildCurrentNotice(ArtistNotice notice) {
     // 날짜 포맷팅
-    final dateFormatter = DateFormat('yyyy.MM.dd');
-    final utcDateTime = DateTime.parse(notice.createdAt);
-    // UTC 시간을 한국 시간(UTC+9)으로 변환
-    final koreaDateTime = utcDateTime.add(const Duration(hours: 9));
-    final formattedDate = dateFormatter.format(koreaDateTime);
+    final dateFormatter = DateFormat('yyyy.MM.dd HH:mm` ');
+    final dateTime = DateTime.parse(notice.createdAt);
+    final formattedDate = dateFormatter.format(dateTime);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
