@@ -101,7 +101,7 @@ class ArtistAlbumSection extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 12),
-            // 탭 가능한 컨테이너로 변경
+            // 탭 가능한 컨테이너 (아무데나 클릭해도 라우팅됨)
             InkWell(
               onTap: () {
                 // 앨범 업로드 페이지로 라우팅
@@ -127,30 +127,32 @@ class ArtistAlbumSection extends ConsumerWidget {
                 child: Column(
                   children: [
                     const Text(
-                      '앨범을 업로드해보세요. 누구나 아티스트가 될 수 있습니다.',
+                      '앨범을 업로드하세요! 누구나 아티스트가 될 수 있습니다.',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.white, fontSize: 14),
                     ),
                     const SizedBox(height: 16),
-                    // 업로드 버튼 추가 - 그라데이션 적용
+                    // 업로드 버튼
                     DecoratedBox(
                       decoration: BoxDecoration(
-                        gradient: AppColors.greenGradientVertical,  // 초록색 그라데이션
+                        gradient: AppColors.greenGradientVertical, // 초록색 그라데이션
                         // gradient: AppColors.purpleGradient, // 보라색 그라데이션
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Container(
+                        width: 180, // 버튼 가로 길이 지정
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 8,
                         ),
                         child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center, // 가운데 정렬
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(Icons.upload, color: Colors.white, size: 16),
                             SizedBox(width: 8),
                             Text(
-                              '앨범 업로드하기',
+                              '앨범 업로드',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
