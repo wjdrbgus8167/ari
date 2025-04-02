@@ -1,4 +1,5 @@
 import 'package:ari/presentation/viewmodels/playback/playback_state.dart';
+import 'package:ari/providers/global_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/providers/playback/playback_state_provider.dart';
@@ -6,7 +7,6 @@ import 'package:ari/providers/playback/playback_progress_provider.dart';
 import 'package:ari/core/constants/app_colors.dart';
 import 'package:ari/presentation/widgets/playback/expanded_playbackscreen.dart';
 import 'package:ari/presentation/routes/app_router.dart';
-// import alias 사용: playback_service_provider와 구분하기 위해
 import 'package:ari/core/services/playback_service.dart' as playbackServiceLib;
 import 'package:ari/core/services/audio_service.dart';
 
@@ -87,20 +87,34 @@ class PlaybackBar extends ConsumerWidget {
                     if (playbackState.isPlaying) {
                       await audioService.pause(ref);
                     } else {
-                      // 만약 현재 재생 중인 트랙이 이미 존재하면 이어서 재생(resume)
+                      // 현재 재생 중인 트랙이 있다면 이어서 재생(resume)
                       if (playbackState.currentTrackId != null) {
                         await audioService.resume(ref);
                       } else {
-                        // 임시로 albumId: 2,trackId: 2,로 설정
-                        await playbackService.playTrack(
-                          albumId: 2,
-                          trackId: 2,
-                          ref: ref,
-                        );
+                        // 현재 재생 중인 트랙이 없으면 재생목록(리슨잉 큐)에서 셔플하여 재생
+                        final queueState = ref.read(listeningQueueProvider);
+                        final queue =
+                            queueState
+                                .filteredPlaylist; // List<ListeningQueueItem>
+                        if (queue.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('재생 가능한 곡이 없습니다.')),
+                          );
+                        } else {
+                          final shuffledQueue = List.from(queue);
+                          shuffledQueue.shuffle();
+                          final listeningQueueItem = shuffledQueue.first;
+                          await playbackService.playTrack(
+                            albumId: listeningQueueItem.track.albumId,
+                            trackId: listeningQueueItem.track.trackId,
+                            ref: ref,
+                          );
+                        }
                       }
                     }
                   },
                 ),
+
                 IconButton(
                   icon: const Icon(Icons.queue_music, color: Colors.white),
                   onPressed: () {
