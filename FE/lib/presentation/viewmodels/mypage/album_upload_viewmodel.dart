@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../data/models/upload_album_request.dart';
-import '../../domain/usecases/upload_album_usecase.dart';
+import '../../../data/models/upload_album_request.dart';
+import '../../../domain/usecases/upload_album_usecase.dart';
 
 enum AlbumUploadStatus { initial, loading, success, error }
 
