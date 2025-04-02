@@ -10,6 +10,7 @@ import '../../widgets/my_channel/fantalk_section.dart';
 import '../../widgets/my_channel/public_playlist_section.dart';
 import '../../widgets/my_channel/neighbors_section.dart';
 import '../../widgets/test/jwt_user_test_widget.dart';
+import '../../viewmodels/my_channel/my_channel_viewmodel.dart';
 
 /// 나의 채널 화면
 /// 사용자 프로필, 뱃지, (앨범, 공지사항, 팬톡), 플레이리스트, 이웃 정보 표시
@@ -82,8 +83,15 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
     final notifier = ref.read(myChannelProvider.notifier);
 
     if (_currentUserId.isNotEmpty) {
-      // TODO: 팬톡 채널 구현 시 실제 ID로 수정
-      notifier.loadMyChannelData(_currentUserId, 'fantalk-channel-id');
+      // 로딩 상태 리셋 (초기화) - 이전 에러 상태가 남아있을 수 있음
+      ref.read(myChannelProvider.notifier).state = MyChannelState();
+
+      // 약간의 지연 후 데이터 로드 (UI 렌더링 후)
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted) {
+          notifier.loadMyChannelData(_currentUserId, 'fantalk-channel-id');
+        }
+      });
     } else {
       print('사용자 ID가 설정되지 않았습니다. 채널 데이터를 로드할 수 없습니다.');
     }

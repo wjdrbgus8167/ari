@@ -129,9 +129,31 @@ class _NeighborsSectionState extends ConsumerState<NeighborsSection> {
     final hasFollowingsError =
         channelState.followingsStatus == MyChannelStatus.error;
 
+    // 초기 상태 확인 - 처음 진입 시 자동으로 데이터 로드
+    final isFollowersInitial =
+        channelState.followersStatus == MyChannelStatus.initial;
+    final isFollowingsInitial =
+        channelState.followingsStatus == MyChannelStatus.initial;
+
+    // 초기 상태이면 데이터 로드 요청
+    if (isFollowersInitial || isFollowingsInitial) {
+      // 약간의 지연 추가 (UI가 먼저 그려진 후 데이터 요청하도록)
+      Future.microtask(() {
+        final notifier = ref.read(myChannelProvider.notifier);
+        if (isFollowersInitial) {
+          notifier.loadFollowers(widget.memberId);
+        }
+        if (isFollowingsInitial) {
+          notifier.loadFollowings(widget.memberId);
+        }
+      });
+    }
+
     // 팔로워와 팔로잉이 모두 없는 경우
     if (!isFollowersLoading &&
         !isFollowingsLoading &&
+        !isFollowersInitial &&
+        !isFollowingsInitial &&
         ((followers == null || followers.followers.isEmpty) &&
             (followings == null || followings.followings.isEmpty)) &&
         !hasFollowersError &&
@@ -314,36 +336,15 @@ class _NeighborsSectionState extends ConsumerState<NeighborsSection> {
       );
     }
 
-    // 에러 표시
+    // 에러 표시 (다시 시도 버튼 있었는데 제거)
     if (hasError) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 24),
-          child: Column(
-            children: [
-              Text(
-                '목록을 불러오는데 실패했습니다.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.red[300], fontSize: 14),
-              ),
-              const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: () {
-                  // 다시 시도 기능
-                  final notifier = ref.read(myChannelProvider.notifier);
-                  if (_selectedTab == NeighborTab.followers) {
-                    notifier.loadFollowers(widget.memberId);
-                  } else {
-                    notifier.loadFollowings(widget.memberId);
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.mediumPurple,
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('다시 시도'),
-              ),
-            ],
+          child: Text(
+            '목록을 불러오는데 실패했습니다.\n당겨서 새로고침해 주세요.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.red[300], fontSize: 14),
           ),
         ),
       );

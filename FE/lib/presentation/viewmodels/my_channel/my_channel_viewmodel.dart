@@ -8,7 +8,8 @@ import '../../../data/models/my_channel/fantalk.dart';
 import '../../../data/models/my_channel/public_playlist.dart';
 import '../../../data/models/my_channel/neighbor.dart';
 import '../../../domain/usecases/my_channel/my_channel_usecases.dart';
-import '../../../domain/usecases/my_channel/artist_notice_usecases.dart' as notice;
+import '../../../domain/usecases/my_channel/artist_notice_usecases.dart'
+    as notice;
 
 /// 나의 채널 데이터 로딩 상태
 enum MyChannelStatus { initial, loading, success, error }
@@ -115,7 +116,7 @@ class MyChannelState {
   }
 }
 
-/// 나의 채널 뷰모델 provider 
+/// 나의 채널 뷰모델 provider
 /// Riverpod로 나의 채널 상태 관리
 class MyChannelNotifier extends StateNotifier<MyChannelState> {
   final GetChannelInfoUseCase getChannelInfoUseCase;
@@ -313,15 +314,50 @@ class MyChannelNotifier extends StateNotifier<MyChannelState> {
     String memberId,
     String? fantalkChannelId,
   ) async {
-    await loadChannelInfo(memberId);
-    await loadArtistAlbums(memberId);
-    await loadArtistNotices(memberId);
-    if (fantalkChannelId != null) {
-      await loadFanTalks(fantalkChannelId);
+    // 각 데이터 로드 시도
+    try {
+      await loadChannelInfo(memberId);
+    } catch (e) {
+      print('채널 정보 로드 실패: $e');
     }
-    await loadPublicPlaylists(memberId);
-    await loadFollowers(memberId);
-    await loadFollowings(memberId);
+
+    try {
+      await loadArtistAlbums(memberId);
+    } catch (e) {
+      print('아티스트 앨범 로드 실패: $e');
+    }
+
+    try {
+      await loadArtistNotices(memberId);
+    } catch (e) {
+      print('아티스트 공지사항 로드 실패: $e');
+    }
+
+    if (fantalkChannelId != null) {
+      try {
+        await loadFanTalks(fantalkChannelId);
+      } catch (e) {
+        print('팬톡 로드 실패: $e');
+      }
+    }
+
+    try {
+      await loadPublicPlaylists(memberId);
+    } catch (e) {
+      print('공개된 플레이리스트 로드 실패: $e');
+    }
+
+    try {
+      await loadFollowers(memberId);
+    } catch (e) {
+      print('팔로워 목록 로드 실패: $e');
+    }
+
+    try {
+      await loadFollowings(memberId);
+    } catch (e) {
+      print('팔로잉 목록 로드 실패: $e');
+    }
   }
 
   ///////// 공지사항 관련 /////////
