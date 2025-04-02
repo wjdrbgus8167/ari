@@ -26,7 +26,7 @@ class MyChannelScreen extends ConsumerStatefulWidget {
 class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
   // 스크롤 컨트롤러 (나의 채널 프로필 헤더 애니메이션용)
   final ScrollController _scrollController = ScrollController();
-  late String _memberId;
+  String _currentUserId = ''; // 실제 사용자 ID 저장
   late bool _isMyProfile;
 
   // JWT 테스트용 상태
@@ -37,27 +37,37 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
     super.initState();
 
     // 초기 설정
-    _memberId = widget.memberId ?? 'current-user-id';
     _isMyProfile = widget.memberId == null;
 
     // 화면 렌더링 후 데이터 로드 및 사용자 ID 설정
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        // mounted 체크 추가
-        _loadMyChannelData();
+        _updateUserIdFromToken();
       }
     });
   }
 
-  // 토큰에서 사용자 ID 업데이트
+  // 토큰에서 사용자 ID 업데이트 및 데이터 로드
   void _updateUserIdFromToken() {
     // 로그인된 상태라면 토큰에서 사용자 ID 가져오기
     final userId = ref.read(userIdProvider);
-    if (userId != null && widget.memberId == null) {
-      setState(() {
-        _memberId = userId;
-      });
-    }
+
+    setState(() {
+      if (widget.memberId != null) {
+        // 특정 사용자 채널 보기
+        _currentUserId = widget.memberId!;
+      } else if (userId != null) {
+        // 내 채널 보기 (로그인한 경우)
+        _currentUserId = userId;
+      } else {
+        // 로그인하지 않았고 특정 채널도 아닌 경우
+        _currentUserId = '0'; // 임시 ID
+        print('로그인하지 않았습니다. 사용자 ID를 가져올 수 없습니다.');
+      }
+    });
+
+    // ID가 설정된 후 데이터 로드
+    _loadMyChannelData();
   }
 
   @override
@@ -71,8 +81,12 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
     // 채널 데이터 로드
     final notifier = ref.read(myChannelProvider.notifier);
 
-    // TODO: 팬톡 채널 구현 시 실제 ID로 수정
-    notifier.loadMyChannelData(_memberId, 'fantalk-channel-id');
+    if (_currentUserId.isNotEmpty) {
+      // TODO: 팬톡 채널 구현 시 실제 ID로 수정
+      notifier.loadMyChannelData(_currentUserId, 'fantalk-channel-id');
+    } else {
+      print('사용자 ID가 설정되지 않았습니다. 채널 데이터를 로드할 수 없습니다.');
+    }
   }
 
   @override
@@ -122,35 +136,39 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
               // 프로필 헤더
               SliverToBoxAdapter(
                 child: ProfileHeader(
-                  memberId: _memberId,
+                  memberId: _currentUserId,
                   isMyProfile: _isMyProfile,
                   scrollController: _scrollController,
                 ),
               ),
 
               // 배지 목록
-              SliverToBoxAdapter(child: BadgeList(memberId: _memberId)),
+              SliverToBoxAdapter(child: BadgeList(memberId: _currentUserId)),
 
               // 아티스트 앨범 (아티스트인 경우에만 표시)
               SliverToBoxAdapter(
-                child: ArtistAlbumSection(memberId: _memberId),
+                child: ArtistAlbumSection(memberId: _currentUserId),
               ),
 
               // 아티스트 공지사항 (아티스트인 경우에만 표시)
               SliverToBoxAdapter(
-                child: ArtistNoticeSection(memberId: _memberId),
+                child: ArtistNoticeSection(memberId: _currentUserId),
               ),
 
               // 팬톡 (아티스트인 경우에만 표시)
-              SliverToBoxAdapter(child: FanTalkSection(memberId: _memberId)),
+              SliverToBoxAdapter(
+                child: FanTalkSection(memberId: _currentUserId),
+              ),
 
               // 공개된 플레이리스트
               SliverToBoxAdapter(
-                child: PublicPlaylistSection(memberId: _memberId),
+                child: PublicPlaylistSection(memberId: _currentUserId),
               ),
 
               // 이웃(팔로워/팔로잉) 섹션
-              SliverToBoxAdapter(child: NeighborsSection(memberId: _memberId)),
+              SliverToBoxAdapter(
+                child: NeighborsSection(memberId: _currentUserId),
+              ),
 
               // 하단 여백
               const SliverToBoxAdapter(child: SizedBox(height: 80)),
