@@ -12,6 +12,7 @@ import com.ccc.ari.playlist.ui.request.SharePlaylistRequest;
 import com.ccc.ari.playlist.ui.response.CreatePlaylistResponse;
 import com.ccc.ari.playlist.ui.response.GetPlayListResponse;
 import com.ccc.ari.playlist.ui.response.GetPlaylistDetailResponse;
+import com.ccc.ari.playlist.ui.response.GetPublicPlaylistResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -150,4 +151,12 @@ public class PlaylistController {
 
     // 비공개 처리
     // 공개된 플레이 리스트 목록
+    @GetMapping("/public")
+    public ApiUtils.ApiResponse<GetPublicPlaylistResponse> getPlaylistDetail(
+    ) {
+
+        GetPublicPlaylistResponse response = playlistService.getPublicPlaylist();
+
+        return ApiUtils.success(response);
+    }
 }

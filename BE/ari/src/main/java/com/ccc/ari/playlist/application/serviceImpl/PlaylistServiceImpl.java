@@ -1,5 +1,6 @@
 package com.ccc.ari.playlist.application.serviceImpl;
 
+import com.ccc.ari.global.composition.response.mypage.GetMyAlbumListResponse;
 import com.ccc.ari.global.error.ApiException;
 import com.ccc.ari.global.error.ErrorCode;
 import com.ccc.ari.music.domain.track.TrackEntity;
@@ -19,12 +20,14 @@ import com.ccc.ari.playlist.mapper.PlaylistMapper;
 import com.ccc.ari.playlist.ui.response.CreatePlaylistResponse;
 import com.ccc.ari.playlist.ui.response.GetPlayListResponse;
 import com.ccc.ari.playlist.ui.response.GetPlaylistDetailResponse;
+import com.ccc.ari.playlist.ui.response.GetPublicPlaylistResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @AllArgsConstructor
@@ -194,5 +197,25 @@ public class PlaylistServiceImpl implements PlaylistService {
                 .orElseThrow(() -> new ApiException(ErrorCode.PLAYLIST_NOT_FOUND));
 
         playlist.updatePublicYn(command.isPublicYn());
+    }
+
+    public GetPublicPlaylistResponse getPublicPlaylist(){
+
+        List<PlaylistEntity> list =jpaPlaylistRepository.findAllByPublicYn(true);
+
+        List<GetPublicPlaylistResponse.PlaylistResponse> publicList= list.stream()
+                .map(playlist -> GetPublicPlaylistResponse.PlaylistResponse.builder()
+                        .playlistId(playlist.getPlaylistId())
+                        .playlistTitle(playlist.getPlaylistTitle())
+                        .publicYn(playlist.isPublicYn())
+                        .trackCount(playlist.getTracks().size())
+                        .createdAt(playlist.getCreatedAt())
+                        .nickname(playlist.getMember().getNickname())
+                        .shareCount(playlist.getShareCount())
+                        .build())
+                .collect(Collectors.toList());
+
+        return GetPublicPlaylistResponse.builder().playlists(publicList).build();
+
     }
 }

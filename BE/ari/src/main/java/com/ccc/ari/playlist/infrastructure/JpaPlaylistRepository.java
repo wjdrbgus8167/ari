@@ -8,4 +8,5 @@ import java.util.List;
 public interface JpaPlaylistRepository extends JpaRepository<PlaylistEntity, Integer> {
     // 사용자의 모든 플레이리스트 조회
     List<PlaylistEntity> findAllByMember_MemberId(Integer memberId);
+    List<PlaylistEntity> findAllByPublicYn(boolean publicYn);
 }
