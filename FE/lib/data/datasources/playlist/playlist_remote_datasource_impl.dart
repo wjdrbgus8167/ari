@@ -109,14 +109,15 @@ class PlaylistRemoteDataSourceImpl implements IPlaylistRemoteDataSource {
                       PlaylistTrackItem.fromJson(json as Map<String, dynamic>),
                 )
                 .toList();
-
+        print('getPlaylistDetail: Parsed tracks count = ${tracks.length}');
+        print('tracks${tracks}');
         // 상세조회 API는 트랙 목록만 반환하므로, 기본 정보는 빈 값 또는 기본값으로 지정합니다.
         return Playlist(
-          playlistId: playlistId,
-          playlistTitle: '', // ViewModel에서 목록 조회 결과와 병합할 예정
-          publicYn: false, // ViewModel에서 목록 조회 결과와 병합할 예정
-          shareCount: 0, // ViewModel에서 목록 조회 결과와 병합할 예정,
-          trackCount: 0, // ViewModel에서 목록 조회 결과와 병합할 예정
+          id: playlistId,
+          title: '', // 기본값, ViewModel에서 목록 데이터와 병합할 예정
+          isPublic: false, // 기본값, ViewModel에서 병합할 예정
+          shareCount: 0, // 기본값, ViewModel에서 병합할 예정
+          trackCount: tracks.length,
           tracks: tracks,
         );
       },

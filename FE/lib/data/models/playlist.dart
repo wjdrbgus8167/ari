@@ -1,29 +1,29 @@
 import 'package:ari/data/models/playlist_trackitem.dart';
 
 class Playlist {
-  final int playlistId;
-  final int trackCount;
-  final int shareCount;
-  final bool publicYn;
-  final String playlistTitle;
+  final int id; // API의 playlistId 값을 매핑
+  final int trackCount; // API의 trackCount 값
+  final int shareCount; // API의 shareCount 값
+  final bool isPublic; // API의 publicYn 값을 매핑
+  final String title; // API의 playlistTitle 값을 매핑
   final List<PlaylistTrackItem> tracks;
 
   Playlist({
-    required this.playlistId,
+    required this.id,
     required this.trackCount,
     required this.shareCount,
-    required this.publicYn,
-    required this.playlistTitle,
+    required this.isPublic,
+    required this.title,
     this.tracks = const [],
   });
 
   factory Playlist.fromJson(Map<String, dynamic> json) {
     return Playlist(
-      playlistId: json['playlistId'] as int,
+      id: json['playlistId'] as int,
       trackCount: json['trackCount'] != null ? json['trackCount'] as int : 0,
       shareCount: json['shareCount'] != null ? json['shareCount'] as int : 0,
-      publicYn: json['publicYn'] is bool ? json['publicYn'] as bool : false,
-      playlistTitle: json['playlistTitle'] as String,
+      isPublic: json['publicYn'] is bool ? json['publicYn'] as bool : false,
+      title: json['playlistTitle'] as String,
       tracks:
           json['tracks'] != null
               ? (json['tracks'] as List)
@@ -35,11 +35,11 @@ class Playlist {
 
   Map<String, dynamic> toJson() {
     return {
-      'playlistId': playlistId,
+      'playlistId': id,
       'trackCount': trackCount,
       'shareCount': shareCount,
-      'publicYn': publicYn,
-      'playlistTitle': playlistTitle,
+      'publicYn': isPublic,
+      'playlistTitle': title,
       'tracks': tracks.map((e) => e.toJson()).toList(),
     };
   }

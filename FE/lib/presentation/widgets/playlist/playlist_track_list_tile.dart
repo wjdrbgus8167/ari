@@ -21,8 +21,7 @@ class PlaylistTrackListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final track = item.track;
-
+    // 바로 item의 필드를 사용합니다.
     return ListTile(
       leading: Row(
         mainAxisSize: MainAxisSize.min,
@@ -49,7 +48,7 @@ class PlaylistTrackListTile extends StatelessWidget {
         ],
       ),
       title: Text(
-        track.trackTitle,
+        item.trackTitle, // 직접 item에서 trackTitle 사용
         style: const TextStyle(
           color: Colors.white,
           fontSize: 16,
@@ -57,7 +56,7 @@ class PlaylistTrackListTile extends StatelessWidget {
         ),
       ),
       subtitle: Text(
-        track.artistName,
+        item.composer, // 필요에 따라 작곡가 또는 아티스트 명 사용
         style: const TextStyle(color: Colors.white70),
       ),
       trailing: IconButton(

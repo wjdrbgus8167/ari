@@ -19,7 +19,7 @@ class PlaylistRepositoryImpl implements IPlaylistRepository {
   @override
   Future<Playlist> getPlaylistDetail(int playlistId) async {
     final dataModel = await remoteDataSource.getPlaylistDetail(playlistId);
-    return toEntity(dataModel);
+    return toEntityForDetail(dataModel);
   }
 
   @override

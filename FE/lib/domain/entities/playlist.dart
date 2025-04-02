@@ -1,5 +1,6 @@
 import 'package:ari/domain/entities/playlist_trackitem.dart';
 import 'package:ari/data/models/playlist.dart' as data;
+import 'package:ari/domain/entities/playlist.dart' as domain;
 
 class Playlist {
   final int id;
@@ -39,11 +40,11 @@ class Playlist {
   // 데이터 모델에는 tracks 필드가 없으므로 tracks는 변환하지 않습니다.
   data.Playlist toDataModel() {
     return data.Playlist(
-      playlistId: id,
+      id: id,
       trackCount: trackCount,
       shareCount: shareCount,
-      publicYn: isPublic,
-      playlistTitle: title,
+      isPublic: isPublic,
+      title: title,
     );
   }
 }

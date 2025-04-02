@@ -24,15 +24,22 @@ class PlaylistViewModel extends StateNotifier<PlaylistState> {
   }
 
   Future<void> setPlaylist(Playlist basePlaylist) async {
-    // 우선 목록 조회 API로 받아온 기본 정보를 상태에 설정합니다.
+    // 1. 목록 조회 API로 받아온 기본 정보를 상태에 설정합니다.
     state = state.copyWith(selectedPlaylist: basePlaylist, selectedTracks: {});
+    print(
+      'setPlaylist - 기본 플레이리스트: ${basePlaylist.title}, 트랙 수: ${basePlaylist.tracks.length}',
+    );
 
     try {
-      // 상세조회 API 호출하여 트랙 목록만 가져옵니다.
+      // 2. 상세조회 API 호출하여 트랙 목록만 가져옵니다.
       final detailedPlaylist = await playlistRepository.getPlaylistDetail(
         basePlaylist.id,
       );
-      // 목록 API의 기본 정보와 상세조회 API의 트랙 목록을 병합합니다.
+      print(
+        'setPlaylist - 상세조회 API 반환 트랙 수: ${detailedPlaylist.tracks.length}',
+      );
+
+      // 3. 목록 조회 API의 기본 정보와 상세조회 API의 트랙 목록을 병합합니다.
       final mergedPlaylist = Playlist(
         id: basePlaylist.id,
         title: basePlaylist.title,
@@ -41,6 +48,9 @@ class PlaylistViewModel extends StateNotifier<PlaylistState> {
         shareCount: basePlaylist.shareCount,
         tracks: detailedPlaylist.tracks,
       );
+      print('setPlaylist - 병합된 플레이리스트 트랙 수: ${mergedPlaylist.tracks.length}');
+
+      // 4. 최종 병합된 플레이리스트를 상태에 업데이트합니다.
       state = state.copyWith(selectedPlaylist: mergedPlaylist);
     } catch (e) {
       print('플레이리스트 상세조회 오류: $e');
@@ -72,8 +82,9 @@ class PlaylistViewModel extends StateNotifier<PlaylistState> {
     final allTracks = state.selectedPlaylist!.tracks;
     final filtered =
         allTracks.where((item) {
-          final title = item.track.trackTitle.toLowerCase();
-          final artist = item.track.artistName.toLowerCase();
+          final title = item.trackTitle.toLowerCase();
+          // 임시로 작사가로 설정(가수로 나중에 바꿔야함)
+          final artist = item.lyricist.toLowerCase();
           return title.contains(query.toLowerCase()) ||
               artist.contains(query.toLowerCase());
         }).toList();
