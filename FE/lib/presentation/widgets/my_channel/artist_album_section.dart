@@ -32,22 +32,60 @@ class ArtistAlbumSection extends ConsumerWidget {
       );
     }
 
-    // 에러 발생 시 에러 메시지 표시
-    if (hasError) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 24),
-          child: Text(
-            '앨범을 불러오는데 실패했습니다.\n다시 시도해주세요.',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.red[300], fontSize: 14),
-          ),
-        ),
-      );
-    }
+    // TODO: 에러 발생 시 에러 메시지 표시
+    // if (hasError) {
+    //   return Center(
+    //     child: Padding(
+    //       padding: const EdgeInsets.symmetric(vertical: 24),
+    //       child: Text(
+    //         '앨범을 불러오는데 실패했습니다.\n다시 시도해주세요.',
+    //         textAlign: TextAlign.center,
+    //         style: TextStyle(color: Colors.red[300], fontSize: 14),
+    //       ),
+    //     ),
+    //   );
+    // }
 
     // 앨범이 없는 경우 안내 메시지 표시 (빈 위젯 대신)
-    if (artistAlbums == null || artistAlbums.isEmpty) {
+    // if (artistAlbums.isEmpty) {
+    //   return Padding(
+    //     padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+    //     child: Column(
+    //       crossAxisAlignment: CrossAxisAlignment.start,
+    //       children: [
+    //         const Text(
+    //           '나의 앨범',
+    //           style: TextStyle(
+    //             color: Colors.white,
+    //             fontSize: 18,
+    //             fontWeight: FontWeight.bold,
+    //           ),
+    //         ),
+    //         const SizedBox(height: 12),
+    //         Container(
+    //           width: double.infinity,
+    //           padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+    //           decoration: BoxDecoration(
+    //             color: Colors.blue.withValues(alpha: 0.1),
+    //             borderRadius: BorderRadius.circular(8),
+    //             border: Border.all(
+    //               color: Colors.blue.withValues(alpha: 0.3),
+    //               width: 1,
+    //             ),
+    //           ),
+    //           child: const Text(
+    //             '앨범을 업로드해보세요. 누구나 아티스트가 될 수 있습니다.',
+    //             textAlign: TextAlign.center,
+    //             style: TextStyle(color: Colors.white, fontSize: 14),
+    //           ),
+    //         ),
+    //       ],
+    //     ),
+    //   );
+    // }
+
+    // 앨범이 없거나 에러 발생 시 안내 메시지 표시
+    if (artistAlbums == null || artistAlbums.isEmpty || hasError) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
         child: Column(
@@ -147,9 +185,7 @@ class ArtistAlbumSection extends ConsumerWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: Colors.grey.withValues(
-                alpha: 0.7,
-              ),
+              color: Colors.grey.withValues(alpha: 0.7),
               fontSize: 12,
             ),
           ),
@@ -158,9 +194,7 @@ class ArtistAlbumSection extends ConsumerWidget {
           Text(
             '${album.trackCount}곡',
             style: TextStyle(
-              color: Colors.grey.withValues(
-                alpha: 0.4,
-              ),
+              color: Colors.grey.withValues(alpha: 0.4),
               fontSize: 12,
             ),
           ),
