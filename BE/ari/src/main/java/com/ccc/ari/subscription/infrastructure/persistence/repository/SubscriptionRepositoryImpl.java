@@ -5,6 +5,8 @@ import com.ccc.ari.subscription.infrastructure.persistence.entity.SubscriptionEn
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 @RequiredArgsConstructor
 public class SubscriptionRepositoryImpl implements SubscriptionRepository {
@@ -15,4 +17,12 @@ public class SubscriptionRepositoryImpl implements SubscriptionRepository {
     public void save(SubscriptionEntity subscriptionEntity) {
         subscriptionJpaRepository.save(subscriptionEntity);
     };
+
+    @Override
+    public Optional<SubscriptionEntity> findActiveSubscription(Integer memberId, Integer subscriptionPlanId) {
+        return subscriptionJpaRepository.findByMemberId(memberId)
+                .filter(subscriptionEntity ->
+                        subscriptionEntity.getSubscriptionPlanId().equals(subscriptionPlanId)
+                                && subscriptionEntity.isActivateYn());
+    }
 }
