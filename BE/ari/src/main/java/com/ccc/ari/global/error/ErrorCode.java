@@ -42,6 +42,8 @@ public enum ErrorCode {
     PLAYLIST_NOT_FOUND(HttpStatus.NOT_FOUND,"P002","해당 플레이리스트를 조회하는데 실패했습니다."),
     PLAYLIST_NOT_PUBLIC(HttpStatus.CONFLICT,"P003","해당 플레이리스트는 공개된 플레이리스트가 아닙니다."),
     PLAYLIST_TRACK_NOT_FOUND(HttpStatus.NOT_FOUND,"P004","트랙을 찾을 수 없습니다."),
+    PLAYLIST_DUPLICATE_TRACK_SELECTED(HttpStatus.CONFLICT,"P005","선택한 곡들 중 중복된 곡이 존재합니다."),
+    PLAYLIST_DUPLICATE_TRACK_EXISTED(HttpStatus.CONFLICT,"P006","플레이리스트에 이미 곡이 존재합니다."),
 
     //댓글 관련
     ALBUM_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND,"C001","앨범 댓글을 조회하는데 실패했습니다."),
@@ -57,8 +59,10 @@ public enum ErrorCode {
     MEMBER_NICKNAME_REQUIRED(HttpStatus.BAD_REQUEST, "V008", "닉네임은 필수입니다."),
     MEMBER_NICKNAME_TOO_LONG(HttpStatus.BAD_REQUEST, "V009", "닉네임은 100자 이하여야 합니다."),
 
-    GENRE_NOT_FOUND(HttpStatus.NOT_FOUND,"G001","존재하지 않는 장르입니다.");
+    GENRE_NOT_FOUND(HttpStatus.NOT_FOUND,"G001","존재하지 않는 장르입니다."),
 
+    // 앨범 평점
+    ALBUM_RATING_NOT_FOUND(HttpStatus.NOT_FOUND,"AR001","등록된 평점이 없습니다.");
     private final HttpStatus status;
     private final String code;
     private final String message;
