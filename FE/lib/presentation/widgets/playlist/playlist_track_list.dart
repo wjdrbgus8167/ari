@@ -34,8 +34,21 @@ class PlaylistTrackList extends ConsumerWidget {
           isSelected: isSelected,
           selectionMode: playlistState.selectionMode,
           onTap: () {
-            // AudioService를 통해 트랙 재생
-            ref.read(audioServiceProvider).play(ref, trackItem.trackFileUrl);
+            // AudioService의 play 메서드에 필요한 모든 매개변수를 전달합니다.
+            ref
+                .read(audioServiceProvider)
+                .play(
+                  ref,
+                  trackItem.trackFileUrl,
+                  title: trackItem.trackTitle,
+                  artist: trackItem.artist, // 새 API 응답의 artist 필드 사용
+                  coverImageUrl:
+                      trackItem.coverImageUrl, // 새 API 응답의 coverImageUrl 사용
+                  lyrics: trackItem.lyrics,
+                  trackId: trackItem.trackId,
+                  albumId: trackItem.albumId,
+                  isLiked: false,
+                );
           },
           onToggleSelection: () {
             ref

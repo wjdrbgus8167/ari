@@ -45,7 +45,17 @@ class PlaybackService {
 
         // AudioService를 사용해 API에서 받은 trackFileUrl로 트랙을 처음부터 재생 시작
         final audioService = ref.read(audioServiceProvider);
-        await audioService.play(ref, trackFileUrl);
+        await audioService.play(
+          ref,
+          trackFileUrl,
+          title: title,
+          artist: artist,
+          coverImageUrl: coverImageUrl,
+          lyrics: lyrics,
+          trackId: trackId,
+          albumId: albumId,
+          isLiked: false,
+        );
         print('[DEBUG] playTrack: 재생 시작됨');
 
         // PlaybackState 업데이트: 트랙 정보와 함께 currentTrackId와 trackUrl, albumId, isLiked 업데이트

@@ -6,6 +6,8 @@ domain.PlaylistTrackItem toEntityTrack(data.PlaylistTrackItem model) {
   return domain.PlaylistTrackItem(
     trackOrder: model.trackOrder,
     trackId: model.trackId,
+    artist: model.artist,
+    coverImageUrl: model.coverImageUrl,
     composer: model.composer,
     lyricist: model.lyricist,
     lyrics: model.lyrics,

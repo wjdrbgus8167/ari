@@ -4,6 +4,8 @@ class PlaylistTrackItem {
   final int trackOrder;
   final int trackId;
   final String composer;
+  final String artist;
+  final String coverImageUrl;
   final String lyricist;
   final String lyrics;
   final String trackFileUrl;
@@ -15,6 +17,8 @@ class PlaylistTrackItem {
   const PlaylistTrackItem({
     required this.trackOrder,
     required this.trackId,
+    required this.artist,
+    required this.coverImageUrl,
     required this.composer,
     required this.lyricist,
     required this.lyrics,
@@ -30,6 +34,8 @@ class PlaylistTrackItem {
       trackOrder: json['trackOrder'] as int,
       trackId: json['trackId'] as int,
       composer: json['composer'] as String,
+      artist: json['artist'] as String,
+      coverImageUrl: json['coverImageUrl'] as String,
       lyricist: json['lyricist'] as String,
       lyrics: json['lyrics'] as String,
       trackFileUrl: json['trackFileUrl'] as String,
@@ -44,6 +50,8 @@ class PlaylistTrackItem {
     return {
       'trackOrder': trackOrder,
       'trackId': trackId,
+      'artist': artist,
+      'coverImageUrl': coverImageUrl,
       'composer': composer,
       'lyricist': lyricist,
       'lyrics': lyrics,

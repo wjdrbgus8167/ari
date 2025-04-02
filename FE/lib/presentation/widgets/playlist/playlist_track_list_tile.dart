@@ -1,7 +1,6 @@
 import 'package:ari/domain/entities/playlist_trackitem.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ari/core/services/audio_service.dart';
 
 class PlaylistTrackListTile extends ConsumerWidget {
   final PlaylistTrackItem item;
@@ -39,8 +38,8 @@ class PlaylistTrackListTile extends ConsumerWidget {
           const SizedBox(width: 8),
           ClipRRect(
             borderRadius: BorderRadius.circular(5),
-            child: Image.asset(
-              'assets/images/default_album_cover.png',
+            child: Image.network(
+              item.coverImageUrl, // 네트워크 이미지 사용
               width: 50,
               height: 50,
               fit: BoxFit.cover,
@@ -57,17 +56,14 @@ class PlaylistTrackListTile extends ConsumerWidget {
         ),
       ),
       subtitle: Text(
-        item.composer,
+        item.artist, // 이제 artist 필드 사용
         style: const TextStyle(color: Colors.white70),
       ),
       trailing: IconButton(
         icon: const Icon(Icons.menu, color: Colors.white70),
         onPressed: onDelete,
       ),
-      onTap: () {
-        // AudioService의 play 메서드에 WidgetRef와 트랙 URL 전달
-        ref.read(audioServiceProvider).play(ref, item.trackFileUrl);
-      },
+      onTap: onTap,
     );
   }
 }
