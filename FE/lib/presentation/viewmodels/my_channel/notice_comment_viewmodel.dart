@@ -1,5 +1,3 @@
-// lib/presentation/viewmodels/my_channel/notice_comment_viewmodel.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -206,9 +204,9 @@ final noticeCommentProvider = StateNotifierProvider<
   NoticeCommentState
 >((ref) {
   return NoticeCommentNotifier(
-    getNoticeCommentsUseCase: ref.watch(getNoticeCommentsUseCaseProvider),
-    createNoticeCommentUseCase: ref.watch(createNoticeCommentUseCaseProvider),
-    updateNoticeCommentUseCase: ref.watch(updateNoticeCommentUseCaseProvider),
-    deleteNoticeCommentUseCase: ref.watch(deleteNoticeCommentUseCaseProvider),
+    getNoticeCommentsUseCase: ref.read(getNoticeCommentsUseCaseProvider),
+    createNoticeCommentUseCase: ref.read(createNoticeCommentUseCaseProvider),
+    updateNoticeCommentUseCase: ref.read(updateNoticeCommentUseCaseProvider),
+    deleteNoticeCommentUseCase: ref.read(deleteNoticeCommentUseCaseProvider),
   );
 });
