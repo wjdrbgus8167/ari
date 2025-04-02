@@ -3,14 +3,13 @@ package com.ccc.ari.aggregation.application.service;
 import com.ccc.ari.aggregation.domain.AggregatedData;
 import com.ccc.ari.aggregation.domain.client.IpfsClient;
 import com.ccc.ari.aggregation.domain.vo.StreamingLog;
-import com.ccc.ari.aggregation.infrastructure.adapter.BlockChainEventListener;
+import com.ccc.ari.aggregation.infrastructure.adapter.StreamingAggregationContractEventListener;
 import com.ccc.ari.global.contract.StreamingAggregationContract;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -21,7 +20,7 @@ import java.util.stream.Collectors;
 public class StreamingLogQueryService {
 
     private final IpfsClient ipfsClient;
-    private final BlockChainEventListener blockChainEventListener;
+    private final StreamingAggregationContractEventListener streamingAggregationContractEventListener;
 
     private static final Logger logger = LoggerFactory.getLogger(StreamingLogQueryService.class);
 
@@ -37,7 +36,7 @@ public class StreamingLogQueryService {
 
         // 블록체인으로부터 이벤트 로그 조회
         List<StreamingAggregationContract.RawAllTracksUpdatedEventResponse> events =
-                blockChainEventListener.getAllRawAllTracksUpdatedEvents();
+                streamingAggregationContractEventListener.getAllRawAllTracksUpdatedEvents();
         logger.info("블록체인으로부터 {}개의 이벤트가 조회되었습니다.", events.size());
         logger.info("IPFS에서 데이터를 조회하고 처리 중입니다.");
 

@@ -6,6 +6,8 @@ import com.ccc.ari.global.contract.StreamingAggregationContract;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
@@ -19,13 +21,19 @@ import java.util.Optional;
  * 입력받은 CID를 온체인에 기록하고, 그 결과로 발생한 트랜잭션 해시를 반환합니다.
  */
 @Component
-@RequiredArgsConstructor
 public class BlockChainClientImpl implements BlockChainClient {
 
     private static final Logger log = LoggerFactory.getLogger(BlockChainClientImpl.class);
 
     private final Web3j web3j;
     private final StreamingAggregationContract aggregationContract;
+
+    @Autowired
+    public BlockChainClientImpl(@Qualifier("streamingAggregationContractWeb3j") Web3j web3j,
+                                StreamingAggregationContract aggregationContract) {
+        this.web3j = web3j;
+        this.aggregationContract = aggregationContract;
+    }
 
     /**
      * 전체 트랙에 대한 스트리밍 데이터의 CID를 스마트 컨트랙트에 기록하고,
