@@ -441,17 +441,15 @@ class _NeighborsSectionState extends ConsumerState<NeighborsSection> {
     return GestureDetector(
       onTap: () {
         // 사용자 채널 페이지로 이동
-        // navigateToUserChannel(context, neighbor.memberId);
         print('이웃 클릭: ${neighbor.memberName} (ID: ${neighbor.memberId})');
 
         // 토스트 메시지
-        context.showToast('${neighbor.memberName}님의 채널로 이동합니다');
+        // context.showToast('${neighbor.memberName}님의 채널로 이동합니다');
 
-        // TODO: 채널 페이지로 이동 구현
-        // Navigator.of(context).pushNamed(
-        //   AppRouter.myChannel,
-        //   arguments: {'memberId': neighbor.memberId.toString()}
-        // );
+        // 라우터를 통해 다른 사용자의 채널 페이지로 이동
+        AppRouter.navigateTo(context, ref, AppRoutes.myChannel, {
+          'memberId': neighbor.memberId.toString(),
+        });
       },
       child: Container(
         padding: const EdgeInsets.all(12),
