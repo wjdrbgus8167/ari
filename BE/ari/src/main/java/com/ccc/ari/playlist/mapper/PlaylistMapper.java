@@ -23,6 +23,7 @@ public class PlaylistMapper {
         return PlaylistEntity.builder()
                 .playlistId(playList.getPlaylistId())
                 .playlistTitle(playList.getPlayListTitle())
+                .publicYn(playList.isPublicYn())
                 .createAt(LocalDateTime.now())
                 .member(member)
                 .build();

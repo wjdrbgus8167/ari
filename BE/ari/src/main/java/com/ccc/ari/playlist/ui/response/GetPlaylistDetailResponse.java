@@ -17,6 +17,7 @@ public class GetPlaylistDetailResponse {
     public static class TrackDetail {
         int trackOrder;
         Integer trackId;
+        String artist;
         String composer;
         String lyricist;
         String lyrics;
@@ -24,10 +25,13 @@ public class GetPlaylistDetailResponse {
         Integer trackLikeCount;
         Integer trackNumber;
         String trackTitle;
+        String coverImageUrl;
         Integer albumId;
 
         @Builder
-        public TrackDetail(int trackOrder,Integer trackId,String composer, String lyricist, String lyrics, String trackFileUrl, Integer trackLikeCount, Integer trackNumber, String trackTitle, Integer albumId) {
+        public TrackDetail(int trackOrder,Integer trackId,String composer, String lyricist, String lyrics,
+                           String trackFileUrl, Integer trackLikeCount, Integer trackNumber, String trackTitle
+                           ,String coverImageUrl,String artist,Integer albumId) {
             this.trackOrder = trackOrder;
             this.trackId = trackId;
             this.composer = composer;
@@ -38,6 +42,8 @@ public class GetPlaylistDetailResponse {
             this.trackNumber = trackNumber;
             this.trackTitle = trackTitle;
             this.albumId = albumId;
+            this.coverImageUrl = coverImageUrl;
+            this.artist = artist;
 
         }
     }

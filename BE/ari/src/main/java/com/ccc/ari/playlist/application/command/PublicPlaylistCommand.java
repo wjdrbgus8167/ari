@@ -10,12 +10,13 @@ public class PublicPlaylistCommand {
 
     private Integer playlistId;
     private Integer memberId;
+    private boolean publicYn;
 
     @Builder
-    public PublicPlaylistCommand(Integer playlistId, Integer memberId) {
+    public PublicPlaylistCommand(Integer playlistId, Integer memberId, boolean publicYn) {
         this.playlistId = playlistId;
         this.memberId = memberId;
-
+        this.publicYn = publicYn;
     }
 
 }

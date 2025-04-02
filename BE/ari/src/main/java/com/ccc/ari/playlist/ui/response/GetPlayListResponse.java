@@ -17,12 +17,14 @@ public class GetPlayListResponse {
     public static class PlaylistResponse {
         Integer playlistId;
         String playlistTitle;
+        boolean publicYn;
         int trackCount; // 곡 개수
 
         @Builder
-        public PlaylistResponse(Integer playlistId, String playlistTitle, int trackCount) {
+        public PlaylistResponse(Integer playlistId, String playlistTitle,boolean publicYn, int trackCount) {
             this.playlistId = playlistId;
             this.playlistTitle = playlistTitle;
+            this.publicYn = publicYn;
             this.trackCount = trackCount;
 
         }
