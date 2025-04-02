@@ -6,7 +6,6 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-@Builder
 public class Subscription {
 
     private final Integer memberId;
@@ -14,4 +13,15 @@ public class Subscription {
     private final LocalDateTime subscribedAt;
     private LocalDateTime expiredAt;
     private boolean activateYn;
+
+    @Builder
+    public Subscription(Integer memberId,
+                        Integer subscriptionPlanId,
+                        LocalDateTime subscribedAt,
+                        boolean activateYn) {
+        this.memberId = memberId;
+        this.subscriptionPlanId = subscriptionPlanId;
+        this.subscribedAt = subscribedAt;
+        this.activateYn = activateYn;
+    }
 }

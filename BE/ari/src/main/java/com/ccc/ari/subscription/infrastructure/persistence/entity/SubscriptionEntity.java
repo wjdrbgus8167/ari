@@ -1,4 +1,4 @@
-package com.ccc.ari.subscription.infrastructure.entity;
+package com.ccc.ari.subscription.infrastructure.persistence.entity;
 
 import com.ccc.ari.subscription.domain.Subscription;
 import jakarta.persistence.*;

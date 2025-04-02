@@ -1,4 +1,4 @@
-package com.ccc.ari.subscription.infrastructure.entity;
+package com.ccc.ari.subscription.infrastructure.persistence.entity;
 
 import com.ccc.ari.subscription.domain.SubscriptionPlan;
 import jakarta.persistence.*;
@@ -33,20 +33,15 @@ public class SubscriptionPlanEntity {
     @Column(name = "price")
     private BigDecimal price;
 
-    @Column(nullable = true, name = "artist_nickname")
-    private String artistNickname;
-
     @Builder
     public SubscriptionPlanEntity(Integer subscriptionPlanId,
                                   Integer artistId,
                                   PlanType planType,
-                                  BigDecimal price,
-                                  String artistNickname) {
+                                  BigDecimal price) {
         this.subscriptionPlanId = subscriptionPlanId;
         this.artistId = artistId;
         this.planType = planType;
         this.price = price;
-        this.artistNickname = artistNickname;
     }
 
     // from 엔터티 to 도메인 모델
@@ -55,7 +50,6 @@ public class SubscriptionPlanEntity {
                 .artistId(artistId)
                 .planType(planType)
                 .price(price)
-                .artistNickname(artistNickname)
                 .build();
     }
 
@@ -65,7 +59,6 @@ public class SubscriptionPlanEntity {
                 .artistId(subscriptionPlan.getArtistId())
                 .planType(subscriptionPlan.getPlanType())
                 .price(subscriptionPlan.getPrice())
-                .artistNickname(subscriptionPlan.getArtistNickname())
                 .build();
     }
 }
