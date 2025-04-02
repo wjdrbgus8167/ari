@@ -9,7 +9,7 @@ public interface PlaylistService {
 
     CreatePlaylistResponse createPlaylist(CreatePlaylistCommand createPlaylistCommand);
     void addTrack(AddTrackCommand addTrackCommand);
-    void deleteTrack(DeleteTrackCommand deleteTrackCommand);
+    void deletePlaylistTrack(DeletePlaylistTrackCommand command);
     void deletePlaylist(DeletePlaylistCommand deletePlaylistCommand);
     GetPlayListResponse getPlaylist(GetPlaylistCommand getPlaylistCommand);
     GetPlaylistDetailResponse getPlaylistDetail(GetPlaylistDetailCommand getPlaylistDetailCommand);

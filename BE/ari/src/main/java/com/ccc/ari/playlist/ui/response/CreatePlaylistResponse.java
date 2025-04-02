@@ -9,10 +9,12 @@ import lombok.NoArgsConstructor;
 public class CreatePlaylistResponse {
     Integer playlistId;
     String playlistTitle;
+    boolean publicYn;
 
     @Builder
-    public CreatePlaylistResponse(Integer playlistId,String playlistTitle) {
+    public CreatePlaylistResponse(Integer playlistId,String playlistTitle, boolean publicYn) {
         this.playlistId = playlistId;
         this.playlistTitle = playlistTitle;
+        this.publicYn = publicYn;
     }
 }

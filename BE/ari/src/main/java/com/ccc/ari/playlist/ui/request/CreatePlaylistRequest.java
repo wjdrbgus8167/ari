@@ -10,16 +10,20 @@ import lombok.NoArgsConstructor;
 public class CreatePlaylistRequest {
 
     String playlistTitle;
+    boolean publicYn;
 
     @Builder
-    public CreatePlaylistRequest(String playlistTitle) {
+    public CreatePlaylistRequest(String playlistTitle,boolean publicYn) {
+
         this.playlistTitle = playlistTitle;
+        this.publicYn = publicYn;
     }
-    public CreatePlaylistCommand requestToCommand(String playlistTitle,Integer memberId) {
+    public CreatePlaylistCommand requestToCommand(Integer memberId) {
 
         return CreatePlaylistCommand.builder()
                 .playlistTitle(playlistTitle)
                 .memberId(memberId)
+                .publicYn(publicYn)
                 .build();
     }
 }

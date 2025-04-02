@@ -3,6 +3,8 @@ package com.ccc.ari.global.composition.response;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -26,6 +28,7 @@ public class AlbumDetailResponse {
     private final Integer albumLikeCount;
     private final Integer albumCommentCount;
     private boolean albumLikedYn;
+    private BigDecimal albumRating;
 
     private final List<TrackDetail> tracks;
     private final List<AlbumComment> albumComments;
