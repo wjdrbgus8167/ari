@@ -215,3 +215,13 @@ final isUserLoggedInProvider = Provider<bool>((ref) {
     error: (_, __) => false,
   );
 });
+
+/// 현재 로그인한 사용자의 ID를 반환하는 Provider
+final authUserIdProvider = Provider<String>((ref) {
+  final userState = ref.watch(userProvider);
+  return userState.when(
+    data: (user) => user?.id ?? "",
+    loading: () => "",
+    error: (_, __) => "",
+  );
+});

@@ -9,6 +9,9 @@ import 'playback_info.dart';
 import 'playback_controls.dart';
 import 'package:ari/presentation/widgets/lyrics/lyrics_view.dart';
 import 'package:ari/providers/playback/playback_progress_provider.dart';
+import 'package:ari/presentation/widgets/common/like_btn.dart';
+import 'package:ari/data/datasources/like_remote_datasource.dart';
+import 'package:ari/providers/global_providers.dart' as gb;
 
 class ExpandedPlaybackScreen extends ConsumerStatefulWidget {
   const ExpandedPlaybackScreen({Key? key}) : super(key: key);
@@ -20,6 +23,7 @@ class ExpandedPlaybackScreen extends ConsumerStatefulWidget {
 class _ExpandedPlaybackScreenState
     extends ConsumerState<ExpandedPlaybackScreen> {
   bool _showCommentOverlay = false;
+  String? _fixedTimestamp; // 댓글창이 열릴 때 캡처한 고정 타임스탬프
 
   String _formatDuration(Duration duration) {
     final minutes = duration.inMinutes;
@@ -39,11 +43,11 @@ class _ExpandedPlaybackScreenState
       loading: () => Duration.zero,
       error: (_, __) => Duration.zero,
     );
-    final String currentTimestamp = _formatDuration(currentPosition);
 
     return GestureDetector(
       onTap: () {
         if (!_showCommentOverlay) {
+          _fixedTimestamp = _formatDuration(currentPosition);
           setState(() {
             _showCommentOverlay = true;
           });
@@ -58,25 +62,43 @@ class _ExpandedPlaybackScreenState
             builder: (context, scrollController) {
               return Stack(
                 children: [
-                  // 배경: API의 coverImageUrl 사용 (없으면 기본 asset)
                   Positioned.fill(
                     child: Image(image: coverImage, fit: BoxFit.cover),
                   ),
-                  // 우측 상단 즐겨찾기 버튼
+                  // 우측 상단 좋아요 버튼
                   Positioned(
                     top: 40,
                     right: 16,
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.favorite_border,
-                        color: Colors.white,
-                        size: 28,
-                      ),
-                      onPressed: () {},
+                    child: LikeButton(
+                      fetchLikeStatus: () {
+                        final likeDatasource = LikeRemoteDatasource(
+                          dio: ref.read(gb.dioProvider),
+                        );
+                        return likeDatasource.fetchLikeStatus(
+                          playbackState.currentTrackId ?? 0,
+                        );
+                      },
+                      toggleLike: () {
+                        final likeDatasource = LikeRemoteDatasource(
+                          dio: ref.read(gb.dioProvider),
+                        );
+                        return likeDatasource.toggleLikeStatus(
+                          albumId: playbackState.albumId ?? 0,
+                          trackId: playbackState.currentTrackId ?? 0,
+                        );
+                      },
                     ),
                   ),
+
                   // 좌측 상단 PlaybackInfo
-                  const Positioned(top: 40, left: 16, child: PlaybackInfo()),
+                  Positioned(
+                    top: 40,
+                    left: 16,
+                    child: PlaybackInfo(
+                      trackTitle: playbackState.trackTitle,
+                      artist: playbackState.artist,
+                    ),
+                  ),
                   // 하단 재생 컨트롤 영역
                   Positioned(
                     left: 0,
@@ -84,7 +106,6 @@ class _ExpandedPlaybackScreenState
                     bottom: 40,
                     child: PlaybackControls(
                       onToggle: () async {
-                        print('[DEBUG] PlaybackControls onToggle 호출됨');
                         if (playbackState.isPlaying) {
                           await playbackService.audioPlayer.pause();
                           ref
@@ -137,7 +158,10 @@ class _ExpandedPlaybackScreenState
                       trackTitle: playbackState.trackTitle,
                       artist: playbackState.artist,
                       coverImageUrl: playbackState.coverImageUrl,
-                      timestamp: currentTimestamp,
+                      timestamp:
+                          _fixedTimestamp ?? _formatDuration(currentPosition),
+                      trackId: playbackState.currentTrackId ?? 0,
+                      albumId: playbackState.albumId ?? 0,
                       onClose: () {
                         setState(() {
                           _showCommentOverlay = false;

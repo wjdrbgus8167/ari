@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../data/models/track.dart';
+import 'package:ari/domain/entities/track.dart';
 
 class TrackListTile extends StatelessWidget {
   final Track track;
@@ -18,7 +18,7 @@ class TrackListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      key: key, // 부모에서 전달받은 key 사용
+      key: key,
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 1),
       leading: Row(
         mainAxisSize: MainAxisSize.min,
@@ -63,7 +63,7 @@ class TrackListTile extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(
-        track.artist,
+        track.artistName,
         style: const TextStyle(color: Colors.white70, fontSize: 14),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,

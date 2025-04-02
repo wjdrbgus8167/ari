@@ -2,6 +2,9 @@ import 'package:ari/presentation/pages/login/login_screen.dart';
 import 'package:ari/presentation/pages/sign_up/sign_up_screen.dart';
 import 'package:ari/presentation/pages/subscription/my_subscription_screen.dart';
 import 'package:ari/presentation/pages/subscription/subscription_payment_screen.dart';
+import 'package:ari/presentation/pages/subscription/subscription_select_screen.dart';
+import 'package:ari/presentation/widgets/common/custom_dialog.dart';
+import 'package:ari/providers/auth/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:ari/presentation/pages/album/album_detail_screen.dart';
 import 'package:ari/presentation/pages/track_detail/track_detail_screen.dart';
@@ -14,6 +17,7 @@ import 'package:ari/presentation/pages/my_channel/my_channel_screen.dart';
 // 음원 업로드
 import 'package:ari/presentation/pages/mypage/album_upload_screen.dart';
 import 'package:ari/presentation/pages/mypage/track_upload_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AppRoutes {
   static const String home = '/';
@@ -29,69 +33,92 @@ class AppRoutes {
   static const String subscriptionPayment = '/subscription/payment';
   static const String albumUpload = '/album-upload';
   static const String trackUpload = '/album-upload/add-track';
+  static const String subscriptionSelect = '/subscription/select';
+
+  static final Set<String> _protectedRoutes = {
+    myPage,
+    albumUpload,
+    trackUpload,
+    subscription,
+    subscriptionPayment,
+  };
+
+  static bool requiresAuth(String? route) {
+    return _protectedRoutes.contains(route);
+  }
+
 }
 
 class AppRouter {
-  static Route<dynamic> generateRoute(RouteSettings settings) {
+  static Route<dynamic> generateRoute(RouteSettings settings, WidgetRef ref) {
     final args = settings.arguments as Map<String, dynamic>?;
+
     switch (settings.name) {
       case AppRoutes.home:
-        return MaterialPageRoute(builder: (_) => const HomeScreen());
+        return MaterialPageRoute(settings: settings, builder: (_) => const HomeScreen());
 
       case AppRoutes.signUp:
-        return MaterialPageRoute(builder: (_) => const SignUpScreen());
+        return MaterialPageRoute(settings: settings, builder: (_) => const SignUpScreen());
 
       case AppRoutes.login:
-        return MaterialPageRoute(builder: (_) => const LoginScreen());
+        return MaterialPageRoute(settings: settings, builder: (_) => const LoginScreen());
 
       case AppRoutes.myPage:
-        return MaterialPageRoute(builder: (_) => const MyPageScreen());
+        return MaterialPageRoute(settings: settings, builder: (_) => const MyPageScreen());
 
       case AppRoutes.album:
         final albumId = args?['albumId'] as int? ?? 1;
         return MaterialPageRoute(
+          settings: settings, 
           builder: (_) => AlbumDetailScreen(albumId: albumId),
         );
 
       // 앨범 업로드
       case AppRoutes.albumUpload:
-        return MaterialPageRoute(builder: (_) => const AlbumUploadScreen());
+        return MaterialPageRoute(settings: settings, builder: (_) => const AlbumUploadScreen());
       // 트랙 업로드 
       case AppRoutes.trackUpload:
-        return MaterialPageRoute(builder: (_) => const TrackUploadScreen());
+        return MaterialPageRoute(settings: settings, builder: (_) => const TrackUploadScreen());
       case AppRoutes.listeningqueue:
-        return MaterialPageRoute(builder: (_) => const ListeningQueueScreen());
+        return MaterialPageRoute(settings: settings, builder: (_) => const ListeningQueueScreen());
 
       case AppRoutes.track:
         final albumId = args?['albumId'] as int? ?? 1;
         final trackId = args?['trackId'] as int? ?? 1;
         return MaterialPageRoute(
+          settings: settings, 
           builder: (_) => TrackDetailScreen(albumId: albumId, trackId: trackId),
         );
 
       case AppRoutes.playlist:
-        return MaterialPageRoute(builder: (_) => const PlaylistScreen());
+        return MaterialPageRoute(settings: settings, builder: (_) => const PlaylistScreen());
 
       case AppRoutes.myChannel:
         final args = settings.arguments as Map<String, dynamic>?;
         final memberId = args?['memberId'] as String?;
         return MaterialPageRoute(
+          settings: settings, 
           builder: (_) => MyChannelScreen(memberId: memberId),
         );
 
       case AppRoutes.subscription:
-        return MaterialPageRoute(builder: (_) => const MySubscriptionScreen());
+        return MaterialPageRoute(settings: settings, builder: (_) => const MySubscriptionScreen());
+
+      case AppRoutes.subscriptionSelect:
+        return MaterialPageRoute(settings: settings, builder: (_) => const SubscriptionSelectScreen());
 
       case AppRoutes.subscriptionPayment:
         return MaterialPageRoute(
+          settings: settings, 
           builder: (_) => const SubscriptionPaymentScreen(),
         );
 
       default:
         // 없는 경로는 홈으로 리다이렉트, 스낵바로 알림
         return MaterialPageRoute(
+          settings: settings, 
           builder: (context) {
-            // 화면 빌드 후 SnackBar 표시
+            // 화면 빌드
             WidgetsBinding.instance.addPostFrameCallback((_) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -107,6 +134,79 @@ class AppRouter {
             return const HomeScreen();
           },
         );
+    }
+  }
+
+  // AppRouter 클래스에 추가
+  static BuildContext? currentContext;
+
+  static Future<bool> checkAuth(BuildContext context, WidgetRef ref) async {
+    final isLoggedIn = ref.read(authStateProvider).when(
+      data: (value) => value,
+      loading: () => false,
+      error: (_, __) => false,
+    );
+
+    if (!isLoggedIn) {
+      // 로그인 안 된 경우: 다이얼로그 표시
+      final result = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) {
+          return CustomDialog(
+            title: '로그인 필요',
+            content: '로그인이 필요합니다. 로그인 화면으로 이동하시겠습니까?',
+            confirmText: '로그인하기',
+            cancelText: '취소',
+            confirmButtonColor: Colors.blue,
+            cancelButtonColor: Colors.grey,
+            // onConfirm에서 로그인 화면으로 이동하지 않고, 단순히 true 반환
+            onConfirm: null,  // null을 전달하여 내부 동작만 실행하도록 함
+            // onCancel도 null로 설정하여 내부 동작만 실행하도록 함
+            onCancel: null,
+          );
+        },
+      );
+      
+      // 다이얼로그에서 확인 버튼을 눌렀다면 로그인 화면으로 이동
+      if (result == true) {
+        Navigator.of(context).pushNamed(AppRoutes.login);
+        return false;  // 로그인 화면으로 이동했으므로 원래 의도했던 라우트로는 이동하지 않음
+      }
+      
+      // 취소했다면 현재 화면에 머무름
+      return false;
+    }
+    
+    // 이미 로그인 된 경우
+    return true;
+  }
+  // 앱 내에서 사용할 네비게이션 메서드
+  static Future<void> navigateTo(
+    BuildContext context, 
+    WidgetRef ref, 
+    String routeName, 
+    [Map<String, dynamic>? args]
+  ) async {
+    // 현재 컨텍스트 저장
+    currentContext = context;
+    
+    final bool requiresAuth = AppRoutes.requiresAuth(routeName);
+    
+    if (requiresAuth) {
+      // 인증 체크 - 로그인 다이얼로그 표시 포함
+      final canProceed = await checkAuth(context, ref);
+      if (!canProceed) {
+        // 인증 실패 또는 취소 - 현재 화면 유지
+        return;
+      }
+    }
+    
+    // 인증 통과 또는 불필요 - 요청된 라우트로 이동
+    if (args != null) {
+      Navigator.of(context).pushNamed(routeName, arguments: args);
+    } else {
+      Navigator.of(context).pushNamed(routeName);
     }
   }
 }

@@ -8,6 +8,9 @@ import 'package:ari/presentation/widgets/listening_queue/bottom_sheet_options.da
 import 'package:ari/presentation/widgets/common/global_bottom_widget.dart';
 import 'package:ari/presentation/widgets/common/search_bar.dart';
 
+import 'package:ari/presentation/widgets/listening_queue/playlist_selection_bottom_sheet.dart';
+import 'package:ari/presentation/widgets/listening_queue/create_playlist_modal.dart';
+
 class ListeningQueueScreen extends ConsumerStatefulWidget {
   const ListeningQueueScreen({Key? key}) : super(key: key);
 
@@ -22,6 +25,9 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // state.filteredPlaylist: List<ListeningQueueItem>
+    // state.selectedTracks: Set<ListeningQueueItem>
+    // state.playlists: List<Playlist>
     final state = ref.watch(listeningQueueProvider);
     final viewModel = ref.read(listeningQueueProvider.notifier);
 
@@ -44,8 +50,6 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                 }
               },
             ),
-
-            //  검색창 표시
             if (isSearchVisible)
               SearchBarWidget(
                 controller: searchController,
@@ -53,20 +57,53 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                 onChanged: viewModel.filterTracks,
                 onSubmitted: viewModel.filterTracks,
               ),
-
             const SizedBox(height: 10),
-
             TrackCountBar(
               trackCount: state.filteredPlaylist.length,
-              selectedTracks: state.selectedTracks,
+              selectedTracks:
+                  state.selectedTracks.map((item) => item.track).toSet(),
               onToggleSelectAll: viewModel.toggleSelectAll,
               onAddToPlaylist: () {
-                for (var track in state.selectedTracks) {
-                  print("추가할 트랙: ${track.trackTitle}");
-                }
+                // "플레이리스트에 추가" 버튼 클릭 시 PlaylistSelectionBottomSheet 표시
+                showModalBottomSheet(
+                  context: context,
+                  backgroundColor: Colors.transparent,
+                  builder:
+                      (context) => PlaylistSelectionBottomSheet(
+                        playlists: state.playlists,
+                        onPlaylistSelected: (selectedPlaylist) {
+                          // 선택한 플레이리스트에 선택된 트랙들을 추가하는 로직 실행
+                          viewModel.addSelectedTracksToPlaylist(
+                            selectedPlaylist,
+                            state.selectedTracks.toList(),
+                          );
+                        },
+                        onCreatePlaylist: () {
+                          Navigator.pop(context); // 기존 BottomSheet 닫기
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(20),
+                              ),
+                            ),
+                            builder: (context) {
+                              return CreatePlaylistModal(
+                                onCreate: (title, publicYn) {
+                                  // 새 플레이리스트 생성 로직 (API 호출 등)
+                                  debugPrint(
+                                    "플레이리스트 생성: $title / 공개여부: $publicYn",
+                                  );
+                                },
+                              );
+                            },
+                          );
+                        },
+                      ),
+                );
               },
             ),
-
             Expanded(
               child:
                   state.filteredPlaylist.isEmpty
@@ -80,13 +117,13 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                         onReorder: viewModel.reorderTracks,
                         itemCount: state.filteredPlaylist.length,
                         itemBuilder: (context, index) {
-                          final track = state.filteredPlaylist[index];
+                          final item = state.filteredPlaylist[index];
                           final isSelected = state.selectedTracks.contains(
-                            track,
+                            item,
                           );
 
                           return Dismissible(
-                            key: ValueKey(track.id),
+                            key: ValueKey(item.uniqueId),
                             direction: DismissDirection.endToStart,
                             background: Container(
                               color: Colors.red,
@@ -100,10 +137,10 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                               ),
                             ),
                             onDismissed: (direction) {
-                              viewModel.removeTrack(track);
+                              viewModel.removeTrack(item);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text("${track.trackTitle} 삭제됨"),
+                                  content: Text("${item.track.trackTitle} 삭제됨"),
                                 ),
                               );
                             },
@@ -114,16 +151,18 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                                   backgroundColor: Colors.transparent,
                                   builder:
                                       (context) =>
-                                          BottomSheetOptions(track: track),
+                                          BottomSheetOptions(track: item.track),
                                 );
                               },
                               child: TrackListTile(
-                                key: ValueKey(track.id),
-                                track: track,
+                                key: ValueKey(item.uniqueId),
+                                track: item.track,
                                 isSelected: isSelected,
                                 onToggleSelection:
-                                    () => viewModel.toggleTrackSelection(track),
-                                onTap: () => print("${track.trackTitle} 선택됨!"),
+                                    () => viewModel.toggleTrackSelection(item),
+                                onTap:
+                                    () =>
+                                        print("${item.track.trackTitle} 선택됨!"),
                               ),
                             ),
                           );

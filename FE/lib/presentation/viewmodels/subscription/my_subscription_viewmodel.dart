@@ -1,3 +1,4 @@
+import 'package:ari/core/constants/app_colors.dart';
 import 'package:ari/presentation/routes/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -79,7 +80,7 @@ class SubscriptionViewModel extends StateNotifier<SubscriptionState> {
 
   // 새 구독 추가 메서드
   Future<void> navigateToSubscriptionPage(BuildContext context) async {
-    Navigator.pushNamed(context, AppRoutes.subscriptionPayment);
+    Navigator.pushNamed(context, AppRoutes.subscriptionSelect);
   }
 }
 
@@ -144,12 +145,12 @@ class SubscriptionModel {
     required this.type,
   });
 
-  Color get accentColor {
+  LinearGradient get accentColor {
     switch (type) {
       case SubscriptionType.regular:
-        return const Color(0xFF2B9FFF);
+        return AppColors.blueToMintGradient;
       case SubscriptionType.artist:
-        return const Color(0xFFDE85FC);
+        return AppColors.purpleGradient;
     }
   }
 }

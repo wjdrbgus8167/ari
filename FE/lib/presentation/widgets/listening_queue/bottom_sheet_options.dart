@@ -1,6 +1,6 @@
 import 'package:ari/presentation/routes/app_router.dart';
 import 'package:flutter/material.dart';
-import '../../../data/models/track.dart';
+import 'package:ari/domain/entities/track.dart';
 
 class BottomSheetOptions extends StatelessWidget {
   final Track track;
@@ -75,7 +75,7 @@ class BottomSheetOptions extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  track.artist,
+                  track.artistName,
                   style: const TextStyle(color: Colors.white70, fontSize: 12),
                   overflow: TextOverflow.ellipsis,
                 ),

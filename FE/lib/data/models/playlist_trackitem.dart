@@ -1,4 +1,4 @@
-import 'package:ari/data/models/track.dart';
+import 'package:ari/domain/entities/track.dart';
 
 class PlaylistTrackItem {
   final Track track;

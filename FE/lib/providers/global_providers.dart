@@ -1,6 +1,12 @@
 import 'package:ari/core/utils/auth_interceptor.dart';
+import 'package:ari/data/datasources/playlist/playlist_remote_datasource.dart';
+import 'package:ari/data/datasources/playlist/playlist_remote_datasource_impl.dart';
+import 'package:ari/data/repositories/playlist_repository_impl.dart';
+import 'package:ari/domain/repositories/playlist_repository.dart';
+
 import 'package:ari/providers/auth/auth_providers.dart';
 import 'package:ari/providers/my_channel/my_channel_providers.dart';
+import 'package:ari/providers/user_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -72,9 +78,7 @@ class PlaybackNotifier extends StateNotifier<PlaybackState> {
 final playlistProvider = StateProvider<List<Track>>((ref) => []);
 
 final dioProvider = Provider<Dio>((ref) {
-  final dio = Dio(
-    BaseOptions(baseUrl: baseUrl),
-  );
+  final dio = Dio(BaseOptions(baseUrl: baseUrl));
 
   dio.interceptors.add(
     LogInterceptor(
@@ -131,11 +135,31 @@ final getChartsUseCaseProvider = Provider<GetChartsUseCase>((ref) {
 final homeViewModelProvider = StateNotifierProvider<HomeViewModel, HomeState>((
   ref,
 ) {
-  return HomeViewModel(getChartsUseCase: ref.watch(getChartsUseCaseProvider));
+  return HomeViewModel(
+    getChartsUseCase: ref.watch(getChartsUseCaseProvider),
+    playlistRemoteDataSource: ref.watch(playlistRemoteDataSourceProvider),
+  );
+});
+
+final playlistRemoteDataSourceProvider = Provider<IPlaylistRemoteDataSource>((
+  ref,
+) {
+  return PlaylistRemoteDataSourceImpl(dio: ref.watch(dioProvider));
+});
+
+final playlistRepositoryProvider = Provider<IPlaylistRepository>((ref) {
+  return PlaylistRepositoryImpl(
+    remoteDataSource: ref.watch(playlistRemoteDataSourceProvider),
+  );
 });
 
 // ListeningQueueViewModel(재생목록) 전역 상태
 final listeningQueueProvider =
-    StateNotifierProvider<ListeningQueueViewModel, ListeningQueueState>(
-      (ref) => ListeningQueueViewModel(),
-    );
+    StateNotifierProvider<ListeningQueueViewModel, ListeningQueueState>((ref) {
+      final userId = ref.watch(authUserIdProvider);
+      final playlistRepository = ref.watch(playlistRepositoryProvider);
+      return ListeningQueueViewModel(
+        userId: userId,
+        playlistRepository: playlistRepository,
+      );
+    });

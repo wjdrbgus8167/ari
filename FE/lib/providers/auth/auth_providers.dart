@@ -1,6 +1,6 @@
 // 인증 관련 모든 의존성 제공 및 인증상태(로그인 로그아웃) 관리
 // AuthStateNotifier는 사용자 로그인 상태만을 관리
-// 토큰 관리, 인증 인터셉터 설정 
+// 토큰 관리, 인증 인터셉터 설정
 
 import 'package:ari/core/utils/auth_interceptor.dart';
 import 'package:ari/data/datasources/auth_local_data_source.dart';
@@ -19,9 +19,7 @@ final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
 });
 
 final authLocalDataSourceProvider = Provider<AuthLocalDataSource>((ref) {
-  return AuthLocalDataSourceImpl(
-    storage: ref.watch(secureStorageProvider),
-  );
+  return AuthLocalDataSourceImpl(storage: ref.watch(secureStorageProvider));
 });
 
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
@@ -59,13 +57,14 @@ final refreshTokensUseCaseProvider = Provider<RefreshTokensUseCase>((ref) {
   return RefreshTokensUseCase(ref.watch(authRepositoryProvider));
 });
 
-final authStateProvider = StateNotifierProvider<AuthStateNotifier, AsyncValue<bool>>((ref) {
-  return AuthStateNotifier(
-    getAuthStatusUseCase: ref.watch(getAuthStatusUseCaseProvider),
-    loginUseCase: ref.watch(loginUseCaseProvider),
-    logoutUseCase: ref.watch(logoutUseCaseProvider),
-  );
-});
+final authStateProvider =
+    StateNotifierProvider<AuthStateNotifier, AsyncValue<bool>>((ref) {
+      return AuthStateNotifier(
+        getAuthStatusUseCase: ref.watch(getAuthStatusUseCaseProvider),
+        loginUseCase: ref.watch(loginUseCaseProvider),
+        logoutUseCase: ref.watch(logoutUseCaseProvider),
+      );
+    });
 
 // 인증 인터셉터 제공자. 인증 인터셉터는 request시 자동으로 authorization 삽입하는 역할을 함
 final authInterceptorProvider = Provider<AuthInterceptor>((ref) {
@@ -84,20 +83,19 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
   );
 });
 
-final signUpViewModelProvider = StateNotifierProvider<SignUpViewModel, SignUpState>((ref) { 
-  return SignUpViewModel(
-    signUpUseCase: ref.watch(signUpUseCaseProvider),
-  );
-});
+final signUpViewModelProvider =
+    StateNotifierProvider<SignUpViewModel, SignUpState>((ref) {
+      return SignUpViewModel(signUpUseCase: ref.watch(signUpUseCaseProvider));
+    });
 
-final loginViewModelProvider = StateNotifierProvider<LoginViewModel, LoginState>((ref) {
-  
-  return LoginViewModel(
-    loginUseCase: ref.read(loginUseCaseProvider),
-    saveTokensUseCase: ref.read(saveTokensUseCaseProvider),
-    authStateNotifier: ref.read(authStateProvider.notifier),
-  );
-});
+final loginViewModelProvider =
+    StateNotifierProvider<LoginViewModel, LoginState>((ref) {
+      return LoginViewModel(
+        loginUseCase: ref.read(loginUseCaseProvider),
+        saveTokensUseCase: ref.read(saveTokensUseCaseProvider),
+        authStateNotifier: ref.read(authStateProvider.notifier),
+      );
+    });
 
 // 유저 로그인 여부를 관리
 class AuthStateNotifier extends StateNotifier<AsyncValue<bool>> {
@@ -127,13 +125,13 @@ class AuthStateNotifier extends StateNotifier<AsyncValue<bool>> {
       state = AsyncValue.error(e, stackTrace);
     }
   }
-  
+
   // 인증 상태 재확인 메서드 추가 (public으로 외부에서 호출 가능)
   Future<void> refreshAuthState() async {
     print('[AuthStateNotifier] refreshAuthState 호출됨');
     await _initialize();
   }
-  
+
   Future<void> login(String email, String password) async {
     print('[AuthStateNotifier] 로그인 시도: $email');
     try {
@@ -158,7 +156,7 @@ class AuthStateNotifier extends StateNotifier<AsyncValue<bool>> {
       state = AsyncValue.error(e, stackTrace);
     }
   }
-  
+
   // 현재 상태를 로그로 출력하는 도우미 메서드
   void logCurrentState() {
     print('[AuthStateNotifier] 현재 상태: $state');
