@@ -62,7 +62,7 @@ public enum ErrorCode {
     // 차트 관련
     CHART_NOT_FOUND(HttpStatus.NOT_FOUND, "H001", "차트를 조회하는데 실패했습니다."),
 
-    GENRE_NOT_FOUND(HttpStatus.NOT_FOUND,"G001","존재하지 않는 장르입니다.");
+    GENRE_NOT_FOUND(HttpStatus.NOT_FOUND,"G001","존재하지 않는 장르입니다."),
 
     // 앨범 평점
     ALBUM_RATING_NOT_FOUND(HttpStatus.NOT_FOUND,"AR001","등록된 평점이 없습니다.");
