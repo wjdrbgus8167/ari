@@ -66,7 +66,7 @@ class SubscriptionSelectViewModel extends StateNotifier<List<SubscriptionPlan>> 
     
     case SubscriptionType.artist:
       // 아티스트 구독은 아티스트 선택 페이지로 먼저 이동
-      // Navigator.pushNamed(context, AppRoutes.);
+      Navigator.pushNamed(context, AppRoutes.artistSelection);
       break;
   }
   }

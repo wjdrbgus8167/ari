@@ -1,10 +1,29 @@
+import 'package:ari/presentation/viewmodels/subscription/artist_selection_viewmodel.dart';
 import 'package:flutter/material.dart';
 
 class PaymentInfoSection extends StatelessWidget {
-  const PaymentInfoSection({super.key});
+  final String subscriptionType; // "regular" 또는 "artist"
+  final ArtistInfo? artistInfo; // 아티스트 구독인 경우 필요
+  final String price; // 구독 금액
+  
+  const PaymentInfoSection({
+    super.key,
+    required this.subscriptionType,
+    this.artistInfo,
+    this.price = "1",
+  });
 
   @override
   Widget build(BuildContext context) {
+    // 구독 타입에 따른 정보 설정
+    final String title = subscriptionType == "regular" ? "정기 구독" : "아티스트 구독";
+    final String subTitle = subscriptionType == "regular" ? '무제한 듣기' : "적당히 듣기";
+    
+    // 아티스트 이름 표시 (아티스트 구독인 경우)
+    final String displayName = subscriptionType == "artist" && artistInfo != null 
+                            ? artistInfo!.name 
+                            : title;
+    
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.start,
@@ -21,7 +40,6 @@ class PaymentInfoSection extends StatelessWidget {
         ),
         const SizedBox(height: 15),
         Container(
-          // 고정 높이 제거 (오버플로우 방지를 위해)
           padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
           decoration: ShapeDecoration(
             shape: RoundedRectangleBorder(
@@ -42,24 +60,24 @@ class PaymentInfoSection extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Column(
+                  Column(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '정기 결제 ',
-                        style: TextStyle(
+                        displayName,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                           fontFamily: 'Pretendard',
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      SizedBox(height: 4), // 5에서 4로 줄임
+                      const SizedBox(height: 4),
                       Text(
-                        '무제한 듣기',
-                        style: TextStyle(
+                        subTitle,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
                           fontFamily: 'Pretendard',
@@ -68,15 +86,15 @@ class PaymentInfoSection extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20), // 20에서 16으로 줄임
+                  const SizedBox(height: 20),
                   SizedBox(
                     height: 15,
                     child: Row(
-                      mainAxisSize: MainAxisSize.max, // min에서 max로 변경
+                      mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const Expanded(child: SizedBox()), // 왼쪽 여백을 위한 Expanded 추가
+                        const Expanded(child: SizedBox()),
                         const Text(
                           '최종결제금액',
                           style: TextStyle(
@@ -92,9 +110,9 @@ class PaymentInfoSection extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const Text(
-                              '1',
-                              style: TextStyle(
+                            Text(
+                              price,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
                                 fontFamily: 'Pretendard',

@@ -17,7 +17,7 @@ class SubscriptionViewModel extends StateNotifier<SubscriptionState> {
     
     final regularSubscriptions = [
       SubscriptionModel(
-        id: '1',
+        id: 1,
         title: '월간 구독 with',
         name: 'Ari',
         period: '2025.03.08 ~ 2025.04.07',
@@ -29,7 +29,7 @@ class SubscriptionViewModel extends StateNotifier<SubscriptionState> {
 
     final artistSubscriptions = [
       SubscriptionModel(
-        id: '2',
+        id: 2,
         title: '아티스트 구독 with',
         name: 'Weekend',
         period: '2025.03.08 ~ 2025.04.07',
@@ -38,7 +38,7 @@ class SubscriptionViewModel extends StateNotifier<SubscriptionState> {
         type: SubscriptionType.artist,
       ),
       SubscriptionModel(
-        id: '3',
+        id: 3,
         title: '아티스트 구독 with',
         name: 'Weekend',
         period: '2025.03.08 ~ 2025.04.07',
@@ -56,7 +56,7 @@ class SubscriptionViewModel extends StateNotifier<SubscriptionState> {
   }
 
   // 구독 취소 메서드
-  Future<void> cancelSubscription(String id) async {
+  Future<void> cancelSubscription(int id) async {
     state = state.copyWith(isLoading: true);
     
     // 서버 API 호출 등을 통해 구독 취소 처리
@@ -127,7 +127,7 @@ enum SubscriptionType {
 
 // 구독 데이터 모델
 class SubscriptionModel {
-  final String id;
+  final int id;
   final String title;
   final String name;
   final String period;

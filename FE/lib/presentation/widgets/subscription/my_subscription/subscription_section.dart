@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 // 정기 구독 섹션
 class RegularSubscriptionSection extends StatelessWidget {
   final List<SubscriptionModel> subscriptions;
-  final Function(String) onCancelPressed;
+  final Function(int) onCancelPressed;
 
   const RegularSubscriptionSection({
     super.key,
@@ -63,7 +63,7 @@ class RegularSubscriptionSection extends StatelessWidget {
 // 아티스트 구독 섹션
 class ArtistSubscriptionSection extends StatelessWidget {
   final List<SubscriptionModel> subscriptions;
-  final Function(String) onCancelPressed;
+  final Function(int) onCancelPressed;
 
   const ArtistSubscriptionSection({
     super.key,
