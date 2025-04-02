@@ -55,7 +55,10 @@ public enum ErrorCode {
     INVALID_EMAIL_FORMAT(HttpStatus.BAD_REQUEST, "V006", "유효하지 않은 이메일 형식입니다."),
     EMAIL_TOO_LONG(HttpStatus.BAD_REQUEST, "V007", "이메일은 30자 이하여야 합니다."),
     MEMBER_NICKNAME_REQUIRED(HttpStatus.BAD_REQUEST, "V008", "닉네임은 필수입니다."),
-    MEMBER_NICKNAME_TOO_LONG(HttpStatus.BAD_REQUEST, "V009", "닉네임은 100자 이하여야 합니다.");
+    MEMBER_NICKNAME_TOO_LONG(HttpStatus.BAD_REQUEST, "V009", "닉네임은 100자 이하여야 합니다."),
+
+    // 차트 관련
+    CHART_NOT_FOUND(HttpStatus.NOT_FOUND, "H001", "차트를 조회하는데 실패했습니다.");
 
     private final HttpStatus status;
     private final String code;
