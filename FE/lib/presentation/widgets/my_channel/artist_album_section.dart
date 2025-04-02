@@ -16,15 +16,11 @@ class ArtistAlbumSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // 아티스트 앨범 상태
     final channelState = ref.watch(myChannelProvider);
-    final albums = channelState.artistAlbums;
+    final artistAlbums =
+        channelState.artistAlbums; // 변수명 수정: albums -> artistAlbums
     final isLoading =
         channelState.artistAlbumsStatus == MyChannelStatus.loading;
     final hasError = channelState.artistAlbumsStatus == MyChannelStatus.error;
-
-    // 앨범이 없는 경우(아티스트가 아님) 위젯을 표시하지 않음
-    if (!isLoading && (albums == null || albums.isEmpty) && !hasError) {
-      return const SizedBox.shrink();
-    }
 
     // 로딩 중이면 로딩 표시
     if (isLoading) {
@@ -50,9 +46,42 @@ class ArtistAlbumSection extends ConsumerWidget {
       );
     }
 
-    // 앨범이 없는 경우 위젯을 표시하지 않음 (일반 회원으로 간주)
-    if (albums == null || albums.isEmpty) {
-      return const SizedBox.shrink();
+    // 앨범이 없는 경우 안내 메시지 표시 (빈 위젯 대신)
+    if (artistAlbums == null || artistAlbums.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              '나의 앨범',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+              decoration: BoxDecoration(
+                color: Colors.blue.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Colors.blue.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              child: const Text(
+                '앨범을 업로드해보세요. 누구나 아티스트가 될 수 있습니다.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white, fontSize: 14),
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
     // 앨범이 있는 경우 CarouselContainer 위젯 사용 (아티스트로 간주)
@@ -61,7 +90,8 @@ class ArtistAlbumSection extends ConsumerWidget {
       height: 220,
       itemWidth: 160,
       itemSpacing: 12.0,
-      children: albums.map((album) => _buildAlbumItem(context, album)).toList(),
+      children:
+          artistAlbums.map((album) => _buildAlbumItem(context, album)).toList(),
     );
   }
 
@@ -69,8 +99,12 @@ class ArtistAlbumSection extends ConsumerWidget {
   Widget _buildAlbumItem(BuildContext context, ArtistAlbum album) {
     return GestureDetector(
       onTap: () {
-        // TODO: 앨범 상세 페이지로 이동
-        print('앨범 클릭: ${album.albumTitle}');
+        // 앨범 상세 페이지로 이동 구현
+        Navigator.pushNamed(
+          context,
+          '/album/detail',
+          arguments: {'albumId': album.albumId},
+        ); // TODO 대신 실제 구현 추가
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,13 +146,23 @@ class ArtistAlbumSection extends ConsumerWidget {
             album.artist,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(color: Colors.grey[400], fontSize: 12),
+            style: TextStyle(
+              color: Colors.grey.withValues(
+                alpha: 0.7,
+              ),
+              fontSize: 12,
+            ),
           ),
           const SizedBox(height: 2),
           // 수록곡 수
           Text(
             '${album.trackCount}곡',
-            style: TextStyle(color: Colors.grey[600], fontSize: 12),
+            style: TextStyle(
+              color: Colors.grey.withValues(
+                alpha: 0.4,
+              ),
+              fontSize: 12,
+            ),
           ),
         ],
       ),
