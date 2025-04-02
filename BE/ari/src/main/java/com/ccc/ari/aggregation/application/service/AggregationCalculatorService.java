@@ -4,7 +4,7 @@ import com.ccc.ari.aggregation.domain.AggregatedData;
 import com.ccc.ari.aggregation.domain.client.IpfsClient;
 import com.ccc.ari.aggregation.domain.vo.StreamingLog;
 import com.ccc.ari.aggregation.event.OnChainCommitCompletedEvent;
-import com.ccc.ari.aggregation.infrastructure.adapter.BlockChainEventListener;
+import com.ccc.ari.aggregation.infrastructure.adapter.StreamingAggregationContractEventListener;
 import com.ccc.ari.global.contract.StreamingAggregationContract;
 import com.ccc.ari.global.event.AllAggregationCalculatedEvent;
 import com.ccc.ari.global.event.GenreAggregationCalculatedEvent;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class AggregationCalculatorService {
 
     private final ApplicationEventPublisher eventPublisher;
-    private final BlockChainEventListener blockChainEventListener;
+    private final StreamingAggregationContractEventListener streamingAggregationContractEventListener;
     private final IpfsClient ipfsClient;
     private final Logger logger = LoggerFactory.getLogger(AggregationCalculatorService.class);
 
@@ -40,7 +40,7 @@ public class AggregationCalculatorService {
         try {
             logger.info("트랙의 차트 데이터 집계를 처리합니다. txHash: {}", txHash);
             List<StreamingAggregationContract.RawAllTracksUpdatedEventResponse> events =
-                    blockChainEventListener.getRawAllTracksUpdatedEventsByTxHash(txHash);
+                    streamingAggregationContractEventListener.getRawAllTracksUpdatedEventsByTxHash(txHash);
             if (events.isEmpty()) {
                 logger.info("RawAllTracksUpdated가 없습니다. txHash: {}", txHash);
                 return;

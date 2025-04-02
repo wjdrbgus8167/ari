@@ -4,10 +4,11 @@ import com.ccc.ari.global.contract.StreamingAggregationContract;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.web3j.abi.EventEncoder;
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.request.EthFilter;
 import org.web3j.protocol.core.methods.response.EthLog;
@@ -20,12 +21,18 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-@RequiredArgsConstructor
-public class BlockChainEventListener {
+public class StreamingAggregationContractEventListener {
 
     private final Web3j web3j;
     private final StreamingAggregationContract aggregationContract;
-    private final Logger logger = LoggerFactory.getLogger(BlockChainEventListener.class);
+    private final Logger logger = LoggerFactory.getLogger(StreamingAggregationContractEventListener.class);
+
+    @Autowired
+    public StreamingAggregationContractEventListener(@Qualifier("streamingAggregationContractWeb3j") Web3j web3j,
+                                                     StreamingAggregationContract aggregationContract) {
+        this.web3j = web3j;
+        this.aggregationContract = aggregationContract;
+    }
 
     /**
      * 스마트 컨트랙트의 모든 RawAllTracksUpdated 이벤트를 조회합니다.
