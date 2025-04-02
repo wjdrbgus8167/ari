@@ -115,10 +115,12 @@ class ArtistAlbumSection extends ConsumerWidget {
                 ),
                 decoration: BoxDecoration(
                   // 그라데이션 대신 단색 배경에 투명도 적용
-                  color: AppColors.lightPurple.withValues(alpha: 0.15),
+                  color: AppColors.lightGreen.withValues(alpha: 0.15), // 초록색
+                  // color: AppColors.lightPurple.withValues(alpha: 0.15),  // 보라색
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: AppColors.mediumPurple.withValues(alpha: 0.3),
+                    color: AppColors.mediumGreen.withValues(alpha: 0.3), // 초록색
+                    // color: AppColors.mediumPurple.withValues(alpha: 0.3),  // 보라색
                     width: 1,
                   ),
                 ),
@@ -133,7 +135,8 @@ class ArtistAlbumSection extends ConsumerWidget {
                     // 업로드 버튼 추가 - 그라데이션 적용
                     DecoratedBox(
                       decoration: BoxDecoration(
-                        gradient: AppColors.purpleGradient,
+                        gradient: AppColors.greenGradientVertical,  // 초록색 그라데이션
+                        // gradient: AppColors.purpleGradient, // 보라색 그라데이션
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Container(
