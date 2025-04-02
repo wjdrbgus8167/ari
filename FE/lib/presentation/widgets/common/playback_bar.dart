@@ -91,7 +91,7 @@ class PlaybackBar extends ConsumerWidget {
                       if (playbackState.currentTrackId != null) {
                         await audioService.resume(ref);
                       } else {
-                        // 최초 재생: PlaybackService를 사용하여 API를 호출하고 재생 시작
+                        // 임시로 albumId: 2,trackId: 2,로 설정
                         await playbackService.playTrack(
                           albumId: 2,
                           trackId: 2,

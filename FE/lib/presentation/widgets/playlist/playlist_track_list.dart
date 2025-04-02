@@ -1,3 +1,4 @@
+import 'package:ari/core/services/audio_service.dart';
 import 'package:ari/providers/global_providers.dart';
 import 'package:ari/presentation/widgets/playlist/playlist_track_list_tile.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,8 @@ class PlaylistTrackList extends ConsumerWidget {
           isSelected: isSelected,
           selectionMode: playlistState.selectionMode,
           onTap: () {
-            // 트랙 클릭 시 동작을 구현합니다.
+            // AudioService를 통해 트랙 재생
+            ref.read(audioServiceProvider).play(ref, trackItem.trackFileUrl);
           },
           onToggleSelection: () {
             ref

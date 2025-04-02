@@ -1,6 +1,5 @@
 import 'package:ari/domain/entities/playlist_trackitem.dart';
 import 'package:ari/data/models/playlist.dart' as data;
-import 'package:ari/domain/entities/playlist.dart' as domain;
 
 class Playlist {
   final int id;

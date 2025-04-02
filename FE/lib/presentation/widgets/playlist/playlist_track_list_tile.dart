@@ -1,7 +1,9 @@
 import 'package:ari/domain/entities/playlist_trackitem.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ari/core/services/audio_service.dart';
 
-class PlaylistTrackListTile extends StatelessWidget {
+class PlaylistTrackListTile extends ConsumerWidget {
   final PlaylistTrackItem item;
   final bool isSelected;
   final bool selectionMode;
@@ -20,8 +22,7 @@ class PlaylistTrackListTile extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    // 바로 item의 필드를 사용합니다.
+  Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
       leading: Row(
         mainAxisSize: MainAxisSize.min,
@@ -48,7 +49,7 @@ class PlaylistTrackListTile extends StatelessWidget {
         ],
       ),
       title: Text(
-        item.trackTitle, // 직접 item에서 trackTitle 사용
+        item.trackTitle,
         style: const TextStyle(
           color: Colors.white,
           fontSize: 16,
@@ -56,14 +57,17 @@ class PlaylistTrackListTile extends StatelessWidget {
         ),
       ),
       subtitle: Text(
-        item.composer, // 필요에 따라 작곡가 또는 아티스트 명 사용
+        item.composer,
         style: const TextStyle(color: Colors.white70),
       ),
       trailing: IconButton(
         icon: const Icon(Icons.menu, color: Colors.white70),
         onPressed: onDelete,
       ),
-      onTap: onTap,
+      onTap: () {
+        // AudioService의 play 메서드에 WidgetRef와 트랙 URL 전달
+        ref.read(audioServiceProvider).play(ref, item.trackFileUrl);
+      },
     );
   }
 }

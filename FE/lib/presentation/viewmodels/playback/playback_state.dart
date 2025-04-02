@@ -81,6 +81,7 @@ class PlaybackNotifier extends StateNotifier<PlaybackState> {
       trackUrl: trackUrl,
       isLiked: isLiked,
     );
+    print('[DEBUG] PlaybackState 업데이트 완료: ${state.toString()}');
   }
 }
 

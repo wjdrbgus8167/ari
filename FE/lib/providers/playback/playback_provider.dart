@@ -7,15 +7,25 @@ import 'package:ari/providers/global_providers.dart';
 // 재생 상태 전역 관리
 class PlaybackState {
   final int? currentTrackId;
-  final String trackTitle;
-  final bool isPlaying;
+  final int? albumId;
   final String trackUrl;
+  final String trackTitle;
+  final String artist;
+  final String coverImageUrl;
+  final String lyrics;
+  final bool isPlaying;
+  final bool isLiked;
 
   PlaybackState({
     this.currentTrackId,
+    this.albumId,
     this.trackUrl = '',
     this.trackTitle = '',
+    this.artist = '',
+    this.coverImageUrl = '',
+    this.lyrics = '',
     this.isPlaying = false,
+    this.isLiked = false,
   });
 
   // PlaybackState의 새로운 상태 생성
@@ -23,15 +33,31 @@ class PlaybackState {
   // 이렇게 하면 상태 변경을 추적하기 쉽고, 불변성을 유지할 수 있음(이게 riverpod 권장방식)
   PlaybackState copyWith({
     int? currentTrackId,
-    String? trackTitle,
-    bool? isPlaying,
+    int? albumId,
     String? trackUrl,
+    String? trackTitle,
+    String? artist,
+    String? coverImageUrl,
+    String? lyrics,
+    bool? isPlaying,
+    bool? isLiked,
   }) {
     return PlaybackState(
       currentTrackId: currentTrackId ?? this.currentTrackId,
+      albumId: albumId ?? this.albumId,
+      trackUrl: trackUrl ?? this.trackUrl,
       trackTitle: trackTitle ?? this.trackTitle,
+      artist: artist ?? this.artist,
+      coverImageUrl: coverImageUrl ?? this.coverImageUrl,
+      lyrics: lyrics ?? this.lyrics,
       isPlaying: isPlaying ?? this.isPlaying,
+      isLiked: isLiked ?? this.isLiked,
     );
+  }
+
+  @override
+  String toString() {
+    return 'PlaybackState(currentTrackId: $currentTrackId, albumId: $albumId, trackTitle: $trackTitle, artist: $artist, coverImageUrl: $coverImageUrl, trackUrl: $trackUrl, isPlaying: $isPlaying, isLiked: $isLiked)';
   }
 }
 
@@ -60,13 +86,23 @@ class PlaybackNotifier extends StateNotifier<PlaybackState> {
   // 트랙 정보를 업데이트 (트랙 제목, URL, 트랙 ID)
   void updateTrackInfo({
     required String trackTitle,
-    required String trackUrl,
+    required String artist,
+    required String coverImageUrl,
+    required String lyrics,
     required int currentTrackId,
+    required int albumId,
+    required String trackUrl,
+    required bool isLiked,
   }) {
     state = state.copyWith(
       trackTitle: trackTitle,
-      trackUrl: trackUrl,
+      artist: artist,
+      coverImageUrl: coverImageUrl,
+      lyrics: lyrics,
       currentTrackId: currentTrackId,
+      albumId: albumId,
+      trackUrl: trackUrl,
+      isLiked: isLiked,
     );
   }
 }
