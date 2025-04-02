@@ -3,16 +3,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/my_channel/my_channel_providers.dart';
 import '../../../data/models/my_channel/neighbor.dart';
 import '../../viewmodels/my_channel/my_channel_viewmodel.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../presentation/routes/app_router.dart'; // TODO: 라우팅 용
+import '../../../presentation/widgets/common/custom_toast.dart';
+import '../../../presentation/widgets/common/custom_dialog.dart';
 
 /// 이웃(팔로워/팔로잉) 섹션 탭 인덱스
 enum NeighborTab { followers, followings }
 
 /// 이웃(팔로워/팔로잉) 섹션 위젯
-/// 팔로워, 팔로잉 목록을 탭으로 전환
+/// 팔로워/팔로잉 목록을 탭으로 전환
 class NeighborsSection extends ConsumerStatefulWidget {
   final String memberId;
 
-  /// [memberId] : 채널 소유자의 회원 ID
+  /// [memberId] : 채널 주인 회원ID
   const NeighborsSection({super.key, required this.memberId});
 
   @override
@@ -26,8 +30,11 @@ class _NeighborsSectionState extends ConsumerState<NeighborsSection> {
   // 스크롤 컨트롤러
   final ScrollController _scrollController = ScrollController();
 
-  // 표시 중인 아이템 수 (초기값 10개, 무한 스크롤 때문에 필요)
+  // 표시 중인 아이템 수 (초기값 10개, 무한 스크롤!!!)
   int _displayCount = 10;
+
+  // 데이터 더 로드 중인지 여부
+  bool _isLoadingMore = false;
 
   @override
   void initState() {
@@ -45,6 +52,9 @@ class _NeighborsSectionState extends ConsumerState<NeighborsSection> {
 
   /// 스크롤 리스너 - 무한 스크롤 구현
   void _scrollListener() {
+    // 이미 로딩 중이면 중복 요청X
+    if (_isLoadingMore) return;
+
     // 스크롤이 80% 이상 내려갔을 때 추가 아이템 로드
     if (_scrollController.position.pixels >
         _scrollController.position.maxScrollExtent * 0.8) {
@@ -54,8 +64,18 @@ class _NeighborsSectionState extends ConsumerState<NeighborsSection> {
       // 더 표시할 아이템이 있으면 표시 개수 증가
       if (currentItems != null && _displayCount < currentItems.length) {
         setState(() {
-          // 한 번에 5개씩 더 표시
-          _displayCount += 5;
+          _isLoadingMore = true;
+          // 한 번에 10개씩 더 표시 (기존 5개에서 증가)
+          _displayCount += 10;
+
+          // 로딩 상태 해제 (실제 API 페이징 구현 시 응답 후 해제해야 함)
+          Future.delayed(const Duration(milliseconds: 500), () {
+            if (mounted) {
+              setState(() {
+                _isLoadingMore = false;
+              });
+            }
+          });
         });
       }
     }
@@ -70,6 +90,23 @@ class _NeighborsSectionState extends ConsumerState<NeighborsSection> {
         return channelState.followers?.followers;
       case NeighborTab.followings:
         return channelState.followings?.followings;
+    }
+  }
+
+  /// 탭 변경 시 호출
+  void _onTabChanged(NeighborTab tab) {
+    if (_selectedTab != tab) {
+      setState(() {
+        _selectedTab = tab;
+        // 탭 전환 시 표시 개수 초기화
+        _displayCount = 10;
+        _isLoadingMore = false;
+
+        // 스크롤 위치 초기화
+        if (_scrollController.hasClients) {
+          _scrollController.jumpTo(0);
+        }
+      });
     }
   }
 
@@ -172,36 +209,32 @@ class _NeighborsSectionState extends ConsumerState<NeighborsSection> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // 팔로워 탭
-          _buildTabButton(
-            title: '팔로워',
-            count: followers?.followerCount ?? 0,
-            isSelected: _selectedTab == NeighborTab.followers,
-            onTap: () {
-              setState(() {
-                _selectedTab = NeighborTab.followers;
-                // 탭 전환 시 표시 개수 초기화
-                _displayCount = 10;
-              });
-            },
+          Row(
+            children: [
+              // 팔로워 탭
+              _buildTabButton(
+                title: '팔로워',
+                count: followers?.followerCount ?? 0,
+                isSelected: _selectedTab == NeighborTab.followers,
+                onTap: () => _onTabChanged(NeighborTab.followers),
+              ),
+
+              const SizedBox(width: 24),
+
+              // 팔로잉 탭
+              _buildTabButton(
+                title: '팔로잉',
+                count: followings?.followingCount ?? 0,
+                isSelected: _selectedTab == NeighborTab.followings,
+                onTap: () => _onTabChanged(NeighborTab.followings),
+              ),
+            ],
           ),
 
-          const SizedBox(width: 24),
-
-          // 팔로잉 탭
-          _buildTabButton(
-            title: '팔로잉',
-            count: followings?.followingCount ?? 0,
-            isSelected: _selectedTab == NeighborTab.followings,
-            onTap: () {
-              setState(() {
-                _selectedTab = NeighborTab.followings;
-                // 탭 전환 시 표시 개수 초기화
-                _displayCount = 10;
-              });
-            },
-          ),
+          // 전체보기 버튼 (TODO: 선택)
+          // _buildViewAllButton(),
         ],
       ),
     );
@@ -218,7 +251,7 @@ class _NeighborsSectionState extends ConsumerState<NeighborsSection> {
       onTap: onTap,
       child: Column(
         children: [
-          // 탭 제목과 카운트
+          // 탭 제목, 카운트
           Text(
             '$title / $count',
             style: TextStyle(
@@ -235,7 +268,7 @@ class _NeighborsSectionState extends ConsumerState<NeighborsSection> {
             height: 3,
             width: 60,
             decoration: BoxDecoration(
-              color: isSelected ? Colors.blue : Colors.transparent,
+              color: isSelected ? AppColors.mediumGreen : Colors.transparent,
               borderRadius: BorderRadius.circular(1.5),
             ),
           ),
@@ -276,7 +309,7 @@ class _NeighborsSectionState extends ConsumerState<NeighborsSection> {
       return const Center(
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 24),
-          child: CircularProgressIndicator(color: Colors.blue),
+          child: CircularProgressIndicator(color: AppColors.mediumGreen),
         ),
       );
     }
@@ -286,10 +319,31 @@ class _NeighborsSectionState extends ConsumerState<NeighborsSection> {
       return Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 24),
-          child: Text(
-            '목록을 불러오는데 실패했습니다.\n다시 시도해주세요.',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.red[300], fontSize: 14),
+          child: Column(
+            children: [
+              Text(
+                '목록을 불러오는데 실패했습니다.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.red[300], fontSize: 14),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: () {
+                  // 다시 시도 기능
+                  final notifier = ref.read(myChannelProvider.notifier);
+                  if (_selectedTab == NeighborTab.followers) {
+                    notifier.loadFollowers(widget.memberId);
+                  } else {
+                    notifier.loadFollowings(widget.memberId);
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('다시 시도'),
+              ),
+            ],
           ),
         ),
       );
@@ -314,50 +368,90 @@ class _NeighborsSectionState extends ConsumerState<NeighborsSection> {
     }
 
     // 그리드 형태로 이웃 목록 표시 (2열)
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: GridView.builder(
-        controller: _scrollController,
-        shrinkWrap: true,
-        physics: const AlwaysScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, // 가로 2개 항목
-          childAspectRatio: 2.5, // 가로:세로 비율
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 16,
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: GridView.builder(
+            controller: _scrollController,
+            shrinkWrap: true,
+            physics: const AlwaysScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2, // 가로 2개 항목
+              childAspectRatio: 2.5, // 가로:세로 비율
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 16,
+            ),
+            itemCount:
+                _displayCount <= neighbors.length
+                    ? _displayCount
+                    : neighbors.length,
+            itemBuilder: (context, index) {
+              // 배열 범위 체크
+              if (index >= neighbors.length) {
+                return const Center(
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.blue,
+                    ),
+                  ),
+                );
+              }
+
+              final neighbor = neighbors[index];
+              return _buildNeighborItem(context, neighbor);
+            },
+          ),
         ),
-        itemCount:
-            _displayCount <= neighbors.length
-                ? _displayCount
-                : neighbors.length,
-        itemBuilder: (context, index) {
-          // 표시할 개수보다 인덱스가 크면 로딩 표시
-          if (index >= neighbors.length) {
-            return const Center(
+
+        // 더 로드 중일 때 하단에 로딩 인디케이터 표시
+        if (_isLoadingMore && _displayCount < (neighbors.length))
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(
               child: SizedBox(
-                width: 20,
-                height: 20,
+                width: 24,
+                height: 24,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Colors.blue,
+                  color: AppColors.mediumGreen,
                 ),
               ),
-            );
-          }
+            ),
+          ),
 
-          final neighbor = neighbors[index];
-          return _buildNeighborItem(context, neighbor);
-        },
-      ),
+        // 모든 항목을 표시했을 때 메시지
+        if (_displayCount >= neighbors.length && neighbors.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Text(
+              '모든 ${_selectedTab == NeighborTab.followers ? '팔로워' : '팔로잉'}를 확인했습니다',
+              style: TextStyle(color: Colors.grey[500], fontSize: 12),
+            ),
+          ),
+      ],
     );
   }
 
-  /// 개별 이웃 아이템 위젯
+  /// 각각 개별 이웃 아이템 위젯
   Widget _buildNeighborItem(BuildContext context, Neighbor neighbor) {
     return GestureDetector(
       onTap: () {
-        // TODO: 사용자 채널 페이지로 이동
-        print('이웃 클릭: ${neighbor.memberName}');
+        // 사용자 채널 페이지로 이동
+        // navigateToUserChannel(context, neighbor.memberId);
+        print('이웃 클릭: ${neighbor.memberName} (ID: ${neighbor.memberId})');
+
+        // 토스트 메시지
+        context.showToast('${neighbor.memberName}님의 채널로 이동합니다');
+
+        // TODO: 채널 페이지로 이동 구현
+        // Navigator.of(context).pushNamed(
+        //   AppRouter.myChannel,
+        //   arguments: {'memberId': neighbor.memberId.toString()}
+        // );
       },
       child: Container(
         padding: const EdgeInsets.all(12),
@@ -374,6 +468,7 @@ class _NeighborsSectionState extends ConsumerState<NeighborsSection> {
                   neighbor.profileImageUrl.isNotEmpty
                       ? NetworkImage(neighbor.profileImageUrl)
                       : null,
+              backgroundColor: Colors.grey[800],
               child:
                   neighbor.profileImageUrl.isEmpty
                       ? const Icon(Icons.person, size: 24, color: Colors.white)
@@ -404,7 +499,7 @@ class _NeighborsSectionState extends ConsumerState<NeighborsSection> {
 
                   // 팔로워 수
                   Text(
-                    '${neighbor.followerCount} Followers',
+                    '${neighbor.followerCount} followers',
                     style: TextStyle(color: Colors.grey[400], fontSize: 12),
                   ),
                 ],
