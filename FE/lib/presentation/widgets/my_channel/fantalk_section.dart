@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../../../providers/my_channel_providers.dart';
+import '../../../providers/my_channel/my_channel_providers.dart';
 import '../../../data/models/my_channel/fantalk.dart';
-import '../../viewmodels/my_channel_viewmodel.dart';
+import '../../viewmodels/my_channel/my_channel_viewmodel.dart';
 
 /// 팬톡 섹션 위젯
 /// 아티스트 채널의 팬톡 표시

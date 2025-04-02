@@ -1,28 +1,28 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../core/utils/auth_interceptor.dart';
-import '../core/constants/app_constants.dart';
-import '../providers/auth/auth_providers.dart'; // 인증 관련 provider
-import '../providers/global_providers.dart'; // dioProvider 등 전역 provider 참조용
+import '../../core/utils/auth_interceptor.dart';
+import '../../core/constants/app_constants.dart';
+import '../auth/auth_providers.dart'; // 인증 관련 provider
+import '../global_providers.dart'; // dioProvider 등 전역 provider 참조용
 
 // datasource
-import '../data/datasources/my_channel/my_channel_remote_datasource.dart';
-import '../data/datasources/my_channel/my_channel_remote_datasource_impl.dart';
-import '../data/datasources/my_channel/artist_notice_remote_datasource.dart';
-import '../data/datasources/my_channel/artist_notice_remote_datasource_impl.dart';
+import '../../data/datasources/my_channel/my_channel_remote_datasource.dart';
+import '../../data/datasources/my_channel/my_channel_remote_datasource_impl.dart';
+import '../../data/datasources/my_channel/artist_notice_remote_datasource.dart';
+import '../../data/datasources/my_channel/artist_notice_remote_datasource_impl.dart';
 
 // repository
-import '../data/repositories/my_channel/my_channel_repository_impl.dart';
-import '../data/repositories/my_channel/artist_notice_repository_impl.dart';
-import '../domain/repositories/my_channel/my_channel_repository.dart';
-import '../domain/repositories/my_channel/artist_notice_repository.dart';
+import '../../data/repositories/my_channel/my_channel_repository_impl.dart';
+import '../../data/repositories/my_channel/artist_notice_repository_impl.dart';
+import '../../domain/repositories/my_channel/my_channel_repository.dart';
+import '../../domain/repositories/my_channel/artist_notice_repository.dart';
 
 // usecase
-import '../domain/usecases/my_channel/my_channel_usecases.dart' as channel;
-import '../domain/usecases/my_channel/artist_notice_usecases.dart' as notice;
+import '../../domain/usecases/my_channel/my_channel_usecases.dart' as channel;
+import '../../domain/usecases/my_channel/artist_notice_usecases.dart' as notice;
 
 // viewmodel
-import '../presentation/viewmodels/my_channel_viewmodel.dart';
+import '../../presentation/viewmodels/my_channel/my_channel_viewmodel.dart';
 
 /// 채널 기능용 Dio 인스턴스 - 인증 인터셉터 포함
 final channelDioProvider = Provider<Dio>((ref) {

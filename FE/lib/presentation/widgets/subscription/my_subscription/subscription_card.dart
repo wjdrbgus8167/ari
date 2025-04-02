@@ -18,31 +18,33 @@ class SubscriptionCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: 120,
-      padding: const EdgeInsets.all(20),
       clipBehavior: Clip.antiAlias,
-      decoration: ShapeDecoration(
-        shape: RoundedRectangleBorder(
-          side: BorderSide(
-            width: 1,
-            color: subscriptionModel.accentColor,
-          ),
+      decoration: BoxDecoration(
+        gradient: subscriptionModel.accentColor,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Container(
+        margin: const EdgeInsets.all(1), // 테두리 두께
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.black, // 배경색, 앱의 배경색에 맞게 변경하세요
           borderRadius: BorderRadius.circular(10),
         ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // 상단 부분 (제목, 이름)
-          CardHeader(subscriptionModel: subscriptionModel),
-          
-          // 하단 부분 (기간, 코인, 해지 버튼)
-          CardFooter(
-            subscriptionModel: subscriptionModel,
-            onCancelPressed: onCancelPressed,
-          ),
-        ],
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // 상단 부분 (제목, 이름)
+            CardHeader(subscriptionModel: subscriptionModel),
+            
+            // 하단 부분 (기간, 코인, 해지 버튼)
+            CardFooter(
+              subscriptionModel: subscriptionModel,
+              onCancelPressed: onCancelPressed,
+            ),
+          ],
+        ),
       ),
     );
   }

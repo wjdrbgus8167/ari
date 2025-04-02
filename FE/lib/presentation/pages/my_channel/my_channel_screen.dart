@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../providers/my_channel_providers.dart';
+import '../../../providers/my_channel/my_channel_providers.dart';
 import '../../../providers/user_provider.dart';
 import '../../widgets/my_channel/profile_header.dart';
 import '../../widgets/my_channel/badge_list.dart';

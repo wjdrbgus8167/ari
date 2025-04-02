@@ -50,6 +50,7 @@ class WalletState {
 // StateNotifier 구현
 class WalletStateNotifier extends StateNotifier<WalletState> {
   final WalletService _walletService;
+  bool _disposed = false; // dispose 상태 추적
   
   WalletStateNotifier(this._walletService) : super(WalletState(
     isConnected: _walletService.isConnected,
@@ -62,6 +63,7 @@ class WalletStateNotifier extends StateNotifier<WalletState> {
   void _setupListeners() {
     // 연결 콜백 설정
     _walletService.onConnect = (_) {
+      if (_disposed) return; // dispose 체크 추가
       dev.log("[WalletStateNotifier] 지갑 연결됨");
       state = state.copyWith(
         isConnected: true,
@@ -71,6 +73,7 @@ class WalletStateNotifier extends StateNotifier<WalletState> {
     
     // 연결 해제 콜백 설정
     _walletService.onDisconnect = (_) {
+      if (_disposed) return; // dispose 체크 추가
       dev.log("[WalletStateNotifier] 지갑 연결 해제됨");
       state = state.copyWith(
         isConnected: false,
@@ -79,29 +82,45 @@ class WalletStateNotifier extends StateNotifier<WalletState> {
     };
     
     // 상태 변경 리스너
-    _walletService.addListener(() {
-      dev.log("[WalletStateNotifier] WalletService 변경 감지");
-      state = state.copyWith(
-        isConnected: _walletService.isConnected,
-        isTransferring: _walletService.isTransferring,
-        address: _walletService.address == "none" ? null : _walletService.address,
-      );
-    });
+    _walletService.addListener(_onServiceChanged);
+  }
+  
+  // 상태 변경 리스너 함수 분리
+  void _onServiceChanged() {
+    if (_disposed) return; // dispose 체크 추가
+    dev.log("[WalletStateNotifier] WalletService 변경 감지");
+    state = state.copyWith(
+      isConnected: _walletService.isConnected,
+      isTransferring: _walletService.isTransferring,
+      address: _walletService.address == "none" ? null : _walletService.address,
+    );
   }
   
   // 수동으로 상태 업데이트 (필요한 경우)
   void updateConnectionState(bool isConnected) {
+    if (_disposed) return; // dispose 체크 추가
     dev.log("[WalletStateNotifier] 연결 상태 수동 업데이트: $isConnected");
     state = state.copyWith(isConnected: isConnected);
   }
   
   void updateTransferringState(bool isTransferring) {
+    if (_disposed) return; // dispose 체크 추가
     state = state.copyWith(isTransferring: isTransferring);
+  }
+  
+  @override
+  void dispose() {
+    _disposed = true;
+    // 리스너 해제
+    _walletService.onConnect = null;
+    _walletService.onDisconnect = null;
+    _walletService.removeListener(_onServiceChanged);
+    super.dispose();
   }
 }
 
-// Provider 정의
-final walletStateProvider = StateNotifierProvider<WalletStateNotifier, WalletState>((ref) {
+// Provider 정의 - autoDispose 추가
+final walletStateProvider = StateNotifierProvider.autoDispose<WalletStateNotifier, WalletState>((ref) {
   final walletService = ref.watch(walletServiceProvider);
   return WalletStateNotifier(walletService);
 });
