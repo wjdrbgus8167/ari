@@ -325,10 +325,8 @@ class _NoticeCommentSectionState extends ConsumerState<NoticeCommentSection> {
   Widget _buildCommentItem(NoticeComment comment) {
     // 날짜 포맷팅
     final dateFormatter = DateFormat('yyyy.MM.dd HH:mm');
-    final utcDateTime = DateTime.parse(comment.createdAt);
-    // UTC 시간을 한국 시간(UTC+9)으로 변환
-    final koreaDateTime = utcDateTime.add(const Duration(hours: 9));
-    final formattedDate = dateFormatter.format(koreaDateTime);
+    final dateTime = DateTime.parse(comment.createdAt);
+    final formattedDate = dateFormatter.format(dateTime);
 
     // 편집 모드인지 확인
     final isEditing = comment.isEditing;

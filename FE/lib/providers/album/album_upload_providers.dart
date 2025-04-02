@@ -4,7 +4,7 @@ import '../../data/datasources/album_upload_remote_datasource_impl.dart';
 import '../../data/repositories/album_upload_repository_impl.dart';
 import '../../domain/repositories/album_upload_repository.dart';
 import '../../domain/usecases/upload_album_usecase.dart';
-import '../../presentation/viewmodels/album_upload_viewmodel.dart';
+import '../../presentation/viewmodels/mypage/album_upload_viewmodel.dart';
 import '../global_providers.dart';
 
 // DataSource Provider: datasource 계층 의존성 주입

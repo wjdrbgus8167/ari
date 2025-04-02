@@ -3,12 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/my_channel/my_channel_providers.dart';
 import '../../../data/models/my_channel/channel_info.dart';
 import '../../viewmodels/my_channel/my_channel_viewmodel.dart';
+import 'followers_management_widget.dart';
 
 /// 나의 채널 프로필 헤더 위젯
 /// 사용자 이름, 프로필 이미지, 팔로우 버튼 등
 class ProfileHeader extends ConsumerWidget {
   final String memberId;
-  final bool isMyProfile; // 내 프로필인지 여부
+  final bool isMyProfile; // 내 프로필인지
   final ScrollController scrollController;
 
   const ProfileHeader({
@@ -132,8 +133,7 @@ class ProfileHeader extends ConsumerWidget {
                     ),
                     const SizedBox(height: 10),
                     // 팔로우 버튼 (자신의 프로필이 아닌 경우에만 표시)
-                    if (!isMyProfile)
-                      _buildFollowButton(channelInfo, channelNotifier),
+                    if (!isMyProfile) _buildFollowButton(channelInfo),
                   ],
                 ),
               ),
@@ -144,35 +144,16 @@ class ProfileHeader extends ConsumerWidget {
     );
   }
 
-  /// 팔로우/언팔로우 버튼
-  Widget _buildFollowButton(
-    ChannelInfo channelInfo,
-    MyChannelNotifier channelNotifier,
-  ) {
-    return ElevatedButton(
-      onPressed: () {
-        if (channelInfo.isFollowed) {
-          // 이미 팔로우 중이면 언팔로우
-          // TODO: followId 가져오기 로직 구현 필요!!
-          // 임시로 빈 문자열 사용
-          channelNotifier.unfollowMember('', memberId);
-        } else {
-          // 팔로우하지 않은 경우 팔로우
-          channelNotifier.followMember(memberId);
-        }
+  /// 팔로우/언팔로우 버튼 - FollowersManagementWidget 사용
+  Widget _buildFollowButton(ChannelInfo channelInfo) {
+    return FollowersManagementWidget(
+      targetMemberId: memberId,
+      isFollowing: channelInfo.isFollowed,
+      followId: channelInfo.followId, // ChannelInfo 모델에 followId 필드 추가 필요
+      onFollowChanged: () {
+        // 팔로우 상태 변경 후 필요한 작업 (선택임 이건)
+        print('팔로우 상태가 변경되었습니다: ${channelInfo.memberName}');
       },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: channelInfo.isFollowed ? Colors.grey : Colors.blue,
-        minimumSize: const Size(120, 40),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      ),
-      child: Text(
-        channelInfo.isFollowed ? '팔로우 중' : '팔로우',
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
     );
   }
 }
