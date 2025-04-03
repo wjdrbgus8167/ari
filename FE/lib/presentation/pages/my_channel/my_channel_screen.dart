@@ -10,7 +10,6 @@ import '../../widgets/my_channel/fantalk_section.dart';
 import '../../widgets/my_channel/public_playlist_section.dart';
 import '../../widgets/my_channel/neighbors_section.dart';
 import '../../widgets/test/jwt_user_test_widget.dart';
-import '../../viewmodels/my_channel/my_channel_viewmodel.dart';
 
 /// 나의 채널 화면
 /// 사용자 프로필, 뱃지, (앨범, 공지사항, 팬톡), 플레이리스트, 이웃 정보 표시
@@ -40,11 +39,9 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
     // 초기 설정
     _isMyProfile = widget.memberId == null;
 
-    // 화면 렌더링 후 데이터 로드 및 사용자 ID 설정
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _updateUserIdFromToken();
-      }
+    // 위젯 빌드 완료 후 데이터 로드 요청
+    Future.microtask(() {
+      _updateUserIdFromToken();
     });
   }
 
@@ -68,7 +65,19 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
     });
 
     // ID가 설정된 후 데이터 로드
-    _loadMyChannelData();
+    if (_currentUserId.isNotEmpty) {
+      // 위젯 빌드 완료 후 provider 상태 변경
+      Future.microtask(() {
+        // 상태를 로딩 상태로 직접 설정
+        ref.read(myChannelProvider.notifier).setLoadingState();
+        // 데이터 로드 시작
+        ref
+            .read(myChannelProvider.notifier)
+            .loadMyChannelData(_currentUserId, 'fantalk-channel-id');
+      });
+    } else {
+      print('사용자 ID가 설정되지 않았습니다. 채널 데이터를 로드할 수 없습니다.');
+    }
   }
 
   @override
@@ -77,20 +86,17 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
     super.dispose();
   }
 
-  /// 나의 채널 데이터 로드
+  /// 나의 채널 데이터 로드 (새로고침용)
   void _loadMyChannelData() {
-    // 채널 데이터 로드
-    final notifier = ref.read(myChannelProvider.notifier);
-
     if (_currentUserId.isNotEmpty) {
-      // 로딩 상태 리셋 (초기화) - 이전 에러 상태가 남아있을 수 있음
-      ref.read(myChannelProvider.notifier).state = MyChannelState();
-
-      // 약간의 지연 후 데이터 로드 (UI 렌더링 후)
-      Future.delayed(const Duration(milliseconds: 100), () {
-        if (mounted) {
-          notifier.loadMyChannelData(_currentUserId, 'fantalk-channel-id');
-        }
+      // 위젯 빌드 완료 후 provider 상태 변경
+      Future.microtask(() {
+        // 상태를 로딩 상태로 직접 설정
+        ref.read(myChannelProvider.notifier).setLoadingState();
+        // 데이터 로드 시작
+        ref
+            .read(myChannelProvider.notifier)
+            .loadMyChannelData(_currentUserId, 'fantalk-channel-id');
       });
     } else {
       print('사용자 ID가 설정되지 않았습니다. 채널 데이터를 로드할 수 없습니다.');
