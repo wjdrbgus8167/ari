@@ -98,8 +98,8 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
                     ),
                     MypageMenuItem(
                       title: '아티스트 대시보드',
-                      routeName: AppRoutes.subscription,
-                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.subscription),
+                      routeName: AppRoutes.artistDashboard,
+                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.artistDashboard),
                     ),
                     MypageMenuItem(
                       title: '정산 내역',
