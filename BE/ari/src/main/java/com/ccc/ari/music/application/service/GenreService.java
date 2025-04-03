@@ -9,6 +9,8 @@ import com.ccc.ari.music.mapper.GenreMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class GenreService {
@@ -29,5 +31,11 @@ public class GenreService {
 
         GenreDto genreDto = GenreMapper.toDto(genreEntity);
         return genreDto.getGenreName();
+    }
+
+    public List<GenreDto> getAllGenres() {
+        return jpaGenreRepository.findAll().stream()
+                .map(GenreMapper::toDto)
+                .toList();
     }
 }

@@ -62,10 +62,17 @@ public enum ErrorCode {
     // 차트 관련
     CHART_NOT_FOUND(HttpStatus.NOT_FOUND, "H001", "차트를 조회하는데 실패했습니다."),
 
+    // 전시 관련
+    POPULAR_ALL_ALBUM_NOT_FOUND(HttpStatus.NOT_FOUND, "E001", "인기 앨범을 조회하는데 실패했습니다."),
+    POPULAR_GENRE_ALBUM_NOT_FOUND(HttpStatus.NOT_FOUND, "E002", "장르별 인기 앨범을 조회하는데 실패했습니다."),
+    POPULAR_ALL_TRACK_NOT_FOUND(HttpStatus.NOT_FOUND, "E003", "인기 트랙을 조회하는데 실패했습니다."),
+    POPULAR_GENRE_TRACK_NOT_FOUND(HttpStatus.NOT_FOUND, "E004", "장르별 인기 트랙을 조회하는데 실패했습니다."),
+
     GENRE_NOT_FOUND(HttpStatus.NOT_FOUND,"G001","존재하지 않는 장르입니다."),
 
     // 앨범 평점
     ALBUM_RATING_NOT_FOUND(HttpStatus.NOT_FOUND,"AR001","등록된 평점이 없습니다.");
+
     private final HttpStatus status;
     private final String code;
     private final String message;

@@ -53,7 +53,7 @@ public class PopularMusicSelectionService {
                     .build());
         }
 
-        logger.info("인기 트랙 선택 완료: {}개 트랙", entries.size());
+        logger.info("인기 트랙 {}개를 선택했습니다.", entries.size());
         return entries;
     }
 
@@ -103,7 +103,7 @@ public class PopularMusicSelectionService {
                     .build());
         }
 
-        logger.info("인기 앨범 선택 완료: {}개 앨범", entries.size());
+        logger.info("인기 앨범 {}개를 선택했습니다.", entries.size());
         return entries;
     }
 }

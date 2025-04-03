@@ -40,7 +40,7 @@ public class PopularMusicCreationService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        logger.info("인기 트랙 생성 완료: 항목 수={}", entries.size());
+        logger.info("장르 {} 인기 트랙을 생성했습니다. 항목 수: {}", genreId, entries.size());
         return popularTrack;
     }
 
@@ -59,7 +59,7 @@ public class PopularMusicCreationService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        logger.info("인기 앨범 생성 완료: 항목 수={}", entries.size());
+        logger.info("장르 {} 인기 앨범을 생성했습니다. 항목 수: {}", genreId, entries.size());
         return popularAlbum;
     }
 }

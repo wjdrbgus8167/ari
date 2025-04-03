@@ -3,8 +3,6 @@ package com.ccc.ari.exhibition.domain.service;
 import com.ccc.ari.exhibition.domain.entity.TrackStreamingWindow;
 import com.ccc.ari.exhibition.domain.vo.DailyStreamCount;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -20,7 +18,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PopularStreamingWindowService {
 
-    private static final Logger logger = LoggerFactory.getLogger(PopularStreamingWindowService.class);
     private static final int WINDOW_SIZE_DAYS = 7;
 
     // 윈도우 업데이트 (새 데이터 추가, 오래된 데이터 제거)
@@ -43,7 +40,6 @@ public class PopularStreamingWindowService {
             updatedWindows.put(trackId, updatedWindow);
         }
 
-        logger.info("{}개 트랙의 스트리밍 윈도우가 업데이트되었습니다.", updatedWindows.size());
         return updatedWindows;
     }
 
