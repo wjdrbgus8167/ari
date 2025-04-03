@@ -3,8 +3,8 @@
 // 토큰 관리, 인증 인터셉터 설정
 
 import 'package:ari/core/utils/auth_interceptor.dart';
-import 'package:ari/data/datasources/auth_local_data_source.dart';
-import 'package:ari/data/datasources/auth_remote_data_source.dart';
+import 'package:ari/data/datasources/auth/auth_local_data_source.dart';
+import 'package:ari/data/datasources/auth/auth_remote_data_source.dart';
 import 'package:ari/data/repositories/auth_repository_impl.dart';
 import 'package:ari/domain/repositories/auth_repository.dart';
 import 'package:ari/domain/usecases/auth_usecase.dart';

@@ -7,7 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/sign_up_request.dart';
+import '../../models/sign_up_request.dart';
 
 abstract class AuthRemoteDataSource {
   Future<TokenModel?> refreshTokens();
