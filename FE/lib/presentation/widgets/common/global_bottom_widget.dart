@@ -38,7 +38,7 @@ class GlobalBottomWidget extends ConsumerWidget {
 
     Widget currentScreen = child;
 
-    // 하단 탭 인덱스가 변경될 때 그 화면으로 변경 
+    // 하단 탭 인덱스가 변경될 때 그 화면으로 변경
     if (bottomIndex != 0) {
       switch (bottomIndex) {
         case 1:
@@ -69,7 +69,7 @@ class GlobalBottomWidget extends ConsumerWidget {
       }
     }
 
-    // WillPopScope로 뒤로가기 이벤트 처리
+    // PopScope로 뒤로가기 이벤트 처리
     return PopScope(
       canPop: false, // 기본 뒤로가기 동작 비활성화
       onPopInvoked: (didPop) async {
@@ -77,14 +77,14 @@ class GlobalBottomWidget extends ConsumerWidget {
 
         // 뒤로가기 처리를 위해 히스토리 확인
         final historyNotifier = ref.read(navigationHistoryProvider.notifier);
-        final isAtHomeAndShouldExit = historyNotifier.goBack();
+        final isAtHome = historyNotifier.goBack();
 
-        // 홈화면이고 히스토리가 하나만 남은 경우 토스트 표시 또는 앱 종료
-        if (isAtHomeAndShouldExit) {
+        // 홈화면인 경우 토스트 표시 또는 앱 종료
+        if (isAtHome) {
           final isQuickSecondPress = historyNotifier.isQuickSecondBackPress();
 
           if (isQuickSecondPress) {
-            // 2초 이내에 뒤로가기를 두 번 누른 경우: 앱 종료
+            // 1초 이내에 뒤로가기를 두 번 누른 경우: 앱 종료
             SystemNavigator.pop();
           } else {
             // 처음 뒤로가기 누른 경우: 토스트 메시지 표시
