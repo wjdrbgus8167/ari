@@ -33,13 +33,12 @@ public class GetPlaylistService {
     //플레이리스트 조회(사용자 본인)
     @Transactional
     public GetPlayListResponse getPlaylist(GetPlaylistCommand command) {
-        log.info("Get playlist:{}", command);
+
         // 자신이 직접 만든 플레이리스트와 퍼온 플레이리스트(SharedPlaylist)를 모두 조회하여 가져옴
-        //List<PlaylistEntity> myPlaylists = jpaPlaylistRepository.findAllByMember_MemberId(command.getMemberId());
         List<SharedPlaylistEntity> sharedPlaylists = jpaSharedPlaylistRepository.findAllByMember_MemberId(command.getMemberId());
-        log.info("공유한거:{}", sharedPlaylists.get(0).getSharedPlaylistId());
+
         List<PlaylistEntity> myPlaylists  = playlistClient.getPlayListAllByMemberId(command.getMemberId());
-        log.info("내꺼:{}", myPlaylists.get(0).getPlaylistId());
+
 
         // 직접 만든 플레이리스트 → PlaylistResponse로 변환
         Stream<GetPlayListResponse.PlaylistResponse> myPlaylistStream = myPlaylists.stream()
