@@ -309,54 +309,48 @@ class MyChannelNotifier extends StateNotifier<MyChannelState> {
     );
   }
 
+  /// 모든 섹션을 로딩 상태로 설정
+  void setLoadingState() {
+    state = state.copyWith(
+      channelInfoStatus: MyChannelStatus.loading,
+      artistAlbumsStatus: MyChannelStatus.loading,
+      artistNoticesStatus: MyChannelStatus.loading,
+      fanTalksStatus: MyChannelStatus.loading,
+      publicPlaylistsStatus: MyChannelStatus.loading,
+      followersStatus: MyChannelStatus.loading,
+      followingsStatus: MyChannelStatus.loading,
+    );
+  }
+
   /// 나의 채널 전체 데이터 로딩
   Future<void> loadMyChannelData(
     String memberId,
     String? fantalkChannelId,
   ) async {
-    // 각 데이터 로드 시도
-    try {
-      await loadChannelInfo(memberId);
-    } catch (e) {
-      print('채널 정보 로드 실패: $e');
-    }
-
-    try {
-      await loadArtistAlbums(memberId);
-    } catch (e) {
-      print('아티스트 앨범 로드 실패: $e');
-    }
-
-    try {
-      await loadArtistNotices(memberId);
-    } catch (e) {
-      print('아티스트 공지사항 로드 실패: $e');
-    }
+    // 각 데이터 로드 시도 (각각 독립적으로 처리, 에러가 다른 로드에 영향 없도록)
+    _loadSafely(() => loadChannelInfo(memberId), '채널 정보');
+    _loadSafely(() => loadArtistAlbums(memberId), '아티스트 앨범');
+    _loadSafely(() => loadArtistNotices(memberId), '아티스트 공지사항');
 
     if (fantalkChannelId != null) {
-      try {
-        await loadFanTalks(fantalkChannelId);
-      } catch (e) {
-        print('팬톡 로드 실패: $e');
-      }
+      _loadSafely(() => loadFanTalks(fantalkChannelId), '팬톡');
     }
 
-    try {
-      await loadPublicPlaylists(memberId);
-    } catch (e) {
-      print('공개된 플레이리스트 로드 실패: $e');
-    }
+    _loadSafely(() => loadPublicPlaylists(memberId), '공개된 플레이리스트');
+    _loadSafely(() => loadFollowers(memberId), '팔로워 목록');
+    _loadSafely(() => loadFollowings(memberId), '팔로잉 목록');
+  }
 
+  // 안전하게 로드하는 헬퍼 메서드
+  Future<void> _loadSafely(
+    Future<void> Function() loadFunction,
+    String dataName,
+  ) async {
     try {
-      await loadFollowers(memberId);
+      await loadFunction();
     } catch (e) {
-      print('팔로워 목록 로드 실패: $e');
-    }
-
-    try {
-      await loadFollowings(memberId);
-    } catch (e) {
-      print('팔로잉 목록 로드 실패: $e');
+      print('$dataName 로드 실패: $e');
+      // 에러 상태로 설정하지 않고 무시 (선택적)
     }
   }
 
