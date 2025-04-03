@@ -16,7 +16,6 @@ import '../../pages/my_channel/my_channel_screen.dart';
 /// 글로벌 하단 위젯과 탭별 화면 관리
 ///
 /// 전체 앱의 공통 골격 제공, 하단 네비게이션 바와 재생 바를 포함
-/// WillPopScope: 뒤로가기 이벤트 처리
 class GlobalBottomWidget extends ConsumerWidget {
   final Widget child; // 각 페이지 콘텐츠 영역
 
@@ -81,14 +80,17 @@ class GlobalBottomWidget extends ConsumerWidget {
 
         // 홈화면인 경우 토스트 표시 또는 앱 종료
         if (isAtHome) {
-          final isQuickSecondPress = historyNotifier.isQuickSecondBackPress();
+          // 실제 뒤로가기 버튼을 눌렀는지 확인
+          if (historyNotifier.isHomeBackButtonPressed()) {
+            final isQuickSecondPress = historyNotifier.isQuickSecondBackPress();
 
-          if (isQuickSecondPress) {
-            // 1초 이내에 뒤로가기를 두 번 누른 경우: 앱 종료
-            SystemNavigator.pop();
-          } else {
-            // 처음 뒤로가기 누른 경우: 토스트 메시지 표시
-            context.showToast('뒤로가기 버튼을 한 번 더 누르면 종료됩니다');
+            if (isQuickSecondPress) {
+              // 1초 이내에 뒤로가기를 두 번 누른 경우: 앱 종료
+              SystemNavigator.pop();
+            } else {
+              // 처음 뒤로가기 누른 경우: 토스트 메시지 표시
+              context.showToast('뒤로가기 버튼을 한 번 더 누르면 종료됩니다');
+            }
           }
         }
       },
