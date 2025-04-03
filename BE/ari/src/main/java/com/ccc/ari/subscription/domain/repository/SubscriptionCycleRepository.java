@@ -1,8 +1,8 @@
 package com.ccc.ari.subscription.domain.repository;
 
-import com.ccc.ari.subscription.infrastructure.persistence.entity.SubscriptionCycleEntity;
+import com.ccc.ari.subscription.domain.SubscriptionCycle;
 
 public interface SubscriptionCycleRepository {
 
-    void save(SubscriptionCycleEntity subscriptionCycleEntity);
+    SubscriptionCycle save(SubscriptionCycle subscriptionCycle);
 }

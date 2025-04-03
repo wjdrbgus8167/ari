@@ -1,6 +1,6 @@
 package com.ccc.ari.subscription.application.service;
 
-import com.ccc.ari.subscription.application.repository.SubscriptionPlanRepository;
+import com.ccc.ari.subscription.domain.repository.SubscriptionPlanRepository;
 import com.ccc.ari.subscription.domain.SubscriptionPlan;
 import com.ccc.ari.subscription.domain.service.SubscriptionPlanManageService;
 import com.ccc.ari.subscription.infrastructure.persistence.entity.SubscriptionPlanEntity;
@@ -21,13 +21,13 @@ public class SubscriptionPlanPersistenceService {
     public void createRegularSubscriptionPlan(BigDecimal price) {
         SubscriptionPlan regularSubscriptionPlan =
                 subscriptionPlanManageService.createRegularSubscriptionPlan(price);
-        subscriptionPlanRepository.save(SubscriptionPlanEntity.from(regularSubscriptionPlan));
+        subscriptionPlanRepository.save(regularSubscriptionPlan);
     }
 
     @Transactional
     public void createArtistSubscriptionPlan(Integer artistId, BigDecimal price) {
         SubscriptionPlan artistSubscriptionPlan = 
                 subscriptionPlanManageService.createArtistSubscriptionPlan(artistId, price);
-        subscriptionPlanRepository.save(SubscriptionPlanEntity.from(artistSubscriptionPlan));
+        subscriptionPlanRepository.save(artistSubscriptionPlan);
     }
 }

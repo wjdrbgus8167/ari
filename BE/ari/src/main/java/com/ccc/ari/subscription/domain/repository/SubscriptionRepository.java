@@ -1,12 +1,12 @@
 package com.ccc.ari.subscription.domain.repository;
 
-import com.ccc.ari.subscription.infrastructure.persistence.entity.SubscriptionEntity;
+import com.ccc.ari.subscription.domain.Subscription;
 
 import java.util.Optional;
 
 public interface SubscriptionRepository {
 
-    public void save(SubscriptionEntity subscriptionEntity);
+    Subscription save(Subscription subscription);
 
     /**
      * 활성화된 특정 멤버의 특정 구독 플랜의 구독을 조회합니다.
@@ -14,5 +14,7 @@ public interface SubscriptionRepository {
      * @param memberId 조회할 멤버 ID
      * @param subscriptionPlanId 조회할 구독 플랜 ID
      */
-    public Optional<SubscriptionEntity> findActiveSubscription(Integer memberId, Integer subscriptionPlanId);
+    Optional<Subscription> findActiveSubscription(Integer memberId, Integer subscriptionPlanId);
+
+    Optional<Subscription> findBySubscriptionId(Integer subscriptionId);
 }

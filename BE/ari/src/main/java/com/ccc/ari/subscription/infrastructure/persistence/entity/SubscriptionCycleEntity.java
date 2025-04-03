@@ -3,6 +3,7 @@ package com.ccc.ari.subscription.infrastructure.persistence.entity;
 
 import com.ccc.ari.subscription.domain.SubscriptionCycle;
 import com.ccc.ari.subscription.domain.vo.SubscriptionCycleId;
+import com.ccc.ari.subscription.domain.vo.SubscriptionId;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -50,7 +51,7 @@ public class SubscriptionCycleEntity {
     public SubscriptionCycle toModel() {
         return SubscriptionCycle.builder()
                 .subscriptionCycleId(new SubscriptionCycleId(subscriptionCycleId))
-                .subscriptionId(subscriptionId)
+                .subscriptionId(new SubscriptionId(subscriptionId))
                 .startedAt(startedAt)
                 .endedAt(endedAt)
                 .build();
@@ -59,8 +60,8 @@ public class SubscriptionCycleEntity {
     // from 도메인 모델 to 엔터티
     public static SubscriptionCycleEntity from(SubscriptionCycle subscriptionCycle) {
         return SubscriptionCycleEntity.builder()
-                .subscriptionCycleId(subscriptionCycle.getSubscriptionCycleId().getValue())
-                .subscriptionId(subscriptionCycle.getSubscriptionId())
+                .subscriptionCycleId(null)
+                .subscriptionId(subscriptionCycle.getSubscriptionId().getValue())
                 .startedAt(subscriptionCycle.getStartedAt())
                 .endedAt(subscriptionCycle.getEndedAt())
                 .build();

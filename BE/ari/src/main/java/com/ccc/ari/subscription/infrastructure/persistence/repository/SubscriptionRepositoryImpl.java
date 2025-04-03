@@ -1,6 +1,7 @@
 package com.ccc.ari.subscription.infrastructure.persistence.repository;
 
-import com.ccc.ari.subscription.application.repository.SubscriptionRepository;
+import com.ccc.ari.subscription.domain.Subscription;
+import com.ccc.ari.subscription.domain.repository.SubscriptionRepository;
 import com.ccc.ari.subscription.infrastructure.persistence.entity.SubscriptionEntity;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -19,31 +20,39 @@ public class SubscriptionRepositoryImpl implements SubscriptionRepository {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public void save(SubscriptionEntity subscriptionEntity) {
-        subscriptionJpaRepository.save(subscriptionEntity);
+    public Subscription save(Subscription subscription) {
+        return subscriptionJpaRepository.save(SubscriptionEntity.fromNew(subscription)).toModel();
     };
 
     @Override
-    public Optional<SubscriptionEntity> findActiveSubscription(Integer memberId, Integer subscriptionPlanId) {
-        List<SubscriptionEntity> subscriptions = subscriptionJpaRepository.findByMemberId(memberId)
+    public Optional<Subscription> findActiveSubscription(Integer memberId, Integer subscriptionPlanId) {
+        List<SubscriptionEntity> subscriptionEntities = subscriptionJpaRepository.findByMemberId(memberId)
                 .stream()
                 .filter(subscriptionEntity ->
                         subscriptionEntity.getSubscriptionPlanId().equals(subscriptionPlanId)
                                 && subscriptionEntity.isActivateYn())
                 .toList();
 
-        if (subscriptions.isEmpty()) {
+        if (subscriptionEntities.isEmpty()) {
             return Optional.empty();
         }
 
-        if (subscriptions.size() > 1) {
+        if (subscriptionEntities.size() > 1) {
             logger.warn("회원 ID: {}, 구독 플랜 ID: {}에 대해 중복된 활성 구독이 발견되었습니다. 가장 최근 구독을 반환합니다.",
                     memberId, subscriptionPlanId);
             // 가장 최근에 생성된 구독을 반환
-            return subscriptions.stream()
-                    .max(Comparator.comparing(SubscriptionEntity::getSubscribedAt));
+            return subscriptionEntities.stream()
+                    .max(Comparator.comparing(SubscriptionEntity::getSubscribedAt))
+                    .map(SubscriptionEntity::toModel);
         }
 
-        return Optional.of(subscriptions.get(0));
+        return Optional.of(subscriptionEntities.get(0).toModel());
+    }
+
+    @Override
+    public Optional<Subscription> findBySubscriptionId(Integer subscriptionId) {
+        return subscriptionJpaRepository.findById(subscriptionId).isPresent() ?
+                Optional.of(subscriptionJpaRepository.findById(subscriptionId).get().toModel()) :
+                Optional.empty();
     }
 }
