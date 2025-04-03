@@ -37,16 +37,10 @@ public class PopularMusicUpdateService {
     private final PopularMusicCacheRepository<PopularTrack> trackCacheRepository;
     private final PopularMusicCacheRepository<PopularAlbum> albumCacheRepository;
 
-    private boolean hasReceivedStreamingData = false;
-
     @EventListener
     public void handleAllAggregationEvent(AllAggregationCalculatedEvent event) {
         logger.info("전체 인기 음원 갱신을 위한 이벤트를 수신했습니다.");
         Map<Integer, Long> trackCounts = event.getTrackCounts();
-
-        if (!trackCounts.isEmpty()) {
-            this.hasReceivedStreamingData = true;
-        }
 
         Map<Integer, TrackStreamingWindow> allTracksWindows = windowRepository.getAllTracksWindows();
         allTracksWindows = windowService.updateStreamingWindows(allTracksWindows, trackCounts, Instant.now());
@@ -59,10 +53,6 @@ public class PopularMusicUpdateService {
     public void handleGenreAggregationEvent(GenreAggregationCalculatedEvent event) {
         logger.info("장르별 인기 음원 갱신을 위한 이벤트를 수신했습니다.");
         Map<Integer, Map<Integer, Long>> genreTrackCounts = event.getGenreTrackCounts();
-
-        if (!genreTrackCounts.isEmpty()) {
-            this.hasReceivedStreamingData = true;
-        }
 
         for (Map.Entry<Integer, Map<Integer, Long>> entry : genreTrackCounts.entrySet()) {
             Integer genreId = entry.getKey();
@@ -81,19 +71,27 @@ public class PopularMusicUpdateService {
      */
     @Scheduled(cron = "30 */1 * * * *")
     public void updatePopularMusic() {
-        if (!hasReceivedStreamingData) {
-            logger.info("집계된 스트리밍 데이터가 없으므로 인기 음원 갱신을 건너뜁니다.");
-            return;
-        }
-
         logger.info("인기 트랙 및 앨범 업데이트를 시작합니다.");
+
 
         // 전체 인기 트랙 및 앨범 업데이트
         updateAllPopularMusic();
 
+        Map<Integer, TrackStreamingWindow> allWindows = windowRepository.getAllTracksWindows();
+        if (allWindows == null || allWindows.isEmpty()) {
+            logger.info("스트리밍 데이터가 없으므로 인기 음원 갱신을 건너뜁니다.");
+            return;
+        }
+
         // 장르별 인기 트랙 및 앨범 업데이트
         List<Integer> genreIds = getAllGenreIds();
         for (Integer genreId : genreIds) {
+            Map<Integer, TrackStreamingWindow> genreWindows = windowRepository.getGenreTracksWindows(genreId);
+            if (genreWindows == null || genreWindows.isEmpty()) {
+                logger.info("장르 ID {}의 스트리밍 데이터가 없습니다. 인기 음악 업데이트를 건너뜁니다.", genreId);
+                continue;
+            }
+
             updateGenrePopularMusic(genreId);
         }
 
@@ -128,11 +126,6 @@ public class PopularMusicUpdateService {
     private void updateGenrePopularMusic(Integer genreId) {
         // 장르별 트랙 스트리밍 윈도우 조회
         Map<Integer, TrackStreamingWindow> genreWindows = windowRepository.getGenreTracksWindows(genreId);
-
-        if (genreWindows == null || genreWindows.isEmpty()) {
-            logger.info("장르 ID {}의 스트리밍 데이터가 없습니다. 인기 음악 업데이트를 건너뜁니다.", genreId);
-            return;
-        }
 
         // 인기 트랙 생성 및 저장
         PopularTrack popularTrack = popularMusicCreationService.createPopularTrack(genreId, genreWindows);
