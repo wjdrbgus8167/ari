@@ -37,21 +37,27 @@ public class SubscriptionOffChainCreateService {
         logger.info("정기 구독 플랜 엔터티 가져옴 - Plan ID: {}, Price: {}",
                 regularSubscriptionPlanEntity.getSubscriptionPlanId(), regularSubscriptionPlanEntity.getPrice());
 
-        // 2. 가져온 정기 구독 플랜으로 구독 엔터티 생성
-        SubscriptionEntity subscriptionEntity = SubscriptionEntity.builder()
-                .subscriptionPlanId(regularSubscriptionPlanEntity.getSubscriptionPlanId())
-                .memberId(event.getSubscriberId())
-                .subscribedAt(LocalDateTime.now())
-                .expiredAt(null)
-                .activateYn(true)
-                .build();
-        logger.info("정기 구독 엔터티 생성 - Member ID: {}, Plan ID: {}",
-                subscriptionEntity.getMemberId(), subscriptionEntity.getSubscriptionPlanId());
+        // 2. 활성화 된 구독이 있는지 확인
+        subscriptionRepository.findActiveSubscription(event.getSubscriberId(), regularSubscriptionPlanEntity.getSubscriptionPlanId())
+                .ifPresentOrElse(activeSubscriptionEntity ->
+                                logger.info("이미 사용자(ID: {})의 활성화된 정기 구독이 있습니다.", activeSubscriptionEntity.getMemberId()),
+                        () -> {
+                            // 3. 가져온 정기 구독 플랜으로 구독 엔터티 생성
+                            SubscriptionEntity subscriptionEntity = SubscriptionEntity.builder()
+                                    .subscriptionPlanId(regularSubscriptionPlanEntity.getSubscriptionPlanId())
+                                    .memberId(event.getSubscriberId())
+                                    .subscribedAt(LocalDateTime.now())
+                                    .expiredAt(null)
+                                    .activateYn(true)
+                                    .build();
+                            logger.info("정기 구독 엔터티 생성 - Member ID: {}, Plan ID: {}",
+                                    subscriptionEntity.getMemberId(), subscriptionEntity.getSubscriptionPlanId());
 
-        // 3. 생성한 구독 엔터티 저장
-        subscriptionRepository.save(subscriptionEntity);
-        logger.info("정기 구독 엔터티 저장 완료 - Member ID: {}, Plan ID: {}",
-                subscriptionEntity.getMemberId(), subscriptionEntity.getSubscriptionPlanId());
+                            // 4. 생성한 구독 엔터티 저장
+                            subscriptionRepository.save(subscriptionEntity);
+                            logger.info("정기 구독 엔터티 저장 완료 - Member ID: {}, Plan ID: {}",
+                                    subscriptionEntity.getMemberId(), subscriptionEntity.getSubscriptionPlanId());
+                        });
     }
 
     @EventListener
@@ -65,22 +71,31 @@ public class SubscriptionOffChainCreateService {
         SubscriptionPlanEntity artistSubscriptionPlanEntity =
                 subscriptionPlanCoordinationService.getOrCreateArtistPlan(event.getArtistId(), event.getAmount());
         logger.info("아티스트 구독 플랜 엔터티 가져옴 - Plan ID: {}, Artist ID: {}, Price: {}",
-                artistSubscriptionPlanEntity.getSubscriptionPlanId(), artistSubscriptionPlanEntity.getArtistId(), artistSubscriptionPlanEntity.getPrice());
+                artistSubscriptionPlanEntity.getSubscriptionPlanId(), 
+                artistSubscriptionPlanEntity.getArtistId(), 
+                artistSubscriptionPlanEntity.getPrice());
 
-        // 2. 가져온 아티스트 구독 플랜으로 구독 엔터티 생성
-        SubscriptionEntity subscriptionEntity = SubscriptionEntity.builder()
-                .subscriptionPlanId(artistSubscriptionPlanEntity.getSubscriptionPlanId())
-                .memberId(event.getSubscriberId())
-                .subscribedAt(LocalDateTime.now())
-                .expiredAt(null)
-                .activateYn(true)
-                .build();
-        logger.info("아티스트 구독 엔터티 생성 - Member ID: {}, Plan ID: {}",
-                subscriptionEntity.getMemberId(), subscriptionEntity.getSubscriptionPlanId());
+        // 2. 활성화된 아티스트 구독이 있는지 확인
+        subscriptionRepository.findActiveSubscription(event.getSubscriberId(), artistSubscriptionPlanEntity.getSubscriptionPlanId())
+                .ifPresentOrElse(activeSubscriptionEntity ->
+                                logger.info("이미 사용자(ID: {})의 활성화된 아티스트 구독(Plan ID: {})이 있습니다.",
+                                        activeSubscriptionEntity.getMemberId(), activeSubscriptionEntity.getSubscriptionPlanId()),
+                        () -> {
+                            // 3. 가져온 아티스트 구독 플랜으로 구독 엔터티 생성
+                            SubscriptionEntity subscriptionEntity = SubscriptionEntity.builder()
+                                    .subscriptionPlanId(artistSubscriptionPlanEntity.getSubscriptionPlanId())
+                                    .memberId(event.getSubscriberId())
+                                    .subscribedAt(LocalDateTime.now())
+                                    .expiredAt(null)
+                                    .activateYn(true)
+                                    .build();
+                            logger.info("아티스트 구독 엔터티 생성 - Member ID: {}, Plan ID: {}",
+                                    subscriptionEntity.getMemberId(), subscriptionEntity.getSubscriptionPlanId());
 
-        // 3. 생성한 구독 엔터티 저장
-        subscriptionRepository.save(subscriptionEntity);
-        logger.info("아티스트 구독 엔터티 저장 완료 - Member ID: {}, Plan ID: {}",
-                subscriptionEntity.getMemberId(), subscriptionEntity.getSubscriptionPlanId());
+                            // 4. 생성한 구독 엔터티 저장
+                            subscriptionRepository.save(subscriptionEntity);
+                            logger.info("아티스트 구독 엔터티 저장 완료 - Member ID: {}, Plan ID: {}",
+                                    subscriptionEntity.getMemberId(), subscriptionEntity.getSubscriptionPlanId());
+                        });
     }
 }

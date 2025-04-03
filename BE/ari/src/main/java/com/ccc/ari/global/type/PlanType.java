@@ -1,4 +1,4 @@
-package com.ccc.ari.subscription.infrastructure.persistence.entity;
+package com.ccc.ari.global.type;
 
 public enum PlanType {
 
