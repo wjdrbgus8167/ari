@@ -1,7 +1,7 @@
 package com.ccc.ari.subscription.domain.service;
 
 import com.ccc.ari.subscription.domain.SubscriptionPlan;
-import com.ccc.ari.subscription.infrastructure.persistence.entity.PlanType;
+import com.ccc.ari.global.type.PlanType;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;

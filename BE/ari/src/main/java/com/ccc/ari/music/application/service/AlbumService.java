@@ -9,6 +9,9 @@ import com.ccc.ari.music.mapper.AlbumMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class AlbumService {
@@ -27,5 +30,13 @@ public class AlbumService {
         AlbumEntity entity =jpaAlbumRepository.save(album);
 
         return entity;
+    }
+
+    public List<AlbumDto> getAllAlbumsByMember(Integer memberId) {
+        List<AlbumEntity> list = jpaAlbumRepository.findAllByMember_MemberId(memberId);
+
+        return list.stream()
+                .map(AlbumMapper::toDto)
+                .collect(Collectors.toList());
     }
 }

@@ -1,5 +1,7 @@
 package com.ccc.ari.playlist.domain.playlist;
 
+import com.ccc.ari.global.error.ApiException;
+import com.ccc.ari.global.error.ErrorCode;
 import com.ccc.ari.member.domain.member.MemberEntity;
 import com.ccc.ari.music.domain.track.TrackEntity;
 import com.ccc.ari.playlist.domain.playlisttrack.PlaylistTrackEntity;
@@ -53,21 +55,25 @@ public class PlaylistEntity {
 
 
     @Builder
-    public PlaylistEntity(Integer playlistId, String playlistTitle,LocalDateTime createAt, MemberEntity member) {
+    public PlaylistEntity(Integer playlistId, String playlistTitle,LocalDateTime createAt,
+                          boolean publicYn,MemberEntity member) {
         this.playlistId = playlistId;
         this.playlistTitle = playlistTitle;
         this.createdAt = createAt;
+        this.publicYn = publicYn;
         this.member = member;
     }
 
-    public void addTrack(TrackEntity track, int trackOrder) {
-        PlaylistTrackEntity playlistTrack = PlaylistTrackEntity.builder()
-                .track(track)
-                .trackOrder(trackOrder)
-                .playlist(this) //현재 PlaylistEntity 자기 자신
-                .build();
+    // 중복된 곡을 검사하고 플레이리스트에 곡 추가
+    public void addTrackIfNotExists(TrackEntity track, int order) {
+        boolean exists = this.tracks.stream()
+                .anyMatch(t -> t.getTrack().getTrackId().equals(track.getTrackId()));
 
-        this.tracks.add(playlistTrack);
+        if (exists) {
+            throw new ApiException(ErrorCode.PLAYLIST_DUPLICATE_TRACK_EXISTED);
+        }
+
+        this.tracks.add(PlaylistTrackEntity.builder().playlist(this).track(track).trackOrder(order).build());
     }
 
     public void increaseShareCount() {
@@ -78,7 +84,7 @@ public class PlaylistEntity {
         this.shareCount--;
     }
 
-    public void setPublicYn() {
-        this.publicYn = true;
+    public void updatePublicYn(boolean isPublicYn) {
+        this.publicYn = isPublicYn;
     }
 }

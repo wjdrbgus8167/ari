@@ -30,7 +30,7 @@ public class PlaylistCompositionService {
     private final JpaMemberRepository jpaMemberRepository;
     private final JpaSharedPlaylistRepository jpaSharedPlaylistRepository;
 
-    // 플레이리스트에 트랙 추가
+    // 플레이리스트 상세조회
     public GetPlaylistDetailResponse getPlaylistDetailComposition(GetPlaylistDetailCommand command) {
         PlaylistEntity playlist = jpaPlaylistRepository.findById(command.getPlaylistId())
                 .orElseThrow(() -> new ApiException(ErrorCode.PLAYLIST_NOT_FOUND));
@@ -48,6 +48,8 @@ public class PlaylistCompositionService {
                     return GetPlaylistDetailResponse.TrackDetail.builder()
                             .trackOrder(playlistTrack.getTrackOrder())
                             .trackId(track.getTrackId())
+                            .artist(track.getAlbum().getMember().getNickname())
+                            .coverImageUrl(track.getAlbum().getCoverImageUrl())
                             .composer(track.getComposer())
                             .lyricist(track.getLyricist())
                             .lyrics(track.getLyrics())

@@ -1,5 +1,6 @@
 package com.ccc.ari.playlist.application.serviceImpl;
 
+import com.ccc.ari.global.composition.response.mypage.GetMyAlbumListResponse;
 import com.ccc.ari.global.error.ApiException;
 import com.ccc.ari.global.error.ErrorCode;
 import com.ccc.ari.music.domain.track.TrackEntity;
@@ -9,20 +10,24 @@ import com.ccc.ari.playlist.application.command.*;
 import com.ccc.ari.playlist.application.composition.PlaylistCompositionService;
 import com.ccc.ari.playlist.domain.playlist.Playlist;
 import com.ccc.ari.playlist.domain.playlist.PlaylistEntity;
+import com.ccc.ari.playlist.domain.service.ValidateDuplicateTrackService;
 import com.ccc.ari.playlist.domain.sharedplaylist.SharedPlaylistEntity;
 import com.ccc.ari.playlist.domain.vo.TrackOrder;
 import com.ccc.ari.playlist.infrastructure.JpaPlaylistRepository;
+import com.ccc.ari.playlist.infrastructure.JpaPlaylistTrackRepository;
 import com.ccc.ari.playlist.infrastructure.JpaSharedPlaylistRepository;
 import com.ccc.ari.playlist.mapper.PlaylistMapper;
 import com.ccc.ari.playlist.ui.response.CreatePlaylistResponse;
 import com.ccc.ari.playlist.ui.response.GetPlayListResponse;
 import com.ccc.ari.playlist.ui.response.GetPlaylistDetailResponse;
+import com.ccc.ari.playlist.ui.response.GetPublicPlaylistResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @AllArgsConstructor
@@ -34,7 +39,8 @@ public class PlaylistServiceImpl implements PlaylistService {
     private final JpaSharedPlaylistRepository jpaSharedPlaylistRepository;
     private final PlaylistMapper playlistMapper;
     private final PlaylistCompositionService playlistCompositionService;
-
+    private final JpaPlaylistTrackRepository jpaPlaylistTrackRepository;
+    private final ValidateDuplicateTrackService validateDuplicateTrackService;
     // 플레이리스트 생성
     @Override
     public CreatePlaylistResponse createPlaylist(CreatePlaylistCommand command) {
@@ -42,6 +48,7 @@ public class PlaylistServiceImpl implements PlaylistService {
         Playlist playlist = Playlist.builder()
                 .memberId(command.getMemberId())
                 .playListTitle(command.getPlaylistTitle())
+                .publicYn(command.isPublicYn())
                 .build();
 
         PlaylistEntity savedPlaylist = jpaPlaylistRepository.save(playlistMapper.mapToEntity(playlist));
@@ -49,12 +56,16 @@ public class PlaylistServiceImpl implements PlaylistService {
         return CreatePlaylistResponse.builder()
                 .playlistId(savedPlaylist.getPlaylistId())
                 .playlistTitle(savedPlaylist.getPlaylistTitle())
+                .publicYn(savedPlaylist.isPublicYn())
                 .build();
     }
 
+    // 플레이리스트 트랙 추가
     @Transactional
     @Override
     public void addTrack(AddTrackCommand command) {
+
+        validateDuplicateTrackService.validateDuplicateTracks(command.getTrackIds());
 
         PlaylistEntity playlist = jpaPlaylistRepository.findById(command.getPlaylistId())
                 .orElseThrow(() -> new ApiException(ErrorCode.MUSIC_FILE_NOT_FOUND));
@@ -74,16 +85,19 @@ public class PlaylistServiceImpl implements PlaylistService {
                     .orElseThrow(() -> new ApiException(ErrorCode.PLAYLIST_TRACK_ADD_FAIL));
 
             nextOrder = nextOrder.next();
-            playlist.addTrack(track, nextOrder.getValue());
+            playlist.addTrackIfNotExists(track, nextOrder.getValue());
         }
 
         jpaPlaylistRepository.save(playlist);
     }
 
+
     // 플레이리스트 내에 트랙 삭제
-    // TODO : 추후 프론트와 협의 후 구현 예정
+    @Transactional
     @Override
-    public void deleteTrack(DeleteTrackCommand deleteTrackCommand) {
+    public void deletePlaylistTrack(DeletePlaylistTrackCommand command) {
+
+        jpaPlaylistTrackRepository.deleteByPlaylist_PlaylistIdAndTrack_TrackId(command.getPlaylistId(), command.getTrackId());
 
     }
 
@@ -122,6 +136,7 @@ public class PlaylistServiceImpl implements PlaylistService {
                 .map(playlist -> GetPlayListResponse.PlaylistResponse.builder()
                         .playlistId(playlist.getPlaylistId())
                         .playlistTitle(playlist.getPlaylistTitle())
+                        .publicYn(playlist.isPublicYn())
                         .trackCount(playlist.getTracks().size())
                         .build());
 
@@ -146,7 +161,7 @@ public class PlaylistServiceImpl implements PlaylistService {
     }
 
 
-    // 플레이리스트에 트랙 추가
+    // 플레이리스트 상세 조회
     @Override
     public GetPlaylistDetailResponse getPlaylistDetail(GetPlaylistDetailCommand command) {
 
@@ -181,6 +196,26 @@ public class PlaylistServiceImpl implements PlaylistService {
         PlaylistEntity playlist = jpaPlaylistRepository.findById(command.getPlaylistId())
                 .orElseThrow(() -> new ApiException(ErrorCode.PLAYLIST_NOT_FOUND));
 
-        playlist.setPublicYn();
+        playlist.updatePublicYn(command.isPublicYn());
+    }
+
+    public GetPublicPlaylistResponse getPublicPlaylist(){
+
+        List<PlaylistEntity> list =jpaPlaylistRepository.findAllByPublicYn(true);
+
+        List<GetPublicPlaylistResponse.PlaylistResponse> publicList= list.stream()
+                .map(playlist -> GetPublicPlaylistResponse.PlaylistResponse.builder()
+                        .playlistId(playlist.getPlaylistId())
+                        .playlistTitle(playlist.getPlaylistTitle())
+                        .publicYn(playlist.isPublicYn())
+                        .trackCount(playlist.getTracks().size())
+                        .createdAt(playlist.getCreatedAt())
+                        .nickname(playlist.getMember().getNickname())
+                        .shareCount(playlist.getShareCount())
+                        .build())
+                .collect(Collectors.toList());
+
+        return GetPublicPlaylistResponse.builder().playlists(publicList).build();
+
     }
 }

@@ -1,6 +1,6 @@
 package com.ccc.ari.subscription.domain;
 
-import com.ccc.ari.subscription.infrastructure.persistence.entity.PlanType;
+import com.ccc.ari.global.type.PlanType;
 import lombok.Builder;
 import lombok.Getter;
 

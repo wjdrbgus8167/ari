@@ -7,11 +7,12 @@ import com.ccc.ari.playlist.application.command.*;
 import com.ccc.ari.playlist.application.serviceImpl.PlaylistServiceImpl;
 import com.ccc.ari.playlist.ui.request.AddTrackRequest;
 import com.ccc.ari.playlist.ui.request.CreatePlaylistRequest;
+import com.ccc.ari.playlist.ui.request.SetPlaylistPublicRequest;
 import com.ccc.ari.playlist.ui.request.SharePlaylistRequest;
 import com.ccc.ari.playlist.ui.response.CreatePlaylistResponse;
 import com.ccc.ari.playlist.ui.response.GetPlayListResponse;
 import com.ccc.ari.playlist.ui.response.GetPlaylistDetailResponse;
-import jakarta.validation.Valid;
+import com.ccc.ari.playlist.ui.response.GetPublicPlaylistResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,7 +33,7 @@ public class PlaylistController {
             @RequestBody CreatePlaylistRequest request
     ){
         // 플레이리스트 제목과 함께 사용자의 memberId로 생성
-        CreatePlaylistCommand command = request.requestToCommand(request.getPlaylistTitle(),memberUserDetails.getMemberId());
+        CreatePlaylistCommand command = request.requestToCommand(memberUserDetails.getMemberId());
 
         CreatePlaylistResponse response =playlistService.createPlaylist(command);
 
@@ -60,7 +61,9 @@ public class PlaylistController {
             @PathVariable Integer playlistId,
             @PathVariable Integer trackId
     ) {
+        DeletePlaylistTrackCommand command = DeletePlaylistTrackCommand.toCommand(playlistId,trackId);
 
+        playlistService.deletePlaylistTrack(command);
 
         return ApiUtils.success("플레이리스트 트랙 삭제");
     }
@@ -129,6 +132,7 @@ public class PlaylistController {
     @PutMapping("/{playlistId}/publiced")
     public ApiUtils.ApiResponse<?> publicPlaylist(
             @AuthenticationPrincipal MemberUserDetails memberUserDetails,
+            @RequestBody SetPlaylistPublicRequest request,
             @PathVariable Integer playlistId
     ) {
         // 기본적으로 플레이리스트를 생성하면 비공개(false)로 되어 있음.
@@ -136,6 +140,7 @@ public class PlaylistController {
         // 추후 플레이리스트를 다시 비공개로 전환하는 api 생성 예정.
         PublicPlaylistCommand command = PublicPlaylistCommand.builder()
                 .memberId(memberUserDetails.getMemberId())
+                .publicYn(request.isPublicYn())
                 .playlistId(playlistId)
                 .build();
 
@@ -146,4 +151,12 @@ public class PlaylistController {
 
     // 비공개 처리
     // 공개된 플레이 리스트 목록
+    @GetMapping("/public")
+    public ApiUtils.ApiResponse<GetPublicPlaylistResponse> getPlaylistDetail(
+    ) {
+
+        GetPublicPlaylistResponse response = playlistService.getPublicPlaylist();
+
+        return ApiUtils.success(response);
+    }
 }

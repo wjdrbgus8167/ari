@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class GetPlaylistDetailCommand {
-    Integer playlistId;
+    private Integer playlistId;
 
     @Builder
     public GetPlaylistDetailCommand(Integer playlistId) {
