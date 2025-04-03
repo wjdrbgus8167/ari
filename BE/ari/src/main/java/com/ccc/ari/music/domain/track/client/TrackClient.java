@@ -10,4 +10,5 @@ public interface TrackClient {
     TrackDto getTrackById(Integer trackId);
     List<TrackEntity> saveTracks(List<TrackEntity> trackEntities);
     TrackDto getTrackByAlbumIdAndTrackId(Integer albumId, Integer trackId);
+    TrackEntity getTrackByTrackId(Integer trackId);
 }

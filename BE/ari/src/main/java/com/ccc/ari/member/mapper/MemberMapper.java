@@ -2,7 +2,11 @@ package com.ccc.ari.member.mapper;
 
 import com.ccc.ari.member.domain.member.MemberDto;
 import com.ccc.ari.member.domain.member.MemberEntity;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
+@Component
+@RequiredArgsConstructor
 public class MemberMapper {
 
     public static MemberDto toDto(MemberEntity entity) {

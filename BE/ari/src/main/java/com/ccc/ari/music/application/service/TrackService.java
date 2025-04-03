@@ -47,4 +47,9 @@ public class TrackService {
 
         return TrackMapper.toDto(trackEntity);
     }
+
+    public TrackEntity getTrackByTrackId(Integer trackId){
+
+        return jpaTrackRepository.findById(trackId).orElseThrow(() -> new ApiException(ErrorCode.MUSIC_FILE_NOT_FOUND));
+    }
 }
