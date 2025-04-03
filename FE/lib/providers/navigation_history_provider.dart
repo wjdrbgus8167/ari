@@ -6,6 +6,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// 하단 네비게이션 바의 탭 이동을 실제 페이지 이동처럼 처리함
 class NavigationHistoryNotifier extends StateNotifier<List<int>> {
   NavigationHistoryNotifier() : super([0]); // 초기값은 홈 화면(0)
+  // 뒤로가기 버튼을 마지막으로 누른 시간
+  DateTime? _lastBackPressTime;
+
+  /// 뒤로가기 버튼 누른 시간 확인
+  ///
+  /// @return true: 빠른 연속 클릭 (1초 이내), false: 처음 클릭 또는 시간 경과
+  bool isQuickSecondBackPress() {
+    final now = DateTime.now();
+
+    // 이전에 뒤로가기 버튼을 누른 적이 없거나 1초가 지난 경우
+    if (_lastBackPressTime == null ||
+        now.difference(_lastBackPressTime!) > const Duration(seconds: 1)) {
+      _lastBackPressTime = now;
+      return false;
+    }
+
+    // 1초 이내에 다시 누른 경우
+    return true;
+  }
 
   /// 새 탭 추가 (중복 탭 처리 포함)
   void addTab(int tabIndex) {
