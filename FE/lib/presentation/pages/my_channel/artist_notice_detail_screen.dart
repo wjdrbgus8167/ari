@@ -217,7 +217,7 @@ class _ArtistNoticeDetailScreenState
   /// 현재 선택된 공지사항 상세 정보
   Widget _buildCurrentNotice(ArtistNotice notice) {
     // 날짜 포맷팅
-    final dateFormatter = DateFormat('yyyy.MM.dd HH:mm` ');
+    final dateFormatter = DateFormat('yyyy.MM.dd');
     final dateTime = DateTime.parse(notice.createdAt);
     final formattedDate = dateFormatter.format(dateTime);
 

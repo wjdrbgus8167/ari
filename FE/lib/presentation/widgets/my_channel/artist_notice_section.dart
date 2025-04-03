@@ -161,16 +161,16 @@ class ArtistNoticeSection extends ConsumerWidget {
                       ElevatedButton.icon(
                         onPressed: () => _navigateToCreateNotice(context, ref),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.mediumPurple.withValues(
-                            alpha: 0.2,
-                          ),
+                          backgroundColor: AppColors.lightPurple.withValues(
+                            alpha: 0.15,
+                          ), // 배경색 수정
                           foregroundColor: AppColors.mediumPurple,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                             side: BorderSide(
                               color: AppColors.mediumPurple.withValues(
-                                alpha: 0.5,
-                              ),
+                                alpha: 0.3,
+                              ), // 테두리 투명도 수정
                             ),
                           ),
                           padding: const EdgeInsets.symmetric(
@@ -216,17 +216,33 @@ class ArtistNoticeSection extends ConsumerWidget {
         // 공지사항 상세 페이지로 이동
         _navigateToNoticeDetail(context, notice.noticeId, artistName);
       },
+
+      // 나의 앨범 섹션처럼 카드 내부 배경을 테두리 색깔(보라색)로
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.grey[900],
+          color: AppColors.lightPurple.withValues(alpha: 0.15), // 배경색 수정
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppColors.mediumPurple.withValues(alpha: 0.3),
+            color: AppColors.mediumPurple.withValues(alpha: 0.3), // 테두리 투명도 수정
             width: 1,
           ),
         ),
+
+        // 기존: 위와 다르게 그냥 검정st 배경
+        // child: Container(
+        //   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        //   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        //   decoration: BoxDecoration(
+        //     color: Colors.grey[900],
+        //     borderRadius: BorderRadius.circular(12),
+        //     border: Border.all(
+        //       color: AppColors.mediumPurple.withValues(alpha: 0.3),
+        //       width: 1,
+        //     ),
+        //   ),
+        
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

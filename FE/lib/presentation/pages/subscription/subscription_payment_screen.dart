@@ -1,5 +1,7 @@
 // lib/screens/subscription_payment_screen.dart
 import 'package:ari/core/constants/contract_constants.dart';
+import 'package:ari/presentation/viewmodels/subscription/artist_selection_viewmodel.dart';
+import 'package:ari/presentation/viewmodels/subscription/my_subscription_viewmodel.dart';
 import 'package:ari/presentation/widgets/common/button_large.dart';
 import 'package:ari/presentation/widgets/common/header_widget.dart';
 import 'package:ari/presentation/widgets/subscription/payment/payment_agreement_section.dart';
@@ -12,7 +14,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:developer' as dev;
 
 class SubscriptionPaymentScreen extends ConsumerStatefulWidget {
-  const SubscriptionPaymentScreen({super.key});
+  final SubscriptionType subscriptionType;
+  final ArtistInfo? artistInfo; // 아티스트 구독인 경우에만 사용됨
+  
+  const SubscriptionPaymentScreen({
+    super.key,
+    this.subscriptionType = SubscriptionType.regular,
+    this.artistInfo,
+  });
 
   @override
   SubscriptionPaymentScreenState createState() => SubscriptionPaymentScreenState();
@@ -24,12 +33,15 @@ class SubscriptionPaymentScreenState extends ConsumerState<SubscriptionPaymentSc
   bool isAllAgreed = false;
   
   // 구독 금액 (실제로는 API나 상태 관리에서 가져올 수 있음)
-  final String subscriptionAmount = "1";
+  late String subscriptionAmount;
   
   @override
   void initState() {
     super.initState();
     
+    // 구독 타입에 따라 금액 설정
+    subscriptionAmount = widget.subscriptionType == SubscriptionType.regular ? "0.01" : "0.01";
+
     // StateNotifier가 자동으로 WalletService의 상태를 감시하므로
     // 추가적인 설정이 필요 없습니다.
     
@@ -208,48 +220,83 @@ class SubscriptionPaymentScreenState extends ConsumerState<SubscriptionPaymentSc
       // mounted 체크 추가
       if (!mounted) return;
       
-      // 3. 정기 구독 시작
-      dev.log("[구독] 정기 구독 시작: 사용자ID=$userId, 네트워크=$chainId");
-      
-      final subscribeResult = await walletService.subscribeRegular(
-        contractAddress: subscriptionContractAddress,
-        userId: userId,
-        contractAbi: SubscriptionConstants.subscriptionContractAbi,
-        onComplete: (subTxHash, subSuccess, subErrorMessage) {
-          dev.log("[구독] 정기 구독 완료: 성공=$subSuccess, 해시=$subTxHash, 오류=$subErrorMessage");
-          
-          // mounted 체크 추가
-          if (!mounted) return;
-          
-          if (subSuccess) {
-            _showSnackBar('구독이 성공적으로 완료되었습니다!');
-            
-            // TODO: 구독 성공 후 추가 작업 (서버 API 호출 등)
-            // 예: 서버에 구독 상태 업데이트 요청
-            // _updateSubscriptionStatusOnServer(userId, subTxHash);
-            
-            // 로딩 상태 업데이트
-            safeSetState(() {
-              isLoading = false;
-            });
-            
-            // 잠시 후 홈 화면으로 이동 (스낵바를 볼 수 있도록 약간 지연)
-            Future.delayed(const Duration(seconds: 2), () {
-              if (mounted) {
-                // 홈 화면으로 이동 (모든 이전 화면 제거)
-                Navigator.of(context).popUntil((route) => route.isFirst);
-              }
-            });
-          } else {
-            _showSnackBar('구독 처리 중 오류: $subErrorMessage');
-            safeSetState(() {
-              isLoading = false;
-            });
-          }
-        },
-      );
+      // 3. 구독 시작
+      var subscribeResult;
+      if (widget.subscriptionType == SubscriptionType.regular) {
 
-      
+        dev.log("[구독] 정기 구독 시작: 사용자ID=$userId, 네트워크=$chainId");
+        
+        subscribeResult = await walletService.subscribeRegular(
+          contractAddress: subscriptionContractAddress,
+          userId: userId,
+          contractAbi: SubscriptionConstants.subscriptionContractAbi,
+          onComplete: (subTxHash, subSuccess, subErrorMessage) {
+            dev.log("[구독] 정기 구독 완료: 성공=$subSuccess, 해시=$subTxHash, 오류=$subErrorMessage");
+            
+            // mounted 체크 추가
+            if (!mounted) return;
+            
+            if (subSuccess) {
+              _showSnackBar('구독이 성공적으로 완료되었습니다!');
+              
+              // 로딩 상태 업데이트
+              safeSetState(() {
+                isLoading = false;
+              });
+              
+              // 잠시 후 홈 화면으로 이동 (스낵바를 볼 수 있도록 약간 지연)
+              Future.delayed(const Duration(seconds: 2), () {
+                if (mounted) {
+                  // 홈 화면으로 이동 (모든 이전 화면 제거)
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                }
+              });
+            } else {
+              _showSnackBar('구독 처리 중 오류: $subErrorMessage');
+              safeSetState(() {
+                isLoading = false;
+              });
+            }
+          },
+        );
+      } else {
+      // 3-2 아티스트구독
+        subscribeResult = await walletService.subscribeToArtist(
+          contractAddress: subscriptionContractAddress,
+          subscriberId: userId,
+          artistId: widget.artistInfo!.id,
+          contractAbi: SubscriptionConstants.subscriptionContractAbi,
+          onComplete: (subTxHash, subSuccess, subErrorMessage) {
+            dev.log("[구독] 정기 구독 완료: 성공=$subSuccess, 해시=$subTxHash, 오류=$subErrorMessage");
+            
+            // mounted 체크 추가
+            if (!mounted) return;
+            
+            if (subSuccess) {
+              _showSnackBar('구독이 성공적으로 완료되었습니다!');
+              
+              // 로딩 상태 업데이트
+              safeSetState(() {
+                isLoading = false;
+              });
+              
+              // 잠시 후 홈 화면으로 이동 (스낵바를 볼 수 있도록 약간 지연)
+              Future.delayed(const Duration(seconds: 2), () {
+                if (mounted) {
+                  // 홈 화면으로 이동 (모든 이전 화면 제거)
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                }
+              });
+            } else {
+              _showSnackBar('구독 처리 중 오류: $subErrorMessage');
+              safeSetState(() {
+                isLoading = false;
+              });
+            }
+          },
+        );
+      }
+
       // mounted 체크 추가
       if (!mounted) return;
       
@@ -282,14 +329,15 @@ class SubscriptionPaymentScreenState extends ConsumerState<SubscriptionPaymentSc
     final walletState = ref.watch(walletStateProvider);
     final isWalletConnected = walletState.isConnected;
     final isTransferring = walletState.isTransferring;
-    
-    // 디버깅을 위한 로그 (필요시)
-    // dev.log("[SubscriptionPaymentScreen] 빌드: 연결=$isWalletConnected, 전송=$isTransferring");
-    
+
     // 이미 트랜잭션 진행 중이면 버튼 비활성화
     // 또한 모든 약관에 동의하지 않았거나 지갑이 연결되지 않은 경우에도 비활성화
     final buttonDisabled = isTransferring || isLoading || !isAllAgreed || !isWalletConnected;
     
+    final String title = widget.subscriptionType == SubscriptionType.regular 
+        ? "정기 구독하기" 
+        : "아티스트 구독하기";
+
     return Scaffold(
       backgroundColor: Colors.black,
       // SafeArea 추가하여 시스템 UI와의 충돌 방지
@@ -312,20 +360,6 @@ class SubscriptionPaymentScreenState extends ConsumerState<SubscriptionPaymentSc
                 },
               ),
               
-              // 디버깅용 연결 상태 표시기 (실제 앱에서는 제거 가능)
-              // Container(
-              //   padding: EdgeInsets.all(8),
-              //   margin: EdgeInsets.symmetric(vertical: 8),
-              //   decoration: BoxDecoration(
-              //     color: isWalletConnected ? Colors.green.withOpacity(0.3) : Colors.red.withOpacity(0.3),
-              //     borderRadius: BorderRadius.circular(8),
-              //   ),
-              //   child: Text(
-              //     '지갑 연결 상태: ${isWalletConnected ? "연결됨" : "연결되지 않음"}',
-              //     style: TextStyle(color: Colors.white),
-              //   ),
-              // ),
-              
               // 메인 컨텐츠 영역
               Expanded(
                 child: SingleChildScrollView( // 스크롤 가능하게 변경
@@ -338,7 +372,13 @@ class SubscriptionPaymentScreenState extends ConsumerState<SubscriptionPaymentSc
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         // 결제 정보 확인 섹션
-                        const PaymentInfoSection(),
+                        PaymentInfoSection(
+                          subscriptionType: widget.subscriptionType == SubscriptionType.regular 
+                              ? "regular" 
+                              : "artist",
+                          artistInfo: widget.artistInfo,
+                          price: subscriptionAmount,
+                        ),
                         const SizedBox(height: 30),
                         
                         // 결제 지갑 연동 섹션 (금액 자동 설정)
@@ -365,7 +405,9 @@ class SubscriptionPaymentScreenState extends ConsumerState<SubscriptionPaymentSc
                       ? "지갑 연결 필요" 
                       : !isAllAgreed 
                         ? "약관에 모두 동의해주세요" 
-                        : "구독하기",
+                        : widget.subscriptionType == SubscriptionType.regular
+                            ? "정기 구독하기"
+                            : "아티스트 구독하기",
                   isLoading: isLoading || isTransferring,
                   onPressed: buttonDisabled ? null : handleSubscription,
                 ),
