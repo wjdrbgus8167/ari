@@ -1,6 +1,7 @@
 package com.ccc.ari.subscription.application.service;
 
-import com.ccc.ari.subscription.application.repository.SubscriptionPlanRepository;
+import com.ccc.ari.subscription.domain.SubscriptionPlan;
+import com.ccc.ari.subscription.domain.repository.SubscriptionPlanRepository;
 import com.ccc.ari.global.type.PlanType;
 import com.ccc.ari.subscription.infrastructure.persistence.entity.SubscriptionPlanEntity;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ public class SubscriptionPlanCoordinationService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Transactional
-    public SubscriptionPlanEntity getOrCreateRegularPlan(BigDecimal price) {
+    public SubscriptionPlan getOrCreateRegularPlan(BigDecimal price) {
         logger.info("정기 구독 플랜 조회 또는 생성 시작 (price: {})", price);
         return subscriptionPlanRepository.findSubscriptionPlanByPlanType(PlanType.R)
                 .orElseGet(() -> {
@@ -35,7 +36,7 @@ public class SubscriptionPlanCoordinationService {
     }
 
     @Transactional
-    public SubscriptionPlanEntity getOrCreateArtistPlan(Integer artistId, BigDecimal price) {
+    public SubscriptionPlan getOrCreateArtistPlan(Integer artistId, BigDecimal price) {
         logger.info("아티스트 구독 플랜 조회 또는 생성 시작 (artistId: {}, price: {})", artistId, price);
         return subscriptionPlanRepository.findSubscriptionPlanByArtistId(artistId)
                 .orElseGet(() -> {
