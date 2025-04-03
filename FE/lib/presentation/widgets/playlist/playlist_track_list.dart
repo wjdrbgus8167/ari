@@ -17,7 +17,10 @@ class PlaylistTrackList extends ConsumerWidget {
       );
     }
 
-    final tracks = playlistState.selectedPlaylist!.tracks;
+    final tracks =
+        playlistState.filteredTracks?.isNotEmpty == true
+            ? playlistState.filteredTracks!
+            : playlistState.selectedPlaylist!.tracks;
     if (tracks.isEmpty) {
       return const Center(
         child: Text('트랙이 존재하지 않습니다.', style: TextStyle(color: Colors.white)),
@@ -28,22 +31,25 @@ class PlaylistTrackList extends ConsumerWidget {
       itemCount: tracks.length,
       itemBuilder: (context, index) {
         final trackItem = tracks[index];
+
+        // isSelected 체크 시, 인덱스까지 고려해서 각각의 항목을 고유하게 판단할 수 있도록 수정
         final isSelected = playlistState.selectedTracks.contains(trackItem);
+
         return PlaylistTrackListTile(
+          // ✅ 여기서 `key`를 인덱스 기준으로 다르게 주면 Flutter가 동일 트랙도 구분할 수 있음
+          key: ValueKey('$index-${trackItem.trackId}'),
           item: trackItem,
           isSelected: isSelected,
           selectionMode: playlistState.selectionMode,
           onTap: () {
-            // AudioService의 play 메서드에 필요한 모든 매개변수를 전달합니다.
             ref
                 .read(audioServiceProvider)
                 .play(
                   ref,
                   trackItem.trackFileUrl,
                   title: trackItem.trackTitle,
-                  artist: trackItem.artist, // 새 API 응답의 artist 필드 사용
-                  coverImageUrl:
-                      trackItem.coverImageUrl, // 새 API 응답의 coverImageUrl 사용
+                  artist: trackItem.artist,
+                  coverImageUrl: trackItem.coverImageUrl,
                   lyrics: trackItem.lyrics,
                   trackId: trackItem.trackId,
                   albumId: trackItem.albumId,
@@ -51,6 +57,8 @@ class PlaylistTrackList extends ConsumerWidget {
                 );
           },
           onToggleSelection: () {
+            // 중복된 항목도 각자 다르게 선택되도록 하려면,
+            // selectedTracks 를 List 또는 index 기반 구조로 바꾸는 것도 고려해볼 수 있음
             ref
                 .read(playlistViewModelProvider.notifier)
                 .toggleTrackSelection(trackItem);

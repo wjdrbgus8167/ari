@@ -112,6 +112,29 @@ class _PlaylistSelectbarState extends ConsumerState<PlaylistSelectbar> {
                                 (context, index) => const SizedBox(height: 20),
                             itemBuilder: (context, index) {
                               final playlist = playlists[index];
+                              final hasTracks = playlist.tracks.isNotEmpty;
+                              final coverImage =
+                                  hasTracks
+                                      ? NetworkImage(
+                                        playlist.tracks.first.coverImageUrl ??
+                                            '',
+                                      )
+                                      : const AssetImage(
+                                        "assets/images/default_album_cover.png",
+                                      );
+                              //디버깅
+
+                              debugPrint(
+                                '[PlaylistSelectbar] 렌더링 중 - ${playlist.title}',
+                              );
+                              if (hasTracks) {
+                                debugPrint(
+                                  ' > 첫 트랙 커버 URL: ${playlist.tracks.first.coverImageUrl}',
+                                );
+                              } else {
+                                debugPrint(' > 트랙 없음. 기본 이미지 사용');
+                              }
+
                               return InkWell(
                                 onTap: () {
                                   setState(() {
@@ -125,20 +148,22 @@ class _PlaylistSelectbarState extends ConsumerState<PlaylistSelectbar> {
                                   height: 60,
                                   child: Row(
                                     children: [
-                                      // 예시 이미지, 실제 이미지 URL로 교체
+                                      // 앨범 커버
                                       Container(
                                         width: 50,
                                         height: 50,
-                                        decoration: const BoxDecoration(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
                                           image: DecorationImage(
-                                            image: AssetImage(
-                                              "assets/images/default_album_cover.png",
-                                            ),
+                                            image: coverImage as ImageProvider,
                                             fit: BoxFit.cover,
                                           ),
                                         ),
                                       ),
                                       const SizedBox(width: 8),
+                                      // 제목 및 곡 수
                                       Expanded(
                                         child: Column(
                                           crossAxisAlignment:
@@ -166,6 +191,18 @@ class _PlaylistSelectbarState extends ConsumerState<PlaylistSelectbar> {
                                             ),
                                           ],
                                         ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      // 🔐 공개/비공개 여부 표시
+                                      Icon(
+                                        playlist.isPublic
+                                            ? Icons.public
+                                            : Icons.lock,
+                                        color:
+                                            playlist.isPublic
+                                                ? Colors.green
+                                                : Colors.grey,
+                                        size: 18,
                                       ),
                                     ],
                                   ),

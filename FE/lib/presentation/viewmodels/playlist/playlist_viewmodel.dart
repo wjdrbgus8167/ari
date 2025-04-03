@@ -83,8 +83,7 @@ class PlaylistViewModel extends StateNotifier<PlaylistState> {
     final filtered =
         allTracks.where((item) {
           final title = item.trackTitle.toLowerCase();
-          // 임시로 작사가로 설정(가수로 나중에 바꿔야함)
-          final artist = item.lyricist.toLowerCase();
+          final artist = item.artist.toLowerCase();
           return title.contains(query.toLowerCase()) ||
               artist.contains(query.toLowerCase());
         }).toList();
