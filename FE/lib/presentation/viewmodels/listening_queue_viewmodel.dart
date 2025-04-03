@@ -192,11 +192,14 @@ class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
     bool publicYn,
     List<ListeningQueueItem> selectedItems,
   ) async {
-    final request = PlaylistCreateRequest(title: title);
+    final request = PlaylistCreateRequest(title: title, publicYn: publicYn);
     final newPlaylist = await playlistRepository.createPlaylist(request);
     for (var item in selectedItems) {
       await playlistRepository.addTrack(newPlaylist.id, item.track.trackId);
     }
+    print('[DEBUG] 플레이리스트 생성 요청: title=$title, publicYn=$publicYn');
+    print('[DEBUG] PlaylistCreateRequest JSON: ${request.toJson()}');
+
     // 새 플레이리스트 생성 후 플레이리스트 목록 업데이트
     await _loadPlaylists();
     state = state.copyWith(selectedTracks: {});

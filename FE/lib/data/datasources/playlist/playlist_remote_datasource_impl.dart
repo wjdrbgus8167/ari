@@ -20,6 +20,10 @@ class PlaylistRemoteDataSourceImpl implements IPlaylistRemoteDataSource {
     dynamic data,
   }) async {
     try {
+      print('[DEBUG] 요청 URL: $url');
+      print('[DEBUG] 요청 메서드: $method');
+      print('[DEBUG] 요청 데이터: $data');
+
       Response response;
       switch (method) {
         case 'GET':

@@ -96,6 +96,11 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                                   debugPrint(
                                     "플레이리스트 생성: $title / 공개여부: $publicYn",
                                   );
+                                  viewModel.createPlaylistAndAddTracks(
+                                    title,
+                                    publicYn,
+                                    state.selectedTracks.toList(),
+                                  );
                                 },
                               );
                             },
