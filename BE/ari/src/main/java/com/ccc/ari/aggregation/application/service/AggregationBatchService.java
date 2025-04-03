@@ -35,7 +35,7 @@ public class AggregationBatchService {
      * <p>
      * 스케줄링 cron: "0 0 * * * *" (매 정각 0분 0초)
      */
-    @Scheduled(cron = "0 */1 * * * *")
+    @Scheduled(cron = "0 0 * * * *")
     public void performAggregation() {
         logger.info("집계 배치 작업을 시작합니다.");
 
