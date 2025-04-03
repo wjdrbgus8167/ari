@@ -5,7 +5,7 @@ import 'package:ari/providers/global_providers.dart';
 import 'package:ari/providers/navigation_history_provider.dart';
 import 'package:ari/presentation/widgets/common/bottom_nav.dart';
 import 'package:ari/presentation/widgets/common/playback_bar.dart';
-import 'package:ari/presentation/widgets/common/custom_dialog.dart';
+import 'package:ari/presentation/widgets/common/custom_toast.dart';
 import '../../pages/my_channel/my_channel_screen.dart';
 
 // 인덱스 0: 홈 화면 (전달된 child)
@@ -15,8 +15,8 @@ import '../../pages/my_channel/my_channel_screen.dart';
 
 /// 글로벌 하단 위젯과 탭별 화면 관리
 ///
-/// 전체 앱의 공통 골격을 제공하며, 하단 네비게이션 바와 재생 바를 포함합니다.
-/// WillPopScope를 사용하여 뒤로가기 이벤트를 처리합니다.
+/// 전체 앱의 공통 골격 제공, 하단 네비게이션 바와 재생 바를 포함
+/// WillPopScope: 뒤로가기 이벤트 처리
 class GlobalBottomWidget extends ConsumerWidget {
   final Widget child; // 각 페이지 콘텐츠 영역
 
@@ -38,7 +38,7 @@ class GlobalBottomWidget extends ConsumerWidget {
 
     Widget currentScreen = child;
 
-    // 하단 탭 인덱스가 변경될 때 해당 화면으로 교체
+    // 하단 탭 인덱스가 변경될 때 그 화면으로 변경 
     if (bottomIndex != 0) {
       switch (bottomIndex) {
         case 1:
@@ -64,7 +64,7 @@ class GlobalBottomWidget extends ConsumerWidget {
           currentScreen = const MyChannelScreen();
           break;
         default:
-          // 기본값은 전달된 child (일반적으로 HomeScreen)
+          // 기본값은 전달된 child (보통 HomeScreen)
           currentScreen = child;
       }
     }
@@ -76,14 +76,19 @@ class GlobalBottomWidget extends ConsumerWidget {
         if (didPop) return;
 
         // 뒤로가기 처리를 위해 히스토리 확인
-        final isAtHomeAndShouldExit =
-            ref.read(navigationHistoryProvider.notifier).goBack();
+        final historyNotifier = ref.read(navigationHistoryProvider.notifier);
+        final isAtHomeAndShouldExit = historyNotifier.goBack();
 
-        // 홈화면이고 히스토리가 하나만 남은 경우 앱 종료 확인 다이얼로그 표시
+        // 홈화면이고 히스토리가 하나만 남은 경우 토스트 표시 또는 앱 종료
         if (isAtHomeAndShouldExit) {
-          final shouldExit = await _confirmExit(context);
-          if (shouldExit) {
-            SystemNavigator.pop(); // 앱 종료
+          final isQuickSecondPress = historyNotifier.isQuickSecondBackPress();
+
+          if (isQuickSecondPress) {
+            // 2초 이내에 뒤로가기를 두 번 누른 경우: 앱 종료
+            SystemNavigator.pop();
+          } else {
+            // 처음 뒤로가기 누른 경우: 토스트 메시지 표시
+            context.showToast('뒤로가기 버튼을 한 번 더 누르면 종료됩니다');
           }
         }
       },
@@ -109,25 +114,5 @@ class GlobalBottomWidget extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  /// 앱 종료 확인 다이얼로그
-  ///
-  /// @return 사용자가 종료를 확인하면 true, 취소하면 false
-  Future<bool> _confirmExit(BuildContext context) async {
-    final result = await showDialog<bool>(
-      context: context,
-      builder:
-          (context) => CustomDialog(
-            title: '앱 종료',
-            content: '앱을 종료하시겠습니까?',
-            confirmText: '종료',
-            cancelText: '취소',
-            confirmButtonColor: Colors.red,
-            cancelButtonColor: Colors.grey,
-          ),
-    );
-
-    return result ?? false;
   }
 }
