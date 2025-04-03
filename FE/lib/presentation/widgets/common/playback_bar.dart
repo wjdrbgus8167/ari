@@ -20,8 +20,10 @@ class PlaybackBar extends ConsumerWidget {
       playbackServiceLib.playbackServiceProvider,
     );
     final audioService = ref.read(audioServiceProvider);
-
     final coverImage = ref.watch(coverImageProvider);
+
+    // listeningQueueProvider의 상태를 가져옵니다.
+    final queueState = ref.watch(listeningQueueProvider);
 
     return GestureDetector(
       onTap: () {
@@ -78,43 +80,60 @@ class PlaybackBar extends ConsumerWidget {
                     ],
                   ),
                 ),
+                // 재생 버튼: 로딩 중이면 CircularProgressIndicator를 표시하고, onPressed를 null로 설정합니다.
                 IconButton(
-                  icon: Icon(
-                    playbackState.isPlaying ? Icons.pause : Icons.play_arrow,
-                    color: Colors.white,
-                  ),
-                  onPressed: () async {
-                    if (playbackState.isPlaying) {
-                      await audioService.pause(ref);
-                    } else {
-                      // 현재 재생 중인 트랙이 있다면 이어서 재생(resume)
-                      if (playbackState.currentTrackId != null) {
-                        await audioService.resume(ref);
-                      } else {
-                        // 현재 재생 중인 트랙이 없으면 재생목록(리슨잉 큐)에서 셔플하여 재생
-                        final queueState = ref.read(listeningQueueProvider);
-                        final queue =
-                            queueState
-                                .filteredPlaylist; // List<ListeningQueueItem>
-                        if (queue.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('재생 가능한 곡이 없습니다.')),
-                          );
-                        } else {
-                          final shuffledQueue = List.from(queue);
-                          shuffledQueue.shuffle();
-                          final listeningQueueItem = shuffledQueue.first;
-                          await playbackService.playTrack(
-                            albumId: listeningQueueItem.track.albumId,
-                            trackId: listeningQueueItem.track.trackId,
-                            ref: ref,
-                          );
-                        }
-                      }
-                    }
-                  },
+                  icon:
+                      queueState.isLoading
+                          ? SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
+                          : Icon(
+                            playbackState.isPlaying
+                                ? Icons.pause
+                                : Icons.play_arrow,
+                            color: Colors.white,
+                          ),
+                  onPressed:
+                      queueState.isLoading
+                          ? null
+                          : () async {
+                            if (playbackState.isPlaying) {
+                              await audioService.pause(ref);
+                            } else {
+                              // 현재 재생 중인 트랙이 있다면 이어서 재생(resume)
+                              if (playbackState.currentTrackId != null) {
+                                await audioService.resume(ref);
+                              } else {
+                                // 현재 재생 중인 트랙이 없으면 재생목록(리슨잉 큐)에서 셔플하여 재생
+                                final queue = queueState.filteredPlaylist;
+                                if (queue.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('재생 가능한 곡이 없습니다.'),
+                                    ),
+                                  );
+                                } else {
+                                  final shuffledQueue = List.from(queue);
+                                  shuffledQueue.shuffle();
+                                  final listeningQueueItem =
+                                      shuffledQueue.first;
+                                  await playbackService.playTrack(
+                                    albumId: listeningQueueItem.track.albumId,
+                                    trackId: listeningQueueItem.track.trackId,
+                                    ref: ref,
+                                  );
+                                }
+                              }
+                            }
+                          },
                 ),
-
                 IconButton(
                   icon: const Icon(Icons.queue_music, color: Colors.white),
                   onPressed: () {
