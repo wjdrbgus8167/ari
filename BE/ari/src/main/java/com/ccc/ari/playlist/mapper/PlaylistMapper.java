@@ -28,4 +28,19 @@ public class PlaylistMapper {
                 .member(member)
                 .build();
     }
+
+    public Playlist toDto(PlaylistEntity playList) {
+        MemberEntity member = jpaMemberRepository.findById(playList.getMember().getMemberId())
+                .orElseThrow(() -> new ApiException(ErrorCode.MEMBER_NOT_FOUND));
+
+        return Playlist.builder()
+                .playlistId(playList.getPlaylistId())
+                .playListTitle(playList.getPlaylistTitle())
+                .publicYn(playList.isPublicYn())
+                .createdAt(playList.getCreatedAt())
+                .shareCount(playList.getShareCount())
+                .memberId(playList.getMember().getMemberId())
+                .build();
+    }
+
 }

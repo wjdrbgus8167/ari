@@ -1,4 +1,4 @@
-package com.ccc.ari.playlist.infrastructure;
+package com.ccc.ari.playlist.infrastructure.repository.sharedplaylist;
 
 import com.ccc.ari.playlist.domain.sharedplaylist.SharedPlaylistEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

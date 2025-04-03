@@ -1,10 +1,8 @@
 package com.ccc.ari.global.composition.service;
 
-import com.ccc.ari.aggregation.domain.vo.StreamingLog;
 import com.ccc.ari.community.domain.comment.entity.TrackComment;
 import com.ccc.ari.community.domain.like.LikeType;
 import com.ccc.ari.community.domain.like.client.LikeClient;
-import com.ccc.ari.global.composition.infrastructure.StreamingLogClientImpl;
 import com.ccc.ari.community.domain.comment.client.TrackCommentClient;
 import com.ccc.ari.global.composition.response.TrackDetailResponse;
 import com.ccc.ari.member.domain.client.MemberClient;
@@ -29,7 +27,6 @@ public class TrackDetailService {
     private final TrackClient trackClient;
     private final TrackCommentClient trackCommentClient;
     private final MemberClient memberClient;
-    private final StreamingLogClientImpl streamingLogClient;
     private final LikeClient likeClient;
     public TrackDetailResponse getTrackDetail(Integer trackId,Integer memberId) {
 
