@@ -10,6 +10,9 @@ class NavigationHistoryNotifier extends StateNotifier<List<int>> {
   // 뒤로가기 버튼을 마지막으로 누른 시간
   DateTime? _lastBackPressTime;
 
+  // 홈 화면에서 뒤로가기 버튼 누른 여부를 추적
+  bool _homeBackButtonPressed = false;
+
   /// 뒤로가기 버튼 누른 시간 확인
   ///
   /// @return true: 빠른 연속 클릭 (1초 이내), false: 처음 클릭 또는 시간 경과
@@ -25,6 +28,19 @@ class NavigationHistoryNotifier extends StateNotifier<List<int>> {
 
     // 1초 이내에 다시 누른 경우
     return true;
+  }
+
+  /// 홈 화면에서 뒤로가기 버튼을 눌렀음을 표시
+  void setHomeBackButtonPressed() {
+    _homeBackButtonPressed = true;
+  }
+
+  /// 홈 화면에서 뒤로가기 버튼을 눌렀는지 확인
+  bool isHomeBackButtonPressed() {
+    // 상태 확인 후 초기화
+    final wasPressed = _homeBackButtonPressed;
+    _homeBackButtonPressed = false;
+    return wasPressed;
   }
 
   /// 새 탭 추가 (중복 탭 처리 포함)
@@ -45,6 +61,8 @@ class NavigationHistoryNotifier extends StateNotifier<List<int>> {
   bool goBack() {
     // 현재 홈 화면(0)인지 확인
     if (state.isNotEmpty && state.last == 0) {
+      // 홈 화면에서 뒤로가기 버튼을 눌렀음을 표시
+      setHomeBackButtonPressed();
       return true; // 홈 화면에서는 항상 true 반환하여 앱 종료 처리
     }
 
