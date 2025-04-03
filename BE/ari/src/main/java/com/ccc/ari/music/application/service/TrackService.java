@@ -8,6 +8,7 @@ import com.ccc.ari.music.infrastructure.repository.track.JpaTrackRepository;
 import com.ccc.ari.music.mapper.TrackMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class TrackService {
 
     }
 
+    @Transactional(readOnly = true)
     public TrackDto getTrackById(Integer trackId){
         TrackEntity entity = jpaTrackRepository.findById(trackId)
                 .orElseThrow(() -> new ApiException(ErrorCode.MUSIC_FILE_NOT_FOUND));

@@ -3,6 +3,9 @@ package com.ccc.ari.global.config;
 import com.ccc.ari.aggregation.domain.vo.StreamingLog;
 import com.ccc.ari.chart.domain.entity.Chart;
 import com.ccc.ari.chart.domain.entity.StreamingWindow;
+import com.ccc.ari.exhibition.domain.entity.PopularAlbum;
+import com.ccc.ari.exhibition.domain.entity.PopularTrack;
+import com.ccc.ari.exhibition.domain.entity.TrackStreamingWindow;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -95,6 +98,87 @@ public class RedisConfig {
     @Bean
     public RedisTemplate<String, Map<String, StreamingWindow>> windowRedisTemplate() {
         RedisTemplate<String, Map<String, StreamingWindow>> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory());
+        template.setKeySerializer(new StringRedisSerializer());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        objectMapper.activateDefaultTyping(
+                LaissezFaireSubTypeValidator.instance,
+                ObjectMapper.DefaultTyping.NON_FINAL,
+                JsonTypeInfo.As.PROPERTY
+        );
+
+        GenericJackson2JsonRedisSerializer jsonSerializer =
+                new GenericJackson2JsonRedisSerializer(objectMapper);
+
+        template.setValueSerializer(jsonSerializer);
+        template.setHashKeySerializer(new StringRedisSerializer());
+        template.setHashValueSerializer(jsonSerializer);
+
+        template.afterPropertiesSet();
+        return template;
+    }
+
+    @Bean
+    public RedisTemplate<String, Map<String, TrackStreamingWindow>> trackWindowRedisTemplate() {
+        RedisTemplate<String, Map<String, TrackStreamingWindow>> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory());
+        template.setKeySerializer(new StringRedisSerializer());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        objectMapper.activateDefaultTyping(
+                LaissezFaireSubTypeValidator.instance,
+                ObjectMapper.DefaultTyping.NON_FINAL,
+                JsonTypeInfo.As.PROPERTY
+        );
+
+        GenericJackson2JsonRedisSerializer jsonSerializer =
+                new GenericJackson2JsonRedisSerializer(objectMapper);
+
+        template.setValueSerializer(jsonSerializer);
+        template.setHashKeySerializer(new StringRedisSerializer());
+        template.setHashValueSerializer(jsonSerializer);
+
+        template.afterPropertiesSet();
+        return template;
+    }
+
+    @Bean
+    public RedisTemplate<String, PopularTrack> trackRedisTemplate() {
+        RedisTemplate<String, PopularTrack> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory());
+        template.setKeySerializer(new StringRedisSerializer());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        objectMapper.activateDefaultTyping(
+                LaissezFaireSubTypeValidator.instance,
+                ObjectMapper.DefaultTyping.NON_FINAL,
+                JsonTypeInfo.As.PROPERTY
+        );
+
+        GenericJackson2JsonRedisSerializer jsonSerializer =
+                new GenericJackson2JsonRedisSerializer(objectMapper);
+
+        template.setValueSerializer(jsonSerializer);
+        template.setHashKeySerializer(new StringRedisSerializer());
+        template.setHashValueSerializer(jsonSerializer);
+
+        template.afterPropertiesSet();
+        return template;
+    }
+
+    @Bean
+    public RedisTemplate<String, PopularAlbum> albumRedisTemplate() {
+        RedisTemplate<String, PopularAlbum> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory());
         template.setKeySerializer(new StringRedisSerializer());
 

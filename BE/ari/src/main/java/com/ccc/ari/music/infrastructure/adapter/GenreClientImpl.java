@@ -6,6 +6,8 @@ import com.ccc.ari.music.domain.genre.client.GenreClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class GenreClientImpl implements GenreClient {
@@ -21,5 +23,11 @@ public class GenreClientImpl implements GenreClient {
     @Override
     public String getGenreName(Integer genreId) {
         return genreService.getGenreName(genreId);
+    }
+
+    @Override
+    public List<GenreDto> getAllGenres() {
+
+        return genreService.getAllGenres();
     }
 }
