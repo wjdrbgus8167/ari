@@ -27,8 +27,13 @@ import 'package:ari/core/constants/app_constants.dart';
 // final dioProvider = Provider<Dio>((ref) => Dio());
 
 // Bottom Navigation 전역 상태
+/// 하단 네비게이션 바 인덱스 provider
+/// 현재 선택된 탭 인덱스 관리
+/// 0: 홈, 1: 검색, 2: 음악 서랍, 3: 나의 채널
 class BottomNavState extends StateNotifier<int> {
-  BottomNavState() : super(0);
+  BottomNavState() : super(0); // 초기값은 홈 화면(0)
+
+  /// 현재 선택된 탭 인덱스 변경
   void setIndex(int index) {
     state = index;
   }
@@ -37,6 +42,7 @@ class BottomNavState extends StateNotifier<int> {
 final bottomNavProvider = StateNotifierProvider<BottomNavState, int>((ref) {
   return BottomNavState();
 });
+
 
 // 재생 상태 전역 관리
 class PlaybackState {
@@ -53,7 +59,7 @@ class PlaybackState {
   PlaybackState copyWith({String? currentTrackId, bool? isPlaying}) {
     return PlaybackState(
       currentTrackId: currentTrackId ?? this.currentTrackId,
-      trackTitle: this.trackTitle,
+      trackTitle: trackTitle,
       isPlaying: isPlaying ?? this.isPlaying,
     );
   }
