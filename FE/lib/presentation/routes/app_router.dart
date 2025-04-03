@@ -1,8 +1,11 @@
 import 'package:ari/presentation/pages/login/login_screen.dart';
 import 'package:ari/presentation/pages/sign_up/sign_up_screen.dart';
+import 'package:ari/presentation/pages/subscription/artist_selection_screen.dart';
 import 'package:ari/presentation/pages/subscription/my_subscription_screen.dart';
 import 'package:ari/presentation/pages/subscription/subscription_payment_screen.dart';
 import 'package:ari/presentation/pages/subscription/subscription_select_screen.dart';
+import 'package:ari/presentation/viewmodels/subscription/artist_selection_viewmodel.dart';
+import 'package:ari/presentation/viewmodels/subscription/my_subscription_viewmodel.dart';
 import 'package:ari/presentation/widgets/common/custom_dialog.dart';
 import 'package:ari/providers/auth/auth_providers.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +37,7 @@ class AppRoutes {
   static const String albumUpload = '/album-upload';
   static const String trackUpload = '/album-upload/add-track';
   static const String subscriptionSelect = '/subscription/select';
+    static const String artistSelection = '/subscription/select/artist';
 
   static final Set<String> _protectedRoutes = {
     myPage,
@@ -86,37 +90,46 @@ class AppRouter {
         final albumId = args?['albumId'] as int? ?? 1;
         final trackId = args?['trackId'] as int? ?? 1;
         return MaterialPageRoute(
-          settings: settings, 
           builder: (_) => TrackDetailScreen(albumId: albumId, trackId: trackId),
         );
 
       case AppRoutes.playlist:
-        return MaterialPageRoute(settings: settings, builder: (_) => const PlaylistScreen());
+        return MaterialPageRoute(builder: (_) => const PlaylistScreen());
 
       case AppRoutes.myChannel:
-        final args = settings.arguments as Map<String, dynamic>?;
         final memberId = args?['memberId'] as String?;
         return MaterialPageRoute(
-          settings: settings, 
           builder: (_) => MyChannelScreen(memberId: memberId),
         );
 
       case AppRoutes.subscription:
-        return MaterialPageRoute(settings: settings, builder: (_) => const MySubscriptionScreen());
+        return MaterialPageRoute(builder: (_) => const MySubscriptionScreen());
 
       case AppRoutes.subscriptionSelect:
-        return MaterialPageRoute(settings: settings, builder: (_) => const SubscriptionSelectScreen());
+        return MaterialPageRoute(builder: (_) => const SubscriptionSelectScreen());
 
       case AppRoutes.subscriptionPayment:
+        final subscriptionType = args?['subscriptionType'] as SubscriptionType? ?? SubscriptionType.regular;
+        final artistInfo = args?['artistInfo'] as ArtistInfo?;
+        
+        // artist 구독인데 artistInfo가 없으면 예외 처리
+        if (subscriptionType == SubscriptionType.artist && artistInfo == null) {
+          throw ArgumentError('Artist subscription requires artist info');
+        }
+        
         return MaterialPageRoute(
-          settings: settings, 
-          builder: (_) => const SubscriptionPaymentScreen(),
+          builder: (_) => SubscriptionPaymentScreen(
+            subscriptionType: subscriptionType,
+            artistInfo: artistInfo,
+          ),
         );
+      
+      case AppRoutes.artistSelection:
+        return MaterialPageRoute(builder: (_) => const ArtistSelectionScreen());
 
       default:
         // 없는 경로는 홈으로 리다이렉트, 스낵바로 알림
         return MaterialPageRoute(
-          settings: settings, 
           builder: (context) {
             // 화면 빌드
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -141,12 +154,20 @@ class AppRouter {
   static BuildContext? currentContext;
 
   static Future<bool> checkAuth(BuildContext context, WidgetRef ref) async {
-    final isLoggedIn = ref.read(authStateProvider).when(
-      data: (value) => value,
-      loading: () => false,
-      error: (_, __) => false,
-    );
+    AsyncValue<bool> authState = ref.watch(authStateProvider);
 
+    while (authState.isLoading) {
+      await Future.delayed(const Duration(milliseconds: 100));
+      authState = ref.watch(authStateProvider); // 상태 다시 확인
+    }
+
+    // 로딩 중이라면 로그인 상태를 알 수 없으므로, 대기 후 다시 확인
+    if (authState.hasError) {
+      return false;
+    }
+
+    // 로그인 여부 확인
+    final isLoggedIn = authState.value ?? false;
     if (!isLoggedIn) {
       // 로그인 안 된 경우: 다이얼로그 표시
       final result = await showDialog<bool>(
