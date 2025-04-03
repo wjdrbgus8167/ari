@@ -22,18 +22,18 @@ import java.util.Map;
 public class PopularMusicSelectionService {
 
     private static final Logger logger = LoggerFactory.getLogger(PopularMusicSelectionService.class);
-    private static final int MAX_POPULAR_ITEMS = 20;
+    private static final int MAX_POPULAR_ITEMS = 10;
 
     private final TrackClient trackClient;
 
     /**
-     * 인기 트랙 20개를 선택합니다.
+     * 인기 트랙 10개를 선택합니다.
      *
      * @param streamCounts 스트리밍 데이터
      * @return 인기 트랙 엔트리
      */
     public List<TrackEntry> selectPopularTracks(Map<Integer, Long> streamCounts) {
-        // 스트리밍 횟수를 기준으로 내림차순 정렬하여 상위 20개 선택
+        // 스트리밍 횟수를 기준으로 내림차순 정렬하여 상위 10개 선택
         List<Map.Entry<Integer, Long>> sortedEntries = streamCounts.entrySet().stream()
                 .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
                 .limit(MAX_POPULAR_ITEMS)
@@ -58,7 +58,7 @@ public class PopularMusicSelectionService {
     }
 
     /**
-     * 인기 앨범 20개를 선택합니다.
+     * 인기 앨범 10개를 선택합니다.
      *
      * @param streamCounts 스트리밍 데이터
      * @return 인기 앨범 엔트리
@@ -83,7 +83,7 @@ public class PopularMusicSelectionService {
             }
         }
 
-        // 스트리밍 횟수를 기준으로 내림차순 정렬하여 상위 20개 선택
+        // 스트리밍 횟수를 기준으로 내림차순 정렬하여 상위 10개 선택
         List<Map.Entry<Integer, Long>> sortedEntries = albumStreamCounts.entrySet().stream()
                 .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
                 .limit(MAX_POPULAR_ITEMS)
