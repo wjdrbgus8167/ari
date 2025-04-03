@@ -48,6 +48,10 @@ public class RedisWindowRepository {
     }
 
     private Map<Integer, StreamingWindow> convertMapKeysToInteger(Map<String, StreamingWindow> map) {
+        if (map == null) {
+            return new HashMap<>();
+        }
+
         Map<Integer, StreamingWindow> result = new HashMap<>();
         map.forEach((key, value) -> result.put(Integer.parseInt(key), value));
         return result;

@@ -35,7 +35,7 @@ public class TrackStreamingWindowRepositoryImpl implements TrackStreamingWindowR
     @Override
     public Map<Integer, TrackStreamingWindow> getAllTracksWindows() {
         Map<String, TrackStreamingWindow> stringKeyMap = redisTemplate.opsForValue().get(ALL_WINDOW_KEY);
-        return stringKeyMap != null ? convertKeysToInteger(stringKeyMap) : new HashMap<>();
+        return convertKeysToInteger(stringKeyMap);
     }
 
     // 장르별 윈도우 조회
