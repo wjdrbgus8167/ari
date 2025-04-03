@@ -1,7 +1,7 @@
 package com.ccc.ari.subscription.infrastructure.persistence.repository;
 
 import com.ccc.ari.subscription.application.repository.SubscriptionPlanRepository;
-import com.ccc.ari.subscription.infrastructure.persistence.entity.PlanType;
+import com.ccc.ari.global.type.PlanType;
 import com.ccc.ari.subscription.infrastructure.persistence.entity.SubscriptionPlanEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;

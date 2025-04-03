@@ -12,7 +12,7 @@ import org.hibernate.annotations.ColumnDefault;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "subscription")
+@Table(name = "subscriptions")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class SubscriptionEntity {
