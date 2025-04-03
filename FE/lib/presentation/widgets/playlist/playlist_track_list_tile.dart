@@ -56,7 +56,7 @@ class PlaylistTrackListTile extends ConsumerWidget {
         ),
       ),
       subtitle: Text(
-        item.artist, // 이제 artist 필드 사용
+        item.artist,
         style: const TextStyle(color: Colors.white70),
       ),
       trailing: IconButton(

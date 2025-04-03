@@ -41,8 +41,9 @@ class PlaylistTrackList extends ConsumerWidget {
           item: trackItem,
           isSelected: isSelected,
           selectionMode: playlistState.selectionMode,
-          onTap: () {
-            ref
+          onTap: () async {
+            // 트랙 재생
+            await ref
                 .read(audioServiceProvider)
                 .play(
                   ref,
@@ -55,7 +56,12 @@ class PlaylistTrackList extends ConsumerWidget {
                   albumId: trackItem.albumId,
                   isLiked: false,
                 );
+            // 재생목록(큐)에 트랙 추가 (domain -> data 모델 변환)
+            await ref
+                .read(listeningQueueProvider.notifier)
+                .trackPlayed(trackItem.toDataTrack());
           },
+
           onToggleSelection: () {
             // 중복된 항목도 각자 다르게 선택되도록 하려면,
             // selectedTracks 를 List 또는 index 기반 구조로 바꾸는 것도 고려해볼 수 있음
