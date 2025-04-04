@@ -1,9 +1,9 @@
-package com.ccc.ari.global.composition.service;
+package com.ccc.ari.global.composition.service.chart;
 
 import com.ccc.ari.chart.domain.client.ChartClient;
 import com.ccc.ari.chart.domain.entity.Chart;
 import com.ccc.ari.chart.domain.vo.ChartEntry;
-import com.ccc.ari.global.composition.response.ChartResponse;
+import com.ccc.ari.global.composition.response.chart.ChartResponse;
 import com.ccc.ari.global.error.ApiException;
 import com.ccc.ari.global.error.ErrorCode;
 import com.ccc.ari.member.domain.client.MemberClient;
@@ -11,7 +11,6 @@ import com.ccc.ari.music.domain.album.AlbumDto;
 import com.ccc.ari.music.domain.album.client.AlbumClient;
 import com.ccc.ari.music.domain.track.TrackDto;
 import com.ccc.ari.music.domain.track.client.TrackClient;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -52,11 +51,13 @@ public class ChartService {
                     AlbumDto album = albumClient.getAlbumById(track.getAlbumId());
                     String artistName = memberClient.getNicknameByMemberId(album.getMemberId());
                     String trackTitle = track.getTitle();
+                    String trackFileUrl = track.getTrackFileUrl();
                     String coverImageUrl = album.getCoverImageUrl();
 
                     return ChartResponse.ChartItemDto.builder()
                             .trackId(trackId)
                             .trackTitle(trackTitle)
+                            .trackFileUrl(trackFileUrl)
                             .artist(artistName)
                             .coverImageUrl(coverImageUrl)
                             .rank(entry.getRank())
