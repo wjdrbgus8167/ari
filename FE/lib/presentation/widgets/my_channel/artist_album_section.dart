@@ -4,7 +4,7 @@ import '../../../providers/my_channel/my_channel_providers.dart';
 import '../../../data/models/my_channel/artist_album.dart';
 import '../../viewmodels/my_channel/my_channel_viewmodel.dart';
 import '../common/carousel_container.dart';
-// import '../../routes/app_router.dart';
+import '../../routes/app_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../pages/mypage/album_upload_screen.dart';
 
@@ -98,7 +98,7 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
     // }
 
     // 앨범이 없거나 에러 발생 시 안내 메시지 표시
-    if (artistAlbums == null || artistAlbums.isEmpty || hasError) {
+    if (artistAlbums == null || artistAlbums.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
         child: Column(
@@ -239,21 +239,21 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
     );
   }
 
-  /// 개별 앨범 아이템 위젯
+  /// 개별 앨범 아이템
   Widget _buildAlbumItem(BuildContext context, ArtistAlbum album) {
     return GestureDetector(
       onTap: () {
-        // 앨범 상세 페이지로 이동 구현
+        // 앨범 상세 페이지로
         Navigator.pushNamed(
           context,
-          '/album/detail',
+          AppRoutes.album,
           arguments: {'albumId': album.albumId},
         );
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 앨범 커버 이미지 - 기존과 동일
+          // 앨범 커버 이미지
           Container(
             width: 160,
             height: 160,
@@ -273,9 +273,9 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
             ),
           ),
           const SizedBox(height: 8),
-          // 앨범 제목 - 너비 제한 추가
+          // 앨범 제목
           SizedBox(
-            width: 160, // 컨테이너 너비 고정
+            width: 160,
             child: Text(
               album.albumTitle,
               maxLines: 1,
@@ -288,9 +288,9 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
             ),
           ),
           const SizedBox(height: 2),
-          // 아티스트 이름 - 너비 제한 추가
+          // 아티스트 이름
           SizedBox(
-            width: 160, // 컨테이너 너비 고정
+            width: 160,
             child: Text(
               album.artist,
               maxLines: 1,
@@ -301,7 +301,8 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
               ),
             ),
           ),
-          // 수록곡 수 표시
+          const SizedBox(height: 2),
+          // 수록곡 수
           SizedBox(
             width: 160,
             child: Text(
