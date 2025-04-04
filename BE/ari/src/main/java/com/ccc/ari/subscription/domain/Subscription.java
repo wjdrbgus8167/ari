@@ -36,9 +36,18 @@ public class Subscription {
         this.cycles = new ArrayList<>();
     }
 
-    public SubscriptionCycle startNewCycle() {
+    public SubscriptionCycle startFirstCycle() {
         validateCanStartNewCycle();
-        SubscriptionCycle newCycle = SubscriptionCycle.create(this.subscriptionId, LocalDateTime.now());
+        SubscriptionCycle firstCycle = SubscriptionCycle.create(this.subscriptionId, LocalDateTime.now());
+        cycles.add(firstCycle);
+        return firstCycle;
+    }
+
+    public SubscriptionCycle startNewCycle(SubscriptionCycle latestCycle) {
+        validateCanStartNewCycle();
+        // 1 마이크로 초 이후로 사이클 시작 설정
+        SubscriptionCycle newCycle = SubscriptionCycle.create(this.subscriptionId,
+                                                              latestCycle.getEndedAt().plusNanos(1000));
         cycles.add(newCycle);
         return newCycle;
     }
