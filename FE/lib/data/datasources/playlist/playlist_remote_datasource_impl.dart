@@ -119,6 +119,7 @@ class PlaylistRemoteDataSourceImpl implements IPlaylistRemoteDataSource {
         return Playlist(
           id: playlistId,
           title: '', // 기본값, ViewModel에서 목록 데이터와 병합할 예정
+          coverImageUrl: '', // 기본값, ViewModel에서 병합할 예정
           isPublic: false, // 기본값, ViewModel에서 병합할 예정
           shareCount: 0, // 기본값, ViewModel에서 병합할 예정
           trackCount: tracks.length,

@@ -43,6 +43,7 @@ class PlaylistViewModel extends StateNotifier<PlaylistState> {
       final mergedPlaylist = Playlist(
         id: basePlaylist.id,
         title: basePlaylist.title,
+        coverImageUrl: basePlaylist.coverImageUrl,
         isPublic: basePlaylist.isPublic,
         trackCount: detailedPlaylist.tracks.length,
         shareCount: basePlaylist.shareCount,
@@ -117,6 +118,7 @@ class PlaylistViewModel extends StateNotifier<PlaylistState> {
     final newPlaylist = Playlist(
       id: state.selectedPlaylist!.id,
       title: state.selectedPlaylist!.title,
+      coverImageUrl: state.selectedPlaylist!.coverImageUrl,
       isPublic: state.selectedPlaylist!.isPublic,
       trackCount: updatedList.length,
       shareCount: state.selectedPlaylist!.shareCount,
@@ -135,6 +137,7 @@ class PlaylistViewModel extends StateNotifier<PlaylistState> {
     final newPlaylist = Playlist(
       id: state.selectedPlaylist!.id,
       title: state.selectedPlaylist!.title,
+      coverImageUrl: state.selectedPlaylist!.coverImageUrl,
       isPublic: state.selectedPlaylist!.isPublic,
       trackCount: newPlaylistTracks.length,
       shareCount: state.selectedPlaylist!.shareCount,

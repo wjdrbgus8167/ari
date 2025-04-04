@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'package:ari/core/services/audio_service.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class PlaybackState {
@@ -54,7 +57,23 @@ class PlaybackState {
 }
 
 class PlaybackNotifier extends StateNotifier<PlaybackState> {
-  PlaybackNotifier() : super(PlaybackState());
+  final AudioPlayer audioPlayer;
+  late final StreamSubscription<PlayerState> _playerStateSubscription;
+
+  PlaybackNotifier({required this.audioPlayer}) : super(PlaybackState()) {
+    // audioPlayer의 상태 스트림을 구독하여 isPlaying 상태 자동 업데이트
+    _playerStateSubscription = audioPlayer.playerStateStream.listen((
+      playerState,
+    ) {
+      state = state.copyWith(isPlaying: playerState.playing);
+    });
+  }
+
+  @override
+  void dispose() {
+    _playerStateSubscription.cancel();
+    super.dispose();
+  }
 
   void updatePlaybackState(bool isPlaying) {
     state = state.copyWith(isPlaying: isPlaying);
@@ -90,5 +109,8 @@ class PlaybackNotifier extends StateNotifier<PlaybackState> {
 }
 
 final playbackProvider = StateNotifierProvider<PlaybackNotifier, PlaybackState>(
-  (ref) => PlaybackNotifier(),
+  (ref) {
+    final audioService = ref.watch(audioServiceProvider);
+    return PlaybackNotifier(audioPlayer: audioService.audioPlayer);
+  },
 );

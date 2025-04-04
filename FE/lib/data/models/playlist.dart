@@ -6,6 +6,7 @@ class Playlist {
   final int shareCount; // API의 shareCount 값
   final bool isPublic; // API의 publicYn 값을 매핑
   final String title; // API의 playlistTitle 값을 매핑
+  final String coverImageUrl; // API의 coverImageUrl 값을 매핑
   final List<PlaylistTrackItem> tracks;
 
   Playlist({
@@ -14,6 +15,8 @@ class Playlist {
     required this.shareCount,
     required this.isPublic,
     required this.title,
+    required this.coverImageUrl,
+
     this.tracks = const [],
   });
 
@@ -24,6 +27,7 @@ class Playlist {
       shareCount: json['shareCount'] != null ? json['shareCount'] as int : 0,
       isPublic: json['publicYn'] is bool ? json['publicYn'] as bool : false,
       title: json['playlistTitle'] as String,
+      coverImageUrl: json['coverImageUrl'] as String,
       tracks:
           json['tracks'] != null
               ? (json['tracks'] as List)
