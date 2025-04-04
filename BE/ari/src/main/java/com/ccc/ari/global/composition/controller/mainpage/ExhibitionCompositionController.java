@@ -1,8 +1,10 @@
 package com.ccc.ari.global.composition.controller.mainpage;
 
 import com.ccc.ari.global.composition.response.mainpage.PopularAlbumResponse;
+import com.ccc.ari.global.composition.response.mainpage.PopularPlaylistResponse;
 import com.ccc.ari.global.composition.response.mainpage.PopularTrackResponse;
 import com.ccc.ari.global.composition.service.mainpage.PopularMusicService;
+import com.ccc.ari.global.composition.service.mainpage.PopularPlaylistService;
 import com.ccc.ari.global.util.ApiUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ExhibitionCompositionController {
 
     private final PopularMusicService popularMusicService;
+    private final PopularPlaylistService popularPlaylistService;
 
     @GetMapping("/albums/popular")
     public ApiUtils.ApiResponse<PopularAlbumResponse> getAllPopularAlbums() {
@@ -38,6 +41,12 @@ public class ExhibitionCompositionController {
     @GetMapping("/tracks/genres/{genreId}/popular")
     public ApiUtils.ApiResponse<PopularTrackResponse> getGenrePopularTracks(@PathVariable Integer genreId) {
         PopularTrackResponse response = popularMusicService.getGenrePopularTracks(genreId);
+        return ApiUtils.success(response);
+    }
+
+    @GetMapping("/playlists/popular")
+    public ApiUtils.ApiResponse<PopularPlaylistResponse> getPopularPlaylists() {
+        PopularPlaylistResponse response = popularPlaylistService.getPopularPlaylists();
         return ApiUtils.success(response);
     }
 }
