@@ -1,8 +1,10 @@
 package com.ccc.ari.global.composition.controller.mainpage;
 
+import com.ccc.ari.global.composition.response.mainpage.NewAlbumResponse;
 import com.ccc.ari.global.composition.response.mainpage.PopularAlbumResponse;
 import com.ccc.ari.global.composition.response.mainpage.PopularPlaylistResponse;
 import com.ccc.ari.global.composition.response.mainpage.PopularTrackResponse;
+import com.ccc.ari.global.composition.service.mainpage.NewAlbumService;
 import com.ccc.ari.global.composition.service.mainpage.PopularMusicService;
 import com.ccc.ari.global.composition.service.mainpage.PopularPlaylistService;
 import com.ccc.ari.global.util.ApiUtils;
@@ -19,6 +21,7 @@ public class ExhibitionCompositionController {
 
     private final PopularMusicService popularMusicService;
     private final PopularPlaylistService popularPlaylistService;
+    private final NewAlbumService newAlbumService;
 
     @GetMapping("/albums/popular")
     public ApiUtils.ApiResponse<PopularAlbumResponse> getAllPopularAlbums() {
@@ -47,6 +50,18 @@ public class ExhibitionCompositionController {
     @GetMapping("/playlists/popular")
     public ApiUtils.ApiResponse<PopularPlaylistResponse> getPopularPlaylists() {
         PopularPlaylistResponse response = popularPlaylistService.getPopularPlaylists();
+        return ApiUtils.success(response);
+    }
+
+    @GetMapping("/albums/new")
+    public ApiUtils.ApiResponse<NewAlbumResponse> getAllNewAlbums() {
+        NewAlbumResponse response = newAlbumService.getAllNewAlbums();
+        return ApiUtils.success(response);
+    }
+
+    @GetMapping("/albums/genres/{genreId}/new")
+    public ApiUtils.ApiResponse<NewAlbumResponse> getGenreNewAlbums(@PathVariable Integer genreId) {
+        NewAlbumResponse response = newAlbumService.getGenreNewAlbums(genreId);
         return ApiUtils.success(response);
     }
 }

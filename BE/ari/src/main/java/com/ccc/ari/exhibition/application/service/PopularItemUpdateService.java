@@ -3,10 +3,7 @@ package com.ccc.ari.exhibition.application.service;
 import com.ccc.ari.exhibition.application.repository.PopularItemCacheRepository;
 import com.ccc.ari.exhibition.application.repository.PopularItemRepository;
 import com.ccc.ari.exhibition.application.repository.TrackStreamingWindowRepository;
-import com.ccc.ari.exhibition.domain.entity.PopularAlbum;
-import com.ccc.ari.exhibition.domain.entity.PopularPlaylist;
-import com.ccc.ari.exhibition.domain.entity.PopularTrack;
-import com.ccc.ari.exhibition.domain.entity.TrackStreamingWindow;
+import com.ccc.ari.exhibition.domain.entity.*;
 import com.ccc.ari.exhibition.domain.service.PopularItemCreationService;
 import com.ccc.ari.exhibition.domain.service.PopularStreamingWindowService;
 import com.ccc.ari.exhibition.domain.vo.PlaylistEntry;
@@ -44,6 +41,8 @@ public class PopularItemUpdateService {
     private final PopularItemCacheRepository<PopularAlbum> albumCacheRepository;
     private final PopularItemRepository<PopularPlaylist> playlistRepository;
     private final PopularItemCacheRepository<PopularPlaylist> playlistCacheRepository;
+    private final PopularItemRepository<NewAlbum> newAlbumRepository;
+    private final PopularItemCacheRepository<NewAlbum> newAlbumCacheRepository;
 
     @EventListener
     public void handleAllAggregationEvent(AllAggregationCalculatedEvent event) {
@@ -87,6 +86,9 @@ public class PopularItemUpdateService {
         // 인기 플레이리스트 업데이트
         updatePopularPlaylist();
 
+        // 전체 최신 앨범 업데이트
+        updateAllNewAlbum();
+
         Map<Integer, TrackStreamingWindow> allWindows = windowRepository.getAllTracksWindows();
         if (allWindows == null || allWindows.isEmpty()) {
             logger.info("스트리밍 데이터가 없으므로 인기 음원 갱신을 건너뜁니다.");
@@ -104,6 +106,9 @@ public class PopularItemUpdateService {
 
             updateGenrePopularMusic(genreId);
         }
+
+        // 장르별 최신 앨범 업데이트
+        updateGenreNewAlbum();
 
         logger.info("인기 트랙 및 앨범 업데이트가 완료되었습니다.");
     }
@@ -173,5 +178,33 @@ public class PopularItemUpdateService {
         playlistCacheRepository.cachePopularItem(null, popularPlaylist);
 
         logger.info("인기 플레이리스트가 성공적으로 업데이트되었습니다. 플레이리스트: {}", entries.size());
+    }
+
+    private void updateAllNewAlbum() {
+        NewAlbum newAlbum = popularItemCreationService.createNewAlbum(null);
+
+        newAlbumRepository.save(newAlbum);
+        newAlbumCacheRepository.cachePopularItem(null, newAlbum);
+
+        logger.info("전체 최신 앨범이 성공적으로 업데이트되었습니다. 앨범 수: {}", newAlbum.getEntries().size());
+    }
+
+    private void updateGenreNewAlbum() {
+        List<Integer> genreIds = getAllGenreIds();
+
+        for (Integer genreId : genreIds) {
+            NewAlbum newAlbum = popularItemCreationService.createNewAlbum(genreId);
+
+            if (newAlbum.getEntries().isEmpty()) {
+                logger.info("장르 ID {}의 최신 앨범이 없습니다. 업데이트를 건너뜁니다.", genreId);
+                continue;
+            }
+
+            newAlbumRepository.save(newAlbum);
+            newAlbumCacheRepository.cachePopularItem(genreId, newAlbum);
+
+            logger.info("장르 ID {}의 최신 앨범이 성공적으로 업데이트되었습니다. 앨범 수: {}",
+                    genreId, newAlbum.getEntries().size());
+        }
     }
 }

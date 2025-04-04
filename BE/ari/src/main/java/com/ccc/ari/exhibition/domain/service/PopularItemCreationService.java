@@ -1,9 +1,6 @@
 package com.ccc.ari.exhibition.domain.service;
 
-import com.ccc.ari.exhibition.domain.entity.PopularAlbum;
-import com.ccc.ari.exhibition.domain.entity.PopularPlaylist;
-import com.ccc.ari.exhibition.domain.entity.PopularTrack;
-import com.ccc.ari.exhibition.domain.entity.TrackStreamingWindow;
+import com.ccc.ari.exhibition.domain.entity.*;
 import com.ccc.ari.exhibition.domain.vo.AlbumEntry;
 import com.ccc.ari.exhibition.domain.vo.PlaylistEntry;
 import com.ccc.ari.exhibition.domain.vo.TrackEntry;
@@ -78,5 +75,19 @@ public class PopularItemCreationService {
 
         logger.info("인기 플레이리스트를 생성했습니다. 항목 수: {}", entries.size());
         return popularPlaylist;
+    }
+
+    // 최신 앨범 생성
+    public NewAlbum createNewAlbum(Integer genreId) {
+        List<AlbumEntry> entries = selectionService.selectNewAlbums(genreId);
+
+        NewAlbum newAlbum = NewAlbum.builder()
+                .genreId(genreId)
+                .entries(entries)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        logger.info("장르 {} 최신 앨범을 생성했습니다. 항목 수: {}", genreId, entries.size());
+        return newAlbum;
     }
 }
