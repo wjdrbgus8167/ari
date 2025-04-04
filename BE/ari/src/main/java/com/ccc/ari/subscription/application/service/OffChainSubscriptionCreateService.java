@@ -3,6 +3,7 @@ package com.ccc.ari.subscription.application.service;
 import com.ccc.ari.global.type.PlanType;
 import com.ccc.ari.subscription.domain.Subscription;
 import com.ccc.ari.subscription.domain.SubscriptionPlan;
+import com.ccc.ari.subscription.domain.exception.ArtistPlanNotFoundException;
 import com.ccc.ari.subscription.domain.exception.RegularPlanNotFoundException;
 import com.ccc.ari.subscription.domain.repository.SubscriptionPlanRepository;
 import com.ccc.ari.subscription.domain.repository.SubscriptionRepository;
@@ -122,8 +123,26 @@ public class OffChainSubscriptionCreateService {
 
         // 1. 이벤트 정보에 따라 구독 객체 가져오기
         Integer planId = subscriptionPlanRepository.findSubscriptionPlanByPlanType(PlanType.R)
-                                .map(plan -> plan.getSubscriptionPlanId().getValue())
-                                .orElseThrow(RegularPlanNotFoundException::new);
+                .map(plan -> plan.getSubscriptionPlanId().getValue())
+                .orElseThrow(RegularPlanNotFoundException::new);
+        Subscription subscription = subscriptionRepository.findActiveSubscription(event.getSubscriberId(), planId)
+                .orElseThrow();
+
+        // 2. 해당 구독의 새로운 구독 사이클 생성
+        subscriptionCycleService.startNewSubscriptionCycle(subscription);
+    }
+
+    @EventListener
+    @Async
+    @Transactional
+    public void renewSubscriptionCycle(OnChainArtistSubscriptionCreatedEvent event) {
+        logger.info("아티스트 구독 결제 완료 이벤트 수신 - Subscriber Id: {}, Artist Id: {}",
+                event.getSubscriberId(), event.getArtistId());
+
+        // 1. 이벤트 정보에 따라 구독 객체 가져오기
+        Integer planId = subscriptionPlanRepository.findSubscriptionPlanByArtistId(event.getArtistId())
+                .map(plan -> plan.getSubscriptionPlanId().getValue())
+                .orElseThrow(() -> new ArtistPlanNotFoundException(event.getArtistId()));
         Subscription subscription = subscriptionRepository.findActiveSubscription(event.getSubscriberId(), planId)
                 .orElseThrow();
 

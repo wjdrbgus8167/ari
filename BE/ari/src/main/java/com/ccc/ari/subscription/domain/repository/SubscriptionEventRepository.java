@@ -1,10 +1,13 @@
 package com.ccc.ari.subscription.domain.repository;
 
+import com.ccc.ari.global.type.EventType;
 import com.ccc.ari.global.type.PlanType;
 
 public interface SubscriptionEventRepository {
 
-    boolean existsBySubscriptionEventId(String subscriptionEventId);
+    boolean existsBySubscriptionEventIdAndEventTypeP(String subscriptionEventId);
 
-    void save(String subscriptionEventId, Integer subscriberId, PlanType eventType);
+    boolean existsBySubscriptionEventIdAndEventTypeS(String subscriptionEventId);
+
+    void save(String subscriptionEventId, EventType eventType, Integer subscriberId, PlanType planType);
 }

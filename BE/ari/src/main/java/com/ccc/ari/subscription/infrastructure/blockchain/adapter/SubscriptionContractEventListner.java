@@ -1,6 +1,8 @@
 package com.ccc.ari.subscription.infrastructure.blockchain.adapter;
 
 import com.ccc.ari.global.contract.SubscriptionContract;
+import com.ccc.ari.global.event.RegularSettlementRequestedEvent;
+import com.ccc.ari.global.type.EventType;
 import com.ccc.ari.global.type.PlanType;
 import com.ccc.ari.subscription.domain.repository.BlockNumberRepository;
 import com.ccc.ari.subscription.domain.repository.SubscriptionEventRepository;
@@ -41,6 +43,9 @@ public class SubscriptionContractEventListner implements ApplicationListener<App
     // 재구독 결제 완료 이벤트 ID
     private final String PAYMENT_PROCESSED_REGULAR = "PaymentProcessedRegular";
     private final String PAYMENT_PROCESSED_ARTIST = "PaymentProcessedArtist";
+    // 정산 요청 이벤트 ID
+    private final String SETTLEMENT_REQUESTED_REGULAR = "SettlementRequestedRegular";
+    private final String SETTLEMENT_REQUESTED_ARTIST = "SettlementRequestedArtist";
 
     @Autowired
     public SubscriptionContractEventListner(@Qualifier("subscriptionContractWeb3j") Web3j web3j,
@@ -63,10 +68,15 @@ public class SubscriptionContractEventListner implements ApplicationListener<App
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
         logger.info("애플리케이션 초기화 완료 - 온체인 이벤트 구독 시작");
+        // 구독 생성 컨트랙트 이벤트
         subscribeToRegularSubscriptionCreatedEvent();
         subscribeToArtistSubscriptionCreatedEvent();
+        // 구독 결제 완료 컨트랙트 이벤트
         subscribeToPaymentProcessedRegularEvent();
         subscribeToPaymentProcessedArtistEvent();
+        // 정산 요청 컨트랙트 이벤트
+        subscribeToSettlementRequestedRegularEvent();
+        subscribeToSettlementRequestedArtistEvent();
     }
 
     /**
@@ -131,11 +141,11 @@ public class SubscriptionContractEventListner implements ApplicationListener<App
                     String eventId = event.log.getTransactionHash() + "-" + event.log.getLogIndex();
                     logger.info("새로운 PaymentProcessedRegular 이벤트 감지. Event ID: {}", eventId);
 
-                    if (!subscriptionEventRepository.existsBySubscriptionEventId(eventId)) {
+                    if (!subscriptionEventRepository.existsBySubscriptionEventIdAndEventTypeP(eventId)) {
                         logger.info("처리되지 않은 새로운 정기 구독 결제 완료 이벤트(Event ID: {})입니다. 처리 시작.", eventId);
                         handlePaymentProcessedRegularEvent(event);
 
-                        subscriptionEventRepository.save(eventId, event.userId.intValue(), PlanType.R );
+                        subscriptionEventRepository.save(eventId, EventType.P, event.userId.intValue(), PlanType.R);
                         logger.info("정기 구독 결제 완료 이벤트(ID: {})를 저장했습니다.", eventId);
                     } else {
                         logger.info("Event ID {}는 이미 처리된 정기 구독 결제 완료 이벤트입니다. 처리 건너뜀.", eventId);
@@ -180,11 +190,11 @@ public class SubscriptionContractEventListner implements ApplicationListener<App
                     String eventId = event.log.getTransactionHash() + "-" + event.log.getLogIndex();
                     logger.info("새로운 PaymentProcessedArtist 이벤트 감지. Event ID: {}", eventId);
 
-                    if (!subscriptionEventRepository.existsBySubscriptionEventId(eventId)) {
+                    if (!subscriptionEventRepository.existsBySubscriptionEventIdAndEventTypeP(eventId)) {
                         logger.info("처리되지 않은 새로운 아티스트 구독 결제 완료 이벤트(Event ID: {})입니다. 처리 시작.", eventId);
                         handlePaymentProcessedArtistEvent(event);
 
-                        subscriptionEventRepository.save(eventId, event.userId.intValue(), PlanType.A );
+                        subscriptionEventRepository.save(eventId, EventType.P, event.userId.intValue(), PlanType.A);
                         logger.info("아티스트 구독 결제 완료 이벤트(ID: {})를 저장했습니다.", eventId);
                     } else {
                         logger.info("Event ID {}는 이미 처리된 아티스트 구독 결제 완료 이벤트입니다. 처리 건너뜀.", eventId);
@@ -200,6 +210,86 @@ public class SubscriptionContractEventListner implements ApplicationListener<App
                     }
                 }, error -> {
                     logger.error("아티스트 구독 결제 완료 이벤트 구독 중 오류가 발생했습니다.", error);
+                });
+    }
+
+    /**
+     * 구독 컨트랙트의 정기 구독 정산 요청 이벤트를 감시하며 처리한 블록의 번호를 저장합니다.
+     * 마지막으로 처리한 블록부터 이벤트를 처리해 서버 재구동 시에도 이벤트의 중복 처리를 방지합니다.
+     */
+    public void subscribeToSettlementRequestedRegularEvent() {
+
+        BigInteger lastProcessedBlock =
+                blockNumberRepository.getLastProcessedBlockNumber(SETTLEMENT_REQUESTED_REGULAR).orElse(null);
+
+        DefaultBlockParameter fromBlock;
+        if (lastProcessedBlock == null) {
+            logger.info("이전에 처리된 정기 구독 정산 요청 블록 정보 없음. 최신 블록부터 시작합니다.");
+            fromBlock = DefaultBlockParameterName.LATEST;
+        } else {
+            logger.info("이전에 처리된 정기 구독 정산 요청 마지막 블록 번호: {}. 해당 블록부터 구독 시작",
+                    lastProcessedBlock);
+            fromBlock = DefaultBlockParameter.valueOf(lastProcessedBlock);
+        }
+
+        subscriptionContract.settlementRequestedRegularEventFlowable(
+                        fromBlock,
+                        DefaultBlockParameterName.LATEST)
+                .subscribe(event -> {
+                    String eventId = event.log.getTransactionHash() + "-" + event.log.getLogIndex();
+                    logger.info("새로운 SettlementRequestedRegular 이벤트 감지. Event ID: {}", eventId);
+
+                    if (!subscriptionEventRepository.existsBySubscriptionEventIdAndEventTypeS(eventId)) {
+                        logger.info("처리되지 않은 새로운 정기 구독 정산 요청 이벤트(Event ID: {})입니다. 처리 시작.", eventId);
+                        handleSettlementRequestedRegularEvent(event);
+
+                        subscriptionEventRepository.save(eventId, EventType.S, event.userId.intValue(), PlanType.R);
+                        logger.info("정기 구독 정산 요청 이벤트(ID: {})를 저장했습니다.", eventId);
+                    } else {
+                        logger.info("Event ID {}는 이미 처리된 정기 구독 정산 요청 이벤트입니다. 처리 건너뜀.", eventId);
+                    }
+                }, error -> {
+                    logger.error("정기 구독 정산 요청 이벤트 구독 중 오류가 발생했습니다.", error);
+                });
+    }
+
+    /**
+     * 구독 컨트랙트의 아티스트 구독 정산 요청 이벤트를 감시하며 처리한 블록의 번호를 저장합니다.
+     * 마지막으로 처리한 블록부터 이벤트를 처리해 서버 재구동 시에도 이벤트의 중복 처리를 방지합니다.
+     */
+    public void subscribeToSettlementRequestedArtistEvent() {
+
+        BigInteger lastProcessedBlock =
+                blockNumberRepository.getLastProcessedBlockNumber(SETTLEMENT_REQUESTED_ARTIST).orElse(null);
+
+        DefaultBlockParameter fromBlock;
+        if (lastProcessedBlock == null) {
+            logger.info("이전에 처리된 아티스트 구독 정산 요청 블록 정보 없음. 최신 블록부터 시작합니다.");
+            fromBlock = DefaultBlockParameterName.LATEST;
+        } else {
+            logger.info("이전에 처리된 아티스트 구독 정산 요청 마지막 블록 번호: {}. 해당 블록부터 구독 시작",
+                    lastProcessedBlock);
+            fromBlock = DefaultBlockParameter.valueOf(lastProcessedBlock);
+        }
+
+        subscriptionContract.settlementRequestedArtistEventFlowable(
+                        fromBlock,
+                        DefaultBlockParameterName.LATEST)
+                .subscribe(event -> {
+                    String eventId = event.log.getTransactionHash() + "-" + event.log.getLogIndex();
+                    logger.info("새로운 SettlementRequestedArtist 이벤트 감지. Event ID: {}", eventId);
+
+                    if (!subscriptionEventRepository.existsBySubscriptionEventIdAndEventTypeS(eventId)) {
+                        logger.info("처리되지 않은 새로운 아티스트 구독 정산 요청 이벤트(Event ID: {})입니다. 처리 시작.", eventId);
+                        handleSettlementRequestedArtistEvent(event);
+
+                        subscriptionEventRepository.save(eventId, EventType.S, event.subscriberId.intValue(), PlanType.A);
+                        logger.info("아티스트 구독 정산 요청 이벤트(ID: {})를 저장했습니다.", eventId);
+                    } else {
+                        logger.info("Event ID {}는 이미 처리된 아티스트 구독 정산 요청 이벤트입니다. 처리 건너뜀.", eventId);
+                    }
+                }, error -> {
+                    logger.error("아티스트 구독 정산 요청 이벤트 구독 중 오류가 발생했습니다.", error);
                 });
     }
 
@@ -251,7 +341,21 @@ public class SubscriptionContractEventListner implements ApplicationListener<App
         eventPublisher.publishEvent(
                 new OnChainArtistPaymentProcessedEvent(event.userId.intValue(), event.artistId.intValue()));
 
-        logger.info("OnChainArtistPaymentProcessedEvent 성공적으로 발행되었습니다. 구독자 ID: {}, 아티스트 ID: {}",
+        logger.info("OnChainArtistPaymentProcessedEvent가 성공적으로 발행되었습니다. 구독자 ID: {}, 아티스트 ID: {}",
                 event.userId.intValue(), event.artistId.intValue());
+    }
+
+    @Async
+    protected void handleSettlementRequestedRegularEvent(SubscriptionContract.SettlementRequestedRegularEventResponse event) {
+        logger.info("정기 구독 정산 요청 온체인 이벤트가 발생했습니다. 구독자 ID: {}", event.userId);
+
+        eventPublisher.publishEvent(new RegularSettlementRequestedEvent(event.userId.intValue()));
+        logger.info("RegularSettlementRequestedEvent가 성공적으로 발행되었습니다. 구독자 ID: {}",
+                event.userId.intValue());
+    }
+
+    @Async
+    protected void handleSettlementRequestedArtistEvent(SubscriptionContract.SettlementRequestedArtistEventResponse event) {
+
     }
 }
