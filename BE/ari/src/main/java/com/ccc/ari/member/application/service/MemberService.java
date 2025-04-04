@@ -1,5 +1,6 @@
 package com.ccc.ari.member.application.service;
 
+import com.ccc.ari.event.eventPublisher.SpringEventPublisher;
 import com.ccc.ari.global.error.ApiException;
 import com.ccc.ari.global.error.ErrorCode;
 import com.ccc.ari.global.jwt.JwtTokenProvider;
@@ -10,10 +11,12 @@ import com.ccc.ari.member.domain.AuthTokens;
 import com.ccc.ari.member.domain.member.MemberEntity;
 import com.ccc.ari.member.domain.refreshToken.RefreshToken;
 import com.ccc.ari.member.domain.refreshToken.RefreshTokenEntity;
+import com.ccc.ari.member.event.MemberRegisterAndFantalkCreatedEvent;
 import com.ccc.ari.member.infrastructure.repository.member.JpaMemberRepository;
 import com.ccc.ari.member.infrastructure.repository.refreshtoken.RefreshTokenRepository;
 import com.ccc.ari.member.mapper.RefreshTokenMapper;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,13 +26,14 @@ import java.time.LocalDateTime;
 @Transactional(readOnly = true)
 @AllArgsConstructor
 @Service
+@Slf4j
 public class MemberService {
 
     private final JpaMemberRepository jpaMemberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
-
+    private final SpringEventPublisher eventPublisher;
     /**
      * 일반 사용자 회원가입
      */
@@ -40,7 +44,7 @@ public class MemberService {
             throw new ApiException(ErrorCode.EMAIL_ALREADY_IN_USE);
         }
 
-        jpaMemberRepository.save(MemberEntity.builder()
+        MemberEntity registeredMember = jpaMemberRepository.save(MemberEntity.builder()
                 .email(command.getEmail())
                 .password(passwordEncoder.encode(command.getPassword()))
                 .nickname(command.getNickname())
@@ -48,6 +52,11 @@ public class MemberService {
                 .provider("")
                 .build()
         );
+        log.info("회원가입이 완료되었습니다: {}", registeredMember.getMemberId());
+        log.info("팬톡 채널 생성 이벤트를 실행합니다");
+        eventPublisher.publish(MemberRegisterAndFantalkCreatedEvent.builder()
+                .memberId(registeredMember.getMemberId())
+                .build());
     }
 
     /**
