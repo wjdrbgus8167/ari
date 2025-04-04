@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 class PlaybackState {
   final int? currentTrackId;
+  final String? currentQueueItemId;
   final int? albumId;
   final String trackUrl;
   final String trackTitle;
@@ -15,6 +16,7 @@ class PlaybackState {
 
   PlaybackState({
     this.currentTrackId,
+    this.currentQueueItemId,
     this.albumId,
     this.trackUrl = '',
     this.trackTitle = '',
@@ -27,6 +29,7 @@ class PlaybackState {
 
   PlaybackState copyWith({
     int? currentTrackId,
+    String? currentQueueItemId,
     int? albumId,
     String? trackUrl,
     String? trackTitle,
@@ -38,6 +41,7 @@ class PlaybackState {
   }) {
     return PlaybackState(
       currentTrackId: currentTrackId ?? this.currentTrackId,
+      currentQueueItemId: currentQueueItemId ?? this.currentQueueItemId,
       albumId: albumId ?? this.albumId,
       trackUrl: trackUrl ?? this.trackUrl,
       trackTitle: trackTitle ?? this.trackTitle,
@@ -70,6 +74,7 @@ class PlaybackNotifier extends StateNotifier<PlaybackState> {
     required int albumId,
     required String trackUrl,
     required bool isLiked,
+    required String currentQueueItemId,
   }) {
     state = state.copyWith(
       trackTitle: trackTitle,
@@ -80,6 +85,7 @@ class PlaybackNotifier extends StateNotifier<PlaybackState> {
       albumId: albumId,
       trackUrl: trackUrl,
       isLiked: isLiked,
+      currentQueueItemId: currentQueueItemId,
     );
     print('[DEBUG] PlaybackState 업데이트 완료: ${state.toString()}');
   }

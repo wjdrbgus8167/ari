@@ -42,6 +42,8 @@ class PlaylistTrackList extends ConsumerWidget {
           isSelected: isSelected,
           selectionMode: playlistState.selectionMode,
           onTap: () async {
+            final computedUniqueId = '$index-${trackItem.trackId}';
+
             // 트랙 재생
             await ref
                 .read(audioServiceProvider)
@@ -55,6 +57,7 @@ class PlaylistTrackList extends ConsumerWidget {
                   trackId: trackItem.trackId,
                   albumId: trackItem.albumId,
                   isLiked: false,
+                  currentQueueItemId: computedUniqueId,
                 );
             // 재생목록(큐)에 트랙 추가 (domain -> data 모델 변환)
             await ref

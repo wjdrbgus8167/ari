@@ -1,70 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:ari/domain/entities/track.dart';
 import 'dart:math';
+import 'package:flutter/material.dart';
 
-class TrackListTile extends StatelessWidget {
-  final Track track;
-  final VoidCallback onTap;
-  final bool isPlayingIndicator; // 현재 재생 중이면 true
-
-  const TrackListTile({
-    Key? key,
-    required this.track,
-    required this.onTap,
-    this.isPlayingIndicator = false,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-      leading: ClipRRect(
-        borderRadius: BorderRadius.circular(5),
-        child: Image.network(
-          track.coverUrl ?? '',
-          width: 50,
-          height: 50,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            return Image.asset(
-              'assets/images/default_album_cover.png',
-              width: 50,
-              height: 50,
-              fit: BoxFit.cover,
-            );
-          },
-        ),
-      ),
-      title: Text(
-        track.trackTitle,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: Text(
-        track.artistName,
-        style: const TextStyle(color: Colors.white70, fontSize: 14),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      trailing:
-          isPlayingIndicator
-              ? const AudioWaveIndicator(
-                isPlaying: true,
-                waveColor: Colors.white,
-                height: 20,
-              )
-              : null,
-      onTap: onTap,
-    );
-  }
-}
-
-// AudioWaveIndicator 위젯 (동일 파일에 추가하거나 별도 파일로 분리)
 class AudioWaveIndicator extends StatefulWidget {
   final bool isPlaying;
   final Color waveColor;
@@ -146,8 +82,11 @@ class WaveformPainter extends CustomPainter {
     final totalBars = heights.length;
 
     for (var i = 0; i < totalBars; i++) {
+      // 애니메이션 효과를 위한 높이 변화
       double heightMultiplier =
-          isPlaying ? 0.5 + 0.5 * sin(progress * 2 * pi + i * 0.5) : 0.3;
+          isPlaying
+              ? 0.5 + 0.5 * sin(progress * 2 * pi + i * 0.5)
+              : 0.3; // 재생 중이 아닐 때는 작은 파형
 
       final barHeight = heights[i] * heightMultiplier;
       final left = i * (barWidth + spacing);

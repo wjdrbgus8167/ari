@@ -1,6 +1,5 @@
 import 'package:ari/core/services/audio_service.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ari/domain/entities/track.dart';
 import 'package:ari/providers/global_providers.dart';
 import 'package:ari/presentation/widgets/common/listening_queue_appbar.dart';
 import 'package:ari/presentation/widgets/common/track_count_bar.dart';
@@ -8,9 +7,11 @@ import 'package:ari/presentation/widgets/listening_queue/track_list_tile.dart';
 import 'package:ari/presentation/widgets/listening_queue/bottom_sheet_options.dart';
 import 'package:ari/presentation/widgets/common/global_bottom_widget.dart';
 import 'package:ari/presentation/widgets/common/search_bar.dart';
-
 import 'package:ari/presentation/widgets/listening_queue/playlist_selection_bottom_sheet.dart';
 import 'package:ari/presentation/widgets/listening_queue/create_playlist_modal.dart';
+import 'package:ari/providers/playback/playback_state_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ListeningQueueScreen extends ConsumerStatefulWidget {
   const ListeningQueueScreen({Key? key}) : super(key: key);
@@ -26,11 +27,11 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // state.filteredPlaylist: List<ListeningQueueItem>
-    // state.selectedTracks: Set<ListeningQueueItem>
-    // state.playlists: List<Playlist>
+    // listeningQueueProvider의 상태
     final state = ref.watch(listeningQueueProvider);
     final viewModel = ref.read(listeningQueueProvider.notifier);
+    // playbackProvider의 상태를 받아 현재 재생 중인 트랙 정보 확인
+    final playbackState = ref.watch(playbackProvider);
 
     return GlobalBottomWidget(
       child: Container(
@@ -92,7 +93,6 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                             builder: (context) {
                               return CreatePlaylistModal(
                                 onCreate: (title, publicYn) {
-                                  // 새 플레이리스트 생성 로직 (API 호출 등)
                                   debugPrint(
                                     "플레이리스트 생성: $title / 공개여부: $publicYn",
                                   );
@@ -115,7 +115,7 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                   state.filteredPlaylist.isEmpty
                       ? const Center(
                         child: Text(
-                          "재생목록이 없습니다.",
+                          "재생 목록이 없습니다.",
                           style: TextStyle(color: Colors.white70, fontSize: 18),
                         ),
                       )
@@ -124,9 +124,19 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                         itemCount: state.filteredPlaylist.length,
                         itemBuilder: (context, index) {
                           final item = state.filteredPlaylist[index];
-                          final isSelected = state.selectedTracks.contains(
-                            item,
-                          );
+                          // 현재 재생 상태와 비교하여, 같은 트랙 id가 여러 개 있더라도 첫 번째 인스턴스에만 표시
+                          final playbackState = ref.watch(playbackProvider);
+                          final firstOccurrenceIndex = state.filteredPlaylist
+                              .indexWhere(
+                                (element) =>
+                                    element.track.trackId ==
+                                    playbackState.currentTrackId,
+                              );
+                          final isPlayingIndicator =
+                              playbackState.isPlaying &&
+                              playbackState.currentTrackId ==
+                                  item.track.trackId &&
+                              index == firstOccurrenceIndex;
 
                           return Dismissible(
                             key: ValueKey(item.uniqueId),
@@ -163,11 +173,9 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                               child: TrackListTile(
                                 key: ValueKey(item.uniqueId),
                                 track: item.track,
-                                isSelected: isSelected,
-                                onToggleSelection:
-                                    () => viewModel.toggleTrackSelection(item),
+                                isPlayingIndicator: isPlayingIndicator,
                                 onTap: () {
-                                  // 트랙 타일을 터치하면 AudioService를 통해 재생
+                                  // 트랙 터치 시 AudioService를 통해 재생
                                   ref
                                       .read(audioServiceProvider)
                                       .play(
@@ -181,6 +189,7 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                                         trackId: item.track.trackId,
                                         albumId: item.track.albumId,
                                         isLiked: false,
+                                        currentQueueItemId: item.uniqueId,
                                       );
                                 },
                               ),

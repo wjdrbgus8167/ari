@@ -3,9 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/providers/playback/playback_state_provider.dart';
 import 'package:ari/providers/playback/playback_progress_provider.dart';
 import 'package:ari/core/services/audio_service.dart';
+import 'package:just_audio/just_audio.dart';
 
 class PlaybackControls extends ConsumerStatefulWidget {
-  final VoidCallback onToggle; // 기존 콜백 (필요시 제거 가능)
+  final VoidCallback onToggle; // 트랙이 로드되지 않았을 경우 호출할 콜백
   const PlaybackControls({Key? key, required this.onToggle}) : super(key: key);
 
   @override
@@ -15,6 +16,7 @@ class PlaybackControls extends ConsumerStatefulWidget {
 class _PlaybackControlsState extends ConsumerState<PlaybackControls> {
   double _sliderValue = 0.0;
   bool _isUserInteracting = false;
+  LoopMode _currentLoopMode = LoopMode.off;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +34,6 @@ class _PlaybackControlsState extends ConsumerState<PlaybackControls> {
       duration = durationAsync.asData!.value!;
     }
 
-    // 사용자가 슬라이더를 조작하지 않을 때, 자동 업데이트
     if (!_isUserInteracting && duration.inMilliseconds > 0) {
       _sliderValue = position.inMilliseconds / duration.inMilliseconds;
     }
@@ -85,23 +86,29 @@ class _PlaybackControlsState extends ConsumerState<PlaybackControls> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
+              // 셔플 버튼
               IconButton(
                 icon: const Icon(
                   Icons.shuffle,
                   color: Colors.white70,
                   size: 28,
                 ),
-                onPressed: () {},
+                onPressed: () async {
+                  await ref.read(audioServiceProvider).toggleShuffle();
+                },
               ),
+              // 이전 곡
               IconButton(
                 icon: const Icon(
                   Icons.skip_previous,
                   color: Colors.white,
                   size: 36,
                 ),
-                onPressed: () {},
+                onPressed: () async {
+                  await ref.read(audioServiceProvider).playPrevious();
+                },
               ),
-              // 중앙 재생 버튼: 전역 상태와 AudioService를 사용하여 재생/일시정지/이어재생 처리
+              // 중앙 재생 버튼
               IconButton(
                 icon: Icon(
                   isPlaying
@@ -118,23 +125,47 @@ class _PlaybackControlsState extends ConsumerState<PlaybackControls> {
                     if (trackUrl.isNotEmpty) {
                       await ref.read(audioServiceProvider).resume(ref);
                     } else {
-                      // 만약 트랙이 로드되지 않았다면, 기존 onToggle 콜백을 호출할 수도 있습니다.
                       widget.onToggle();
                     }
                   }
                 },
               ),
+              // 다음 곡
               IconButton(
                 icon: const Icon(
                   Icons.skip_next,
                   color: Colors.white,
                   size: 36,
                 ),
-                onPressed: () {},
+                onPressed: () async {
+                  await ref.read(audioServiceProvider).playNext();
+                },
               ),
+              // 루프 버튼: 버튼을 누를 때마다 LoopMode 순환 (off → all → one → off)
               IconButton(
-                icon: const Icon(Icons.repeat, color: Colors.white70, size: 28),
-                onPressed: () {},
+                icon: Icon(
+                  _currentLoopMode == LoopMode.off
+                      ? Icons.repeat
+                      : _currentLoopMode == LoopMode.all
+                      ? Icons.repeat
+                      : Icons.repeat_one,
+                  color: Colors.white70,
+                  size: 28,
+                ),
+                onPressed: () async {
+                  LoopMode newMode;
+                  if (_currentLoopMode == LoopMode.off) {
+                    newMode = LoopMode.all;
+                  } else if (_currentLoopMode == LoopMode.all) {
+                    newMode = LoopMode.one;
+                  } else {
+                    newMode = LoopMode.off;
+                  }
+                  await ref.read(audioServiceProvider).setLoopMode(newMode);
+                  setState(() {
+                    _currentLoopMode = newMode;
+                  });
+                },
               ),
             ],
           ),

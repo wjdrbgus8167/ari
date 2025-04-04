@@ -26,13 +26,13 @@ class ListeningQueueTrackList extends ConsumerWidget {
       itemBuilder: (context, index) {
         final item = tracks[index];
         final isSelected = state.selectedTracks.contains(item);
+        final uniqueId =
+            '$index-${item.track.trackId}-${item.track.trackTitle}';
 
         return TrackListTile(
-          key: ValueKey(
-            '$index-${item.track.trackId}-${item.track.trackTitle}',
-          ),
+          key: ValueKey(uniqueId),
           track: item.track,
-          isSelected: isSelected,
+          // isSelected: isSelected,
           onTap: () {
             ref
                 .read(audioServiceProvider)
@@ -46,11 +46,12 @@ class ListeningQueueTrackList extends ConsumerWidget {
                   trackId: item.track.trackId,
                   albumId: item.track.albumId,
                   isLiked: false,
+                  currentQueueItemId: uniqueId,
                 );
           },
-          onToggleSelection: () {
-            viewModel.toggleTrackSelection(item);
-          },
+          // onToggleSelection: () {
+          //   viewModel.toggleTrackSelection(item);
+          // },
         );
       },
     );

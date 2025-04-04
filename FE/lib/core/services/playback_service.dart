@@ -55,6 +55,7 @@ class PlaybackService {
           trackId: trackId,
           albumId: albumId,
           isLiked: false,
+          currentQueueItemId: trackId.toString(),
         );
         print('[DEBUG] playTrack: 재생 시작됨');
 
@@ -69,7 +70,8 @@ class PlaybackService {
               currentTrackId: trackId,
               albumId: albumId,
               trackUrl: trackFileUrl,
-              isLiked: false, // 임시 기본값
+              isLiked: false,
+              currentQueueItemId: trackId.toString(),
             );
 
         final domain.Track trackObj = domain.Track(
