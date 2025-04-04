@@ -67,6 +67,6 @@ public class PlaylistClientImpl implements PlaylistClient {
     @Override
     public List<PlaylistEntity> getTop5MostSharedPlaylists() {
 
-        return jpaPlaylistRepository.findTop5ByOrderByShareCountDesc();
+        return jpaPlaylistRepository.findTop5ByPublicYnTrueOrderByShareCountDesc();
     }
 }
