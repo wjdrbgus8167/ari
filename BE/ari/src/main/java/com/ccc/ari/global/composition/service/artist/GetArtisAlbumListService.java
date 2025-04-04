@@ -1,6 +1,6 @@
 package com.ccc.ari.global.composition.service.artist;
 
-import com.ccc.ari.global.composition.response.artiis.GetArtistAlbumListResponse;
+import com.ccc.ari.global.composition.response.artist.GetArtistAlbumListResponse;
 
 import com.ccc.ari.music.domain.album.AlbumDto;
 import com.ccc.ari.music.domain.album.client.AlbumClient;

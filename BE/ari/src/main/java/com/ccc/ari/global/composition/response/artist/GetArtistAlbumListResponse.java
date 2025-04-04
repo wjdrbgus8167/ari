@@ -1,13 +1,11 @@
-package com.ccc.ari.global.composition.response.artiis;
+package com.ccc.ari.global.composition.response.artist;
 
-import com.ccc.ari.playlist.ui.response.GetPublicPlaylistResponse;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @NoArgsConstructor
