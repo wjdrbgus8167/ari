@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ari/core/utils/login_redirect_util.dart';
 import 'package:ari/providers/global_providers.dart';
 import 'package:ari/providers/navigation_history_provider.dart';
 import 'package:ari/presentation/widgets/common/bottom_nav.dart';
@@ -102,13 +103,31 @@ class GlobalBottomWidget extends ConsumerWidget {
             const PlaybackBar(),
             CommonBottomNav(
               currentIndex: bottomIndex,
-              onTap: (index) {
-                // 현재 인덱스와 선택한 인덱스가 같으면 해당 화면을 맨 위로 스크롤
-                if (index == bottomIndex) {
-                  // TODO: 현재 화면 맨 위로 스크롤 처리
+              onTap: (index) async {
+                // 나의 채널 탭 선택 시 로그인 여부 확인
+                if (index == 3) {
+                  // 로그인 체크 및 필요시 다이얼로그 표시 후 로그인 화면으로 이동
+                  final isLoggedIn = await checkLoginAndRedirect(
+                    context,
+                    ref,
+                    onLoginSuccess: () {
+                      // 로그인 성공하면 나의 채널 탭으로 이동
+                      ref
+                          .read(navigationHistoryProvider.notifier)
+                          .addTab(index);
+                    },
+                  );
+
+                  // 로그인 되지 않았거나 취소한 경우 탭 변경 중단
+                  if (!isLoggedIn) return;
                 } else {
-                  // 탭 변경 시 히스토리에 추가
-                  ref.read(navigationHistoryProvider.notifier).addTab(index);
+                  // 현재 인덱스와 선택한 인덱스가 같으면 해당 화면을 맨 위로 스크롤
+                  if (index == bottomIndex) {
+                    // TODO: 현재 화면 맨 위로 스크롤 처리
+                  } else {
+                    // 탭 변경 시 히스토리에 추가
+                    ref.read(navigationHistoryProvider.notifier).addTab(index);
+                  }
                 }
               },
             ),
