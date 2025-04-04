@@ -1,3 +1,4 @@
+// lib/presentation/pages/my_channel/my_channel_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/my_channel/my_channel_providers.dart';
@@ -27,12 +28,13 @@ class MyChannelScreen extends ConsumerStatefulWidget {
   ConsumerState<MyChannelScreen> createState() => _MyChannelScreenState();
 }
 
-class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
+class _MyChannelScreenState extends ConsumerState<MyChannelScreen>
+    with WidgetsBindingObserver {
   // 스크롤 컨트롤러 (나의 채널 프로필 헤더 애니메이션용)
   final ScrollController _scrollController = ScrollController();
   String _currentUserId = ''; // 실제 사용자 ID 저장
   late bool _isMyProfile;
-  bool _loginCheckPerformed = false; // 로그인 체크 여부 플래그
+  bool _isDataLoaded = false; // 데이터 로드 여부 플래그
 
   // JWT 테스트용 상태
   bool _showJwtTest = true; // 테스트 완료 후 false로 위젯 숨기기
@@ -41,21 +43,31 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
   void initState() {
     super.initState();
 
+    // 위젯 라이프사이클 옵저버 등록
+    WidgetsBinding.instance.addObserver(this);
+
     // 초기 설정
     _isMyProfile = widget.memberId == null;
+  }
 
-    // 위젯 빌드 완료 후 데이터 로드 요청
-    Future.microtask(() {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // 위젯이 의존성을 가진 후(빌드 준비 완료) 로그인 체크 수행
+    _checkLoginAndLoadData();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // 앱이 포그라운드로 돌아올 때 로그인 상태 다시 확인
+    if (state == AppLifecycleState.resumed) {
       _checkLoginAndLoadData();
-    });
+    }
   }
 
   // 로그인 상태 확인 후 데이터 로드 또는 로그인 다이얼로그 표시
   void _checkLoginAndLoadData() async {
-    if (_loginCheckPerformed) return; // 이미 체크한 경우 중복 실행 방지
-
-    _loginCheckPerformed = true;
-
     // 로그인 상태 확인
     final authState = ref.read(authStateProvider);
 
@@ -67,15 +79,20 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
     // 특정 채널 보기가 아니고 로그인하지 않은 경우 로그인 다이얼로그 표시
     if (widget.memberId == null && !isLoggedIn) {
       // 위젯이 마운트된 상태인지 확인 후 다이얼로그 표시
-      Future.delayed(const Duration(milliseconds: 100), () {
-        if (!mounted) return;
-
+      // 현재 화면에 다이얼로그가 표시되어 있지 않은지 확인
+      if (mounted && !_isDialogShowing(context)) {
         _showLoginDialog();
-      });
-    } else {
+      }
+    } else if (!_isDataLoaded || isLoggedIn) {
       // 로그인 상태이거나 특정 채널 보기인 경우 데이터 로드
       _updateUserIdFromToken();
+      _isDataLoaded = true;
     }
+  }
+
+  // 다이얼로그가 현재 표시되고 있는지 확인
+  bool _isDialogShowing(BuildContext context) {
+    return ModalRoute.of(context)?.isCurrent != true;
   }
 
   // 로그인 다이얼로그 표시
@@ -149,6 +166,8 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
 
   @override
   void dispose() {
+    // 위젯 라이프사이클 옵저버 해제
+    WidgetsBinding.instance.removeObserver(this);
     _scrollController.dispose();
     super.dispose();
   }
@@ -176,11 +195,28 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
     final authState = ref.watch(authStateProvider);
 
     // 로그인 상태가 변경된 경우 데이터 다시 로드
-    authState.whenData((isLoggedIn) {
-      if (isLoggedIn && !_loginCheckPerformed) {
-        Future.microtask(() => _checkLoginAndLoadData());
+    ref.listen(authStateProvider, (previous, current) {
+      if (previous != current) {
+        _checkLoginAndLoadData();
       }
     });
+
+    // 사용자가 로그인되지 않은 경우 적절한 UI 표시
+    bool isLoggedIn = false;
+    authState.whenData((value) {
+      isLoggedIn = value;
+    });
+
+    // 내 채널 보기인데 로그인이 안 된 경우 로딩 화면 표시
+    if (widget.memberId == null && !isLoggedIn) {
+      // 로그인 체크 완료 후 로딩 화면 표시
+      Future.microtask(() => _checkLoginAndLoadData());
+
+      return Scaffold(
+        backgroundColor: Colors.black,
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       backgroundColor: Colors.black,
