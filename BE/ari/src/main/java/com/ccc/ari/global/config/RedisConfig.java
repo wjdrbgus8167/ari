@@ -3,10 +3,7 @@ package com.ccc.ari.global.config;
 import com.ccc.ari.aggregation.domain.vo.StreamingLog;
 import com.ccc.ari.chart.domain.entity.Chart;
 import com.ccc.ari.chart.domain.entity.StreamingWindow;
-import com.ccc.ari.exhibition.domain.entity.PopularAlbum;
-import com.ccc.ari.exhibition.domain.entity.PopularPlaylist;
-import com.ccc.ari.exhibition.domain.entity.PopularTrack;
-import com.ccc.ari.exhibition.domain.entity.TrackStreamingWindow;
+import com.ccc.ari.exhibition.domain.entity.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -107,6 +104,13 @@ public class RedisConfig {
     @Bean
     public RedisTemplate<String, PopularPlaylist> playlistRedisTemplate() {
         RedisTemplate<String, PopularPlaylist> template = new RedisTemplate<>();
+        configureRedisTemplate(template);
+        return template;
+    }
+
+    @Bean
+    public RedisTemplate<String, NewAlbum> newAlbumRedisTemplate() {
+        RedisTemplate<String, NewAlbum> template = new RedisTemplate<>();
         configureRedisTemplate(template);
         return template;
     }
