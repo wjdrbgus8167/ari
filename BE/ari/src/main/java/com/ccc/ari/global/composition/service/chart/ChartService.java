@@ -50,12 +50,14 @@ public class ChartService {
                     TrackDto track = trackClient.getTrackById(trackId);
                     AlbumDto album = albumClient.getAlbumById(track.getAlbumId());
                     String artistName = memberClient.getNicknameByMemberId(album.getMemberId());
+                    Integer albumId = album.getAlbumId();
                     String trackTitle = track.getTitle();
                     String trackFileUrl = track.getTrackFileUrl();
                     String coverImageUrl = album.getCoverImageUrl();
 
                     return ChartResponse.ChartItemDto.builder()
                             .trackId(trackId)
+                            .albumId(albumId)
                             .trackTitle(trackTitle)
                             .trackFileUrl(trackFileUrl)
                             .artist(artistName)
