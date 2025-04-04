@@ -12,8 +12,13 @@ import '../../pages/mypage/album_upload_screen.dart';
 /// 아티스트가 발매한 앨범 목록을 표시
 class ArtistAlbumSection extends ConsumerStatefulWidget {
   final String memberId;
+  final bool isMyProfile; // 내 프로필인지
 
-  const ArtistAlbumSection({super.key, required this.memberId});
+  const ArtistAlbumSection({
+    super.key,
+    required this.memberId,
+    required this.isMyProfile,
+  });
 
   @override
   ConsumerState<ArtistAlbumSection> createState() => _ArtistAlbumSectionState();
@@ -113,114 +118,147 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
               ),
             ),
             const SizedBox(height: 12),
-            // 탭 가능한 컨테이너 (아무데나 클릭해도 라우팅됨)
-            Material(
-              // InkWell을 Material로 감싸 ripple 효과 개선
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  // 약간의 딜레이 추가로 ripple 효과 체감 가능하게 함
-                  Future.delayed(const Duration(milliseconds: 150), () {
-                    // 페이지 전환 애니메이션 추가
-                    Navigator.of(context).push(
-                      PageRouteBuilder(
-                        pageBuilder:
-                            (context, animation, secondaryAnimation) =>
-                                const AlbumUploadScreen(),
-                        transitionsBuilder: (
-                          context,
-                          animation,
-                          secondaryAnimation,
-                          child,
-                        ) {
-                          const begin = Offset(1.0, 0.0);
-                          const end = Offset.zero;
-                          const curve = Curves.easeInOut;
-                          var tween = Tween(
-                            begin: begin,
-                            end: end,
-                          ).chain(CurveTween(curve: curve));
-                          return SlideTransition(
-                            position: animation.drive(tween),
-                            child: child,
-                          );
-                        },
-                        transitionDuration: const Duration(milliseconds: 300),
+
+            // 내 프로필인 경우에만 업로드 안내 UI 표시
+            if (widget.isMyProfile)
+              // 탭 가능한 컨테이너 (아무데나 클릭해도 라우팅됨)
+              Material(
+                // InkWell을 Material로 감싸 ripple 효과 개선
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    // 약간의 딜레이 추가로 ripple 효과 체감 가능하게 함
+                    Future.delayed(const Duration(milliseconds: 150), () {
+                      // 페이지 전환 애니메이션 추가
+                      Navigator.of(context).push(
+                        PageRouteBuilder(
+                          pageBuilder:
+                              (context, animation, secondaryAnimation) =>
+                                  const AlbumUploadScreen(),
+                          transitionsBuilder: (
+                            context,
+                            animation,
+                            secondaryAnimation,
+                            child,
+                          ) {
+                            const begin = Offset(1.0, 0.0);
+                            const end = Offset.zero;
+                            const curve = Curves.easeInOut;
+                            var tween = Tween(
+                              begin: begin,
+                              end: end,
+                            ).chain(CurveTween(curve: curve));
+                            return SlideTransition(
+                              position: animation.drive(tween),
+                              child: child,
+                            );
+                          },
+                          transitionDuration: const Duration(milliseconds: 300),
+                        ),
+                      );
+                    });
+                  },
+                  splashColor: AppColors.lightGreen.withValues(
+                    alpha: 0.3,
+                  ), // 스플래시 색상 설정
+                  highlightColor: AppColors.lightGreen.withValues(
+                    alpha: 0.1,
+                  ), // 하이라이트 색상 설정
+                  borderRadius: BorderRadius.circular(
+                    8,
+                  ), // InkWell에 borderRadius 추가
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 24,
+                      horizontal: 16,
+                    ),
+                    decoration: BoxDecoration(
+                      // 그라데이션 대신 단색 배경에 투명도 적용
+                      color: AppColors.lightGreen.withValues(
+                        alpha: 0.15,
+                      ), // 초록색
+                      // color: AppColors.lightPurple.withValues(alpha: 0.15),  // 보라색
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: AppColors.darkGreen.withValues(
+                          alpha: 0.3,
+                        ), // 초록색
+                        // color: AppColors.mediumPurple.withValues(alpha: 0.3),  // 보라색
+                        width: 1,
                       ),
-                    );
-                  });
-                },
-                splashColor: AppColors.lightGreen.withValues(
-                  alpha: 0.3,
-                ), // 스플래시 색상 설정
-                highlightColor: AppColors.lightGreen.withValues(
-                  alpha: 0.1,
-                ), // 하이라이트 색상 설정
-                borderRadius: BorderRadius.circular(
-                  8,
-                ), // InkWell에 borderRadius 추가
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 24,
-                    horizontal: 16,
-                  ),
-                  decoration: BoxDecoration(
-                    // 그라데이션 대신 단색 배경에 투명도 적용
-                    color: AppColors.lightGreen.withValues(alpha: 0.15), // 초록색
-                    // color: AppColors.lightPurple.withValues(alpha: 0.15),  // 보라색
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: AppColors.darkGreen.withValues(alpha: 0.3), // 초록색
-                      // color: AppColors.mediumPurple.withValues(alpha: 0.3),  // 보라색
-                      width: 1,
+                    ),
+                    child: Column(
+                      children: [
+                        const Text(
+                          '앨범을 업로드하세요! 누구나 아티스트가 될 수 있습니다.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.white, fontSize: 14),
+                        ),
+                        const SizedBox(height: 16),
+                        // 업로드 버튼
+                        DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient:
+                                AppColors.greenGradientVertical, // 초록색 그라데이션
+                            // gradient: AppColors.purpleGradient, // 보라색 그라데이션
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Container(
+                            width: 180, // 버튼 가로 길이 지정
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            child: const Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.center, // 가운데 정렬
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.upload,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  '앨범 업로드',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: Column(
-                    children: [
-                      const Text(
-                        '앨범을 업로드하세요! 누구나 아티스트가 될 수 있습니다.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.white, fontSize: 14),
-                      ),
-                      const SizedBox(height: 16),
-                      // 업로드 버튼
-                      DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient:
-                              AppColors.greenGradientVertical, // 초록색 그라데이션
-                          // gradient: AppColors.purpleGradient, // 보라색 그라데이션
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Container(
-                          width: 180, // 버튼 가로 길이 지정
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          child: const Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.center, // 가운데 정렬
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.upload, color: Colors.white, size: 16),
-                              SizedBox(width: 8),
-                              Text(
-                                '앨범 업로드',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                ),
+              )
+            else
+              // 다른 사용자의 채널에서는 간단한 메시지만 표시
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                  horizontal: 16,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.grey.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Colors.grey.withValues(alpha: 0.3),
+                    width: 1,
                   ),
                 ),
+                child: const Text(
+                  '아직 업로드한 앨범이 없습니다.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                ),
               ),
-            ),
           ],
         ),
       );
