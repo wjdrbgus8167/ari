@@ -75,10 +75,13 @@ class AudioService {
         playlistSource,
         initialIndex: initialIndex,
       );
+
       await audioPlayer.play();
 
       // 초기 재생 트랙의 정보를 PlaybackState에 업데이트
       final currentTrack = tracks[initialIndex];
+      final uniqueId = "track_${currentTrack.id}";
+
       ref
           .read(playbackProvider.notifier)
           .updateTrackInfo(
@@ -90,7 +93,7 @@ class AudioService {
             albumId: currentTrack.albumId,
             trackUrl: currentTrack.trackFileUrl,
             isLiked: false,
-            currentQueueItemId: currentTrack.id.toString(),
+            currentQueueItemId: uniqueId,
           );
       ref.read(playbackProvider.notifier).updatePlaybackState(true);
       print('[DEBUG] AudioService.playPlaylist() 재생 시작됨');

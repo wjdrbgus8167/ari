@@ -33,6 +33,12 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
     // playbackProvider의 상태를 받아 현재 재생 중인 트랙 정보 확인
     final playbackState = ref.watch(playbackProvider);
 
+    // 디버깅: 현재 전역 재생 상태 출력
+    print(
+      '[DEBUG] Global PlaybackState: isPlaying=${playbackState.isPlaying}, '
+      'currentQueueItemId=${playbackState.currentQueueItemId}',
+    );
+
     return GlobalBottomWidget(
       child: Container(
         color: Colors.black,
@@ -124,19 +130,24 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                         itemCount: state.filteredPlaylist.length,
                         itemBuilder: (context, index) {
                           final item = state.filteredPlaylist[index];
-                          // 현재 재생 상태와 비교하여, 같은 트랙 id가 여러 개 있더라도 첫 번째 인스턴스에만 표시
-                          final playbackState = ref.watch(playbackProvider);
-                          final firstOccurrenceIndex = state.filteredPlaylist
-                              .indexWhere(
-                                (element) =>
-                                    element.track.trackId ==
-                                    playbackState.currentTrackId,
-                              );
+                          final isSelected = state.selectedTracks.contains(
+                            item,
+                          );
+                          // 디버깅: 각 항목의 uniqueId와 전역 PlaybackState의 currentQueueItemId 출력
+                          print(
+                            '[DEBUG] ListTile[$index]: item.uniqueId = ${item.uniqueId}',
+                          );
+                          print(
+                            '[DEBUG] Global PlaybackState: currentQueueItemId = ${playbackState.currentQueueItemId}, isPlaying = ${playbackState.isPlaying}',
+                          );
+
+                          // 재생 표시: 전역 PlaybackState의 currentQueueItemId와 비교
                           final isPlayingIndicator =
                               playbackState.isPlaying &&
-                              playbackState.currentTrackId ==
-                                  item.track.trackId &&
-                              index == firstOccurrenceIndex;
+                              playbackState.currentQueueItemId == item.uniqueId;
+                          print(
+                            '[DEBUG] ListTile[$index]: isPlayingIndicator = $isPlayingIndicator',
+                          );
 
                           return Dismissible(
                             key: ValueKey(item.uniqueId),
@@ -173,9 +184,13 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                               child: TrackListTile(
                                 key: ValueKey(item.uniqueId),
                                 track: item.track,
+                                isSelected: isSelected,
                                 isPlayingIndicator: isPlayingIndicator,
                                 onTap: () {
-                                  // 트랙 터치 시 AudioService를 통해 재생
+                                  // 디버깅: onTap에서 고유 식별자 출력
+                                  print(
+                                    '[DEBUG] onTap: uniqueId = ${item.uniqueId}',
+                                  );
                                   ref
                                       .read(audioServiceProvider)
                                       .play(
@@ -192,6 +207,8 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                                         currentQueueItemId: item.uniqueId,
                                       );
                                 },
+                                onToggleSelection:
+                                    () => viewModel.toggleTrackSelection(item),
                               ),
                             ),
                           );

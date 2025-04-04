@@ -45,11 +45,13 @@ class PlaybackState {
   final String? currentTrackId;
   final String trackTitle;
   final bool isPlaying;
+  final String currentQueueItemId;
 
   PlaybackState({
     this.currentTrackId,
     required this.trackTitle,
     this.isPlaying = false,
+    this.currentQueueItemId = '',
   });
 
   PlaybackState copyWith({String? currentTrackId, bool? isPlaying}) {
@@ -57,6 +59,7 @@ class PlaybackState {
       currentTrackId: currentTrackId ?? this.currentTrackId,
       trackTitle: this.trackTitle,
       isPlaying: isPlaying ?? this.isPlaying,
+      currentQueueItemId: this.currentQueueItemId,
     );
   }
 }

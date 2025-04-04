@@ -214,8 +214,13 @@ class PlaylistRemoteDataSourceImpl implements IPlaylistRemoteDataSource {
       url: '/api/v1/playlists/popular',
       method: 'GET',
       fromJson: (data) {
-        final List<dynamic> list = data as List<dynamic>;
-        return list.map((json) => Playlist.fromJson(json)).toList();
+        // data는 이미 API 응답의 data 필드를 전달받은 것으로 가정 (즉, data: { "playlists": [...] } )
+        final dynamic playlistsData = data['playlists'];
+        if (playlistsData is List) {
+          return playlistsData.map((json) => Playlist.fromJson(json)).toList();
+        } else {
+          return [];
+        }
       },
     );
   }

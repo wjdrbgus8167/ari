@@ -32,7 +32,10 @@ class ListeningQueueTrackList extends ConsumerWidget {
         return TrackListTile(
           key: ValueKey(uniqueId),
           track: item.track,
-          // isSelected: isSelected,
+          isSelected: isSelected,
+          onToggleSelection: () {
+            viewModel.toggleTrackSelection(item);
+          },
           onTap: () {
             ref
                 .read(audioServiceProvider)

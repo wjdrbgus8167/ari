@@ -52,6 +52,11 @@ class PlaybackState {
       isLiked: isLiked ?? this.isLiked,
     );
   }
+
+  @override
+  String toString() {
+    return 'PlaybackState(currentTrackId: $currentTrackId, currentQueueItemId: $currentQueueItemId, albumId: $albumId, trackUrl: $trackUrl, trackTitle: $trackTitle, artist: $artist, coverImageUrl: $coverImageUrl, lyrics: $lyrics, isPlaying: $isPlaying, isLiked: $isLiked)';
+  }
 }
 
 class PlaybackNotifier extends StateNotifier<PlaybackState> {

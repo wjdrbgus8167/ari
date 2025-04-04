@@ -4,36 +4,64 @@ import 'dart:math';
 
 class TrackListTile extends StatelessWidget {
   final Track track;
+  final bool isSelected;
   final VoidCallback onTap;
-  final bool isPlayingIndicator; // 현재 재생 중이면 true
+  final VoidCallback onToggleSelection;
+  final bool isPlayingIndicator;
+  final bool isPausedIndicator;
 
   const TrackListTile({
     Key? key,
     required this.track,
+    required this.isSelected,
     required this.onTap,
+    required this.onToggleSelection,
     this.isPlayingIndicator = false,
+    this.isPausedIndicator = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // 재생 중 또는 일시정지인 경우 배경색을 회색으로 설정
+    final tileColor =
+        (isPlayingIndicator || isPausedIndicator)
+            ? Colors.grey[700]
+            : Colors.transparent;
+
     return ListTile(
+      tileColor: tileColor,
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-      leading: ClipRRect(
-        borderRadius: BorderRadius.circular(5),
-        child: Image.network(
-          track.coverUrl ?? '',
-          width: 50,
-          height: 50,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            return Image.asset(
-              'assets/images/default_album_cover.png',
+      leading: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GestureDetector(
+            onTap: onToggleSelection,
+            child: Icon(
+              isSelected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_unchecked,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(width: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(5),
+            child: Image.network(
+              track.coverUrl ?? '',
               width: 50,
               height: 50,
               fit: BoxFit.cover,
-            );
-          },
-        ),
+              errorBuilder: (context, error, stackTrace) {
+                return Image.asset(
+                  'assets/images/default_album_cover.png',
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                );
+              },
+            ),
+          ),
+        ],
       ),
       title: Text(
         track.trackTitle,
@@ -53,18 +81,20 @@ class TrackListTile extends StatelessWidget {
       ),
       trailing:
           isPlayingIndicator
-              ? const AudioWaveIndicator(
-                isPlaying: true,
-                waveColor: Colors.white,
-                height: 20,
-              )
-              : null,
+              ? const AudioWaveIndicator(isPlaying: true)
+              : (isPausedIndicator
+                  ? const Icon(
+                    Icons.pause_circle_filled,
+                    color: Colors.white70,
+                    size: 30,
+                  )
+                  : null),
       onTap: onTap,
     );
   }
 }
 
-// AudioWaveIndicator 위젯 (동일 파일에 추가하거나 별도 파일로 분리)
+// AudioWaveIndicator
 class AudioWaveIndicator extends StatefulWidget {
   final bool isPlaying;
   final Color waveColor;

@@ -43,6 +43,9 @@ class PlaybackService {
         final String artist = data['artist'];
         final String lyrics = data['lyrics'];
 
+        // 고유식별자 만들기
+        final uniqueId = "track_$trackId";
+
         // AudioService를 사용해 API에서 받은 trackFileUrl로 트랙을 처음부터 재생 시작
         final audioService = ref.read(audioServiceProvider);
         await audioService.play(
@@ -55,7 +58,7 @@ class PlaybackService {
           trackId: trackId,
           albumId: albumId,
           isLiked: false,
-          currentQueueItemId: trackId.toString(),
+          currentQueueItemId: uniqueId,
         );
         print('[DEBUG] playTrack: 재생 시작됨');
 
@@ -71,7 +74,7 @@ class PlaybackService {
               albumId: albumId,
               trackUrl: trackFileUrl,
               isLiked: false,
-              currentQueueItemId: trackId.toString(),
+              currentQueueItemId: uniqueId,
             );
 
         final domain.Track trackObj = domain.Track(

@@ -15,6 +15,7 @@ class PlaybackViewModel extends StateNotifier<PlaybackState> {
     required String lyrics,
     required int currentTrackId,
     required String trackUrl,
+    required String currentQueueItemId,
   }) {
     state = state.copyWith(
       trackTitle: trackTitle,

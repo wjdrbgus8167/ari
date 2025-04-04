@@ -157,7 +157,7 @@ class _ChartItem extends ConsumerWidget {
               icon: const Icon(Icons.play_arrow, color: Colors.white),
               onPressed: () async {
                 // 재생 로직: AudioService를 통해 트랙 재생
-                final uniqueId = '${track.id}_$rank';
+                final uniqueId = track.id.toString();
 
                 await ref
                     .read(audioServiceProvider)

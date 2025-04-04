@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class PlaybackState {
   final int? currentTrackId;
+  final String currentQueueItemId;
   final int? albumId;
   final String trackUrl;
   final String trackTitle;
@@ -24,6 +25,7 @@ class PlaybackState {
     this.lyrics = '',
     this.isPlaying = false,
     this.isLiked = false,
+    this.currentQueueItemId = '',
   });
 
   PlaybackState copyWith({
@@ -36,6 +38,7 @@ class PlaybackState {
     String? lyrics,
     bool? isPlaying,
     bool? isLiked,
+    String? currentQueueItemId,
   }) {
     return PlaybackState(
       currentTrackId: currentTrackId ?? this.currentTrackId,
@@ -47,6 +50,7 @@ class PlaybackState {
       lyrics: lyrics ?? this.lyrics,
       isPlaying: isPlaying ?? this.isPlaying,
       isLiked: isLiked ?? this.isLiked,
+      currentQueueItemId: currentQueueItemId ?? this.currentQueueItemId,
     );
   }
 
