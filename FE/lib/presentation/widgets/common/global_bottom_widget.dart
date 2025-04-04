@@ -110,10 +110,13 @@ class GlobalBottomWidget extends ConsumerWidget {
                     context,
                     ref,
                     onLoginSuccess: () {
-                      // 로그인 성공하면 선택한 탭으로 이동
-                      ref
-                          .read(navigationHistoryProvider.notifier)
-                          .addTab(index);
+                      // 탭 변경 전에 조금 지연시켜 사용자 정보가 업데이트될 시간 확보
+                      Future.delayed(const Duration(milliseconds: 100), () {
+                        // 로그인 성공하면 선택한 탭으로 이동
+                        ref
+                            .read(navigationHistoryProvider.notifier)
+                            .addTab(index);
+                      });
                     },
                   );
 
