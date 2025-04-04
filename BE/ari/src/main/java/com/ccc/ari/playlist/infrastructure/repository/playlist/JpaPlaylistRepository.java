@@ -11,4 +11,5 @@ public interface JpaPlaylistRepository extends JpaRepository<PlaylistEntity, Int
     // 사용자의 모든 플레이리스트 조회
     List<PlaylistEntity> findAllByMember_MemberId(Integer memberId);
     Optional<List<PlaylistEntity>> findAllByPublicYn(boolean publicYn);
+    List<PlaylistEntity> findTop5ByOrderByShareCountDesc();
 }
