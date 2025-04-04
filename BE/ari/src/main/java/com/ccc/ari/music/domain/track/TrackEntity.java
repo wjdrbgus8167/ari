@@ -61,4 +61,15 @@ public class TrackEntity {
         this.album = album;
 
     }
+
+    public void increaseLikeCount() {
+        this.trackLikeCount = (this.trackLikeCount == null ? 1 : this.trackLikeCount + 1);
+    }
+
+    public void decreaseLikeCount() {
+        if (this.trackLikeCount != null && this.trackLikeCount > 0) {
+            this.trackLikeCount -= 1;
+        }
+    }
+
 }
