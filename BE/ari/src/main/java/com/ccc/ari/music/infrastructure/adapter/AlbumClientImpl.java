@@ -50,4 +50,14 @@ public class AlbumClientImpl implements AlbumClient {
         return albumService.getTop10Album();
     }
 
+    @Override
+    public void increaseAlbumLikeCount(Integer albumId) {
+        albumService.increaseAlbumLikeCount(albumId);
+    }
+
+    @Override
+    public void decreaseAlbumLikeCount(Integer albumId) {
+        albumService.decreaseAlbumLikeCount(albumId);
+    }
+
 }

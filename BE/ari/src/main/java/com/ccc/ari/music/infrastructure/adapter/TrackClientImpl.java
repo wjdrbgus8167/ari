@@ -40,4 +40,17 @@ public class TrackClientImpl implements TrackClient {
         return trackService.getTrackByTrackId(trackId);
     }
 
+    @Override
+    public void increaseTrackLikeCount(Integer trackId) {
+
+        trackService.increaseTrackLikeCount(trackId);
+    }
+
+    @Override
+    public void decreaseTrackLikeCount(Integer trackId) {
+
+        trackService.decreaseTrackLikeCount(trackId);
+    }
+
+
 }

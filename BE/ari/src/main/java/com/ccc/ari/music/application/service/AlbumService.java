@@ -9,9 +9,7 @@ import com.ccc.ari.music.mapper.AlbumMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -63,5 +61,18 @@ public class AlbumService {
         return jpaAlbumRepository.findTop10ByOrderByAlbumLikeCountDesc();
     }
 
+    public void increaseAlbumLikeCount(Integer albumId){
+        AlbumEntity album = jpaAlbumRepository.findById(albumId)
+                .orElseThrow(() -> new ApiException(ErrorCode.MUSIC_FILE_NOT_FOUND));
+
+        album.increaseLikeCount();
+    }
+
+    public void decreaseAlbumLikeCount(Integer albumId){
+        AlbumEntity album = jpaAlbumRepository.findById(albumId)
+                .orElseThrow(() -> new ApiException(ErrorCode.MUSIC_FILE_NOT_FOUND));
+
+        album.decreaseLikeCount();
+    }
 
 }

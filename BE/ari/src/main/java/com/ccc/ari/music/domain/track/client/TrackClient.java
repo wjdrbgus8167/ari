@@ -11,4 +11,8 @@ public interface TrackClient {
     List<TrackEntity> saveTracks(List<TrackEntity> trackEntities);
     TrackDto getTrackByAlbumIdAndTrackId(Integer albumId, Integer trackId);
     TrackEntity getTrackByTrackId(Integer trackId);
+
+    //트랙 좋아요 증가 감소
+    void increaseTrackLikeCount(Integer trackId);
+    void decreaseTrackLikeCount(Integer trackId);
 }

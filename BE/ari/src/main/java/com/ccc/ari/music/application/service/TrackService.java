@@ -54,4 +54,16 @@ public class TrackService {
 
         return jpaTrackRepository.findById(trackId).orElseThrow(() -> new ApiException(ErrorCode.MUSIC_FILE_NOT_FOUND));
     }
+
+    public void increaseTrackLikeCount(Integer trackId) {
+        TrackEntity track = jpaTrackRepository.findById(trackId)
+                .orElseThrow(() -> new ApiException(ErrorCode.MUSIC_FILE_NOT_FOUND));
+        track.increaseLikeCount();
+    }
+
+    public void decreaseTrackLikeCount(Integer trackId) {
+        TrackEntity track = jpaTrackRepository.findById(trackId)
+                .orElseThrow(() -> new ApiException(ErrorCode.MUSIC_FILE_NOT_FOUND));
+        track.decreaseLikeCount();
+    }
 }

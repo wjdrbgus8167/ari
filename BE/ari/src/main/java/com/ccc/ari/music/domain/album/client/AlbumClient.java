@@ -18,4 +18,9 @@ public interface AlbumClient {
 
     // 전체 인기 앨범 조회 TOP10
     List<AlbumEntity> getTop10Album();
+
+    // 앨범 좋아요 증가 감소
+    void increaseAlbumLikeCount(Integer albumId);
+    void decreaseAlbumLikeCount(Integer albumId);
+
 }
