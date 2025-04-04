@@ -1,5 +1,7 @@
 package com.ccc.ari.community.domain.follow.client;
 
+import com.ccc.ari.community.domain.like.LikeType;
+
 import java.util.List;
 import java.util.Map;
 
@@ -21,4 +23,7 @@ public interface FollowClient {
 
     // 여러 회원의 팔로워 수를 한 번에 조회하는 메서드 추가
     Map<Integer, Integer> countFollowersByMemberIds(List<Integer> memberIds);
+
+    // 특정 회원이 다른 회원을 팔로우했는지 확인
+    Boolean isFollowed(Integer followerId, Integer followingId);
 }

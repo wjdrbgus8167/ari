@@ -8,8 +8,7 @@ import com.ccc.ari.global.security.MemberUserDetails;
 import com.ccc.ari.global.util.ApiUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,10 +29,10 @@ public class FantalkController {
     public ApiUtils.ApiResponse<Void> createFantalk(
             @PathVariable Integer fantalkChannelId,
             @RequestPart(value = "fantalkImage", required = false) MultipartFile fantalkImage,
-            @RequestPart(value = "request") String requestJson
+            @RequestPart(value = "request") String requestJson,
+            @AuthenticationPrincipal MemberUserDetails userDetails
     ) {
         try {
-            MemberUserDetails userDetails = (MemberUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Integer memberId = userDetails.getMemberId();
 
             // 1. JSON 문자열을 Request 객체로 변환합니다.
