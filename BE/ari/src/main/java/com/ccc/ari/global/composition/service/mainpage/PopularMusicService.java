@@ -1,6 +1,6 @@
 package com.ccc.ari.global.composition.service.mainpage;
 
-import com.ccc.ari.exhibition.domain.client.PopularMusicClient;
+import com.ccc.ari.exhibition.domain.client.PopularItemClient;
 import com.ccc.ari.exhibition.domain.entity.PopularAlbum;
 import com.ccc.ari.exhibition.domain.entity.PopularTrack;
 import com.ccc.ari.exhibition.domain.vo.AlbumEntry;
@@ -28,7 +28,7 @@ public class PopularMusicService {
 
     private static final Logger logger = LoggerFactory.getLogger(PopularMusicService.class);
 
-    private final PopularMusicClient popularMusicClient;
+    private final PopularItemClient popularItemClient;
     private final AlbumClient albumClient;
     private final TrackClient trackClient;
     private final MemberClient memberClient;
@@ -55,7 +55,7 @@ public class PopularMusicService {
 
     // 인기 앨범 조회 공통 로직
     private PopularAlbumResponse getPopularAlbums(Integer genreId, ErrorCode errorCode) {
-        PopularAlbum popularAlbum = popularMusicClient.getLatestPopularAlbum(genreId)
+        PopularAlbum popularAlbum = popularItemClient.getLatestPopularAlbum(genreId)
                 .orElseThrow(() -> new ApiException(errorCode));
 
         List<PopularAlbumResponse.PopularAlbumItem> albumItems = new ArrayList<>();
@@ -91,7 +91,7 @@ public class PopularMusicService {
 
     // 인기 트랙 조회 공통 로직
     private PopularTrackResponse getPopularTracks(Integer genreId, ErrorCode errorCode) {
-        PopularTrack popularTrack = popularMusicClient.getLatestPopularTrack(genreId)
+        PopularTrack popularTrack = popularItemClient.getLatestPopularTrack(genreId)
                 .orElseThrow(() -> new ApiException(errorCode));
 
         List<PopularTrackResponse.PopularTrackItem> trackItems = new ArrayList<>();
