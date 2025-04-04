@@ -1,7 +1,7 @@
-package com.ccc.ari.global.composition.controller;
+package com.ccc.ari.global.composition.controller.chart;
 
-import com.ccc.ari.global.composition.response.ChartResponse;
-import com.ccc.ari.global.composition.service.ChartService;
+import com.ccc.ari.global.composition.response.chart.ChartResponse;
+import com.ccc.ari.global.composition.service.chart.ChartService;
 import com.ccc.ari.global.util.ApiUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
