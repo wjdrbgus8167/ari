@@ -34,12 +34,14 @@ class ListeningQueueState {
   final List<ListeningQueueItem> filteredPlaylist;
   final Set<ListeningQueueItem> selectedTracks;
   final List<Playlist> playlists;
+  final bool isLoading;
 
   ListeningQueueState({
     required this.playlist,
     required this.filteredPlaylist,
     required this.selectedTracks,
     this.playlists = const [],
+    this.isLoading = true,
   });
 
   ListeningQueueState copyWith({
@@ -47,12 +49,14 @@ class ListeningQueueState {
     List<ListeningQueueItem>? filteredPlaylist,
     Set<ListeningQueueItem>? selectedTracks,
     List<Playlist>? playlists,
+    bool? isLoading,
   }) {
     return ListeningQueueState(
       playlist: playlist ?? this.playlist,
       filteredPlaylist: filteredPlaylist ?? this.filteredPlaylist,
       selectedTracks: selectedTracks ?? this.selectedTracks,
       playlists: playlists ?? this.playlists,
+      isLoading: isLoading ?? this.isLoading,
     );
   }
 }
@@ -87,7 +91,11 @@ class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
         dataTracks.map((dataTrack) => mapDataTrackToDomain(dataTrack)).toList();
     final items =
         domainTracks.map((track) => ListeningQueueItem(track: track)).toList();
-    state = state.copyWith(playlist: items, filteredPlaylist: List.from(items));
+    state = state.copyWith(
+      playlist: items,
+      filteredPlaylist: List.from(items),
+      isLoading: false,
+    );
   }
 
   /// PlaylistRepository를 통해 플레이리스트 목록을 불러옵니다.
@@ -192,11 +200,14 @@ class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
     bool publicYn,
     List<ListeningQueueItem> selectedItems,
   ) async {
-    final request = PlaylistCreateRequest(title: title);
+    final request = PlaylistCreateRequest(title: title, publicYn: publicYn);
     final newPlaylist = await playlistRepository.createPlaylist(request);
     for (var item in selectedItems) {
       await playlistRepository.addTrack(newPlaylist.id, item.track.trackId);
     }
+    print('[DEBUG] 플레이리스트 생성 요청: title=$title, publicYn=$publicYn');
+    print('[DEBUG] PlaylistCreateRequest JSON: ${request.toJson()}');
+
     // 새 플레이리스트 생성 후 플레이리스트 목록 업데이트
     await _loadPlaylists();
     state = state.copyWith(selectedTracks: {});

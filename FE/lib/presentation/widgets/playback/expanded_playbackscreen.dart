@@ -103,7 +103,7 @@ class _ExpandedPlaybackScreenState
                   Positioned(
                     left: 0,
                     right: 0,
-                    bottom: 40,
+                    bottom: 60,
                     child: PlaybackControls(
                       onToggle: () async {
                         if (playbackState.isPlaying) {
@@ -114,7 +114,7 @@ class _ExpandedPlaybackScreenState
                         } else {
                           await playbackService.playTrack(
                             albumId: 1,
-                            trackId: 1,
+                            trackId: 2,
                             ref: ref,
                           );
                           ref
@@ -129,16 +129,19 @@ class _ExpandedPlaybackScreenState
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    child: LyricsView(
-                      albumCoverUrl:
-                          playbackState.coverImageUrl.isNotEmpty
-                              ? playbackState.coverImageUrl
-                              : 'assets/images/default_album_cover.png',
-                      trackTitle: playbackState.trackTitle,
-                      lyrics: playbackState.lyrics,
-                      onToggle: () {
-                        Navigator.pop(context);
-                      },
+                    child: Container(
+                      height: 80, // 여기서 높이를 늘림 (예: 250)
+                      child: LyricsView(
+                        albumCoverUrl:
+                            playbackState.coverImageUrl.isNotEmpty
+                                ? playbackState.coverImageUrl
+                                : 'assets/images/default_album_cover.png',
+                        trackTitle: playbackState.trackTitle,
+                        lyrics: playbackState.lyrics,
+                        onToggle: () {
+                          Navigator.pop(context);
+                        },
+                      ),
                     ),
                   ),
                 ],

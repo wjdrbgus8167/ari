@@ -1,8 +1,94 @@
-import 'package:ari/presentation/viewmodels/playback/playback_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ari/presentation/viewmodels/playback/playback_viewmodel.dart';
 
-final playbackProvider =
-    StateNotifierProvider<PlaybackViewModel, PlaybackState>(
-      (ref) => PlaybackViewModel(),
+class PlaybackState {
+  final int? currentTrackId;
+  final int? albumId;
+  final String trackUrl;
+  final String trackTitle;
+  final String artist;
+  final String coverImageUrl;
+  final String lyrics;
+  final bool isPlaying;
+  final bool isLiked;
+
+  PlaybackState({
+    this.currentTrackId,
+    this.albumId,
+    this.trackUrl = '',
+    this.trackTitle = '',
+    this.artist = '',
+    this.coverImageUrl = '',
+    this.lyrics = '',
+    this.isPlaying = false,
+    this.isLiked = false,
+  });
+
+  PlaybackState copyWith({
+    int? currentTrackId,
+    int? albumId,
+    String? trackUrl,
+    String? trackTitle,
+    String? artist,
+    String? coverImageUrl,
+    String? lyrics,
+    bool? isPlaying,
+    bool? isLiked,
+  }) {
+    return PlaybackState(
+      currentTrackId: currentTrackId ?? this.currentTrackId,
+      albumId: albumId ?? this.albumId,
+      trackUrl: trackUrl ?? this.trackUrl,
+      trackTitle: trackTitle ?? this.trackTitle,
+      artist: artist ?? this.artist,
+      coverImageUrl: coverImageUrl ?? this.coverImageUrl,
+      lyrics: lyrics ?? this.lyrics,
+      isPlaying: isPlaying ?? this.isPlaying,
+      isLiked: isLiked ?? this.isLiked,
     );
+  }
+
+  @override
+  String toString() {
+    return 'PlaybackState(currentTrackId: $currentTrackId, albumId: $albumId, trackTitle: $trackTitle, artist: $artist, coverImageUrl: $coverImageUrl, trackUrl: $trackUrl, isPlaying: $isPlaying, isLiked: $isLiked)';
+  }
+}
+
+class PlaybackNotifier extends StateNotifier<PlaybackState> {
+  PlaybackNotifier() : super(PlaybackState());
+
+  void updatePlaybackState(bool isPlaying) {
+    state = state.copyWith(isPlaying: isPlaying);
+  }
+
+  void updateLikeStatus(bool isLiked) {
+    state = state.copyWith(isLiked: isLiked);
+  }
+
+  /// 현재 재생되는 트랙의 정보를 업데이트합니다.
+  void updateTrackInfo({
+    required String trackTitle,
+    required String artist,
+    required String coverImageUrl,
+    required String lyrics,
+    required int currentTrackId,
+    required int albumId,
+    required String trackUrl,
+    required bool isLiked,
+  }) {
+    state = state.copyWith(
+      trackTitle: trackTitle,
+      artist: artist,
+      coverImageUrl: coverImageUrl,
+      lyrics: lyrics,
+      currentTrackId: currentTrackId,
+      albumId: albumId,
+      trackUrl: trackUrl,
+      isLiked: isLiked,
+    );
+    print('[DEBUG] PlaybackState 업데이트 완료: ${state.toString()}');
+  }
+}
+
+final playbackProvider = StateNotifierProvider<PlaybackNotifier, PlaybackState>(
+  (ref) => PlaybackNotifier(),
+);

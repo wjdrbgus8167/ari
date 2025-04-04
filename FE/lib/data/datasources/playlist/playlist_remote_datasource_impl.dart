@@ -3,6 +3,7 @@ import 'package:ari/data/dto/playlist_create_request.dart';
 import 'package:ari/data/datasources/playlist/playlist_remote_datasource.dart';
 import 'package:ari/data/models/api_response.dart';
 import 'package:ari/data/models/playlist.dart';
+import 'package:ari/data/models/playlist_trackitem.dart';
 import 'package:dio/dio.dart';
 
 class PlaylistRemoteDataSourceImpl implements IPlaylistRemoteDataSource {
@@ -19,6 +20,10 @@ class PlaylistRemoteDataSourceImpl implements IPlaylistRemoteDataSource {
     dynamic data,
   }) async {
     try {
+      print('[DEBUG] 요청 URL: $url');
+      print('[DEBUG] 요청 메서드: $method');
+      print('[DEBUG] 요청 데이터: $data');
+
       Response response;
       switch (method) {
         case 'GET':
@@ -78,8 +83,14 @@ class PlaylistRemoteDataSourceImpl implements IPlaylistRemoteDataSource {
       url: '/api/v1/playlists',
       method: 'GET',
       fromJson: (data) {
-        final List<dynamic> list = data as List<dynamic>;
-        return list.map((json) => Playlist.fromJson(json)).toList();
+        final dynamic playlistsData = data['playlists'];
+        if (playlistsData is List) {
+          return playlistsData.map((json) => Playlist.fromJson(json)).toList();
+        } else if (playlistsData is Map<String, dynamic>) {
+          return [Playlist.fromJson(playlistsData)];
+        } else {
+          return [];
+        }
       },
     );
   }
@@ -90,7 +101,30 @@ class PlaylistRemoteDataSourceImpl implements IPlaylistRemoteDataSource {
     return _request<Playlist>(
       url: '/api/v1/playlists/$playlistId',
       method: 'GET',
-      fromJson: (data) => Playlist.fromJson(data),
+      fromJson: (data) {
+        // ApiResponse 내부에서 이미 "data" 필드만 전달받으므로,
+        // data는 {"tracks": [...]} 형태입니다.
+        final dataMap = data as Map<String, dynamic>;
+        final tracksData = dataMap['tracks'] as List<dynamic>;
+        final tracks =
+            tracksData
+                .map(
+                  (json) =>
+                      PlaylistTrackItem.fromJson(json as Map<String, dynamic>),
+                )
+                .toList();
+        print('getPlaylistDetail: Parsed tracks count = ${tracks.length}');
+        print('tracks${tracks}');
+        // 상세조회 API는 트랙 목록만 반환하므로, 기본 정보는 빈 값 또는 기본값으로 지정합니다.
+        return Playlist(
+          id: playlistId,
+          title: '', // 기본값, ViewModel에서 목록 데이터와 병합할 예정
+          isPublic: false, // 기본값, ViewModel에서 병합할 예정
+          shareCount: 0, // 기본값, ViewModel에서 병합할 예정
+          trackCount: tracks.length,
+          tracks: tracks,
+        );
+      },
     );
   }
 

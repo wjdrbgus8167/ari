@@ -1,3 +1,4 @@
+import 'package:ari/core/services/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/providers/global_providers.dart';
@@ -95,6 +96,11 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                                   debugPrint(
                                     "플레이리스트 생성: $title / 공개여부: $publicYn",
                                   );
+                                  viewModel.createPlaylistAndAddTracks(
+                                    title,
+                                    publicYn,
+                                    state.selectedTracks.toList(),
+                                  );
                                 },
                               );
                             },
@@ -160,9 +166,23 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                                 isSelected: isSelected,
                                 onToggleSelection:
                                     () => viewModel.toggleTrackSelection(item),
-                                onTap:
-                                    () =>
-                                        print("${item.track.trackTitle} 선택됨!"),
+                                onTap: () {
+                                  // 트랙 타일을 터치하면 AudioService를 통해 재생
+                                  ref
+                                      .read(audioServiceProvider)
+                                      .play(
+                                        ref,
+                                        item.track.trackFileUrl ?? '',
+                                        title: item.track.trackTitle,
+                                        artist: item.track.artistName,
+                                        coverImageUrl:
+                                            item.track.coverUrl ?? '',
+                                        lyrics: item.track.lyric,
+                                        trackId: item.track.trackId,
+                                        albumId: item.track.albumId,
+                                        isLiked: false,
+                                      );
+                                },
                               ),
                             ),
                           );
