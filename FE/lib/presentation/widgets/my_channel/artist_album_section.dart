@@ -254,7 +254,7 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
                   ),
                 ),
                 child: const Text(
-                  '아직 업로드한 앨범이 없습니다.',
+                  '업로드한 앨범이 없습니다.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.grey, fontSize: 14),
                 ),

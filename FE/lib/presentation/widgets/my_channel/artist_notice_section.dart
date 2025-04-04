@@ -144,46 +144,54 @@ class ArtistNoticeSection extends ConsumerWidget {
             )
           // 공지사항이 없는 경우 메시지 표시
           else if (noticeResponse == null || noticeResponse.notices.isEmpty)
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                child: Column(
-                  children: [
-                    Text(
-                      '아티스트가 작성한 공지사항이 없습니다.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey[400], fontSize: 14),
-                    ),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              decoration: BoxDecoration(
+                color: Colors.grey.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Colors.grey.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                children: [
+                  const Text(
+                    '작성한 공지사항이 없습니다.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                  ),
 
-                    // 내 채널인 경우 공지 작성 안내 추가
-                    if (isMyChannel) ...[
-                      const SizedBox(height: 12),
-                      ElevatedButton.icon(
-                        onPressed: () => _navigateToCreateNotice(context, ref),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.lightPurple.withValues(
-                            alpha: 0.15,
-                          ), // 배경색 수정
-                          foregroundColor: AppColors.mediumPurple,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(
-                              color: AppColors.mediumPurple.withValues(
-                                alpha: 0.3,
-                              ), // 테두리 투명도 수정
+                  // 내 채널인 경우 공지 작성 안내 추가
+                  if (isMyChannel) ...[
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      onPressed: () => _navigateToCreateNotice(context, ref),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.lightPurple.withValues(
+                          alpha: 0.15,
+                        ),
+                        foregroundColor: AppColors.mediumPurple,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: AppColors.mediumPurple.withValues(
+                              alpha: 0.3,
                             ),
                           ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
                         ),
-                        icon: const Icon(Icons.add, size: 16),
-                        label: const Text('첫 공지사항 작성하기'),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                       ),
-                    ],
+                      icon: const Icon(Icons.add, size: 16),
+                      label: const Text('첫 공지사항 작성하기'),
+                    ),
                   ],
-                ),
+                ],
               ),
             )
           // 공지사항 표시 (최근 1개만)
@@ -242,7 +250,6 @@ class ArtistNoticeSection extends ConsumerWidget {
         //       width: 1,
         //     ),
         //   ),
-        
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
