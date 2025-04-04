@@ -49,6 +49,7 @@ class AppRoutes {
     trackUpload,
     subscription,
     subscriptionPayment,
+    myChannel,
   };
 
   static bool requiresAuth(String? route) {
