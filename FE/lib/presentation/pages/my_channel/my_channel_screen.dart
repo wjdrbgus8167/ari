@@ -45,6 +45,21 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
     });
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // 현재 userIdProvider 값 가져오기
+    final currentUserId = ref.read(userIdProvider);
+
+    // 이전 값과 다르면 업데이트
+    if (widget.memberId == null &&
+        currentUserId != null &&
+        currentUserId != _currentUserId) {
+      _updateUserIdFromToken();
+    }
+  }
+
   // 토큰에서 사용자 ID 업데이트 및 데이터 로드
   void _updateUserIdFromToken() {
     // 로그인된 상태라면 토큰에서 사용자 ID 가져오기
@@ -105,6 +120,14 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // userIdProvider 변경 감지를 위한 watch
+    final userId = ref.watch(userIdProvider);
+
+    // 내 채널 모드에서 userId가 변경되면 데이터 다시 로드
+    if (widget.memberId == null && userId != null && userId != _currentUserId) {
+      // 로그인 상태가 변경된 경우 데이터 다시 로드
+      Future.microtask(() => _updateUserIdFromToken());
+    }
     return Scaffold(
       backgroundColor: Colors.black,
       body: RefreshIndicator(
