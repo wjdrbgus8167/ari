@@ -30,9 +30,6 @@ class HomeScreen extends ConsumerWidget {
             SafeArea(
               child: HeaderWidget(
                 type: HeaderType.main,
-                onMyPagePressed: () {
-                  AppRouter.navigateTo(context, ref, AppRoutes.myPage);
-                },
               ),
             ),
             const SizedBox(height: 8),
