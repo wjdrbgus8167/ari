@@ -65,4 +65,9 @@ public class FollowClientImpl implements FollowClient {
 
         return followerCountMap;
     }
+
+    @Override
+    public Boolean isFollowed(Integer followerId, Integer followingId) {
+        return followJpaRepository.existsByFollowerIdAndFollowingIdAndActivateYnTrue(followerId, followingId);
+    }
 }

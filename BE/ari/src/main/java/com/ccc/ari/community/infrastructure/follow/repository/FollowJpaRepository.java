@@ -28,4 +28,7 @@ public interface FollowJpaRepository extends JpaRepository<FollowJpaEntity, Inte
     // 여러 회원의 팔로워 수를 한 번에 조회하는 쿼리
     @Query("SELECT f.followingId, COUNT(f) FROM FollowJpaEntity f WHERE f.followingId IN :memberIds AND f.activateYn = true GROUP BY f.followingId")
     List<Object[]> countFollowersByMemberIdIn(List<Integer> memberIds);
+
+    // 팔로우 상태 확인
+    Boolean existsByFollowerIdAndFollowingIdAndActivateYnTrue(Integer followerId, Integer followingId);
 }
