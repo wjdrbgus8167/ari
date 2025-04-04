@@ -71,7 +71,7 @@ class GlobalBottomWidget extends ConsumerWidget {
     // PopScope로 뒤로가기 이벤트 처리
     return PopScope(
       canPop: false, // 기본 뒤로가기 동작 비활성화
-      onPopInvoked: (didPop) async {
+      onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
 
         // 뒤로가기 처리를 위해 히스토리 확인
@@ -105,7 +105,7 @@ class GlobalBottomWidget extends ConsumerWidget {
               onTap: (index) async {
                 // 로그인이 필요한 탭인지 확인 (음악 서랍, 나의 채널)
                 if (index == 2 || index == 3) {
-                  // 로그인 체크, 필요시 다이얼로그 표시 후 로그인 화면으로 이동
+                  // 로그인 체크 및 필요시 다이얼로그 표시 후 로그인 화면으로 이동
                   final isLoggedIn = await checkLoginAndRedirect(
                     context,
                     ref,
@@ -117,11 +117,14 @@ class GlobalBottomWidget extends ConsumerWidget {
                     },
                   );
 
-                  // 로그인 안 됐거나 취소한 경우 탭 변경 중단
+                  // 로그인 되지 않았거나 취소한 경우 탭 변경 중단
                   if (!isLoggedIn) return;
                 } else {
-                  // 탭 변경하면 히스토리에 추가
-                  if (index != bottomIndex) {
+                  // 현재 인덱스와 선택한 인덱스가 같으면 해당 화면을 맨 위로 스크롤
+                  if (index == bottomIndex) {
+                    // TODO: 현재 화면 맨 위로 스크롤 처리
+                  } else {
+                    // 탭 변경 시 히스토리에 추가
                     ref.read(navigationHistoryProvider.notifier).addTab(index);
                   }
                 }
