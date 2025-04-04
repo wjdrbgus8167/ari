@@ -682,7 +682,7 @@ class MockData {
         lyrics: 'Lyrics for track $id',
         trackTitle: 'Track Title $id',
         artist: 'Artist $id',
-        albumId: 'album$id',
+        albumId: id,
         trackFileUrl: 'https://example.com/song$id.mp3',
       );
     });

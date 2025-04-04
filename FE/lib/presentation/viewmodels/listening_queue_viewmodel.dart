@@ -16,7 +16,7 @@ domain.Track mapDataTrackToDomain(data.Track dataTrack) {
     // 단일 문자열을 리스트로 감싸서 전달 (필요시 로직 변경)
     composer: [dataTrack.composer],
     lyricist: [dataTrack.lyricist],
-    albumId: int.parse(dataTrack.albumId),
+    albumId: dataTrack.albumId,
     trackFileUrl: dataTrack.trackFileUrl,
     lyric: dataTrack.lyrics,
     coverUrl: dataTrack.coverUrl,

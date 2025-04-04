@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/track.dart' as ari;
+import 'package:ari/core/services/audio_service.dart';
+import 'package:ari/providers/global_providers.dart'; // listeningQueueProvider, audioServiceProvider 등
 
 class HotChartList extends StatefulWidget {
   final List<ari.Track> tracks;
@@ -40,7 +43,7 @@ class _HotChartListState extends State<HotChartList> {
             (startIndex + itemsPerPage) > widget.tracks.length
                 ? widget.tracks.length
                 : (startIndex + itemsPerPage);
-        final List<ari.Track> pageTitles = widget.tracks.sublist(
+        final List<ari.Track> pageTracks = widget.tracks.sublist(
           startIndex,
           endIndex,
         );
@@ -52,7 +55,7 @@ class _HotChartListState extends State<HotChartList> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children:
-                  pageTitles.asMap().entries.map((entry) {
+                  pageTracks.asMap().entries.map((entry) {
                     final localIndex = entry.key;
                     final track = entry.value;
                     final globalIndex = startIndex + localIndex;
@@ -66,7 +69,8 @@ class _HotChartListState extends State<HotChartList> {
   }
 }
 
-class _ChartItem extends StatelessWidget {
+// _ChartItem를 ConsumerWidget로 변경하여 Provider를 사용할 수 있도록 함.
+class _ChartItem extends ConsumerWidget {
   final int rank;
   final ari.Track track;
 
@@ -74,7 +78,7 @@ class _ChartItem extends StatelessWidget {
     : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       height: 70, // 고정 높이
       margin: const EdgeInsets.symmetric(vertical: 4),
@@ -121,7 +125,7 @@ class _ChartItem extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          // 제목 및 아티스트 컨테이너 (Expanded)
+          // 제목 및 아티스트 컨테이너
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -151,8 +155,27 @@ class _ChartItem extends StatelessWidget {
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
               icon: const Icon(Icons.play_arrow, color: Colors.white),
-              onPressed: () {
-                // 재생 로직 추가(예정)
+              onPressed: () async {
+                // 재생 로직: AudioService를 통해 트랙 재생
+                await ref
+                    .read(audioServiceProvider)
+                    .play(
+                      ref,
+                      track.trackFileUrl,
+                      title: track.trackTitle,
+                      artist: track.artist,
+                      coverImageUrl:
+                          track.coverUrl ??
+                          'assets/images/default_album_cover.png',
+                      lyrics: track.lyrics,
+                      trackId: track.id, // 모델에 따라 track.id 또는 track.trackId
+                      albumId: track.albumId,
+                      isLiked: false,
+                    );
+                // 재생목록(큐)에 해당 트랙 추가
+                await ref
+                    .read(listeningQueueProvider.notifier)
+                    .trackPlayed(track);
               },
             ),
           ),

@@ -72,7 +72,7 @@ class PlaylistTrackItem {
       artist: artist,
       composer: composer,
       lyricist: lyricist,
-      albumId: albumId.toString(), // data.Track에서는 albumId를 문자열로 사용하는 경우
+      albumId: albumId,
       trackFileUrl: trackFileUrl,
       lyrics: lyrics,
       coverUrl: coverImageUrl,

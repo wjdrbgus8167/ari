@@ -22,7 +22,7 @@ class TrackAdapter extends TypeAdapter<Track> {
       artist: fields[2] as String,
       composer: fields[3] as String,
       lyricist: fields[4] as String,
-      albumId: fields[5] as String,
+      albumId: fields[5] as int,
       trackFileUrl: fields[6] as String,
       lyrics: fields[7] as String,
       coverUrl: fields[9] as String?,
