@@ -1,6 +1,7 @@
 package com.ccc.ari.subscription.infrastructure.persistence.repository;
 
-import com.ccc.ari.subscription.application.repository.SubscriptionPlanRepository;
+import com.ccc.ari.subscription.domain.SubscriptionPlan;
+import com.ccc.ari.subscription.domain.repository.SubscriptionPlanRepository;
 import com.ccc.ari.global.type.PlanType;
 import com.ccc.ari.subscription.infrastructure.persistence.entity.SubscriptionPlanEntity;
 import lombok.RequiredArgsConstructor;
@@ -15,17 +16,21 @@ public class SubscriptionPlanRepositoryImpl implements SubscriptionPlanRepositor
     private final SubscriptionPlanJpaRepository subscriptionPlanJpaRepository;
 
     @Override
-    public void save(SubscriptionPlanEntity subscriptionPlanEntity) {
-        subscriptionPlanJpaRepository.save(subscriptionPlanEntity);
+    public void save(SubscriptionPlan subscriptionPlan) {
+        subscriptionPlanJpaRepository.save(SubscriptionPlanEntity.from(subscriptionPlan));
     }
 
     @Override
-    public Optional<SubscriptionPlanEntity> findSubscriptionPlanByPlanType(PlanType planType) {
-        return subscriptionPlanJpaRepository.findByPlanType(planType);
+    public Optional<SubscriptionPlan> findSubscriptionPlanByPlanType(PlanType planType) {
+        return subscriptionPlanJpaRepository.findByPlanType(planType).isPresent() ?
+                Optional.of(subscriptionPlanJpaRepository.findByPlanType(planType).get().toModel()) :
+                Optional.empty();
     }
 
     @Override
-    public Optional<SubscriptionPlanEntity> findSubscriptionPlanByArtistId(Integer artistId) {
-        return subscriptionPlanJpaRepository.findByArtistId(artistId);
+    public Optional<SubscriptionPlan> findSubscriptionPlanByArtistId(Integer artistId) {
+        return subscriptionPlanJpaRepository.findByArtistId(artistId).isPresent() ?
+                Optional.of(subscriptionPlanJpaRepository.findByArtistId(artistId).get().toModel()) :
+                Optional.empty();
     };
 }

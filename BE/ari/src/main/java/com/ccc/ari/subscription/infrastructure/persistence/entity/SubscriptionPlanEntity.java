@@ -2,6 +2,7 @@ package com.ccc.ari.subscription.infrastructure.persistence.entity;
 
 import com.ccc.ari.global.type.PlanType;
 import com.ccc.ari.subscription.domain.SubscriptionPlan;
+import com.ccc.ari.subscription.domain.vo.SubscriptionPlanId;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -48,6 +49,7 @@ public class SubscriptionPlanEntity {
     // from 엔터티 to 도메인 모델
     public SubscriptionPlan toModel() {
         return SubscriptionPlan.builder()
+                .subscriptionPlanId(new SubscriptionPlanId(subscriptionPlanId))
                 .artistId(artistId)
                 .planType(planType)
                 .price(price)
@@ -57,6 +59,7 @@ public class SubscriptionPlanEntity {
     // from 도메인 모델 to 엔터티
     public static SubscriptionPlanEntity from(SubscriptionPlan subscriptionPlan) {
         return SubscriptionPlanEntity.builder()
+                .subscriptionPlanId(subscriptionPlan.getSubscriptionPlanId().getValue())
                 .artistId(subscriptionPlan.getArtistId())
                 .planType(subscriptionPlan.getPlanType())
                 .price(subscriptionPlan.getPrice())

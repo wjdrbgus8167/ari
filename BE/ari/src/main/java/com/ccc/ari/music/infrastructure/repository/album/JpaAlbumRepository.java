@@ -11,4 +11,12 @@ import java.util.Optional;
 public interface JpaAlbumRepository extends JpaRepository<AlbumEntity,Integer> {
     Optional<AlbumEntity> findByAlbumId(Integer albumId);
     List<AlbumEntity> findAllByMember_MemberId(Integer memberId);
+
+    List<AlbumEntity> findTop10ByOrderByReleasedAtDesc();
+
+    // 징르별 TOP5
+    List<AlbumEntity> findTop5ByGenre_GenreIdOrderByAlbumLikeCountDesc(Integer genreId);
+
+    //전체에서 앨범 TOP10
+    List<AlbumEntity> findTop10ByOrderByAlbumLikeCountDesc();
 }
