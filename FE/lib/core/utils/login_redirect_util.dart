@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/presentation/routes/app_router.dart';
 import 'package:ari/presentation/widgets/common/custom_dialog.dart';
 import 'package:ari/providers/auth/auth_providers.dart';
+import 'package:ari/providers/user_provider.dart';
+import 'package:ari/core/constants/app_colors.dart';
 
 /// 로그인 상태를 확인하고 로그인이 필요한 경우 다이얼로그를 표시한 후
 /// 로그인 화면으로 이동시키는 유틸리티 함수
@@ -39,7 +41,11 @@ Future<bool> checkLoginAndRedirect(
     content: '이 기능을 사용하려면 로그인이 필요합니다.',
     confirmText: '로그인',
     cancelText: '취소',
-    confirmButtonColor: Colors.blue,
+    confirmButtonColor: AppColors.mediumPurple,
+    // confirmButtonGradient: AppColors.purpleGradientVertical,
+    cancelButtonColor: Colors.black38,
+    // cancelButtonColor: Colors.grey,
+    borderRadius: 20.0,
   );
 
   // 로그인 버튼 클릭 시 로그인 화면으로 이동
@@ -48,9 +54,15 @@ Future<bool> checkLoginAndRedirect(
       // 로그인 화면으로 이동
       final loggedIn = await Navigator.of(context).pushNamed(AppRoutes.login);
 
-      // 로그인 성공 후 돌아온 경우 콜백 실행
-      if (loggedIn == true && onLoginSuccess != null && context.mounted) {
-        onLoginSuccess();
+      // 로그인 성공 후 돌아온 경우
+      if (loggedIn == true && context.mounted) {
+        // 사용자 정보 새로고침 (토큰 변경 반영)
+        await ref.read(userProvider.notifier).refreshUserInfo();
+
+        // 콜백 실행
+        if (onLoginSuccess != null) {
+          onLoginSuccess();
+        }
         return true;
       }
     }
