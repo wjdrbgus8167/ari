@@ -1,9 +1,8 @@
 package com.ccc.ari.exhibition.domain.service;
 
-import com.ccc.ari.exhibition.domain.entity.PopularAlbum;
-import com.ccc.ari.exhibition.domain.entity.PopularTrack;
-import com.ccc.ari.exhibition.domain.entity.TrackStreamingWindow;
+import com.ccc.ari.exhibition.domain.entity.*;
 import com.ccc.ari.exhibition.domain.vo.AlbumEntry;
+import com.ccc.ari.exhibition.domain.vo.PlaylistEntry;
 import com.ccc.ari.exhibition.domain.vo.TrackEntry;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -19,11 +18,11 @@ import java.util.Map;
  */
 @Service
 @RequiredArgsConstructor
-public class PopularMusicCreationService {
+public class PopularItemCreationService {
 
-    private static final Logger logger = LoggerFactory.getLogger(PopularMusicCreationService.class);
+    private static final Logger logger = LoggerFactory.getLogger(PopularItemCreationService.class);
     private final PopularStreamingWindowService popularStreamingWindowService;
-    private final PopularMusicSelectionService selectionService;
+    private final PopularItemSelectionService selectionService;
 
     // 인기 트랙 생성
     public PopularTrack createPopularTrack(Integer genreId, Map<Integer, TrackStreamingWindow> streamingWindows) {
@@ -61,5 +60,34 @@ public class PopularMusicCreationService {
 
         logger.info("장르 {} 인기 앨범을 생성했습니다. 항목 수: {}", genreId, entries.size());
         return popularAlbum;
+    }
+
+    // 인기 플레이리스트 생성
+    public PopularPlaylist createPopularPlaylist() {
+        // 인기 플레이리스트 순위 계산
+        List<PlaylistEntry> entries = selectionService.selectPopularPlaylists();
+
+        // 인기 플레이리스트 객체 생성
+        PopularPlaylist popularPlaylist = PopularPlaylist.builder()
+                .entries(entries)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        logger.info("인기 플레이리스트를 생성했습니다. 항목 수: {}", entries.size());
+        return popularPlaylist;
+    }
+
+    // 최신 앨범 생성
+    public NewAlbum createNewAlbum(Integer genreId) {
+        List<AlbumEntry> entries = selectionService.selectNewAlbums(genreId);
+
+        NewAlbum newAlbum = NewAlbum.builder()
+                .genreId(genreId)
+                .entries(entries)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        logger.info("장르 {} 최신 앨범을 생성했습니다. 항목 수: {}", genreId, entries.size());
+        return newAlbum;
     }
 }

@@ -1,4 +1,4 @@
-package com.ccc.ari.global.composition.response;
+package com.ccc.ari.global.composition.response.chart;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -15,7 +15,9 @@ public class ChartResponse {
     @Builder
     public static class ChartItemDto {
         private Integer trackId;
+        private Integer albumId;
         private String trackTitle;
+        private String trackFileUrl;
         private String artist;
         private String coverImageUrl;
         private int rank;

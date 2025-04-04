@@ -15,7 +15,7 @@ import java.util.List;
 @Document(collection = "exhibitions")
 @Getter
 @Builder
-public class MongoPopularMusic {
+public class MongoPopularItem {
 
     @Id
     private String id;
@@ -35,6 +35,6 @@ public class MongoPopularMusic {
     @Builder
     public static class MongoPopularEntry {
         private Integer itemId;
-        private Long streamCount;
+        private Long count;
     }
 }

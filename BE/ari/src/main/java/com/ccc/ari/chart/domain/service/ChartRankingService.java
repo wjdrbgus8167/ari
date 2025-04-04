@@ -18,7 +18,7 @@ import java.util.Map;
 public class ChartRankingService {
 
     private static final Logger logger = LoggerFactory.getLogger(ChartRankingService.class);
-    private static final int MAX_CHART_SIZE = 50;
+    private static final int MAX_CHART_SIZE = 20;
 
     public List<ChartEntry> calculateRankings(Map<Integer, Long> streamCounts) {
 

@@ -2,7 +2,6 @@ package com.ccc.ari.exhibition.domain.entity;
 
 import com.ccc.ari.exhibition.domain.vo.AlbumEntry;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -12,21 +11,19 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * 인기 앨범 도메인 엔티티
+ * 최신 앨범 도메인 엔티티
  */
 @Getter
-public class PopularAlbum {
+public class NewAlbum {
 
     private final Integer genreId;
     private final List<AlbumEntry> entries;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private final LocalDateTime createdAt;
 
     @Builder
-    public PopularAlbum(Integer genreId, List<AlbumEntry> entries, LocalDateTime createdAt) {
+    public NewAlbum(Integer genreId, List<AlbumEntry> entries, LocalDateTime createdAt) {
         if (entries.size() > 10) {
-            throw new IllegalArgumentException("인기 앨범은 최대 10개까지만 포함할 수 있습니다.");
+            throw new IllegalArgumentException("최신 앨범은 최대 10개까지만 포함할 수 있습니다.");
         }
 
         this.genreId = genreId;
@@ -35,7 +32,7 @@ public class PopularAlbum {
     }
 
     @JsonCreator
-    protected PopularAlbum() {
+    protected NewAlbum() {
         this.genreId = null;
         this.entries = new ArrayList<>();
         this.createdAt = null;
@@ -43,7 +40,7 @@ public class PopularAlbum {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof PopularAlbum album) {
+        if (obj instanceof NewAlbum album) {
             return album.getGenreId().equals(genreId) && album.getCreatedAt().equals(createdAt);
         }
         return false;

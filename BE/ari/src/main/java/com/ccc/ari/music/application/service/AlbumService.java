@@ -39,4 +39,46 @@ public class AlbumService {
                 .map(AlbumMapper::toDto)
                 .collect(Collectors.toList());
     }
+
+    // 최신 앨범 10개 조회
+    public List<AlbumEntity> getTop10ByReleasedAt(){
+        List<AlbumEntity> list = jpaAlbumRepository.findTop10ByOrderByReleasedAtDesc();
+
+        return list;
+    }
+
+    // 장르별 최신 앨범 10개 조회
+    public List<AlbumEntity> getTop10NewAlbumsByGenre(Integer genreId) {
+        List<AlbumEntity> list = jpaAlbumRepository.findTop10ByGenre_GenreIdOrderByReleasedAtDesc(genreId);
+        return list;
+    }
+
+    // 장르별 인기 앨범 5개
+    public List<AlbumEntity> getTop5AlbumsByEachGenre(Integer genreId) {
+
+        List<AlbumEntity> topAlbums = jpaAlbumRepository.findTop5ByGenre_GenreIdOrderByAlbumLikeCountDesc(genreId);
+
+        return topAlbums;
+    }
+
+    //전체 인기 앨범 10개
+    public List<AlbumEntity> getTop10Album(){
+
+        return jpaAlbumRepository.findTop10ByOrderByAlbumLikeCountDesc();
+    }
+
+    public void increaseAlbumLikeCount(Integer albumId){
+        AlbumEntity album = jpaAlbumRepository.findById(albumId)
+                .orElseThrow(() -> new ApiException(ErrorCode.MUSIC_FILE_NOT_FOUND));
+
+        album.increaseLikeCount();
+    }
+
+    public void decreaseAlbumLikeCount(Integer albumId){
+        AlbumEntity album = jpaAlbumRepository.findById(albumId)
+                .orElseThrow(() -> new ApiException(ErrorCode.MUSIC_FILE_NOT_FOUND));
+
+        album.decreaseLikeCount();
+    }
+
 }

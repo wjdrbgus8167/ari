@@ -62,4 +62,11 @@ public class PlaylistClientImpl implements PlaylistClient {
         return jpaPlaylistRepository.findById(playlistId)
                 .orElseThrow(() -> new ApiException(ErrorCode.PLAYLIST_NOT_FOUND));
     }
+
+    // 플레이리스트 공유 수 가장 높은 5개
+    @Override
+    public List<PlaylistEntity> getTop5MostSharedPlaylists() {
+
+        return jpaPlaylistRepository.findTop5ByPublicYnTrueOrderByShareCountDesc();
+    }
 }

@@ -1,5 +1,6 @@
 package com.ccc.ari.playlist.domain.playlist;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -12,6 +13,7 @@ public class Playlist {
     private String playListTitle;
     private Integer memberId;
     private boolean publicYn;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
     private Integer shareCount;
 

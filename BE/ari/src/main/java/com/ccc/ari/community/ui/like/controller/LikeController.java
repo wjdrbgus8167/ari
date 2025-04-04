@@ -19,33 +19,6 @@ public class LikeController {
 
     private final LikeService likeService;
 
-    @PostMapping("/{albumId}/likes")
-    public ApiUtils.ApiResponse<Void> updateAlbumLike(
-            @PathVariable Integer albumId,
-            @RequestBody LikeRequest request,
-            @AuthenticationPrincipal MemberUserDetails userDetails) {
-
-        Integer memberId = userDetails.getMemberId();
-        LikeCommand command = request.toCommand(albumId, memberId);
-        likeService.updateAlbumLike(command);
-
-        return ApiUtils.success(null);
-    }
-
-    @PostMapping("/{albumId}/tracks/{trackId}/likes")
-    public ApiUtils.ApiResponse<Void> updateTrackLike(
-            @PathVariable Integer albumId,
-            @PathVariable Integer trackId,
-            @RequestBody LikeRequest request,
-            @AuthenticationPrincipal MemberUserDetails userDetails) {
-
-        Integer memberId = userDetails.getMemberId();
-        LikeCommand command = request.toCommand(trackId, memberId);
-        likeService.updateTrackLike(command);
-
-        return ApiUtils.success(null);
-    }
-
     @GetMapping("/tracks/{trackId}/likes/status")
     public ApiUtils.ApiResponse<LikeStatusResponse> getTrackLikeStatus(
             @PathVariable Integer trackId,

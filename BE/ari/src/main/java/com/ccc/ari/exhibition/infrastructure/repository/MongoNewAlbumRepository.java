@@ -1,7 +1,7 @@
 package com.ccc.ari.exhibition.infrastructure.repository;
 
 import com.ccc.ari.exhibition.application.repository.PopularItemRepository;
-import com.ccc.ari.exhibition.domain.entity.PopularAlbum;
+import com.ccc.ari.exhibition.domain.entity.NewAlbum;
 import com.ccc.ari.exhibition.domain.vo.AlbumEntry;
 import com.ccc.ari.exhibition.infrastructure.entity.MongoPopularItem;
 import lombok.RequiredArgsConstructor;
@@ -16,14 +16,14 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class MongoPopularAlbumRepository implements PopularItemRepository<PopularAlbum> {
+public class MongoNewAlbumRepository implements PopularItemRepository<NewAlbum> {
 
-    private static final String ITEM_TYPE = "ALBUM";
+    private static final String ITEM_TYPE = "NEW_ALBUM";
     private final MongoTemplate mongoTemplate;
 
     @Override
-    public void save(PopularAlbum album) {
-        List<MongoPopularItem.MongoPopularEntry> entries = album.getEntries().stream()
+    public void save(NewAlbum newAlbum) {
+        List<MongoPopularItem.MongoPopularEntry> entries = newAlbum.getEntries().stream()
                 .map(entry -> MongoPopularItem.MongoPopularEntry.builder()
                         .itemId(entry.getAlbumId())
                         .count(entry.getStreamCount())
@@ -32,8 +32,8 @@ public class MongoPopularAlbumRepository implements PopularItemRepository<Popula
 
         MongoPopularItem mongoItem = MongoPopularItem.builder()
                 .itemType(ITEM_TYPE)
-                .genreId(album.getGenreId())
-                .createdAt(album.getCreatedAt())
+                .genreId(newAlbum.getGenreId())
+                .createdAt(newAlbum.getCreatedAt())
                 .entries(entries)
                 .build();
 
@@ -41,7 +41,7 @@ public class MongoPopularAlbumRepository implements PopularItemRepository<Popula
     }
 
     @Override
-    public Optional<PopularAlbum> findLatestPopularItem(Integer genreId) {
+    public Optional<NewAlbum> findLatestPopularItem(Integer genreId) {
         Query query = Query.query(Criteria.where("itemType").is(ITEM_TYPE));
 
         if (genreId == null) {
@@ -50,8 +50,7 @@ public class MongoPopularAlbumRepository implements PopularItemRepository<Popula
             query.addCriteria(Criteria.where("genreId").is(genreId));
         }
 
-        query.with(Sort.by(Sort.Direction.DESC, "createdAt"));
-        query.limit(1);
+        query.with(Sort.by(Sort.Direction.DESC, "createdAt")).limit(1);
 
         MongoPopularItem mongoItem = mongoTemplate.findOne(query, MongoPopularItem.class, "exhibitions");
 
@@ -59,7 +58,7 @@ public class MongoPopularAlbumRepository implements PopularItemRepository<Popula
                 .map(this::toDomainEntity);
     }
 
-    private PopularAlbum toDomainEntity(MongoPopularItem mongoItem) {
+    private NewAlbum toDomainEntity(MongoPopularItem mongoItem) {
         List<AlbumEntry> entries = mongoItem.getEntries().stream()
                 .map(entry -> AlbumEntry.builder()
                         .albumId(entry.getItemId())
@@ -67,7 +66,7 @@ public class MongoPopularAlbumRepository implements PopularItemRepository<Popula
                         .build())
                 .toList();
 
-        return PopularAlbum.builder()
+        return NewAlbum.builder()
                 .genreId(mongoItem.getGenreId())
                 .entries(entries)
                 .createdAt(mongoItem.getCreatedAt())

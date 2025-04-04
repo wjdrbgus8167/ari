@@ -3,9 +3,13 @@ package com.ccc.ari.playlist.ui.controller;
 
 import com.ccc.ari.global.security.MemberUserDetails;
 import com.ccc.ari.global.util.ApiUtils;
+import com.ccc.ari.music.mapper.AlbumMapper;
 import com.ccc.ari.playlist.application.command.*;
 import com.ccc.ari.playlist.application.service.PlaylistService;
 import com.ccc.ari.playlist.application.service.integration.GetPublicPlaylistService;
+import com.ccc.ari.playlist.domain.playlist.Playlist;
+import com.ccc.ari.playlist.domain.playlist.PlaylistEntity;
+import com.ccc.ari.playlist.mapper.PlaylistMapper;
 import com.ccc.ari.playlist.ui.request.CreatePlaylistRequest;
 import com.ccc.ari.playlist.ui.request.SetPlaylistPublicRequest;
 import com.ccc.ari.playlist.ui.response.CreatePlaylistResponse;
@@ -15,6 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/api/v1/playlists")
 @RequiredArgsConstructor
@@ -23,6 +30,7 @@ public class PlaylistController {
 
     private final PlaylistService playlistService;
     private final GetPublicPlaylistService getPublicPlaylistService;
+    private final PlaylistMapper playlistMapper;
     // 플레이리스트 생성
     @PostMapping
     public ApiUtils.ApiResponse<CreatePlaylistResponse> createPlaylist(
@@ -68,5 +76,15 @@ public class PlaylistController {
         GetPublicPlaylistResponse response = getPublicPlaylistService.getPublicPlaylist();
 
         return ApiUtils.success(response);
+    }
+
+    @GetMapping("/most-shared")
+    public ApiUtils.ApiResponse<List<Playlist>> getMostSharedPlaylists(){
+
+        List<PlaylistEntity> list = playlistService.getTop5MostSharedPlaylists();
+
+        return ApiUtils.success(list.stream()
+                .map(playlistMapper::toDto)
+                .collect(Collectors.toList()));
     }
 }

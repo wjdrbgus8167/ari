@@ -67,6 +67,9 @@ public enum ErrorCode {
     POPULAR_GENRE_ALBUM_NOT_FOUND(HttpStatus.NOT_FOUND, "E002", "장르별 인기 앨범을 조회하는데 실패했습니다."),
     POPULAR_ALL_TRACK_NOT_FOUND(HttpStatus.NOT_FOUND, "E003", "인기 트랙을 조회하는데 실패했습니다."),
     POPULAR_GENRE_TRACK_NOT_FOUND(HttpStatus.NOT_FOUND, "E004", "장르별 인기 트랙을 조회하는데 실패했습니다."),
+    POPULAR_PLAYLIST_NOT_FOUND(HttpStatus.NOT_FOUND, "E005", "인기 플레이리스트를 조회하는데 실패했습니다."),
+    NEW_ALL_ALBUM_NOT_FOUND(HttpStatus.NOT_FOUND, "E006", "최신 앨범을 조회하는데 실패했습니다."),
+    NEW_GENRE_ALBUM_NOT_FOUND(HttpStatus.NOT_FOUND, "E007", "장르별 최신 앨범을 조회하는데 실패했습니다."),
 
     GENRE_NOT_FOUND(HttpStatus.NOT_FOUND,"G001","존재하지 않는 장르입니다."),
 
