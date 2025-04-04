@@ -47,8 +47,8 @@ class HomeViewModel extends StateNotifier<HomeState> {
               artist: chart.artist,
               composer: '', // 필요한 경우 적절한 값으로 대체
               lyricist: '', // 필요한 경우 적절한 값으로 대체
-              albumId: 0, // 필요한 경우 적절한 값으로 대체
-              trackFileUrl: '', // 필요한 경우 적절한 값으로 대체
+              albumId: chart.albumId, // 필요한 경우 적절한 값으로 대체
+              trackFileUrl: chart.trackFileUrl, // 필요한 경우 적절한 값으로 대체
               lyrics: '', // 필요한 경우 적절한 값으로 대체
               trackLikeCount: 0, // 기본값 설정
               coverUrl: chart.coverImageUrl, // ChartItem의 coverImageUrl 사용

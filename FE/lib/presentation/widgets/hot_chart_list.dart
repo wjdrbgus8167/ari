@@ -168,7 +168,7 @@ class _ChartItem extends ConsumerWidget {
                           track.coverUrl ??
                           'assets/images/default_album_cover.png',
                       lyrics: track.lyrics,
-                      trackId: track.id, // 모델에 따라 track.id 또는 track.trackId
+                      trackId: track.id,
                       albumId: track.albumId,
                       isLiked: false,
                     );

@@ -2,6 +2,7 @@
 
 class ChartItem {
   final int trackId;
+  final int albumId;
   final String trackTitle;
   final String artist;
   final String coverImageUrl;
@@ -10,6 +11,7 @@ class ChartItem {
 
   ChartItem({
     required this.trackId,
+    required this.albumId,
     required this.trackTitle,
     required this.artist,
     required this.coverImageUrl,
@@ -21,6 +23,7 @@ class ChartItem {
   factory ChartItem.fromJson(Map<String, dynamic> json) {
     return ChartItem(
       trackId: json['trackId'],
+      albumId: json['albumId'],
       trackTitle: json['trackTitle'],
       artist: json['artist'],
       coverImageUrl: json['coverImageUrl'],
