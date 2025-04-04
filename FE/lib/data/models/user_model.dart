@@ -1,3 +1,4 @@
+import 'package:ari/domain/entities/profile.dart';
 import 'package:ari/domain/entities/user.dart';
 
 /// JWT 토큰에서 파싱한 정보를 저장, 관리
@@ -57,6 +58,16 @@ class UserModel extends User {
       nickname: user.nickname,
       password: user.password,
       profileImageUrl: user.profileImageUrl,
+    );
+  }
+
+  factory UserModel.fromProfileAndEmail(Profile profile, String email) {
+    return UserModel(
+      id: profile.memberId.toString(),
+      email: email,
+      nickname: profile.nickname,
+      password: '',
+      profileImageUrl: profile.profileImageUrl,
     );
   }
 
