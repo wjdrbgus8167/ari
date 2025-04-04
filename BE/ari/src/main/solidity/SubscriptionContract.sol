@@ -82,7 +82,8 @@ contract SubscriptionContract is Ownable, AutomationCompatibleInterface {
     event RegularSubscriptionCancelled(uint256 userId);
     event ArtistSubscriptionCreated(uint256 subscriberId, uint256 artistId, uint256 amount, uint256 interval);
     event ArtistSubscriptionCancelled(uint256 subscriberId, uint256 artistId);
-    event PaymentProcessed(uint256 userId, address tokenAddress, uint256 amount, string subscriptionType);
+    event PaymentProcessedRegular(uint256 userId, address tokenAddress, uint256 amount);
+    event PaymentProcessedArtist(uint256 userId, uint256 artistId, address tokenAddress, uint256 amount);
     event UserRegistered(uint256 userId, address userAddress);
     event ArtistRegistered(uint256 artistId, address artistAddress);
     event SubscriptionSettingsUpdated(uint256 regularAmount, uint256 regularInterval, uint256 artistAmount, uint256 artistInterval, address tokenAddress);
@@ -255,7 +256,7 @@ contract SubscriptionContract is Ownable, AutomationCompatibleInterface {
 
         if (transferSuccess) {
             sub.lastPaymentTime = block.timestamp;
-            emit PaymentProcessed(userId, sub.tokenAddress, sub.amount, "regular");
+            emit PaymentProcessedRegular(userId, sub.tokenAddress, sub.amount);
             return true;
         } else {
             // 결제 실패 시 구독 취소 처리
@@ -288,7 +289,7 @@ contract SubscriptionContract is Ownable, AutomationCompatibleInterface {
 
         if (transferSuccess) {
             sub.lastPaymentTime = block.timestamp;
-            emit PaymentProcessed(subscriberId, sub.tokenAddress, sub.amount, "artist");
+            emit PaymentProcessedArtist(subscriberId, artistId, sub.tokenAddress, sub.amount);
             return true;
         } else {
             // 결제 실패 시 구독 취소 처리
