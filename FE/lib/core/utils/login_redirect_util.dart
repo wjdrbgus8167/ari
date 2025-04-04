@@ -4,6 +4,7 @@ import 'package:ari/presentation/routes/app_router.dart';
 import 'package:ari/presentation/widgets/common/custom_dialog.dart';
 import 'package:ari/providers/auth/auth_providers.dart';
 import 'package:ari/providers/user_provider.dart';
+import 'package:ari/core/constants/app_colors.dart';
 
 /// 로그인 상태를 확인하고 로그인이 필요한 경우 다이얼로그를 표시한 후
 /// 로그인 화면으로 이동시키는 유틸리티 함수
@@ -40,7 +41,11 @@ Future<bool> checkLoginAndRedirect(
     content: '이 기능을 사용하려면 로그인이 필요합니다.',
     confirmText: '로그인',
     cancelText: '취소',
-    confirmButtonColor: Colors.blue,
+    confirmButtonColor: AppColors.mediumPurple,
+    // confirmButtonGradient: AppColors.purpleGradientVertical,
+    cancelButtonColor: Colors.black38,
+    // cancelButtonColor: Colors.grey,
+    borderRadius: 20.0,
   );
 
   // 로그인 버튼 클릭 시 로그인 화면으로 이동
