@@ -24,9 +24,6 @@ import java.util.stream.Collectors;
 public class PlaylistService {
 
     private final JpaPlaylistRepository jpaPlaylistRepository;
-    private final TrackClient trackClient;
-    private final PlaylistTrackClient playlistTrackClient;
-    private final MemberClient memberClient;
     private final PlaylistMapper playlistMapper;
 
     // 플레이리스트 생성
@@ -68,5 +65,10 @@ public class PlaylistService {
         return list.stream()
                 .map(playlistMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    public List<PlaylistEntity> getTop5MostSharedPlaylists() {
+
+        return jpaPlaylistRepository.findTop5ByOrderByShareCountDesc();
     }
 }

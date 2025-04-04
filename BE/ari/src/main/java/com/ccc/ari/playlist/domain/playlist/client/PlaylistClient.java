@@ -13,4 +13,7 @@ public interface PlaylistClient {
     void savePlaylist(PlaylistEntity playlist);
     void deletePlaylist(Integer playlistId);
     PlaylistEntity getPlaylistDetailById(Integer playlistId);
+
+    // 가장 많이 공유된 플레이리스트 5개
+    List<PlaylistEntity> getTop5MostSharedPlaylists();
 }
