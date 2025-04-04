@@ -6,12 +6,18 @@
 // 인증 상태가 변경될 때 사용자 정보도 자동으로 업데이트/삭제
 
 import 'dart:convert';
+import 'package:ari/data/datasources/api_client.dart';
+import 'package:ari/data/datasources/user/profile_remote_data_source.dart';
+import 'package:ari/data/repositories/user_repository.dart';
+import 'package:ari/domain/repositories/user/user_repository.dart';
+import 'package:ari/domain/usecases/user/user_usecase.dart';
+import 'package:ari/providers/global_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:ari/core/utils/jwt_utils.dart';
 import 'package:ari/data/models/user_model.dart';
 import 'package:ari/domain/entities/user.dart';
-import 'package:ari/domain/usecases/auth_usecase.dart';
+import 'package:ari/domain/usecases/auth/auth_usecase.dart';
 import 'package:ari/providers/auth/auth_providers.dart';
 
 /// 사용자 정보 저장 키
@@ -225,3 +231,7 @@ final authUserIdProvider = Provider<String>((ref) {
     error: (_, __) => "",
   );
 });
+
+final userRemoteDataSourceProvider = Provider<UserRemoteDataSource>((ref) => UserRemoteDataSourceImpl(apiClient: ref.read(apiClientProvider)));
+final userRepositoryProvider = Provider<UserRepository>((ref) => UserRepositoryImpl(dataSource: ref.read(userRemoteDataSourceProvider)));
+final getUserProfileUseCaseProvider = Provider((ref) => GetUserProfileUseCase(ref.read(userRepositoryProvider)));

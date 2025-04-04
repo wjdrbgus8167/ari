@@ -2,7 +2,7 @@
 
 import 'package:dio/dio.dart';
 import '../../../core/exceptions/failure.dart';
-import '../../../domain/usecases/auth_usecase.dart';
+import '../../../domain/usecases/auth/auth_usecase.dart';
 import '../../models/api_response.dart';
 import '../../models/my_channel/artist_notice.dart';
 import 'artist_notice_remote_datasource.dart';
