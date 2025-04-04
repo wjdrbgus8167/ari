@@ -71,27 +71,10 @@ class LoginViewModel extends StateNotifier<LoginState> {
 
     state = state.copyWith(isLoading: true, errorMessage: null);
     await authStateNotifier.login(state.email, state.password);
-
     state = state.copyWith(isLoading: false);
     await authStateNotifier.refreshAuthState(); 
-    
+    await ref.read(userProvider.notifier).refreshUserInfo();
 
-     // 로그인 성공 후 사용자 프로필 정보 요청
-    final userProfileUseCase = ref.read(getUserProfileUseCaseProvider);
-    final profileResult = await userProfileUseCase();
-    
-    profileResult.fold(
-      (failure) {
-        // 프로필 정보 가져오기 실패 시 로그만 남김
-        print('사용자 프로필 정보 가져오기 실패: ${failure.message}');
-      },
-      (profile) {
-        // 프로필 정보 가져오기 성공 - userProvider 갱신 요청
-        ref.read(userProvider.notifier).refreshUserInfoFromProfile(profile, state.email);
-      }
-    );
-    
-    state = state.copyWith(isLoading: false);
     return true;
   }
 
