@@ -117,33 +117,27 @@ class MyChannelRemoteDataSourceImpl implements MyChannelRemoteDataSource {
   }
 
   /// 아티스트 앨범 목록 조회
-  @override
-  Future<List<ArtistAlbum>> getArtistAlbums(String memberId) async {
-    return _request<List<ArtistAlbum>>(
-      url: '/api/v1/artists/$memberId/albums',
-      method: 'GET',
-      fromJson: (data) {
-        // API 응답에서 앨범 배열을 직접 파싱
-        // 여기서 data는 이미 ApiResponse의 data 필드 값
-        if (data is List) {
-          // 이미 List 형태로 넘어온 경우
-          return data
-              .map((albumJson) => ArtistAlbum.fromJson(albumJson))
-              .toList();
-        } else if (data is Map && data.containsKey('albums')) {
-          // 'albums' 키가 있는 경우 (API 응답 구조가 변경될 수 있음)
-          final albumsList = data['albums'] as List<dynamic>;
-          return albumsList
-              .map((albumJson) => ArtistAlbum.fromJson(albumJson))
-              .toList();
-        } else {
-          // 빈 리스트 반환
-          print('❌ 예상치 못한 API 응답 형식: $data');
-          return [];
-        }
-      },
-    );
-  }
+@override
+Future<List<ArtistAlbum>> getArtistAlbums(String memberId) async {
+  return _request<List<ArtistAlbum>>(
+    url: '/api/v1/artists/$memberId/albums',
+    method: 'GET',
+    fromJson: (data) {
+      // 디버깅을 위한 로그 출력
+      print('📢 앨범 데이터 타입: ${data.runtimeType}, 데이터: $data');
+      
+      // API 응답에서 앨범 배열을 직접 파싱
+      if (data is List) {
+        // 이미 List 형태로 넘어온 경우
+        return data.map((albumJson) => ArtistAlbum.fromJson(albumJson)).toList();
+      } else {
+        // 빈 리스트 반환
+        print('❌ 예상치 못한 API 응답 형식: $data');
+        return [];
+      }
+    },
+  );
+}
 
   /// 아티스트 공지사항 조회
   @override
