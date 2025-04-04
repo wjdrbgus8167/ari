@@ -9,7 +9,9 @@ import com.ccc.ari.music.mapper.AlbumMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,4 +41,27 @@ public class AlbumService {
                 .map(AlbumMapper::toDto)
                 .collect(Collectors.toList());
     }
+
+    // 최신 앨범 10개 조회
+    public List<AlbumEntity> getTop10ByReleasedAt(){
+        List<AlbumEntity> list = jpaAlbumRepository.findTop10ByOrderByReleasedAtDesc();
+
+        return list;
+    }
+
+    // 장르별 인기 앨범 5개
+    public List<AlbumEntity> getTop5AlbumsByEachGenre(Integer genreId) {
+
+        List<AlbumEntity> topAlbums = jpaAlbumRepository.findTop5ByGenre_GenreIdOrderByAlbumLikeCountDesc(genreId);
+
+        return topAlbums;
+    }
+
+    //전체 인기 앨범 10개
+    public List<AlbumEntity> getTop10Album(){
+
+        return jpaAlbumRepository.findTop10ByOrderByAlbumLikeCountDesc();
+    }
+
+
 }
