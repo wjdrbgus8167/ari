@@ -1,10 +1,7 @@
-// lib/presentation/pages/my_channel/my_channel_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/my_channel/my_channel_providers.dart';
 import '../../../providers/user_provider.dart';
-import '../../../providers/auth/auth_providers.dart';
-import '../../../presentation/routes/app_router.dart';
 import '../../widgets/my_channel/profile_header.dart';
 import '../../widgets/my_channel/badge_list.dart';
 import '../../widgets/my_channel/artist_album_section.dart';
@@ -16,7 +13,6 @@ import '../../widgets/test/jwt_user_test_widget.dart';
 
 /// 나의 채널 화면
 /// 사용자 프로필, 뱃지, (앨범, 공지사항, 팬톡), 플레이리스트, 이웃 정보 표시
-/// 로그인이 필요한 화면으로, 로그인되지 않은 사용자에게는 로그인 다이얼로그 표시
 class MyChannelScreen extends ConsumerStatefulWidget {
   final String? memberId; // null이면 내 채널 표시
 
@@ -36,12 +32,6 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
   // JWT 테스트용 상태
   bool _showJwtTest = true; // 테스트 완료 후 false로 위젯 숨기기
 
-  // 페이지 초기화 상태
-  bool _initialized = false;
-
-  // 로그인 다이얼로그 표시 여부
-  bool _shouldShowLoginDialog = false;
-
   @override
   void initState() {
     super.initState();
@@ -49,38 +39,15 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
     // 초기 설정
     _isMyProfile = widget.memberId == null;
 
-    // 페이지 로드 후 (첫 렌더링 후) 로그인 체크 수행
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeScreen();
+    // 위젯 빌드 완료 후 데이터 로드 요청
+    Future.microtask(() {
+      _updateUserIdFromToken();
     });
   }
 
-  // 화면 초기화 및 로그인 체크
-  void _initializeScreen() {
-    if (_initialized) return;
-    _initialized = true;
-
-    // 로그인 여부 확인
-    final authState = ref.read(authStateProvider);
-    bool isLoggedIn = false;
-
-    authState.whenData((value) {
-      isLoggedIn = value;
-    });
-
-    // 내 채널 보기이고 로그인이 필요한 경우
-    if (widget.memberId == null && !isLoggedIn) {
-      setState(() {
-        _shouldShowLoginDialog = true;
-      });
-    } else {
-      // 로그인 되어 있거나 특정 사용자 채널 보기인 경우 데이터 로드
-      _loadChannelData();
-    }
-  }
-
-  // 채널 데이터 로드
-  void _loadChannelData() {
+  // 토큰에서 사용자 ID 업데이트 및 데이터 로드
+  void _updateUserIdFromToken() {
+    // 로그인된 상태라면 토큰에서 사용자 ID 가져오기
     final userId = ref.read(userIdProvider);
 
     setState(() {
@@ -97,74 +64,20 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
       }
     });
 
-    // 데이터 로드 시작
+    // ID가 설정된 후 데이터 로드
     if (_currentUserId.isNotEmpty) {
-      ref.read(myChannelProvider.notifier).setLoadingState();
-      ref
-          .read(myChannelProvider.notifier)
-          .loadMyChannelData(_currentUserId, 'fantalk-channel-id');
+      // 위젯 빌드 완료 후 provider 상태 변경
+      Future.microtask(() {
+        // 상태를 로딩 상태로 직접 설정
+        ref.read(myChannelProvider.notifier).setLoadingState();
+        // 데이터 로드 시작
+        ref
+            .read(myChannelProvider.notifier)
+            .loadMyChannelData(_currentUserId, 'fantalk-channel-id');
+      });
+    } else {
+      print('사용자 ID가 설정되지 않았습니다. 채널 데이터를 로드할 수 없습니다.');
     }
-  }
-
-  // 로그인 다이얼로그 표시 (build 메서드의 일부로 처리)
-  Widget _buildLoginDialog() {
-    return Center(
-      child: Card(
-        color: Colors.white,
-        elevation: 8,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                '로그인 필요',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                '나의 채널을 보려면 로그인이 필요합니다.\n로그인 페이지로 이동하시겠습니까?',
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey,
-                      foregroundColor: Colors.white,
-                    ),
-                    onPressed: () {
-                      // 취소 버튼 - 홈 화면으로 이동
-                      Navigator.of(
-                        context,
-                      ).pushReplacementNamed(AppRoutes.home);
-                    },
-                    child: const Text('취소'),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                    ),
-                    onPressed: () {
-                      // 로그인 화면으로 이동
-                      Navigator.of(context).pushNamed(
-                        AppRoutes.login,
-                        arguments: {'redirectRoute': AppRoutes.myChannel},
-                      );
-                    },
-                    child: const Text('로그인하기'),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   @override
@@ -173,26 +86,25 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
     super.dispose();
   }
 
+  /// 나의 채널 데이터 로드 (새로고침용)
+  void _loadMyChannelData() {
+    if (_currentUserId.isNotEmpty) {
+      // 위젯 빌드 완료 후 provider 상태 변경
+      Future.microtask(() {
+        // 상태를 로딩 상태로 직접 설정
+        ref.read(myChannelProvider.notifier).setLoadingState();
+        // 데이터 로드 시작
+        ref
+            .read(myChannelProvider.notifier)
+            .loadMyChannelData(_currentUserId, 'fantalk-channel-id');
+      });
+    } else {
+      print('사용자 ID가 설정되지 않았습니다. 채널 데이터를 로드할 수 없습니다.');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // 로그인 다이얼로그가 필요한 경우
-    if (_shouldShowLoginDialog) {
-      return PopScope(
-        canPop: false, // 뒤로가기 버튼 기본 동작 방지
-        onPopInvoked: (didPop) {
-          if (!didPop) {
-            // 뒤로가기 버튼 눌렀을 때 홈 화면으로 이동
-            Navigator.of(context).pushReplacementNamed(AppRoutes.home);
-          }
-        },
-        child: Scaffold(
-          backgroundColor: Colors.black.withOpacity(0.8),
-          body: _buildLoginDialog(),
-        ),
-      );
-    }
-
-    // 정상적인 채널 페이지 표시
     return Scaffold(
       backgroundColor: Colors.black,
       body: RefreshIndicator(
@@ -200,10 +112,11 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
         backgroundColor: Colors.grey[900],
         onRefresh: () async {
           // 당겨서 새로고침 시 데이터 다시 로드
-          _loadChannelData();
+          _loadMyChannelData();
 
           // JWT 사용자 정보도 새로고침
           await ref.read(userProvider.notifier).refreshUserInfo();
+          _updateUserIdFromToken();
         },
         child: SafeArea(
           child: CustomScrollView(

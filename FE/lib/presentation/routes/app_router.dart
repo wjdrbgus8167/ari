@@ -1,5 +1,3 @@
-import 'package:ari/presentation/pages/dashboard/artist_dashboard_screen.dart';
-import 'package:ari/presentation/pages/dashboard/my_album_stat_list.dart';
 import 'package:ari/presentation/pages/login/login_screen.dart';
 import 'package:ari/presentation/pages/sign_up/sign_up_screen.dart';
 import 'package:ari/presentation/pages/subscription/artist_selection_screen.dart';
@@ -40,8 +38,6 @@ class AppRoutes {
   static const String trackUpload = '/album-upload/add-track';
   static const String subscriptionSelect = '/subscription/select';
   static const String artistSelection = '/subscription/select/artist';
-  static const String artistDashboard = '/artist-dashboard';
-  static const String myAlbumStatList = '/artist-dashboard/my-album-stats';
 
   static final Set<String> _protectedRoutes = {
     myPage,
@@ -49,13 +45,11 @@ class AppRoutes {
     trackUpload,
     subscription,
     subscriptionPayment,
-    myChannel,
   };
 
   static bool requiresAuth(String? route) {
     return _protectedRoutes.contains(route);
   }
-
 }
 
 class AppRouter {
@@ -64,32 +58,53 @@ class AppRouter {
 
     switch (settings.name) {
       case AppRoutes.home:
-        return MaterialPageRoute(settings: settings, builder: (_) => const HomeScreen());
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const HomeScreen(),
+        );
 
       case AppRoutes.signUp:
-        return MaterialPageRoute(settings: settings, builder: (_) => const SignUpScreen());
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const SignUpScreen(),
+        );
 
       case AppRoutes.login:
-        return MaterialPageRoute(settings: settings, builder: (_) => const LoginScreen());
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const LoginScreen(),
+        );
 
       case AppRoutes.myPage:
-        return MaterialPageRoute(settings: settings, builder: (_) => const MyPageScreen());
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const MyPageScreen(),
+        );
 
       case AppRoutes.album:
         final albumId = args?['albumId'] as int? ?? 1;
         return MaterialPageRoute(
-          settings: settings, 
+          settings: settings,
           builder: (_) => AlbumDetailScreen(albumId: albumId),
         );
 
       // 앨범 업로드
       case AppRoutes.albumUpload:
-        return MaterialPageRoute(settings: settings, builder: (_) => const AlbumUploadScreen());
-      // 트랙 업로드 
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const AlbumUploadScreen(),
+        );
+      // 트랙 업로드
       case AppRoutes.trackUpload:
-        return MaterialPageRoute(settings: settings, builder: (_) => const TrackUploadScreen());
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const TrackUploadScreen(),
+        );
       case AppRoutes.listeningqueue:
-        return MaterialPageRoute(settings: settings, builder: (_) => const ListeningQueueScreen());
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const ListeningQueueScreen(),
+        );
 
       case AppRoutes.track:
         final albumId = args?['albumId'] as int? ?? 1;
@@ -111,34 +126,33 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const MySubscriptionScreen());
 
       case AppRoutes.subscriptionSelect:
-        return MaterialPageRoute(builder: (_) => const SubscriptionSelectScreen());
+        return MaterialPageRoute(
+          builder: (_) => const SubscriptionSelectScreen(),
+        );
 
       case AppRoutes.subscriptionPayment:
-        final subscriptionType = args?['subscriptionType'] as SubscriptionType? ?? SubscriptionType.regular;
+        final subscriptionType =
+            args?['subscriptionType'] as SubscriptionType? ??
+            SubscriptionType.regular;
         final artistInfo = args?['artistInfo'] as ArtistInfo?;
-        
+
         // artist 구독인데 artistInfo가 없으면 예외 처리
         if (subscriptionType == SubscriptionType.artist && artistInfo == null) {
           throw ArgumentError('Artist subscription requires artist info');
         }
-        
+
         return MaterialPageRoute(
-          builder: (_) => SubscriptionPaymentScreen(
-            subscriptionType: subscriptionType,
-            artistInfo: artistInfo,
-          ),
+          builder:
+              (_) => SubscriptionPaymentScreen(
+                subscriptionType: subscriptionType,
+                artistInfo: artistInfo,
+              ),
         );
-      
+
       case AppRoutes.artistSelection:
         return MaterialPageRoute(builder: (_) => const ArtistSelectionScreen());
 
-      case AppRoutes.artistDashboard:
-        return MaterialPageRoute(builder: (_) => const ArtistDashboardScreen());
-      
-      case AppRoutes.myAlbumStatList:
-        return MaterialPageRoute(builder: (_) => const MyTrackStatListScreen());
-
-      default:    
+      default:
         // 없는 경로는 홈으로 리다이렉트, 스낵바로 알림
         return MaterialPageRoute(
           builder: (context) {
@@ -193,38 +207,39 @@ class AppRouter {
             confirmButtonColor: Colors.blue,
             cancelButtonColor: Colors.grey,
             // onConfirm에서 로그인 화면으로 이동하지 않고, 단순히 true 반환
-            onConfirm: null,  // null을 전달하여 내부 동작만 실행하도록 함
+            onConfirm: null, // null을 전달하여 내부 동작만 실행하도록 함
             // onCancel도 null로 설정하여 내부 동작만 실행하도록 함
             onCancel: null,
           );
         },
       );
-      
+
       // 다이얼로그에서 확인 버튼을 눌렀다면 로그인 화면으로 이동
       if (result == true) {
         Navigator.of(context).pushNamed(AppRoutes.login);
-        return false;  // 로그인 화면으로 이동했으므로 원래 의도했던 라우트로는 이동하지 않음
+        return false; // 로그인 화면으로 이동했으므로 원래 의도했던 라우트로는 이동하지 않음
       }
-      
+
       // 취소했다면 현재 화면에 머무름
       return false;
     }
-    
+
     // 이미 로그인 된 경우
     return true;
   }
+
   // 앱 내에서 사용할 네비게이션 메서드
   static Future<void> navigateTo(
-    BuildContext context, 
-    WidgetRef ref, 
-    String routeName, 
-    [Map<String, dynamic>? args]
-  ) async {
+    BuildContext context,
+    WidgetRef ref,
+    String routeName, [
+    Map<String, dynamic>? args,
+  ]) async {
     // 현재 컨텍스트 저장
     currentContext = context;
-    
+
     final bool requiresAuth = AppRoutes.requiresAuth(routeName);
-    
+
     if (requiresAuth) {
       // 인증 체크 - 로그인 다이얼로그 표시 포함
       final canProceed = await checkAuth(context, ref);
@@ -233,7 +248,7 @@ class AppRouter {
         return;
       }
     }
-    
+
     // 인증 통과 또는 불필요 - 요청된 라우트로 이동
     if (args != null) {
       Navigator.of(context).pushNamed(routeName, arguments: args);
