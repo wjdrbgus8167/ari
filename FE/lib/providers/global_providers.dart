@@ -8,7 +8,6 @@ import 'package:ari/presentation/viewmodels/playlist/playlist_state.dart';
 import 'package:ari/presentation/viewmodels/playlist/playlist_viewmodel.dart';
 
 import 'package:ari/providers/auth/auth_providers.dart';
-import 'package:ari/providers/my_channel/my_channel_providers.dart';
 import 'package:ari/providers/user_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';

@@ -93,6 +93,7 @@ final signUpViewModelProvider =
 final loginViewModelProvider =
     StateNotifierProvider<LoginViewModel, LoginState>((ref) {
       return LoginViewModel(
+        ref: ref,
         loginUseCase: ref.read(loginUseCaseProvider),
         getUserProfileUseCase: ref.read(getUserProfileUseCaseProvider),
         saveTokensUseCase: ref.read(saveTokensUseCaseProvider),

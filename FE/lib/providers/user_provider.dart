@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'package:ari/data/datasources/api_client.dart';
 import 'package:ari/data/datasources/user/profile_remote_data_source.dart';
 import 'package:ari/data/repositories/user_repository.dart';
+import 'package:ari/domain/entities/profile.dart';
 import 'package:ari/domain/repositories/user/user_repository.dart';
 import 'package:ari/domain/usecases/user/user_usecase.dart';
 import 'package:ari/providers/global_providers.dart';
@@ -133,6 +134,38 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
     }
   }
 
+  /// JWT 토큰에서 사용자 정보 추출
+  Future<User?> saveUserFromProfile(Profile profile, String email) async {
+    try {
+      // mounted 체크 (상태 업데이트 전)
+      if (!mounted) return null;
+
+      state = const AsyncValue.loading();
+
+      // mounted 체크 (비동기 작업 후)
+      if (!mounted) return null;
+
+      // UserModel 생성
+      final user = UserModel.fromProfileAndEmail(profile, email);
+
+      // 추출한 정보 저장
+      await _saveUserToStorage(user);
+
+      // mounted 체크 (최종 상태 업데이트 전)
+      if (!mounted) return user;
+
+      state = AsyncValue.data(user);
+      return user;
+    } catch (e, stackTrace) {
+      print('사용자 정보 추출 오류: $e');
+      // mounted 체크 (오류 상태 업데이트 전)
+      if (mounted) {
+        state = AsyncValue.error(e, stackTrace);
+      }
+      return null;
+    }
+  }
+
   /// 사용자 정보를 로컬 스토리지에 저장
   Future<void> _saveUserToStorage(User user) async {
     try {
@@ -165,6 +198,14 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
 
     await extractUserFromToken();
   }
+
+    /// 사용자 정보 수동 새로고침
+  Future<void> refreshUserInfoFromProfile(Profile profile, String email) async {
+    // mounted 체크 (비동기 작업 시작 전)
+    if (!mounted) return;
+
+    await saveUserFromProfile(profile, email);
+  }
 }
 
 /// 앱 전체에서 현재 로그인된 사용자 정보에 접근 가능
@@ -193,6 +234,16 @@ final userEmailProvider = Provider<String?>((ref) {
   final userState = ref.watch(userProvider);
   return userState.when(
     data: (user) => user?.email,
+    loading: () => null,
+    error: (_, __) => null,
+  );
+});
+
+/// 사용자 닉네임 간편 접근
+final userNicknameProvider = Provider<String?>((ref) {
+  final userState = ref.watch(userProvider);
+  return userState.when(
+    data: (user) => user?.nickname,
     loading: () => null,
     error: (_, __) => null,
   );
@@ -231,6 +282,7 @@ final authUserIdProvider = Provider<String>((ref) {
     error: (_, __) => "",
   );
 });
+
 
 final userRemoteDataSourceProvider = Provider<UserRemoteDataSource>((ref) => UserRemoteDataSourceImpl(apiClient: ref.read(apiClientProvider)));
 final userRepositoryProvider = Provider<UserRepository>((ref) => UserRepositoryImpl(dataSource: ref.read(userRemoteDataSourceProvider)));
