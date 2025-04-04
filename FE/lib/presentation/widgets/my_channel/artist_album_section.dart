@@ -57,7 +57,7 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
       return const Center(
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 24),
-          child: CircularProgressIndicator(color: Colors.blue),
+          child: CircularProgressIndicator(color: AppColors.darkGreen),
         ),
       );
     }
@@ -171,9 +171,7 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
                     // color: AppColors.lightPurple.withValues(alpha: 0.15),  // 보라색
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: AppColors.mediumGreen.withValues(
-                        alpha: 0.3,
-                      ), // 초록색
+                      color: AppColors.darkGreen.withValues(alpha: 0.3), // 초록색
                       // color: AppColors.mediumPurple.withValues(alpha: 0.3),  // 보라색
                       width: 1,
                     ),
@@ -233,7 +231,7 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
       title: '나의 앨범',
       height: 220,
       itemWidth: 160,
-      itemSpacing: 12.0,
+      itemSpacing: 20.0,
       children:
           artistAlbums.map((album) => _buildAlbumItem(context, album)).toList(),
     );
@@ -261,9 +259,9 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.blue.withValues(alpha: 0.3),
-                  blurRadius: 5,
-                  offset: const Offset(0, 3),
+                  color: AppColors.mediumGreen,
+                  blurRadius: 3,
+                  offset: const Offset(0, 1.5),
                 ),
               ],
               image: DecorationImage(
