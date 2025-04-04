@@ -99,6 +99,7 @@ class LoginScreen extends ConsumerWidget {
               ),
 
             const SizedBox(height: 16),
+
             // 로그인 버튼
             ButtonLarge(
               text: loginState.isLoading ? '로그인 중...' : '로그인하기',
@@ -108,8 +109,8 @@ class LoginScreen extends ConsumerWidget {
                       : () async {
                         if (viewModel.validateInputs() &&
                             await viewModel.login()) {
-                          // 로그인 성공 시 홈 화면으로 이동
-                          Navigator.of(context).pushNamed(AppRoutes.home);
+                          // 로그인 성공 시 true 반환하고 화면 닫기
+                          Navigator.of(context).pop(true);
                         }
                       },
             ),
