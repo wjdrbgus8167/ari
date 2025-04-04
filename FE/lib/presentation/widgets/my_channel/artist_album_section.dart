@@ -269,13 +269,24 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
               image: DecorationImage(
                 image: NetworkImage(album.coverImageUrl),
                 fit: BoxFit.cover,
+                // 이미지 로드 실패 시 대체 이미지 표시
+                // errorBuilder: (context, error, stackTrace) {
+                //   return Container(
+                //     color: Colors.grey.withValues(alpha: 0.2),
+                //     child: const Icon(
+                //       Icons.broken_image,
+                //       color: Colors.white54,
+                //       size: 48,
+                //     ),
+                //   );
+                // },
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           // 앨범 제목
           SizedBox(
-            width: 160,
+            width: 158,
             child: Text(
               album.albumTitle,
               maxLines: 1,
@@ -290,7 +301,7 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
           const SizedBox(height: 2),
           // 아티스트 이름
           SizedBox(
-            width: 160,
+            width: 158,
             child: Text(
               album.artist,
               maxLines: 1,
