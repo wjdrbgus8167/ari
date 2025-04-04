@@ -1,6 +1,6 @@
 package com.ccc.ari.exhibition.infrastructure.repository;
 
-import com.ccc.ari.exhibition.application.repository.PopularMusicCacheRepository;
+import com.ccc.ari.exhibition.application.repository.PopularItemCacheRepository;
 import com.ccc.ari.exhibition.domain.entity.PopularAlbum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class RedisPopularAlbumCacheRepository implements PopularMusicCacheRepository<PopularAlbum> {
+public class RedisPopularAlbumCacheRepository implements PopularItemCacheRepository<PopularAlbum> {
 
     private static final String ALL_KEY = "popular:album:all";
     private static final String GENRE_KEY_PREFIX = "popular:album:genre:";
@@ -18,7 +18,7 @@ public class RedisPopularAlbumCacheRepository implements PopularMusicCacheReposi
     private final RedisTemplate<String, PopularAlbum> redisTemplate;
 
     @Override
-    public void cachePopularMusic(Integer genreId, PopularAlbum item) {
+    public void cachePopularItem(Integer genreId, PopularAlbum item) {
         if (genreId == null) {
             redisTemplate.opsForValue().set(ALL_KEY, item);
         } else {
@@ -27,7 +27,7 @@ public class RedisPopularAlbumCacheRepository implements PopularMusicCacheReposi
     }
 
     @Override
-    public Optional<PopularAlbum> getLatestPopularMusic(Integer genreId) {
+    public Optional<PopularAlbum> getLatestPopularItem(Integer genreId) {
         PopularAlbum album;
         if (genreId == null) {
             album = redisTemplate.opsForValue().get(ALL_KEY);

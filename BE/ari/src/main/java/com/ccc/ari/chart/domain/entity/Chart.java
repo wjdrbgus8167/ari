@@ -22,8 +22,8 @@ public class Chart {
 
     @Builder
     public Chart(Integer genreId, List<ChartEntry> entries, LocalDateTime createdAt) {
-        if (entries.size() > 50) {
-            throw new IllegalArgumentException("차트에는 최대 50개의 트랙만 포함될 수 있습니다.");
+        if (entries.size() > 20) {
+            throw new IllegalArgumentException("차트에는 최대 20개의 트랙만 포함될 수 있습니다.");
         }
 
         this.genreId = genreId;

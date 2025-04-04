@@ -1,9 +1,12 @@
 package com.ccc.ari.exhibition.domain.service;
 
 import com.ccc.ari.exhibition.domain.vo.AlbumEntry;
+import com.ccc.ari.exhibition.domain.vo.PlaylistEntry;
 import com.ccc.ari.exhibition.domain.vo.TrackEntry;
 import com.ccc.ari.music.domain.track.TrackDto;
 import com.ccc.ari.music.domain.track.client.TrackClient;
+import com.ccc.ari.playlist.domain.playlist.PlaylistEntity;
+import com.ccc.ari.playlist.domain.playlist.client.PlaylistClient;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +22,13 @@ import java.util.Map;
  */
 @Service
 @RequiredArgsConstructor
-public class PopularMusicSelectionService {
+public class PopularItemSelectionService {
 
-    private static final Logger logger = LoggerFactory.getLogger(PopularMusicSelectionService.class);
+    private static final Logger logger = LoggerFactory.getLogger(PopularItemSelectionService.class);
     private static final int MAX_POPULAR_ITEMS = 10;
 
     private final TrackClient trackClient;
+    private final PlaylistClient playlistClient;
 
     /**
      * 인기 트랙 10개를 선택합니다.
@@ -42,8 +46,7 @@ public class PopularMusicSelectionService {
         // TrackEntry 목록 생성
         List<TrackEntry> entries = new ArrayList<>();
 
-        for (int i = 0; i < sortedEntries.size(); i++) {
-            Map.Entry<Integer, Long> entry = sortedEntries.get(i);
+        for (Map.Entry<Integer, Long> entry : sortedEntries) {
             Integer trackId = entry.getKey();
             Long count = entry.getValue();
 
@@ -92,8 +95,7 @@ public class PopularMusicSelectionService {
         // AlbumRankEntry 목록 생성
         List<AlbumEntry> entries = new ArrayList<>();
 
-        for (int i = 0; i < sortedEntries.size(); i++) {
-            Map.Entry<Integer, Long> entry = sortedEntries.get(i);
+        for (Map.Entry<Integer, Long> entry : sortedEntries) {
             Integer albumId = entry.getKey();
             Long count = entry.getValue();
 
@@ -104,6 +106,27 @@ public class PopularMusicSelectionService {
         }
 
         logger.info("인기 앨범 {}개를 선택했습니다.", entries.size());
+        return entries;
+    }
+
+    /**
+     * 인기 플레이리스트 5개를 선택합니다.
+     *
+     * @return 인기 플레이리스트 엔트리
+     */
+    public List<PlaylistEntry> selectPopularPlaylists() {
+        List<PlaylistEntity> topPlaylists = playlistClient.getTop5MostSharedPlaylists();
+
+        List<PlaylistEntry> entries = new ArrayList<>();
+
+        for (PlaylistEntity playlist : topPlaylists) {
+            entries.add(PlaylistEntry.builder()
+                    .playlistId(playlist.getPlaylistId())
+                    .shareCount(playlist.getShareCount())
+                    .build());
+        }
+
+        logger.info("인기 플레이리스트 {}개를 선택했습니다.", entries.size());
         return entries;
     }
 }
