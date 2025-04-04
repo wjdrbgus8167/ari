@@ -14,8 +14,7 @@ import '../../pages/my_channel/my_channel_screen.dart';
 // 인덱스 2: 음악 서랍 화면 (임시 텍스트 표시)
 // 인덱스 3: 나의 채널 화면 (MyChannelScreen)
 
-/// 글로벌 하단 위젯과 탭별 화면 관리
-///
+/// 하단 내브바 위젯과 탭별 화면 관리
 /// 전체 앱의 공통 골격 제공, 하단 네비게이션 바와 재생 바를 포함
 class GlobalBottomWidget extends ConsumerWidget {
   final Widget child; // 각 페이지 콘텐츠 영역
@@ -29,7 +28,7 @@ class GlobalBottomWidget extends ConsumerWidget {
 
     // 탭 히스토리 변경 감지
     ref.listen(navigationHistoryProvider, (previous, current) {
-      // 히스토리가 변경되면 UI도 함께 업데이트하기 위해
+      // 히스토리가 변경되면 UI도 함께 업데이트 해야하므로
       // 선택된 탭 인덱스를 현재 히스토리의 마지막 항목으로 설정
       if (current.isNotEmpty && current.last != bottomIndex) {
         ref.read(bottomNavProvider.notifier).setIndex(current.last);
@@ -104,28 +103,25 @@ class GlobalBottomWidget extends ConsumerWidget {
             CommonBottomNav(
               currentIndex: bottomIndex,
               onTap: (index) async {
-                // 나의 채널 탭 선택 시 로그인 여부 확인
-                if (index == 3) {
-                  // 로그인 체크 및 필요시 다이얼로그 표시 후 로그인 화면으로 이동
+                // 로그인이 필요한 탭인지 확인 (음악 서랍, 나의 채널)
+                if (index == 2 || index == 3) {
+                  // 로그인 체크, 필요시 다이얼로그 표시 후 로그인 화면으로 이동
                   final isLoggedIn = await checkLoginAndRedirect(
                     context,
                     ref,
                     onLoginSuccess: () {
-                      // 로그인 성공하면 나의 채널 탭으로 이동
+                      // 로그인 성공하면 선택한 탭으로 이동
                       ref
                           .read(navigationHistoryProvider.notifier)
                           .addTab(index);
                     },
                   );
 
-                  // 로그인 되지 않았거나 취소한 경우 탭 변경 중단
+                  // 로그인 안 됐거나 취소한 경우 탭 변경 중단
                   if (!isLoggedIn) return;
                 } else {
-                  // 현재 인덱스와 선택한 인덱스가 같으면 해당 화면을 맨 위로 스크롤
-                  if (index == bottomIndex) {
-                    // TODO: 현재 화면 맨 위로 스크롤 처리
-                  } else {
-                    // 탭 변경 시 히스토리에 추가
+                  // 탭 변경하면 히스토리에 추가
+                  if (index != bottomIndex) {
                     ref.read(navigationHistoryProvider.notifier).addTab(index);
                   }
                 }
