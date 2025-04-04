@@ -38,6 +38,12 @@ public class AlbumClientImpl implements AlbumClient {
         return albumService.getTop10ByReleasedAt();
     }
 
+    // 장르별 최신 앨범 10개 조회
+    @Override
+    public List<AlbumEntity> getTop10ByReleasedAtAndGenre(Integer genreId) {
+        return albumService.getTop10NewAlbumsByGenre(genreId);
+    }
+
     // 장르별 인기 앨범 TOP5
     @Override
     public List<AlbumEntity> getTop5GenreAlbum(Integer genreId) {

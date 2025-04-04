@@ -13,6 +13,9 @@ public interface AlbumClient {
     // 최신 앨범 TOP10
     List<AlbumEntity> getTop10ByReleasedAt();
 
+    // 장르별 최신 앨범 TOP10
+    List<AlbumEntity> getTop10ByReleasedAtAndGenre(Integer genreId);
+
     // 장르별 TOP5
     List<AlbumEntity> getTop5GenreAlbum(Integer genreId);
 
