@@ -122,8 +122,9 @@ class MyChannelRemoteDataSourceImpl implements MyChannelRemoteDataSource {
     return _request<List<ArtistAlbum>>(
       url: '/api/v1/artists/$memberId/albums',
       method: 'GET',
-      fromJson: (data) {
-        final albumsList = data['albums'] as List<dynamic>? ?? [];
+      fromJson: (response) {
+        // print('📢 API 응답: $response');
+        final albumsList = response['data'] as List<dynamic>? ?? [];
         return albumsList
             .map((albumJson) => ArtistAlbum.fromJson(albumJson))
             .toList();
