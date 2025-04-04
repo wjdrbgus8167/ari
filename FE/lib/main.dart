@@ -12,6 +12,8 @@ void main() async {
   await Hive.initFlutter();
   // Hive 어댑터 등록 (Track 모델에 대한 TypeAdapter)
   Hive.registerAdapter(TrackAdapter());
+  //미리 로컬재생목록을 열음
+  await Hive.openBox<Track>('listening_queue_default');
 
   runApp(const ProviderScope(child: MyApp()));
 }

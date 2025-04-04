@@ -1,20 +1,28 @@
 import 'package:ari/data/models/playlist.dart' as data;
 import 'package:ari/domain/entities/playlist.dart' as domain;
-import 'package:ari/domain/entities/playlist_trackitem.dart'; // 추가
+import 'package:ari/data/mappers/playlist_trackitem_mapper.dart';
 
-domain.Playlist mapDataPlaylistToDomain(data.Playlist dataPlaylist) {
+//목록조회용 매퍼
+domain.Playlist toEntity(data.Playlist model) {
   return domain.Playlist(
-    id: dataPlaylist.playlistId,
-    title: dataPlaylist.playlistTitle,
-    isPublic: dataPlaylist.publicYn,
-    shareCount: dataPlaylist.shareCount,
+    id: model.id,
+    title: model.title,
+    isPublic: model.isPublic,
+    shareCount: model.shareCount,
+    trackCount: model.trackCount,
+    tracks: [],
+  );
+}
+
+// 상세조회용 매퍼퍼
+domain.Playlist toEntityForDetail(data.Playlist model) {
+  return domain.Playlist(
+    id: model.id,
+    title: model.title,
+    isPublic: model.isPublic,
+    shareCount: model.shareCount,
+    trackCount: model.trackCount,
     tracks:
-        dataPlaylist.tracks.map((track) {
-          return PlaylistTrackItem(
-            // 도메인 PlaylistTrackItem 사용
-            track: track.track,
-            trackOrder: track.trackOrder,
-          );
-        }).toList(),
+        model.tracks.map((trackModel) => toEntityTrack(trackModel)).toList(),
   );
 }

@@ -28,7 +28,6 @@ class PlaybackService {
       print('[DEBUG] playTrack: 응답 상태 코드: ${response.statusCode}');
       print('[DEBUG] playTrack: 응답 데이터: ${response.data}');
 
-      // ApiResponse를 이용해 JSON 파싱 (fromJsonT는 단순 Map<String, dynamic>로 처리)
       final apiResponse = ApiResponse<Map<String, dynamic>>.fromJson(
         response.data,
         (data) => data as Map<String, dynamic>,
@@ -46,10 +45,20 @@ class PlaybackService {
 
         // AudioService를 사용해 API에서 받은 trackFileUrl로 트랙을 처음부터 재생 시작
         final audioService = ref.read(audioServiceProvider);
-        await audioService.play(ref, trackFileUrl);
+        await audioService.play(
+          ref,
+          trackFileUrl,
+          title: title,
+          artist: artist,
+          coverImageUrl: coverImageUrl,
+          lyrics: lyrics,
+          trackId: trackId,
+          albumId: albumId,
+          isLiked: false,
+        );
         print('[DEBUG] playTrack: 재생 시작됨');
 
-        // PlaybackState 업데이트: 트랙 정보와 함께 currentTrackId(트랙 ID)와 trackUrl(트랙 파일 URL)을 저장
+        // PlaybackState 업데이트: 트랙 정보와 함께 currentTrackId와 trackUrl, albumId, isLiked 업데이트
         ref
             .read(playbackProvider.notifier)
             .updateTrackInfo(
@@ -58,10 +67,11 @@ class PlaybackService {
               coverImageUrl: coverImageUrl,
               lyrics: lyrics,
               currentTrackId: trackId,
+              albumId: albumId,
               trackUrl: trackFileUrl,
+              isLiked: false, // 임시 기본값
             );
 
-        // 새 도메인 Track 객체 생성 (composer, lyricist는 빈 문자열 리스트로 처리)
         final domain.Track trackObj = domain.Track(
           trackId: trackId,
           albumId: albumId,
@@ -79,7 +89,6 @@ class PlaybackService {
           trackLikeCount: 0,
         );
 
-        // 도메인 엔티티를 데이터 모델로 변환한 후 재생목록에 추가
         ref
             .read(lq.listeningQueueProvider.notifier)
             .trackPlayed(trackObj.toDataModel());

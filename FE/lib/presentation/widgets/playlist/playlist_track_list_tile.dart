@@ -1,7 +1,8 @@
 import 'package:ari/domain/entities/playlist_trackitem.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class PlaylistTrackListTile extends StatelessWidget {
+class PlaylistTrackListTile extends ConsumerWidget {
   final PlaylistTrackItem item;
   final bool isSelected;
   final bool selectionMode;
@@ -20,9 +21,7 @@ class PlaylistTrackListTile extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final track = item.track;
-
+  Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
       leading: Row(
         mainAxisSize: MainAxisSize.min,
@@ -39,8 +38,8 @@ class PlaylistTrackListTile extends StatelessWidget {
           const SizedBox(width: 8),
           ClipRRect(
             borderRadius: BorderRadius.circular(5),
-            child: Image.asset(
-              'assets/images/default_album_cover.png',
+            child: Image.network(
+              item.coverImageUrl, // 네트워크 이미지 사용
               width: 50,
               height: 50,
               fit: BoxFit.cover,
@@ -49,7 +48,7 @@ class PlaylistTrackListTile extends StatelessWidget {
         ],
       ),
       title: Text(
-        track.trackTitle,
+        item.trackTitle,
         style: const TextStyle(
           color: Colors.white,
           fontSize: 16,
@@ -57,10 +56,13 @@ class PlaylistTrackListTile extends StatelessWidget {
         ),
       ),
       subtitle: Text(
-        "${track.artistName}",
+        item.artist, // 이제 artist 필드 사용
         style: const TextStyle(color: Colors.white70),
       ),
-      trailing: const Icon(Icons.menu, color: Colors.white70),
+      trailing: IconButton(
+        icon: const Icon(Icons.menu, color: Colors.white70),
+        onPressed: onDelete,
+      ),
       onTap: onTap,
     );
   }

@@ -10,12 +10,36 @@ class AudioService {
   // 전체 재생 길이 스트림 제공
   Stream<Duration?> get onDurationChanged => audioPlayer.onDurationChanged;
 
-  /// api에서 받은 URL 사용해서 음원을 처음부터 재생, 재생 상태를 업데이트
-  Future<void> play(WidgetRef ref, String trackFileUrl) async {
+  /// API에서 받은 URL과 트랙 정보를 사용해 음원을 처음부터 재생하고, PlaybackState를 업데이트합니다.
+  Future<void> play(
+    WidgetRef ref,
+    String trackFileUrl, {
+    required String title,
+    required String artist,
+    required String coverImageUrl,
+    required String lyrics,
+    required int trackId,
+    required int albumId,
+    required bool isLiked,
+  }) async {
     print('[DEBUG] AudioService.play() 호출됨');
     try {
       await audioPlayer.play(UrlSource(trackFileUrl));
       print('[DEBUG] AudioService.play() 재생 시작됨');
+      // 현재 재생 트랙 정보를 PlaybackState에 업데이트
+      ref
+          .read(playbackProvider.notifier)
+          .updateTrackInfo(
+            trackTitle: title,
+            artist: artist,
+            coverImageUrl: coverImageUrl,
+            lyrics: lyrics,
+            currentTrackId: trackId,
+            albumId: albumId,
+            trackUrl: trackFileUrl,
+            isLiked: isLiked,
+          );
+      // 재생 상태 업데이트
       ref.read(playbackProvider.notifier).updatePlaybackState(true);
       print('[DEBUG] AudioService.play() 상태 업데이트 완료');
     } catch (e) {
@@ -52,18 +76,37 @@ class AudioService {
     }
   }
 
-  /// 재생 상태 토글 (재생 중이면 일시 정지, 아니면 재생/이어재생)
-  Future<void> togglePlay(WidgetRef ref, String trackFileUrl) async {
+  /// 재생 상태 토글: 재생 중이면 일시 정지, 아니면 재생/이어재생
+  Future<void> togglePlay(
+    WidgetRef ref,
+    String trackFileUrl, {
+    required String title,
+    required String artist,
+    required String coverImageUrl,
+    required String lyrics,
+    required int trackId,
+    required int albumId,
+    required bool isLiked,
+  }) async {
     final isPlaying = ref.read(playbackProvider).isPlaying;
     print('[DEBUG] AudioService.togglePlay() 호출됨, 현재 isPlaying: $isPlaying');
     if (isPlaying) {
       await pause(ref);
     } else {
-      // 만약 이미 재생했던 트랙(currentTrackId가 존재)이 있다면 이어서 재생
       if (ref.read(playbackProvider).currentTrackId != null) {
         await resume(ref);
       } else {
-        await play(ref, trackFileUrl);
+        await play(
+          ref,
+          trackFileUrl,
+          title: title,
+          artist: artist,
+          coverImageUrl: coverImageUrl,
+          lyrics: lyrics,
+          trackId: trackId,
+          albumId: albumId,
+          isLiked: isLiked,
+        );
       }
     }
     print(

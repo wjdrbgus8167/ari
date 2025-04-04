@@ -1,8 +1,11 @@
 class PlaylistCreateRequest {
   final String title;
-  // publicYn은 제거하거나 필요 시 별도의 필드로 추가
+  final bool publicYn;
 
-  PlaylistCreateRequest({required this.title});
+  PlaylistCreateRequest({required this.title, required this.publicYn});
 
-  Map<String, dynamic> toJson() => {'playlistTitle': title};
+  Map<String, dynamic> toJson() => {
+    'playlistTitle': title,
+    'publicYn': publicYn,
+  };
 }

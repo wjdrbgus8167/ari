@@ -18,8 +18,7 @@ class TrackListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      key: key,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 1),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       leading: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

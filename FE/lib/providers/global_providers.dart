@@ -4,6 +4,8 @@ import 'package:ari/data/datasources/playlist/playlist_remote_datasource.dart';
 import 'package:ari/data/datasources/playlist/playlist_remote_datasource_impl.dart';
 import 'package:ari/data/repositories/playlist_repository_impl.dart';
 import 'package:ari/domain/repositories/playlist_repository.dart';
+import 'package:ari/presentation/viewmodels/playlist/playlist_state.dart';
+import 'package:ari/presentation/viewmodels/playlist/playlist_viewmodel.dart';
 
 import 'package:ari/providers/auth/auth_providers.dart';
 import 'package:ari/providers/my_channel/my_channel_providers.dart';
@@ -28,8 +30,13 @@ import 'package:ari/core/constants/app_constants.dart';
 // final dioProvider = Provider<Dio>((ref) => Dio());
 
 // Bottom Navigation 전역 상태
+/// 하단 네비게이션 바 인덱스 provider
+/// 현재 선택된 탭 인덱스 관리
+/// 0: 홈, 1: 검색, 2: 음악 서랍, 3: 나의 채널
 class BottomNavState extends StateNotifier<int> {
-  BottomNavState() : super(0);
+  BottomNavState() : super(0); // 초기값은 홈 화면(0)
+
+  /// 현재 선택된 탭 인덱스 변경
   void setIndex(int index) {
     state = index;
   }
@@ -38,6 +45,7 @@ class BottomNavState extends StateNotifier<int> {
 final bottomNavProvider = StateNotifierProvider<BottomNavState, int>((ref) {
   return BottomNavState();
 });
+
 
 // 재생 상태 전역 관리
 class PlaybackState {
@@ -54,7 +62,7 @@ class PlaybackState {
   PlaybackState copyWith({String? currentTrackId, bool? isPlaying}) {
     return PlaybackState(
       currentTrackId: currentTrackId ?? this.currentTrackId,
-      trackTitle: this.trackTitle,
+      trackTitle: trackTitle,
       isPlaying: isPlaying ?? this.isPlaying,
     );
   }
@@ -153,6 +161,13 @@ final playlistRepositoryProvider = Provider<IPlaylistRepository>((ref) {
     remoteDataSource: ref.watch(playlistRemoteDataSourceProvider),
   );
 });
+
+final playlistViewModelProvider =
+    StateNotifierProvider<PlaylistViewModel, PlaylistState>((ref) {
+      return PlaylistViewModel(
+        playlistRepository: ref.watch(playlistRepositoryProvider),
+      );
+    });
 
 // ListeningQueueViewModel(재생목록) 전역 상태
 final listeningQueueProvider =

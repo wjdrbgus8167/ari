@@ -11,7 +11,7 @@ class PlaylistCard extends StatelessWidget {
     return MediaCard(
       //이미지는 추후 해당 플리 안 트랙 이미지로 변경
       imageUrl: 'assets/images/default_playlist_cover.png',
-      title: playlist.playlistTitle,
+      title: playlist.title,
       onTap: () {
         // 플레이리스트 상세 페이지로 이동하는 로직 구현
       },
