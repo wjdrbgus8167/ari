@@ -23,7 +23,7 @@ class LoginPrompt extends ConsumerWidget {
             );
           },
           child: Text(
-            nickname ?? '로그인해주세요 >',
+            '$nickname님 환영합니다.' ?? '로그인해주세요 >',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 20,
