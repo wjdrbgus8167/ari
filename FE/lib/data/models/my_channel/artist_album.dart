@@ -5,6 +5,10 @@ class ArtistAlbum {
   final String artist;
   final String coverImageUrl;
   final int trackCount;
+  final String description;
+  final String releasedAt;
+  final String genre;
+  final int memberId;
 
   ArtistAlbum({
     required this.albumId,
@@ -12,6 +16,10 @@ class ArtistAlbum {
     required this.artist,
     required this.coverImageUrl,
     required this.trackCount,
+    this.description = '',
+    this.releasedAt = '',
+    this.genre = '',
+    this.memberId = 0,
   });
 
   /// [json] API에서 받아온 JSON 맵
@@ -23,6 +31,10 @@ class ArtistAlbum {
       artist: json['artist'] ?? '',
       coverImageUrl: json['coverImageUrl'] ?? '',
       trackCount: json['trackCount'] ?? 0,
+      description: json['description'] ?? '',
+      releasedAt: json['releasedAt'] ?? '',
+      genre: json['genre'] ?? '',
+      memberId: json['memberId'] ?? 0,
     );
   }
 
@@ -35,6 +47,10 @@ class ArtistAlbum {
       'artist': artist,
       'coverImageUrl': coverImageUrl,
       'trackCount': trackCount,
+      'description': description,
+      'releasedAt': releasedAt,
+      'genre': genre,
+      'memberId': memberId,
     };
   }
 }
