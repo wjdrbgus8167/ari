@@ -184,7 +184,10 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
 
               // 아티스트 앨범 (아티스트인 경우에만 표시)
               SliverToBoxAdapter(
-                child: ArtistAlbumSection(memberId: _currentUserId),
+                child: ArtistAlbumSection(
+                  memberId: _currentUserId,
+                  isMyProfile: _isMyProfile,
+                ),
               ),
 
               // 아티스트 공지사항 (아티스트인 경우에만 표시)
