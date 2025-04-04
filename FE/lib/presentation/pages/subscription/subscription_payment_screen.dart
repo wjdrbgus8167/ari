@@ -8,6 +8,7 @@ import 'package:ari/presentation/widgets/subscription/payment/payment_agreement_
 import 'package:ari/presentation/widgets/subscription/payment/payment_info_section.dart';
 import 'package:ari/presentation/widgets/subscription/payment/wallet_widget.dart';
 import 'package:ari/providers/subscription/walletServiceProviders.dart';
+import 'package:ari/providers/user_provider.dart';
 // 새로운 StateNotifier Provider 임포트
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,7 +41,7 @@ class SubscriptionPaymentScreenState extends ConsumerState<SubscriptionPaymentSc
     super.initState();
     
     // 구독 타입에 따라 금액 설정
-    subscriptionAmount = widget.subscriptionType == SubscriptionType.regular ? "0.01" : "0.01";
+    subscriptionAmount = widget.subscriptionType == SubscriptionType.regular ? "1" : "1";
 
     // StateNotifier가 자동으로 WalletService의 상태를 감시하므로
     // 추가적인 설정이 필요 없습니다.
@@ -115,7 +116,7 @@ class SubscriptionPaymentScreenState extends ConsumerState<SubscriptionPaymentSc
     // 지원되는 네트워크인지 확인
     final chainId = walletService.appKitModal.selectedChain?.chainId;
     dev.log("[구독] 선택된 체인 ID: $chainId");
-    if (chainId == null || !walletService.linkTokenAddresses.containsKey('eip155:$chainId')) {
+    if (chainId == null || !walletService.linkTokenAddresses.containsKey(chainId)) {
       _showSnackBar('LINK 토큰이 지원되지 않는 네트워크입니다. Ethereum, Sepolia 또는 Polygon을 선택해주세요.');
       return;
     }
@@ -130,10 +131,17 @@ class SubscriptionPaymentScreenState extends ConsumerState<SubscriptionPaymentSc
       final String subscriptionContractAddress = walletService.getCurrentSubscriptionContractAddress();
       
       // 현재 사용자 ID 가져오기 (이 부분은 앱의 상태 관리나 API에서 가져와야 합니다)
-      final int userId = 1; // 예시 값, 실제로는 사용자 ID를 가져와야 함
-      dev.log(tokenAddress);
-      dev.log(subscriptionContractAddress);
-      
+      int userId;
+      try {
+        final String userIdString = ref.read(userIdProvider) ?? '1';
+        userId = int.parse(userIdString);
+        dev.log("[구독] 사용자 ID: $userId");
+      } catch (e) {
+        // 변환 실패 시 기본값 사용
+        userId = 1;
+        dev.log("[구독] 사용자 ID 변환 실패, 기본값 사용: $e");
+      }
+    
       // 1. 먼저 ERC20 토큰 승인
       dev.log("[구독] 토큰 승인 시작: 금액=$subscriptionAmount, 네트워크=eip155:$chainId");
       _showSnackBar('토큰 승인 진행 중...');
@@ -141,9 +149,8 @@ class SubscriptionPaymentScreenState extends ConsumerState<SubscriptionPaymentSc
       final approveResult = await walletService.approveERC20Token(
         tokenAddress: tokenAddress,
         spenderAddress: subscriptionContractAddress,
-        amount: subscriptionAmount,
+        amount: "20",
         tokenDecimals: SubscriptionConstants.linkTokenDecimals,
-        contractAbi: SubscriptionConstants.tokenApproveAbi,
         onComplete: (txHash, success, errorMessage) {
           dev.log("[구독] 토큰 승인 완료: 성공=$success, 해시=$txHash, 오류=$errorMessage");
           
