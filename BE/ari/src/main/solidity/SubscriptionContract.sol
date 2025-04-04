@@ -276,9 +276,6 @@ contract SubscriptionContract is Ownable, AutomationCompatibleInterface {
         uint256 nextPaymentTime = sub.lastPaymentTime + sub.interval;
         if (block.timestamp < nextPaymentTime) return false;
 
-        // 정산 요청 이벤트 발생
-        emit SettlementRequestedArtist(artistId, subscriberId, sub.lastPaymentTime, nextPaymentTime, sub.amount);
-
         IERC20 token = IERC20(sub.tokenAddress);
         // low-level call을 사용하여 transferFrom 호출
         (bool success, bytes memory data) = address(token).call(
@@ -289,6 +286,12 @@ contract SubscriptionContract is Ownable, AutomationCompatibleInterface {
 
         if (transferSuccess) {
             sub.lastPaymentTime = block.timestamp;
+            // 10%는 플랫폼(소유자), 90%는 아티스트로 분배
+            uint256 ownerShare = (sub.amount * 10) / 100;
+            uint256 artistShare = sub.amount - ownerShare;
+            token.safeTransfer(artistAddresses[artistId], artistShare);
+            token.safeTransfer(owner(), ownerShare);
+
             emit PaymentProcessedArtist(subscriberId, artistId, sub.tokenAddress, sub.amount);
             return true;
         } else {

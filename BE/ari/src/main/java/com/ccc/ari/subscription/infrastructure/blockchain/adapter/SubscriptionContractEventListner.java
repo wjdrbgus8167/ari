@@ -1,6 +1,7 @@
 package com.ccc.ari.subscription.infrastructure.blockchain.adapter;
 
 import com.ccc.ari.global.contract.SubscriptionContract;
+import com.ccc.ari.global.event.RegularSettlementRequestedEvent;
 import com.ccc.ari.global.type.EventType;
 import com.ccc.ari.global.type.PlanType;
 import com.ccc.ari.subscription.domain.repository.BlockNumberRepository;
@@ -67,10 +68,15 @@ public class SubscriptionContractEventListner implements ApplicationListener<App
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
         logger.info("애플리케이션 초기화 완료 - 온체인 이벤트 구독 시작");
+        // 구독 생성 컨트랙트 이벤트
         subscribeToRegularSubscriptionCreatedEvent();
         subscribeToArtistSubscriptionCreatedEvent();
+        // 구독 결제 완료 컨트랙트 이벤트
         subscribeToPaymentProcessedRegularEvent();
         subscribeToPaymentProcessedArtistEvent();
+        // 정산 요청 컨트랙트 이벤트
+        subscribeToSettlementRequestedRegularEvent();
+        subscribeToSettlementRequestedArtistEvent();
     }
 
     /**
@@ -207,6 +213,10 @@ public class SubscriptionContractEventListner implements ApplicationListener<App
                 });
     }
 
+    /**
+     * 구독 컨트랙트의 정기 구독 정산 요청 이벤트를 감시하며 처리한 블록의 번호를 저장합니다.
+     * 마지막으로 처리한 블록부터 이벤트를 처리해 서버 재구동 시에도 이벤트의 중복 처리를 방지합니다.
+     */
     public void subscribeToSettlementRequestedRegularEvent() {
 
         BigInteger lastProcessedBlock =
@@ -243,6 +253,10 @@ public class SubscriptionContractEventListner implements ApplicationListener<App
                 });
     }
 
+    /**
+     * 구독 컨트랙트의 아티스트 구독 정산 요청 이벤트를 감시하며 처리한 블록의 번호를 저장합니다.
+     * 마지막으로 처리한 블록부터 이벤트를 처리해 서버 재구동 시에도 이벤트의 중복 처리를 방지합니다.
+     */
     public void subscribeToSettlementRequestedArtistEvent() {
 
         BigInteger lastProcessedBlock =
@@ -327,13 +341,17 @@ public class SubscriptionContractEventListner implements ApplicationListener<App
         eventPublisher.publishEvent(
                 new OnChainArtistPaymentProcessedEvent(event.userId.intValue(), event.artistId.intValue()));
 
-        logger.info("OnChainArtistPaymentProcessedEvent 성공적으로 발행되었습니다. 구독자 ID: {}, 아티스트 ID: {}",
+        logger.info("OnChainArtistPaymentProcessedEvent가 성공적으로 발행되었습니다. 구독자 ID: {}, 아티스트 ID: {}",
                 event.userId.intValue(), event.artistId.intValue());
     }
 
     @Async
     protected void handleSettlementRequestedRegularEvent(SubscriptionContract.SettlementRequestedRegularEventResponse event) {
+        logger.info("정기 구독 정산 요청 온체인 이벤트가 발생했습니다. 구독자 ID: {}", event.userId);
 
+        eventPublisher.publishEvent(new RegularSettlementRequestedEvent(event.userId.intValue()));
+        logger.info("RegularSettlementRequestedEvent가 성공적으로 발행되었습니다. 구독자 ID: {}",
+                event.userId.intValue());
     }
 
     @Async
