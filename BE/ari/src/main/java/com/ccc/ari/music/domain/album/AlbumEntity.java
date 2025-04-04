@@ -61,4 +61,15 @@ public class AlbumEntity {
     this.genre = genre;
 
   }
+
+  public void increaseLikeCount() {
+    this.albumLikeCount = (this.albumLikeCount == null ? 1 : this.albumLikeCount + 1);
+  }
+
+  public void decreaseLikeCount() {
+    if (this.albumLikeCount != null && this.albumLikeCount > 0) {
+      this.albumLikeCount -= 1;
+    }
+  }
+
 }
