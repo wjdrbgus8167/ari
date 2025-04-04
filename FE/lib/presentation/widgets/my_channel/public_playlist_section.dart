@@ -63,14 +63,22 @@ class PublicPlaylistSection extends ConsumerWidget {
               ),
             ),
           ),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: Text(
-                '공개된 플레이리스트가 없습니다.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey[400], fontSize: 14),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.grey.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: Colors.grey.withValues(alpha: 0.3),
+                width: 1,
               ),
+            ),
+            child: Text(
+              '공개된 플레이리스트가 없습니다.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey, fontSize: 14),
             ),
           ),
         ],
