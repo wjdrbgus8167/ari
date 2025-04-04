@@ -1,3 +1,5 @@
+import 'package:ari/presentation/pages/dashboard/artist_dashboard_screen.dart';
+import 'package:ari/presentation/pages/dashboard/my_album_stat_list.dart';
 import 'package:ari/presentation/pages/login/login_screen.dart';
 import 'package:ari/presentation/pages/sign_up/sign_up_screen.dart';
 import 'package:ari/presentation/pages/subscription/artist_selection_screen.dart';
@@ -37,7 +39,9 @@ class AppRoutes {
   static const String albumUpload = '/album-upload';
   static const String trackUpload = '/album-upload/add-track';
   static const String subscriptionSelect = '/subscription/select';
-    static const String artistSelection = '/subscription/select/artist';
+  static const String artistSelection = '/subscription/select/artist';
+  static const String artistDashboard = '/artist-dashboard';
+  static const String myAlbumStatList = '/artist-dashboard/my-album-stats';
 
   static final Set<String> _protectedRoutes = {
     myPage,
@@ -127,7 +131,13 @@ class AppRouter {
       case AppRoutes.artistSelection:
         return MaterialPageRoute(builder: (_) => const ArtistSelectionScreen());
 
-      default:
+      case AppRoutes.artistDashboard:
+        return MaterialPageRoute(builder: (_) => const ArtistDashboardScreen());
+      
+      case AppRoutes.myAlbumStatList:
+        return MaterialPageRoute(builder: (_) => const MyTrackStatListScreen());
+
+      default:    
         // 없는 경로는 홈으로 리다이렉트, 스낵바로 알림
         return MaterialPageRoute(
           builder: (context) {
