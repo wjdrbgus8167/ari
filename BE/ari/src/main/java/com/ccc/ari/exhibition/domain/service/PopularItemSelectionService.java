@@ -3,6 +3,8 @@ package com.ccc.ari.exhibition.domain.service;
 import com.ccc.ari.exhibition.domain.vo.AlbumEntry;
 import com.ccc.ari.exhibition.domain.vo.PlaylistEntry;
 import com.ccc.ari.exhibition.domain.vo.TrackEntry;
+import com.ccc.ari.music.domain.album.AlbumEntity;
+import com.ccc.ari.music.domain.album.client.AlbumClient;
 import com.ccc.ari.music.domain.track.TrackDto;
 import com.ccc.ari.music.domain.track.client.TrackClient;
 import com.ccc.ari.playlist.domain.playlist.PlaylistEntity;
@@ -29,6 +31,7 @@ public class PopularItemSelectionService {
 
     private final TrackClient trackClient;
     private final PlaylistClient playlistClient;
+    private final AlbumClient albumClient;
 
     /**
      * 인기 트랙 10개를 선택합니다.
@@ -127,6 +130,28 @@ public class PopularItemSelectionService {
         }
 
         logger.info("인기 플레이리스트 {}개를 선택했습니다.", entries.size());
+        return entries;
+    }
+
+    public List<AlbumEntry> selectNewAlbums(Integer genreId) {
+        List<AlbumEntity> newAlbums;
+
+        if (genreId == null) {
+            newAlbums = albumClient.getTop10ByReleasedAt();
+        } else {
+            newAlbums = albumClient.getTop10ByReleasedAtAndGenre(genreId);
+        }
+
+        List<AlbumEntry> entries = new ArrayList<>();
+
+        for (AlbumEntity album : newAlbums) {
+            entries.add(AlbumEntry.builder()
+                    .albumId(album.getAlbumId())
+                    .streamCount(album.getAlbumLikeCount() != null ? album.getAlbumLikeCount() : 0)
+                    .build());
+        }
+
+        logger.info("장르 ID {}의 최신 앨범 {}개를 선택했습니다.", genreId, entries.size());
         return entries;
     }
 }
