@@ -1,5 +1,6 @@
 package com.ccc.ari.subscription.infrastructure.persistence.repository;
 
+import com.ccc.ari.global.type.EventType;
 import com.ccc.ari.global.type.PlanType;
 import com.ccc.ari.subscription.domain.repository.SubscriptionEventRepository;
 import com.ccc.ari.subscription.infrastructure.persistence.entity.SubscriptionEventEntity;
@@ -14,12 +15,18 @@ public class SubscriptionEventRepositoryImpl implements SubscriptionEventReposit
 
 
     @Override
-    public boolean existsBySubscriptionEventId(String subscriptionEventId) {
-        return subscriptionEventJpaRepository.existsById(subscriptionEventId);
+    public boolean existsBySubscriptionEventIdAndEventTypeP(String subscriptionEventId) {
+        return subscriptionEventJpaRepository.existsBySubscriptionEventIdAndEventType(subscriptionEventId, EventType.P);
     }
 
     @Override
-    public void save(String subscriptionEventId, Integer subscriberId, PlanType eventType) {
-        subscriptionEventJpaRepository.save(new SubscriptionEventEntity(subscriptionEventId, subscriberId, eventType));
+    public boolean existsBySubscriptionEventIdAndEventTypeS(String subscriptionEventId) {
+        return subscriptionEventJpaRepository.existsBySubscriptionEventIdAndEventType(subscriptionEventId, EventType.S);
+    }
+
+    @Override
+    public void save(String subscriptionEventId, EventType eventType, Integer subscriberId, PlanType planType) {
+        subscriptionEventJpaRepository.save(
+                new SubscriptionEventEntity(subscriptionEventId, eventType, subscriberId, planType));
     }
 }

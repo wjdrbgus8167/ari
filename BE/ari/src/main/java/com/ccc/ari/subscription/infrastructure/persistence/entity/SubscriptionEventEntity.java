@@ -1,10 +1,8 @@
 package com.ccc.ari.subscription.infrastructure.persistence.entity;
 
+import com.ccc.ari.global.type.EventType;
 import com.ccc.ari.global.type.PlanType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -22,6 +20,10 @@ public class SubscriptionEventEntity {
     private String subscriptionEventId;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
+    private EventType eventType;
+
+    @NotNull
     @Column(name = "subscriber_id")
     private Integer subscriberId;
 
@@ -31,9 +33,11 @@ public class SubscriptionEventEntity {
 
     @Builder
     public SubscriptionEventEntity(String subscriptionEventId,
+                                   EventType eventType,
                                    Integer subscriberId,
                                    PlanType planType) {
         this.subscriptionEventId = subscriptionEventId;
+        this.eventType = eventType;
         this.subscriberId = subscriberId;
         this.planType = planType;
     }
