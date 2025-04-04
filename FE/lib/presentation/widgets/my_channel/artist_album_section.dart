@@ -248,12 +248,12 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
           context,
           '/album/detail',
           arguments: {'albumId': album.albumId},
-        ); // TODO 대신 실제 구현 추가
+        );
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 앨범 커버 이미지
+          // 앨범 커버 이미지 - 기존과 동일
           Container(
             width: 160,
             height: 160,
@@ -273,35 +273,43 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
             ),
           ),
           const SizedBox(height: 8),
-          // 앨범 제목
-          Text(
-            album.albumTitle,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
+          // 앨범 제목 - 너비 제한 추가
+          SizedBox(
+            width: 160, // 컨테이너 너비 고정
+            child: Text(
+              album.albumTitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           const SizedBox(height: 2),
-          // 아티스트 이름
-          Text(
-            album.artist,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: Colors.grey.withValues(alpha: 0.7),
-              fontSize: 12,
+          // 아티스트 이름 - 너비 제한 추가
+          SizedBox(
+            width: 160, // 컨테이너 너비 고정
+            child: Text(
+              album.artist,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Colors.grey.withValues(alpha: 0.7),
+                fontSize: 12,
+              ),
             ),
           ),
-          const SizedBox(height: 2),
-          // 수록곡 수
-          Text(
-            '${album.trackCount}곡',
-            style: TextStyle(
-              color: Colors.grey.withValues(alpha: 0.4),
-              fontSize: 12,
+          // 수록곡 수 표시
+          SizedBox(
+            width: 160,
+            child: Text(
+              '${album.trackCount}곡',
+              style: TextStyle(
+                color: Colors.grey.withValues(alpha: 0.4),
+                fontSize: 12,
+              ),
             ),
           ),
         ],
