@@ -4,13 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.math.BigDecimal;
-
 @Getter
 @Builder
 @AllArgsConstructor
-public class RegularSubscriptionOnChainCreatedEvent {
+public class OnChainArtistPaymentProcessedEvent {
 
     private final Integer subscriberId;
-    private final BigDecimal amount;
+    private final Integer artistId;
 }

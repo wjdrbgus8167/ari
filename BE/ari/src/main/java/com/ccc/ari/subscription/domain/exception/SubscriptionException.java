@@ -11,7 +11,8 @@ public abstract class SubscriptionException extends RuntimeException {
 
     public enum ExceptionCode {
         SUBSCRIPTION_NOT_FOUND("SUB_001"),
-        SUBSCRIPTION_NOT_ACTIVE("SUB_002");
+        SUBSCRIPTION_NOT_ACTIVE("SUB_002"),
+        REGULAR_PLAN_NOT_FOUND("REG_001");
 
         private final String code;
 
