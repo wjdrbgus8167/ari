@@ -10,13 +10,41 @@ import '../../pages/mypage/album_upload_screen.dart';
 
 /// 아티스트 앨범 섹션 위젯
 /// 아티스트가 발매한 앨범 목록을 표시
-class ArtistAlbumSection extends ConsumerWidget {
+class ArtistAlbumSection extends ConsumerStatefulWidget {
   final String memberId;
 
   const ArtistAlbumSection({super.key, required this.memberId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ArtistAlbumSection> createState() => _ArtistAlbumSectionState();
+}
+
+class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
+  @override
+  void initState() {
+    super.initState();
+    // 위젯이 초기화될 때 앨범 데이터 로드
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadAlbums();
+    });
+  }
+
+  @override
+  void didUpdateWidget(ArtistAlbumSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // memberId가 변경되면 데이터 다시 로드
+    if (oldWidget.memberId != widget.memberId) {
+      _loadAlbums();
+    }
+  }
+
+  void _loadAlbums() {
+    // 채널 뷰모델에서 앨범 목록 로드 함수 호출
+    ref.read(myChannelProvider.notifier).loadArtistAlbums(widget.memberId);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // 아티스트 앨범 상태
     final channelState = ref.watch(myChannelProvider);
     final artistAlbums = channelState.artistAlbums;
@@ -33,7 +61,28 @@ class ArtistAlbumSection extends ConsumerWidget {
         ),
       );
     }
-
+    // 에러 발생 시 에러 메시지 표시 (아래 'TODO' 참고)
+    if (hasError) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          child: Column(
+            children: [
+              Text(
+                '앨범을 불러오는데 실패했습니다.\n다시 시도해주세요.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.red[300], fontSize: 14),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: _loadAlbums,
+                child: const Text('다시 시도'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     // TODO: 에러 발생 시 에러 메시지 표시
     // if (hasError) {
     //   return Center(
@@ -44,44 +93,6 @@ class ArtistAlbumSection extends ConsumerWidget {
     //         textAlign: TextAlign.center,
     //         style: TextStyle(color: Colors.red[300], fontSize: 14),
     //       ),
-    //     ),
-    //   );
-    // }
-
-    // 앨범이 없는 경우 안내 메시지 표시 (빈 위젯 대신)
-    // if (artistAlbums.isEmpty) {
-    //   return Padding(
-    //     padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-    //     child: Column(
-    //       crossAxisAlignment: CrossAxisAlignment.start,
-    //       children: [
-    //         const Text(
-    //           '나의 앨범',
-    //           style: TextStyle(
-    //             color: Colors.white,
-    //             fontSize: 18,
-    //             fontWeight: FontWeight.bold,
-    //           ),
-    //         ),
-    //         const SizedBox(height: 12),
-    //         Container(
-    //           width: double.infinity,
-    //           padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-    //           decoration: BoxDecoration(
-    //             color: Colors.blue.withValues(alpha: 0.1),
-    //             borderRadius: BorderRadius.circular(8),
-    //             border: Border.all(
-    //               color: Colors.blue.withValues(alpha: 0.3),
-    //               width: 1,
-    //             ),
-    //           ),
-    //           child: const Text(
-    //             '앨범을 업로드해보세요. 누구나 아티스트가 될 수 있습니다.',
-    //             textAlign: TextAlign.center,
-    //             style: TextStyle(color: Colors.white, fontSize: 14),
-    //           ),
-    //         ),
-    //       ],
     //     ),
     //   );
     // }
