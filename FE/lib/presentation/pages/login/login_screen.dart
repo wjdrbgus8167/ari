@@ -12,7 +12,12 @@ class LoginScreen extends ConsumerWidget {
     // ViewModel의 notifier와 state를 모두 가져옵니다
     final viewModel = ref.read(loginViewModelProvider.notifier);
     final loginState = ref.watch(loginViewModelProvider);
-    
+
+    // 리다이렉트 경로 가져옴
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final redirectRoute = args?['redirectRoute'] as String?;
+
     return Scaffold(
       // 배경색 검정
       backgroundColor: Colors.black,
@@ -86,7 +91,7 @@ class LoginScreen extends ConsumerWidget {
               onChanged: (value) => viewModel.setPassword(value),
             ),
             const SizedBox(height: 8),
-            
+
             // 에러 메시지 표시
             if (loginState.errorMessage != null)
               Padding(
@@ -97,19 +102,28 @@ class LoginScreen extends ConsumerWidget {
                   textAlign: TextAlign.center,
                 ),
               ),
-              
+
             const SizedBox(height: 16),
             // 로그인 버튼
             ButtonLarge(
               text: loginState.isLoading ? '로그인 중...' : '로그인하기',
-              onPressed: loginState.isLoading
-                ? null  // 로딩 중일 때는 버튼 비활성화
-                : () async {
-                    if (viewModel.validateInputs() && await viewModel.login()) {
-                      // 로그인 성공 시 홈 화면으로 이동
-                      Navigator.of(context).pushNamed(AppRoutes.home);
-                    }
-                  },
+              onPressed:
+                  loginState.isLoading
+                      ? null // 로딩 중일 때는 버튼 비활성화
+                      : () async {
+                        if (viewModel.validateInputs() &&
+                            await viewModel.login()) {
+                          // 로그인 성공 시 리다이렉트 경로가 있으면 해당 경로로 이동
+                          if (redirectRoute != null) {
+                            Navigator.of(
+                              context,
+                            ).pushReplacementNamed(redirectRoute);
+                          } else {
+                            // 리다이렉트 경로가 없으면 홈 화면으로 이동
+                            Navigator.of(context).pushNamed(AppRoutes.home);
+                          }
+                        }
+                      },
             ),
             const SizedBox(height: 16),
             // 구글 계정으로 로그인 버튼
@@ -128,12 +142,28 @@ class LoginScreen extends ConsumerWidget {
                   width: 24,
                   height: 24,
                 ),
-                onPressed: loginState.isLoading
-                  ? null  // 로딩 중일 때는 버튼 비활성화
-                  : () {
-                      // 구글 로그인 로직 구현
-                      viewModel.startGoogleLogin();
-                    },
+                onPressed:
+                    loginState.isLoading
+                        ? null // 로딩 중일 때는 버튼 비활성화
+                        : () {
+                          // 구글 로그인 함수 호출
+                          viewModel.startGoogleLogin();
+
+                          // 나중에 구글 로그인이 구현되면 아래 코드 활성화:
+                          // if (redirectRoute != null) {
+                          //   Navigator.of(context).pushReplacementNamed(redirectRoute);
+                          // } else {
+                          //   Navigator.of(context).pushNamed(AppRoutes.home);
+                          // }
+
+                          // 지금은 단순히 홈 화면으로 이동
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('구글 로그인 기능이 곧 제공될 예정입니다.'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        },
                 label: const Text(
                   '구글 계정으로 로그인하기',
                   style: TextStyle(fontWeight: FontWeight.bold),
