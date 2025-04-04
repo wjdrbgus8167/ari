@@ -11,27 +11,32 @@ class CarouselContainer extends StatelessWidget {
   final EdgeInsetsGeometry padding; // 카로셀 패딩
 
   const CarouselContainer({
-    Key? key,
+    super.key,
     required this.title,
     required this.children,
     this.height = 220.0, // 기본 높이
     this.itemWidth = 160.0, // 기본 아이템 너비
     this.itemSpacing = 12.0, // 기본 간격
     this.padding = const EdgeInsets.symmetric(vertical: 16.0),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: padding,
-      color: const Color(0xFF1A1A1A),
+      // color: const Color(0xFF1A1A1A),
+      color: Colors.black, // 배경색
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 카로셀 제목
           if (title.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 12.0),
+              padding: const EdgeInsets.only(
+                left: 16.0,
+                right: 16.0,
+                bottom: 12.0,
+              ),
               child: Text(
                 title,
                 style: const TextStyle(
@@ -41,7 +46,7 @@ class CarouselContainer extends StatelessWidget {
                 ),
               ),
             ),
-          
+
           // 가로 스크롤 가능한 항목 목록
           SizedBox(
             height: height,
@@ -55,10 +60,7 @@ class CarouselContainer extends StatelessWidget {
                   padding: EdgeInsets.only(
                     right: index == children.length - 1 ? 0 : itemSpacing,
                   ),
-                  child: SizedBox(
-                    width: itemWidth,
-                    child: children[index],
-                  ),
+                  child: SizedBox(width: itemWidth, child: children[index]),
                 );
               },
             ),
