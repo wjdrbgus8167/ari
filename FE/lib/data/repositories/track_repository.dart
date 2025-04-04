@@ -2,7 +2,7 @@ import 'package:ari/core/exceptions/failure.dart';
 import 'package:ari/data/datasources/track/track_remote_datasource.dart';
 import 'package:ari/data/models/track_detail.dart';
 import 'package:ari/domain/entities/track.dart';
-import 'package:ari/domain/repositories/track_repository.dart';
+import 'package:ari/domain/repositories/track/track_detail_repository.dart';
 import 'package:dartz/dartz.dart';
 
 class TrackRepositoryImpl implements TrackRepository {
