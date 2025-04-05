@@ -1,8 +1,11 @@
 package com.ccc.ari.subscription.infrastructure.persistence.repository;
 
+import com.ccc.ari.global.error.ApiException;
+import com.ccc.ari.global.error.ErrorCode;
 import com.ccc.ari.subscription.domain.SubscriptionPlan;
 import com.ccc.ari.subscription.domain.repository.SubscriptionPlanRepository;
 import com.ccc.ari.global.type.PlanType;
+import com.ccc.ari.subscription.infrastructure.persistence.entity.SubscriptionEntity;
 import com.ccc.ari.subscription.infrastructure.persistence.entity.SubscriptionPlanEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -32,5 +35,14 @@ public class SubscriptionPlanRepositoryImpl implements SubscriptionPlanRepositor
         return subscriptionPlanJpaRepository.findByArtistId(artistId).isPresent() ?
                 Optional.of(subscriptionPlanJpaRepository.findByArtistId(artistId).get().toModel()) :
                 Optional.empty();
-    };
+    }
+
+    @Override
+    public SubscriptionPlan findSubscriptionPlanBySubscriptionPlanId(Integer subscriptionPlanId) {
+        SubscriptionPlanEntity entity = subscriptionPlanJpaRepository.findById(subscriptionPlanId)
+                .orElseThrow(()->new ApiException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
+        return entity.toModel();
+    }
+
+
 }

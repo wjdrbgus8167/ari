@@ -69,4 +69,9 @@ public class PlaylistClientImpl implements PlaylistClient {
 
         return jpaPlaylistRepository.findTop5ByPublicYnTrueOrderByShareCountDesc();
     }
+
+    @Override
+    public List<PlaylistEntity> getArtistPublicPlaylist(Integer memberId) {
+        return jpaPlaylistRepository.findAllByMember_MemberIdAndPublicYnTrue(memberId);
+    }
 }

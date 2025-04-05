@@ -1,5 +1,7 @@
 package com.ccc.ari.subscription.infrastructure.persistence.repository;
 
+import com.ccc.ari.global.error.ApiException;
+import com.ccc.ari.global.error.ErrorCode;
 import com.ccc.ari.subscription.domain.Subscription;
 import com.ccc.ari.subscription.domain.repository.SubscriptionRepository;
 import com.ccc.ari.subscription.infrastructure.persistence.entity.SubscriptionEntity;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -54,5 +57,19 @@ public class SubscriptionRepositoryImpl implements SubscriptionRepository {
         return subscriptionJpaRepository.findById(subscriptionId).isPresent() ?
                 Optional.of(subscriptionJpaRepository.findById(subscriptionId).get().toModel()) :
                 Optional.empty();
+    }
+
+    public Optional<List<Subscription>> findListByMemberId(Integer memberId) {
+        List<SubscriptionEntity> list = subscriptionJpaRepository.findAllByMemberId(memberId);
+
+        if (list.isEmpty()) {
+            return Optional.empty(); // 여기서 Optional.empty()를 주면 클라이언트에서 orElseThrow로 예외 발생 가능
+        }
+
+        List<Subscription> subscriptions = list.stream()
+                .map(SubscriptionEntity::toModel)
+                .collect(Collectors.toList());
+
+        return Optional.of(subscriptions);
     }
 }

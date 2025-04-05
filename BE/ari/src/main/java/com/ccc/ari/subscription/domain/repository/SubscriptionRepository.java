@@ -2,6 +2,7 @@ package com.ccc.ari.subscription.domain.repository;
 
 import com.ccc.ari.subscription.domain.Subscription;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface SubscriptionRepository {
@@ -17,4 +18,6 @@ public interface SubscriptionRepository {
     Optional<Subscription> findActiveSubscription(Integer memberId, Integer subscriptionPlanId);
 
     Optional<Subscription> findBySubscriptionId(Integer subscriptionId);
+
+    Optional<List<Subscription>> findListByMemberId(Integer memberId);
 }

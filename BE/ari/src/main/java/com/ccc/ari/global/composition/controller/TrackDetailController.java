@@ -25,7 +25,10 @@ public class TrackDetailController {
             @PathVariable Integer trackId,
             @AuthenticationPrincipal MemberUserDetails member) {
 
-        TrackDetailResponse response = trackDetailService.getTrackDetail(trackId,member.getMemberId());
+        // 로그인 여부에 따라 memberId를 Optional하게 처리
+        Integer memberId = (member != null) ? member.getMemberId() : null;
+
+        TrackDetailResponse response = trackDetailService.getTrackDetail(trackId,memberId);
 
         return ApiUtils.success(response);
     }

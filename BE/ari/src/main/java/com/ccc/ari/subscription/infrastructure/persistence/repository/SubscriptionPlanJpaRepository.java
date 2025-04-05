@@ -12,4 +12,6 @@ public interface SubscriptionPlanJpaRepository extends JpaRepository<Subscriptio
     Optional<SubscriptionPlanEntity> findByPlanType(@NotNull PlanType planType);
 
     Optional<SubscriptionPlanEntity> findByArtistId(Integer artistId);
+
+    Optional<SubscriptionPlanEntity> findBySubscriptionPlanId(Integer subscriptionPlanId);
 }

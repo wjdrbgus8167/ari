@@ -22,8 +22,10 @@ public class AlbumDetailCompositionController {
             @PathVariable Integer albumId,
             @AuthenticationPrincipal MemberUserDetails member) {
 
-        AlbumDetailResponse response = albumDetailService.getAlbumDetail(albumId,member.getMemberId());
+        // 로그인 여부에 따라 memberId를 Optional하게 처리
+        Integer memberId = (member != null) ? member.getMemberId() : null;
 
+        AlbumDetailResponse response = albumDetailService.getAlbumDetail(albumId, memberId);
         return ApiUtils.success(response);
     }
 }
