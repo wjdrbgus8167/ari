@@ -66,6 +66,7 @@ public class NewAlbumService {
                     .albumTitle(albumDto.getTitle())
                     .artist(artistName)
                     .coverImageUrl(albumDto.getCoverImageUrl())
+                    .genreName(albumDto.getGenreName())
                     .trackCount(tracks.size())
                     .tracks(trackItems)
                     .build());

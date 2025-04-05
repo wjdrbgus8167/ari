@@ -18,6 +18,7 @@ public class NewAlbumResponse {
         private String albumTitle;
         private String artist;
         private String coverImageUrl;
+        private String genreName;
         private Integer trackCount;
         private List<TrackItem> tracks;
     }
