@@ -1,6 +1,6 @@
 import 'package:ari/core/services/audio_service.dart';
 import 'package:ari/providers/global_providers.dart';
-import 'package:ari/presentation/widgets/playlist/playlist_track_list_tile.dart';
+import 'package:ari/presentation/widgets/playlist/my_playlist/playlist_track_list_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

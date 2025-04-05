@@ -1,6 +1,7 @@
 import 'package:ari/data/datasources/playlist/playlist_remote_datasource.dart';
-import 'package:ari/domain/entities/album.dart'; // 도메인 엔티티 Album 사용
-import 'package:ari/data/models/playlist.dart';
+import 'package:ari/domain/entities/album.dart';
+import 'package:ari/domain/entities/playlist.dart' as domain;
+import 'package:ari/data/models/playlist.dart' as data;
 import 'package:ari/data/models/track.dart';
 import 'package:ari/core/utils/album_filter.dart';
 import 'package:ari/core/utils/genre_utils.dart';
@@ -15,7 +16,7 @@ class HomeState {
   final List<Album> popularAlbums;
   final List<Album> filteredLatestAlbums;
   final List<Album> filteredPopularAlbums;
-  final List<Playlist> popularPlaylists;
+  final List<domain.Playlist> popularPlaylists;
   final List<Track> hot50Titles;
 
   HomeState({
@@ -37,7 +38,7 @@ class HomeState {
     List<Album>? popularAlbums,
     List<Album>? filteredLatestAlbums,
     List<Album>? filteredPopularAlbums,
-    List<Playlist>? popularPlaylists,
+    List<domain.Playlist>? popularPlaylists,
     List<Track>? hot50Titles,
   }) {
     return HomeState(
@@ -56,7 +57,7 @@ class HomeState {
 
 class HomeViewModel extends StateNotifier<HomeState> {
   final GetChartsUseCase getChartsUseCase;
-  final AlbumRepository albumRepository; // 최신/인기 앨범 데이터 위해 추가
+  final AlbumRepository albumRepository;
   final IPlaylistRemoteDataSource playlistRemoteDataSource;
 
   HomeViewModel({
@@ -79,12 +80,10 @@ class HomeViewModel extends StateNotifier<HomeState> {
     loadPopularAlbums();
   }
 
+  /// ✅ 차트 데이터 로딩
   Future<void> loadHot50Titles() async {
     try {
-      print('[DEBUG] loadHot50Titles: API 호출 전');
       final chartItems = await getChartsUseCase.execute();
-      print('[DEBUG] loadHot50Titles: API 응답 받은 chartItems: $chartItems');
-
       final List<Track> convertedTracks =
           chartItems.map((chart) {
             return Track(
@@ -100,28 +99,38 @@ class HomeViewModel extends StateNotifier<HomeState> {
               coverUrl: chart.coverImageUrl,
             );
           }).toList();
-      print('[DEBUG] loadHot50Titles: 변환된 Track 리스트: $convertedTracks');
 
       state = state.copyWith(hot50Titles: convertedTracks);
-      print('[DEBUG] loadHot50Titles: 상태 업데이트 완료');
     } catch (e) {
-      print('[ERROR] loadHot50Titles: 차트 데이터 로드 실패: $e');
+      print('loadHot50Titles error: $e');
     }
   }
 
+  /// ✅ 인기 플레이리스트 로딩 (데이터 모델 → 도메인 모델 변환)
   Future<void> loadPopularPlaylists() async {
     try {
-      print('[DEBUG] loadPopularPlaylists: API 호출 전');
       final popular = await playlistRemoteDataSource.fetchPopularPlaylists();
-      print('[DEBUG] loadPopularPlaylists: API 응답 받은 인기 플레이리스트: $popular');
-
-      state = state.copyWith(popularPlaylists: popular);
-      print('[DEBUG] loadPopularPlaylists: 상태 업데이트 완료');
+      final domainPlaylists = popular.map(_mapDataPlaylistToDomain).toList();
+      state = state.copyWith(popularPlaylists: domainPlaylists);
     } catch (e) {
-      print('[ERROR] loadPopularPlaylists: 인기 플레이리스트 로드 실패: $e');
+      print('loadPopularPlaylists error: $e');
     }
   }
 
+  /// 데이터 모델 Playlist → 도메인 엔티티 Playlist 변환
+  domain.Playlist _mapDataPlaylistToDomain(data.Playlist playlist) {
+    return domain.Playlist(
+      id: playlist.id,
+      title: playlist.title,
+      coverImageUrl: playlist.coverImageUrl,
+      isPublic: playlist.isPublic,
+      trackCount: playlist.trackCount,
+      shareCount: playlist.shareCount,
+      tracks: [], // 플레이리스트 목록 조회에서는 tracks가 없으므로 빈 리스트 처리
+    );
+  }
+
+  /// ✅ 최신 앨범 로딩
   Future<void> loadLatestAlbums() async {
     try {
       final result = await albumRepository.fetchLatestAlbums();
@@ -134,10 +143,11 @@ class HomeViewModel extends StateNotifier<HomeState> {
         );
       });
     } catch (e) {
-      print("최신 앨범 로드 중 예외 발생: $e");
+      print("최신 앨범 로드 예외: $e");
     }
   }
 
+  /// ✅ 인기 앨범 로딩
   Future<void> loadPopularAlbums() async {
     try {
       final result = await albumRepository.fetchPopularAlbums();
@@ -150,10 +160,11 @@ class HomeViewModel extends StateNotifier<HomeState> {
         );
       });
     } catch (e) {
-      print("인기 앨범 로드 중 예외 발생: $e");
+      print("인기 앨범 로드 예외: $e");
     }
   }
 
+  /// ✅ 최신앨범 장르 필터링
   void updateGenreLatest(String genreName) {
     final genre = getGenreFromDisplayName(genreName);
     state = state.copyWith(
@@ -162,6 +173,7 @@ class HomeViewModel extends StateNotifier<HomeState> {
     );
   }
 
+  /// ✅ 인기앨범 장르 필터링
   void updateGenrePopular(String genreName) {
     final genre = getGenreFromDisplayName(genreName);
     state = state.copyWith(
