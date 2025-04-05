@@ -5,6 +5,7 @@ import 'package:ari/data/repositories/playlist_repository_impl.dart';
 import 'package:ari/domain/repositories/playlist_repository.dart';
 import 'package:ari/presentation/viewmodels/playlist/playlist_state.dart';
 import 'package:ari/presentation/viewmodels/playlist/playlist_viewmodel.dart';
+import 'package:ari/providers/album/album_detail_providers.dart';
 
 import 'package:ari/providers/auth/auth_providers.dart';
 import 'package:ari/providers/my_channel/my_channel_providers.dart';
@@ -140,9 +141,13 @@ final getChartsUseCaseProvider = Provider<GetChartsUseCase>((ref) {
 final homeViewModelProvider = StateNotifierProvider<HomeViewModel, HomeState>((
   ref,
 ) {
+  final getChartsUseCase = ref.watch(getChartsUseCaseProvider);
+  final playlistRemoteDataSource = ref.watch(playlistRemoteDataSourceProvider);
+  final albumRepository = ref.watch(albumRepositoryProvider);
   return HomeViewModel(
-    getChartsUseCase: ref.watch(getChartsUseCaseProvider),
-    playlistRemoteDataSource: ref.watch(playlistRemoteDataSourceProvider),
+    getChartsUseCase: getChartsUseCase,
+    playlistRemoteDataSource: playlistRemoteDataSource,
+    albumRepository: albumRepository,
   );
 });
 

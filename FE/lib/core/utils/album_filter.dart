@@ -1,5 +1,5 @@
-import '../../data/models/album.dart';
-import './genre_utils.dart'; // ✅ Genre 변환 함수 활용
+import 'package:ari/core/utils/genre_utils.dart';
+import 'package:ari/domain/entities/album.dart';
 
 /// 선택된 장르에 따라 앨범 리스트 필터링
 List<Album> filterAlbumsByGenre(List<Album> albums, Genre selectedGenre) {

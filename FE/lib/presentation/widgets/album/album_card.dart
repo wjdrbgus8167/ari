@@ -1,7 +1,7 @@
 import 'package:ari/presentation/routes/app_router.dart';
 import 'package:flutter/material.dart';
 import '../common/media_card.dart';
-import '../../../data/models/album.dart';
+import 'package:ari/domain/entities/album.dart';
 
 class AlbumCard extends StatelessWidget {
   final Album album;
@@ -10,8 +10,8 @@ class AlbumCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MediaCard(
-      imageUrl: album.coverUrl,
-      title: album.title,
+      imageUrl: album.coverImageUrl,
+      title: album.albumTitle,
       subtitle: album.artist,
       onTap: () {
         // 앨범 상세 페이지로 이동하는 로직 구현
