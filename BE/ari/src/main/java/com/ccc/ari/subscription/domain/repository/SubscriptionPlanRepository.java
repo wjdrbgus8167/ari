@@ -32,4 +32,6 @@ public interface SubscriptionPlanRepository {
      * @throws IllegalArgumentException artistId가 null인 경우
      */
     public Optional<SubscriptionPlan> findSubscriptionPlanByArtistId(Integer artistId);
+
+    SubscriptionPlan findSubscriptionPlanBySubscriptionPlanId(Integer subscriptionPlanId);
 }
