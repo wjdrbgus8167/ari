@@ -16,4 +16,5 @@ public interface PlaylistClient {
 
     // 가장 많이 공유된 플레이리스트 5개
     List<PlaylistEntity> getTop5MostSharedPlaylists();
+    List<PlaylistEntity> getArtistPublicPlaylist(Integer memberId);
 }
