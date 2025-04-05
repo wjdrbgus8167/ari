@@ -80,12 +80,22 @@ public class PopularMusicService {
         List<TrackDto> tracks = trackClient.getTracksByAlbumId(albumId);
         String artistName = memberClient.getNicknameByMemberId(albumDto.getMemberId());
 
+        List<PopularAlbumResponse.TrackItem> trackItems = new ArrayList<>();
+        for (TrackDto track : tracks) {
+            trackItems.add(PopularAlbumResponse.TrackItem.builder()
+                    .trackId(track.getTrackId())
+                    .trackTitle(track.getTitle())
+                    .build());
+        }
+
         return PopularAlbumResponse.PopularAlbumItem.builder()
                 .albumId(albumId)
                 .albumTitle(albumDto.getTitle())
                 .artist(artistName)
                 .coverImageUrl(albumDto.getCoverImageUrl())
+                .genreName(albumDto.getGenreName())
                 .trackCount(tracks.size())
+                .tracks(trackItems)
                 .build();
     }
 
