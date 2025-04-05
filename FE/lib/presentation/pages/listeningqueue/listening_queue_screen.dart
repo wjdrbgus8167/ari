@@ -1,5 +1,4 @@
 import 'package:ari/core/services/audio_service.dart';
-import 'package:ari/domain/entities/track.dart';
 import 'package:ari/providers/global_providers.dart';
 import 'package:ari/presentation/widgets/common/listening_queue_appbar.dart';
 import 'package:ari/presentation/widgets/common/track_count_bar.dart';

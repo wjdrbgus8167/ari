@@ -155,6 +155,19 @@ class PlaylistRemoteDataSourceImpl implements IPlaylistRemoteDataSource {
     );
   }
 
+  /// 플레이리스트에 여러 트랙 추가
+  @override
+  Future<void> addTracks(int playlistId, List<int> trackIds) async {
+    await _request<void>(
+      url: '/api/v1/playlists/$playlistId/tracks',
+      method: 'POST',
+      data: {
+        "tracks": trackIds.map((id) => {"trackId": id}).toList(),
+      },
+      fromJson: (_) {},
+    );
+  }
+
   /// 플레이리스트에서 트랙 삭제
   @override
   Future<void> deleteTrack(int playlistId, int trackId) async {
@@ -186,7 +199,7 @@ class PlaylistRemoteDataSourceImpl implements IPlaylistRemoteDataSource {
     );
   }
 
-  /// 플레이리스트 공유
+  /// 플레이리스트 퍼가기
   @override
   Future<void> sharePlaylist(int playlistId) async {
     await _request<void>(

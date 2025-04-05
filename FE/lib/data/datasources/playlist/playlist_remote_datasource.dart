@@ -9,6 +9,7 @@ abstract class IPlaylistRemoteDataSource {
   Future<Playlist> getPlaylistDetail(int playlistId);
   Future<Playlist> createPlaylist(PlaylistCreateRequest data);
   Future<void> addTrack(int playlistId, int trackId);
+  Future<void> addTracks(int playlistId, List<int> trackIds);
   Future<void> deleteTrack(int playlistId, int trackId);
   Future<void> deletePlaylist(int playlistId);
   Future<void> reorderTracks(int playlistId, List<int> trackOrder);

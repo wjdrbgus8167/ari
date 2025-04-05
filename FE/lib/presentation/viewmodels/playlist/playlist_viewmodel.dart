@@ -1,3 +1,4 @@
+import 'package:ari/data/dto/playlist_create_request.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/domain/entities/playlist.dart';
 import 'package:ari/domain/entities/playlist_trackitem.dart';
@@ -21,6 +22,21 @@ class PlaylistViewModel extends StateNotifier<PlaylistState> {
       // 오류 처리 (예: 로그 출력, 에러 상태 업데이트 등)
       print('플레이리스트 조회 오류: $e');
     }
+  }
+
+  Future<void> createPlaylistAndAddTracks(
+    String title,
+    bool publicYn,
+    List<PlaylistTrackItem> selectedItems,
+  ) async {
+    final request = PlaylistCreateRequest(title: title, publicYn: publicYn);
+    final newPlaylist = await playlistRepository.createPlaylist(request);
+
+    for (var item in selectedItems) {
+      await playlistRepository.addTrack(newPlaylist.id, item.trackId);
+    }
+
+    print('[DEBUG] 새 플레이리스트 생성 및 트랙 추가 완료');
   }
 
   Future<void> setPlaylist(Playlist basePlaylist) async {

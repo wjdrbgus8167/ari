@@ -190,6 +190,9 @@ class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
         item.track.trackId,
       );
     }
+    print('[DEBUG] 선택된 트랙 수: ${selectedItems.length}');
+    print('[DEBUG] 추가 대상 플레이리스트 ID: ${selectedPlaylist.id}');
+
     // 추가 후 선택 상태 초기화
     state = state.copyWith(selectedTracks: {});
   }
