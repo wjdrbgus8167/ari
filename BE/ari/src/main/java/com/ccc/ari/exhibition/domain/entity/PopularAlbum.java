@@ -25,8 +25,8 @@ public class PopularAlbum {
 
     @Builder
     public PopularAlbum(Integer genreId, List<AlbumEntry> entries, LocalDateTime createdAt) {
-        if (entries.size() > 20) {
-            throw new IllegalArgumentException("인기 앨범은 최대 20개까지만 포함할 수 있습니다.");
+        if (entries.size() > 10) {
+            throw new IllegalArgumentException("인기 앨범은 최대 10개까지만 포함할 수 있습니다.");
         }
 
         this.genreId = genreId;

@@ -47,6 +47,12 @@ public class AlbumService {
         return list;
     }
 
+    // 장르별 최신 앨범 10개 조회
+    public List<AlbumEntity> getTop10NewAlbumsByGenre(Integer genreId) {
+        List<AlbumEntity> list = jpaAlbumRepository.findTop10ByGenre_GenreIdOrderByReleasedAtDesc(genreId);
+        return list;
+    }
+
     // 장르별 인기 앨범 5개
     public List<AlbumEntity> getTop5AlbumsByEachGenre(Integer genreId) {
 

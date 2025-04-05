@@ -3,9 +3,7 @@ package com.ccc.ari.global.config;
 import com.ccc.ari.aggregation.domain.vo.StreamingLog;
 import com.ccc.ari.chart.domain.entity.Chart;
 import com.ccc.ari.chart.domain.entity.StreamingWindow;
-import com.ccc.ari.exhibition.domain.entity.PopularAlbum;
-import com.ccc.ari.exhibition.domain.entity.PopularTrack;
-import com.ccc.ari.exhibition.domain.entity.TrackStreamingWindow;
+import com.ccc.ari.exhibition.domain.entity.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -71,135 +69,77 @@ public class RedisConfig {
     @Bean
     public RedisTemplate<String, Chart> chartRedisTemplate() {
         RedisTemplate<String, Chart> template = new RedisTemplate<>();
-        template.setConnectionFactory(redisConnectionFactory());
-        template.setKeySerializer(new StringRedisSerializer());
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-        objectMapper.activateDefaultTyping(
-                LaissezFaireSubTypeValidator.instance,
-                ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY
-        );
-
-        GenericJackson2JsonRedisSerializer jsonSerializer =
-                new GenericJackson2JsonRedisSerializer(objectMapper);
-
-        template.setValueSerializer(jsonSerializer);
-        template.setHashKeySerializer(new StringRedisSerializer());
-        template.setHashValueSerializer(jsonSerializer);
-
-        template.afterPropertiesSet();
+        configureRedisTemplate(template);
         return template;
     }
 
     @Bean
     public RedisTemplate<String, Map<String, StreamingWindow>> windowRedisTemplate() {
         RedisTemplate<String, Map<String, StreamingWindow>> template = new RedisTemplate<>();
-        template.setConnectionFactory(redisConnectionFactory());
-        template.setKeySerializer(new StringRedisSerializer());
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-        objectMapper.activateDefaultTyping(
-                LaissezFaireSubTypeValidator.instance,
-                ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY
-        );
-
-        GenericJackson2JsonRedisSerializer jsonSerializer =
-                new GenericJackson2JsonRedisSerializer(objectMapper);
-
-        template.setValueSerializer(jsonSerializer);
-        template.setHashKeySerializer(new StringRedisSerializer());
-        template.setHashValueSerializer(jsonSerializer);
-
-        template.afterPropertiesSet();
+        configureRedisTemplate(template);
         return template;
     }
 
     @Bean
     public RedisTemplate<String, Map<String, TrackStreamingWindow>> trackWindowRedisTemplate() {
         RedisTemplate<String, Map<String, TrackStreamingWindow>> template = new RedisTemplate<>();
-        template.setConnectionFactory(redisConnectionFactory());
-        template.setKeySerializer(new StringRedisSerializer());
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-        objectMapper.activateDefaultTyping(
-                LaissezFaireSubTypeValidator.instance,
-                ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY
-        );
-
-        GenericJackson2JsonRedisSerializer jsonSerializer =
-                new GenericJackson2JsonRedisSerializer(objectMapper);
-
-        template.setValueSerializer(jsonSerializer);
-        template.setHashKeySerializer(new StringRedisSerializer());
-        template.setHashValueSerializer(jsonSerializer);
-
-        template.afterPropertiesSet();
+        configureRedisTemplate(template);
         return template;
     }
 
     @Bean
     public RedisTemplate<String, PopularTrack> trackRedisTemplate() {
         RedisTemplate<String, PopularTrack> template = new RedisTemplate<>();
-        template.setConnectionFactory(redisConnectionFactory());
-        template.setKeySerializer(new StringRedisSerializer());
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-        objectMapper.activateDefaultTyping(
-                LaissezFaireSubTypeValidator.instance,
-                ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY
-        );
-
-        GenericJackson2JsonRedisSerializer jsonSerializer =
-                new GenericJackson2JsonRedisSerializer(objectMapper);
-
-        template.setValueSerializer(jsonSerializer);
-        template.setHashKeySerializer(new StringRedisSerializer());
-        template.setHashValueSerializer(jsonSerializer);
-
-        template.afterPropertiesSet();
+        configureRedisTemplate(template);
         return template;
     }
 
     @Bean
     public RedisTemplate<String, PopularAlbum> albumRedisTemplate() {
         RedisTemplate<String, PopularAlbum> template = new RedisTemplate<>();
-        template.setConnectionFactory(redisConnectionFactory());
-        template.setKeySerializer(new StringRedisSerializer());
+        configureRedisTemplate(template);
+        return template;
+    }
 
+    @Bean
+    public RedisTemplate<String, PopularPlaylist> playlistRedisTemplate() {
+        RedisTemplate<String, PopularPlaylist> template = new RedisTemplate<>();
+        configureRedisTemplate(template);
+        return template;
+    }
+
+    @Bean
+    public RedisTemplate<String, NewAlbum> newAlbumRedisTemplate() {
+        RedisTemplate<String, NewAlbum> template = new RedisTemplate<>();
+        configureRedisTemplate(template);
+        return template;
+    }
+
+    // 공통 ObjectMapper 생성 메서드
+    private ObjectMapper createCommonObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
         objectMapper.activateDefaultTyping(
                 LaissezFaireSubTypeValidator.instance,
                 ObjectMapper.DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY
         );
+        return objectMapper;
+    }
+
+    // 공통 RedisTemplate 설정 메서드
+    private <T> void configureRedisTemplate(RedisTemplate<String, T> template) {
+        template.setConnectionFactory(redisConnectionFactory());
+        template.setKeySerializer(new StringRedisSerializer());
 
         GenericJackson2JsonRedisSerializer jsonSerializer =
-                new GenericJackson2JsonRedisSerializer(objectMapper);
+                new GenericJackson2JsonRedisSerializer(createCommonObjectMapper());
 
         template.setValueSerializer(jsonSerializer);
         template.setHashKeySerializer(new StringRedisSerializer());
         template.setHashValueSerializer(jsonSerializer);
 
         template.afterPropertiesSet();
-        return template;
     }
 }

@@ -67,15 +67,17 @@ public enum ErrorCode {
     POPULAR_GENRE_ALBUM_NOT_FOUND(HttpStatus.NOT_FOUND, "E002", "장르별 인기 앨범을 조회하는데 실패했습니다."),
     POPULAR_ALL_TRACK_NOT_FOUND(HttpStatus.NOT_FOUND, "E003", "인기 트랙을 조회하는데 실패했습니다."),
     POPULAR_GENRE_TRACK_NOT_FOUND(HttpStatus.NOT_FOUND, "E004", "장르별 인기 트랙을 조회하는데 실패했습니다."),
+    POPULAR_PLAYLIST_NOT_FOUND(HttpStatus.NOT_FOUND, "E005", "인기 플레이리스트를 조회하는데 실패했습니다."),
+    NEW_ALL_ALBUM_NOT_FOUND(HttpStatus.NOT_FOUND, "E006", "최신 앨범을 조회하는데 실패했습니다."),
+    NEW_GENRE_ALBUM_NOT_FOUND(HttpStatus.NOT_FOUND, "E007", "장르별 최신 앨범을 조회하는데 실패했습니다."),
 
     GENRE_NOT_FOUND(HttpStatus.NOT_FOUND,"G001","존재하지 않는 장르입니다."),
 
     // 앨범 평점
     ALBUM_RATING_NOT_FOUND(HttpStatus.NOT_FOUND,"AR001","등록된 평점이 없습니다."),
 
-    // 구독 관련
-    SUBSCRIPTION_NOT_FOUND(HttpStatus.NOT_FOUND,"S001","구독권이 존재하지 않습니다."),
-    SUBSCRIPTION_ACCESS_DENIED(HttpStatus.FORBIDDEN, "S002", "구독권이 유효하지 않거나 일치하지 않는 유효권입니다.");
+    // 검색 관련
+    INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "Q001", "검색어를 입력해주세요.");
 
     private final HttpStatus status;
     private final String code;
