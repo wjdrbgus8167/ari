@@ -1,9 +1,9 @@
-package com.ccc.ari.global.composition.service.mainpage;
+package com.ccc.ari.global.composition.service.exhibition;
 
 import com.ccc.ari.exhibition.domain.client.PopularItemClient;
 import com.ccc.ari.exhibition.domain.entity.PopularPlaylist;
 import com.ccc.ari.exhibition.domain.vo.PlaylistEntry;
-import com.ccc.ari.global.composition.response.mainpage.PopularPlaylistResponse;
+import com.ccc.ari.global.composition.response.exhibition.PopularPlaylistResponse;
 import com.ccc.ari.global.error.ApiException;
 import com.ccc.ari.global.error.ErrorCode;
 import com.ccc.ari.member.domain.client.MemberClient;

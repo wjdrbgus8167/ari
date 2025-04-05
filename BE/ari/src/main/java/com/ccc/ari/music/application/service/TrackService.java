@@ -66,4 +66,13 @@ public class TrackService {
                 .orElseThrow(() -> new ApiException(ErrorCode.MUSIC_FILE_NOT_FOUND));
         track.decreaseLikeCount();
     }
+
+    @Transactional(readOnly = true)
+    public List<TrackDto> searchTracksByKeyword(String query) {
+        List<TrackEntity> entities = jpaTrackRepository.findByTrackTitleContaining(query);
+
+        return entities.stream()
+                .map(TrackMapper::toDto)
+                .toList();
+    }
 }

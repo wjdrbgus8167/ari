@@ -10,6 +10,8 @@ import com.ccc.ari.member.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class MemberClientImpl implements MemberClient {
@@ -32,4 +34,11 @@ public class MemberClientImpl implements MemberClient {
         return MemberMapper.toDto(member);
     }
 
+    @Override
+    public List<MemberDto> searchMembersByKeyword(String query) {
+        List<MemberEntity> members = jpaMemberJpaRepository.findByNicknameContaining(query);
+        return members.stream()
+                .map(MemberMapper::toDto)
+                .toList();
+    }
 }

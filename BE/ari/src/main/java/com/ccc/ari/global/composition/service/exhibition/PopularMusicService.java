@@ -1,12 +1,12 @@
-package com.ccc.ari.global.composition.service.mainpage;
+package com.ccc.ari.global.composition.service.exhibition;
 
 import com.ccc.ari.exhibition.domain.client.PopularItemClient;
 import com.ccc.ari.exhibition.domain.entity.PopularAlbum;
 import com.ccc.ari.exhibition.domain.entity.PopularTrack;
 import com.ccc.ari.exhibition.domain.vo.AlbumEntry;
 import com.ccc.ari.exhibition.domain.vo.TrackEntry;
-import com.ccc.ari.global.composition.response.mainpage.PopularAlbumResponse;
-import com.ccc.ari.global.composition.response.mainpage.PopularTrackResponse;
+import com.ccc.ari.global.composition.response.exhibition.PopularAlbumResponse;
+import com.ccc.ari.global.composition.response.exhibition.PopularTrackResponse;
 import com.ccc.ari.global.error.ApiException;
 import com.ccc.ari.global.error.ErrorCode;
 import com.ccc.ari.member.domain.client.MemberClient;

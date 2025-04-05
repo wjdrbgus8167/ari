@@ -1,4 +1,4 @@
-package com.ccc.ari.global.composition.response;
+package com.ccc.ari.global.composition.response.community;
 
 import com.ccc.ari.community.domain.comment.entity.TrackComment;
 import com.ccc.ari.member.domain.member.MemberDto;

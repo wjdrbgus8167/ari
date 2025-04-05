@@ -15,4 +15,7 @@ public interface TrackClient {
     //트랙 좋아요 증가 감소
     void increaseTrackLikeCount(Integer trackId);
     void decreaseTrackLikeCount(Integer trackId);
+
+    // 트랙 검색
+    List<TrackDto> searchTracksByKeyword(String query);
 }

@@ -1,7 +1,7 @@
-package com.ccc.ari.global.composition.controller;
+package com.ccc.ari.global.composition.controller.community;
 
-import com.ccc.ari.global.composition.response.FantalkListResponse;
-import com.ccc.ari.global.composition.service.FantalkListService;
+import com.ccc.ari.global.composition.response.community.FantalkListResponse;
+import com.ccc.ari.global.composition.service.community.FantalkListService;
 import com.ccc.ari.global.util.ApiUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
