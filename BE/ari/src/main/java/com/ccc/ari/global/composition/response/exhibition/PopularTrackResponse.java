@@ -1,4 +1,4 @@
-package com.ccc.ari.global.composition.response.mainpage;
+package com.ccc.ari.global.composition.response.exhibition;
 
 import lombok.Builder;
 import lombok.Getter;

@@ -1,12 +1,12 @@
-package com.ccc.ari.global.composition.controller.mainpage;
+package com.ccc.ari.global.composition.controller.exhibition;
 
-import com.ccc.ari.global.composition.response.mainpage.NewAlbumResponse;
-import com.ccc.ari.global.composition.response.mainpage.PopularAlbumResponse;
-import com.ccc.ari.global.composition.response.mainpage.PopularPlaylistResponse;
-import com.ccc.ari.global.composition.response.mainpage.PopularTrackResponse;
-import com.ccc.ari.global.composition.service.mainpage.NewAlbumService;
-import com.ccc.ari.global.composition.service.mainpage.PopularMusicService;
-import com.ccc.ari.global.composition.service.mainpage.PopularPlaylistService;
+import com.ccc.ari.global.composition.response.exhibition.NewAlbumResponse;
+import com.ccc.ari.global.composition.response.exhibition.PopularAlbumResponse;
+import com.ccc.ari.global.composition.response.exhibition.PopularPlaylistResponse;
+import com.ccc.ari.global.composition.response.exhibition.PopularTrackResponse;
+import com.ccc.ari.global.composition.service.exhibition.NewAlbumService;
+import com.ccc.ari.global.composition.service.exhibition.PopularMusicService;
+import com.ccc.ari.global.composition.service.exhibition.PopularPlaylistService;
 import com.ccc.ari.global.util.ApiUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
