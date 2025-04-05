@@ -1,6 +1,6 @@
 import 'package:ari/presentation/routes/app_router.dart';
 import 'package:flutter/material.dart';
-import '../common/media_card.dart';
+import 'package:ari/presentation/widgets/common/media_card.dart';
 import 'package:ari/domain/entities/album.dart';
 
 class AlbumCard extends StatelessWidget {
@@ -18,7 +18,7 @@ class AlbumCard extends StatelessWidget {
         Navigator.pushNamed(
           context,
           AppRoutes.album,
-          arguments: {'albumId': 1},
+          arguments: {'albumId': album.albumId},
         );
       },
     );
