@@ -71,7 +71,11 @@ public enum ErrorCode {
     GENRE_NOT_FOUND(HttpStatus.NOT_FOUND,"G001","존재하지 않는 장르입니다."),
 
     // 앨범 평점
-    ALBUM_RATING_NOT_FOUND(HttpStatus.NOT_FOUND,"AR001","등록된 평점이 없습니다.");
+    ALBUM_RATING_NOT_FOUND(HttpStatus.NOT_FOUND,"AR001","등록된 평점이 없습니다."),
+
+    // 구독 관련
+    SUBSCRIPTION_NOT_FOUND(HttpStatus.NOT_FOUND,"S001","구독권이 존재하지 않습니다."),
+    SUBSCRIPTION_ACCESS_DENIED(HttpStatus.FORBIDDEN, "S002", "구독권이 유효하지 않거나 일치하지 않는 유효권입니다.");
 
     private final HttpStatus status;
     private final String code;
