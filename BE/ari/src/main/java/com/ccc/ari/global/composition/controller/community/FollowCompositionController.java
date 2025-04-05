@@ -1,8 +1,8 @@
-package com.ccc.ari.global.composition.controller;
+package com.ccc.ari.global.composition.controller.community;
 
-import com.ccc.ari.global.composition.response.FollowerListResponse;
-import com.ccc.ari.global.composition.response.FollowingListResponse;
-import com.ccc.ari.global.composition.service.FollowListService;
+import com.ccc.ari.global.composition.response.community.FollowerListResponse;
+import com.ccc.ari.global.composition.response.community.FollowingListResponse;
+import com.ccc.ari.global.composition.service.community.FollowListService;
 import com.ccc.ari.global.util.ApiUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

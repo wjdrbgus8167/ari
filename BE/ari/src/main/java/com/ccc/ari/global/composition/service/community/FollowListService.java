@@ -1,10 +1,10 @@
-package com.ccc.ari.global.composition.service;
+package com.ccc.ari.global.composition.service.community;
 
 import com.ccc.ari.community.domain.follow.client.FollowClient;
 import com.ccc.ari.community.domain.follow.client.FollowerDto;
 import com.ccc.ari.community.domain.follow.client.FollowingDto;
-import com.ccc.ari.global.composition.response.FollowerListResponse;
-import com.ccc.ari.global.composition.response.FollowingListResponse;
+import com.ccc.ari.global.composition.response.community.FollowerListResponse;
+import com.ccc.ari.global.composition.response.community.FollowingListResponse;
 import com.ccc.ari.member.domain.client.MemberClient;
 import com.ccc.ari.member.domain.member.MemberDto;
 import lombok.RequiredArgsConstructor;

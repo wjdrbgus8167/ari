@@ -1,8 +1,8 @@
-package com.ccc.ari.global.composition.controller;
+package com.ccc.ari.global.composition.controller.community;
 
-import com.ccc.ari.global.composition.response.NoticeCommentListResponse;
-import com.ccc.ari.global.composition.response.TrackCommentListResponse;
-import com.ccc.ari.global.composition.service.CommentListService;
+import com.ccc.ari.global.composition.response.community.NoticeCommentListResponse;
+import com.ccc.ari.global.composition.response.community.TrackCommentListResponse;
+import com.ccc.ari.global.composition.service.community.CommentListService;
 import com.ccc.ari.global.util.ApiUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

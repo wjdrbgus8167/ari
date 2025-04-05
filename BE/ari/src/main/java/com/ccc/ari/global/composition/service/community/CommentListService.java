@@ -1,12 +1,12 @@
-package com.ccc.ari.global.composition.service;
+package com.ccc.ari.global.composition.service.community;
 
 import com.ccc.ari.community.domain.comment.client.TrackCommentClient;
 import com.ccc.ari.community.domain.comment.entity.Comment;
 import com.ccc.ari.community.domain.comment.entity.TrackComment;
 import com.ccc.ari.community.domain.notice.client.NoticeCommentClient;
 import com.ccc.ari.community.domain.notice.client.NoticeCommentDto;
-import com.ccc.ari.global.composition.response.NoticeCommentListResponse;
-import com.ccc.ari.global.composition.response.TrackCommentListResponse;
+import com.ccc.ari.global.composition.response.community.NoticeCommentListResponse;
+import com.ccc.ari.global.composition.response.community.TrackCommentListResponse;
 import com.ccc.ari.member.domain.client.MemberClient;
 import com.ccc.ari.member.domain.member.MemberDto;
 import lombok.RequiredArgsConstructor;

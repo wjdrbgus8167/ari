@@ -1,8 +1,8 @@
-package com.ccc.ari.global.composition.service;
+package com.ccc.ari.global.composition.service.community;
 
 import com.ccc.ari.community.domain.fantalk.client.FantalkClient;
 import com.ccc.ari.community.domain.fantalk.client.FantalkDto;
-import com.ccc.ari.global.composition.response.FantalkListResponse;
+import com.ccc.ari.global.composition.response.community.FantalkListResponse;
 import com.ccc.ari.member.domain.client.MemberClient;
 import com.ccc.ari.member.domain.member.MemberDto;
 import com.ccc.ari.music.domain.album.AlbumDto;
