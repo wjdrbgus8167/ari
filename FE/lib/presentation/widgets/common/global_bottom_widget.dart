@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ari/core/utils/login_redirect_util.dart';
 import 'package:ari/providers/global_providers.dart';
+import 'package:ari/providers/navigation_history_provider.dart';
 import 'package:ari/presentation/widgets/common/bottom_nav.dart';
 import 'package:ari/presentation/widgets/common/playback_bar.dart';
+import 'package:ari/presentation/widgets/common/custom_toast.dart';
 import '../../pages/my_channel/my_channel_screen.dart';
 
 // 인덱스 0: 홈 화면 (전달된 child)
@@ -10,6 +14,8 @@ import '../../pages/my_channel/my_channel_screen.dart';
 // 인덱스 2: 음악 서랍 화면 (임시 텍스트 표시)
 // 인덱스 3: 나의 채널 화면 (MyChannelScreen)
 
+/// 하단 내브바 위젯과 탭별 화면 관리
+/// 전체 앱의 공통 골격 제공, 하단 네비게이션 바와 재생 바를 포함
 class GlobalBottomWidget extends ConsumerWidget {
   final Widget child; // 각 페이지 콘텐츠 영역
 
@@ -17,11 +23,21 @@ class GlobalBottomWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 현재 선택된 탭 인덱스
     final bottomIndex = ref.watch(bottomNavProvider);
+
+    // 탭 히스토리 변경 감지
+    ref.listen(navigationHistoryProvider, (previous, current) {
+      // 히스토리가 변경되면 UI도 함께 업데이트 해야하므로
+      // 선택된 탭 인덱스를 현재 히스토리의 마지막 항목으로 설정
+      if (current.isNotEmpty && current.last != bottomIndex) {
+        ref.read(bottomNavProvider.notifier).setIndex(current.last);
+      }
+    });
 
     Widget currentScreen = child;
 
-    // 하단 탭 인덱스가 변경될 때 해당 화면으로 교체
+    // 하단 탭 인덱스가 변경될 때 그 화면으로 변경
     if (bottomIndex != 0) {
       switch (bottomIndex) {
         case 1:
@@ -47,29 +63,78 @@ class GlobalBottomWidget extends ConsumerWidget {
           currentScreen = const MyChannelScreen();
           break;
         default:
-          // 기본값은 전달된 child (일반적으로 HomeScreen)
+          // 기본값은 전달된 child (보통 HomeScreen)
           currentScreen = child;
       }
     }
 
-    return Scaffold(
-      body: currentScreen,
-      bottomNavigationBar: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          PlaybackBar(),
-          CommonBottomNav(
-            currentIndex: bottomIndex,
-            onTap: (index) {
-              // 현재 인덱스와 선택한 인덱스가 같으면 해당 화면을 맨 위로 스크롤
-              if (index == bottomIndex) {
-                // TODO: 현재 화면 맨 위로 스크롤 처리
-              }
-              // 하단 네비게이션 인덱스 업데이트
-              ref.read(bottomNavProvider.notifier).setIndex(index);
-            },
-          ),
-        ],
+    // PopScope로 뒤로가기 이벤트 처리
+    return PopScope(
+      canPop: false, // 기본 뒤로가기 동작 비활성화
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+
+        // 뒤로가기 처리를 위해 히스토리 확인
+        final historyNotifier = ref.read(navigationHistoryProvider.notifier);
+        final isAtHome = historyNotifier.goBack();
+
+        // 홈화면인 경우 토스트 표시 또는 앱 종료
+        if (isAtHome) {
+          // 실제 뒤로가기 버튼을 눌렀는지 확인
+          if (historyNotifier.isHomeBackButtonPressed()) {
+            final isQuickSecondPress = historyNotifier.isQuickSecondBackPress();
+
+            if (isQuickSecondPress) {
+              // 1초 이내에 뒤로가기를 두 번 누른 경우: 앱 종료
+              SystemNavigator.pop();
+            } else {
+              // 처음 뒤로가기 누른 경우: 토스트 메시지 표시
+              context.showToast('뒤로가기 버튼을 한 번 더 누르면 종료됩니다');
+            }
+          }
+        }
+      },
+      child: Scaffold(
+        body: currentScreen,
+        bottomNavigationBar: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const PlaybackBar(),
+            CommonBottomNav(
+              currentIndex: bottomIndex,
+              onTap: (index) async {
+                // 로그인이 필요한 탭인지 확인 (음악 서랍, 나의 채널)
+                if (index == 2 || index == 3) {
+                  // 로그인 체크 및 필요시 다이얼로그 표시 후 로그인 화면으로 이동
+                  final isLoggedIn = await checkLoginAndRedirect(
+                    context,
+                    ref,
+                    onLoginSuccess: () {
+                      // 탭 변경 전에 조금 지연시켜 사용자 정보가 업데이트될 시간 확보
+                      Future.delayed(const Duration(milliseconds: 100), () {
+                        // 로그인 성공하면 선택한 탭으로 이동
+                        ref
+                            .read(navigationHistoryProvider.notifier)
+                            .addTab(index);
+                      });
+                    },
+                  );
+
+                  // 로그인 되지 않았거나 취소한 경우 탭 변경 중단
+                  if (!isLoggedIn) return;
+                } else {
+                  // 현재 인덱스와 선택한 인덱스가 같으면 해당 화면을 맨 위로 스크롤
+                  if (index == bottomIndex) {
+                    // TODO: 현재 화면 맨 위로 스크롤 처리
+                  } else {
+                    // 탭 변경 시 히스토리에 추가
+                    ref.read(navigationHistoryProvider.notifier).addTab(index);
+                  }
+                }
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

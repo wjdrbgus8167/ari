@@ -12,7 +12,7 @@ class LoginScreen extends ConsumerWidget {
     // ViewModel의 notifier와 state를 모두 가져옵니다
     final viewModel = ref.read(loginViewModelProvider.notifier);
     final loginState = ref.watch(loginViewModelProvider);
-    
+
     return Scaffold(
       // 배경색 검정
       backgroundColor: Colors.black,
@@ -86,7 +86,7 @@ class LoginScreen extends ConsumerWidget {
               onChanged: (value) => viewModel.setPassword(value),
             ),
             const SizedBox(height: 8),
-            
+
             // 에러 메시지 표시
             if (loginState.errorMessage != null)
               Padding(
@@ -97,19 +97,22 @@ class LoginScreen extends ConsumerWidget {
                   textAlign: TextAlign.center,
                 ),
               ),
-              
+
             const SizedBox(height: 16),
+
             // 로그인 버튼
             ButtonLarge(
               text: loginState.isLoading ? '로그인 중...' : '로그인하기',
-              onPressed: loginState.isLoading
-                ? null  // 로딩 중일 때는 버튼 비활성화
-                : () async {
-                    if (viewModel.validateInputs() && await viewModel.login()) {
-                      // 로그인 성공 시 홈 화면으로 이동
-                      Navigator.of(context).pushNamed(AppRoutes.home);
-                    }
-                  },
+              onPressed:
+                  loginState.isLoading
+                      ? null // 로딩 중일 때는 버튼 비활성화
+                      : () async {
+                        if (viewModel.validateInputs() &&
+                            await viewModel.login()) {
+                          // 로그인 성공 시 true 반환하고 화면 닫기
+                          Navigator.of(context).pop(true);
+                        }
+                      },
             ),
             const SizedBox(height: 16),
             // 구글 계정으로 로그인 버튼
@@ -128,12 +131,13 @@ class LoginScreen extends ConsumerWidget {
                   width: 24,
                   height: 24,
                 ),
-                onPressed: loginState.isLoading
-                  ? null  // 로딩 중일 때는 버튼 비활성화
-                  : () {
-                      // 구글 로그인 로직 구현
-                      viewModel.startGoogleLogin();
-                    },
+                onPressed:
+                    loginState.isLoading
+                        ? null // 로딩 중일 때는 버튼 비활성화
+                        : () {
+                          // 구글 로그인 로직 구현
+                          viewModel.startGoogleLogin();
+                        },
                 label: const Text(
                   '구글 계정으로 로그인하기',
                   style: TextStyle(fontWeight: FontWeight.bold),

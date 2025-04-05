@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_colors.dart';
 
 class CustomDialog extends StatelessWidget {
   final String title; // 다이얼로그 제목
@@ -19,6 +20,17 @@ class CustomDialog extends StatelessWidget {
   final EdgeInsets contentPadding; // 다이얼로그 내부 패딩
   final double borderRadius; // 다이얼로그 모서리 둥글기 정도
 
+  // 추가된 속성: 그라데이션 설정
+  final Gradient? confirmButtonGradient; // 확인 버튼 그라데이션
+  final Gradient? cancelButtonGradient; // 취소 버튼 그라데이션
+
+  // 투명도 관련
+  final double titleOpacity; // 제목 배경 투명도
+  final Color titleBackgroundColor; // 제목 배경 색상
+  final double dialogOpacity; // 다이얼로그 배경 투명도
+  final Color dialogBackgroundColor; // 다이얼로그 배경 색상
+  final double contentOpacity; // 컨텐츠 영역 배경 투명도
+
   const CustomDialog({
     super.key,
     required this.title,
@@ -26,7 +38,7 @@ class CustomDialog extends StatelessWidget {
     this.customContent,
     this.confirmText = '확인',
     this.cancelText = '취소',
-    this.confirmButtonColor = Colors.blue,
+    this.confirmButtonColor = AppColors.lightPurple,
     this.cancelButtonColor = Colors.grey,
     this.textColor = Colors.black87,
     this.onConfirm,
@@ -35,10 +47,17 @@ class CustomDialog extends StatelessWidget {
     this.buttonSpacing = 10.0,
     this.contentPadding = const EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 24.0),
     this.borderRadius = 16.0,
+    this.confirmButtonGradient,
+    this.cancelButtonGradient,
+    this.titleOpacity = 0.65, // 제목 불투명도
+    this.titleBackgroundColor = Colors.black,
+    this.dialogOpacity = 0.6, // 불투명도
+    this.dialogBackgroundColor = Colors.black,
+    this.contentOpacity = 0.75, // 내용 불투명도
   }) : assert(
-         content != null || customContent != null,
-         '내용 또는 컨텐츠 중 하나는 넣어줘야 함',
-       );
+        content != null || customContent != null,
+        '내용 또는 컨텐츠 중 하나는 넣어줘야 함',
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -48,16 +67,18 @@ class CustomDialog extends StatelessWidget {
       ),
       elevation: 0,
       backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(
+        horizontal: 30.0,
+        vertical: 24.0,
+      ),
       child: _buildDialogContent(context),
     );
   }
 
   Widget _buildDialogContent(BuildContext context) {
     return Container(
-      padding: EdgeInsets.zero,
       decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.rectangle,
+        color: dialogBackgroundColor.withOpacity(dialogOpacity),
         borderRadius: BorderRadius.circular(borderRadius),
         boxShadow: const [
           BoxShadow(
@@ -75,7 +96,7 @@ class CustomDialog extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 16.0),
             decoration: BoxDecoration(
-              color: Colors.grey[600],
+              color: titleBackgroundColor.withOpacity(titleOpacity),
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(borderRadius),
                 topRight: Radius.circular(borderRadius),
@@ -93,25 +114,43 @@ class CustomDialog extends StatelessWidget {
             ),
           ),
 
-          // 내용 부분
-          Padding(
-            padding: contentPadding,
-            child:
-                customContent ??
-                Text(
-                  content!,
-                  style: TextStyle(fontSize: 16, color: textColor),
-                  textAlign: TextAlign.center,
+          // 내용 부분과 버튼 부분
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(contentOpacity),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(borderRadius),
+                bottomRight: Radius.circular(borderRadius),
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 내용 부분
+                Padding(
+                  padding: contentPadding,
+                  child:
+                      customContent ??
+                      Text(
+                        content!,
+                        style: TextStyle(fontSize: 16, color: textColor),
+                        textAlign: TextAlign.center,
+                      ),
                 ),
-          ),
 
-          // 버튼 부분
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24.0, 0.0, 24.0, 24.0),
-            child:
-                singleButtonMode
-                    ? _buildSingleButton(context)
-                    : _buildTwoButtons(context),
+                // 버튼 부분
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24.0, 0.0, 24.0, 24.0),
+                  child: Builder(
+                    builder:
+                        (context) =>
+                            singleButtonMode
+                                ? _buildSingleButton(context)
+                                : _buildTwoButtons(context),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -119,6 +158,44 @@ class CustomDialog extends StatelessWidget {
   }
 
   Widget _buildSingleButton(BuildContext context) {
+    // 그라데이션이 있는 경우
+    if (confirmButtonGradient != null) {
+      return SizedBox(
+        width: double.infinity,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: confirmButtonGradient,
+            borderRadius: BorderRadius.circular(borderRadius / 2),
+          ),
+          child: ElevatedButton(
+            onPressed: () {
+              if (onConfirm != null) {
+                onConfirm!();
+              }
+              Navigator.of(context).pop(true);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(borderRadius / 2),
+              ),
+            ),
+            child: Text(
+              confirmText,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // 기존 단색 버튼
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
@@ -126,7 +203,7 @@ class CustomDialog extends StatelessWidget {
           if (onConfirm != null) {
             onConfirm!();
           }
-          Navigator.of(context).pop();
+          Navigator.of(context).pop(true);
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: confirmButtonColor,
@@ -152,64 +229,127 @@ class CustomDialog extends StatelessWidget {
       children: [
         // 취소 버튼
         Expanded(
-          child: ElevatedButton(
-            onPressed: () {
-              if (onCancel != null) {
-                onCancel!();
-              }
-              Navigator.of(context).pop(false);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: cancelButtonColor,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(borderRadius / 2),
-              ),
-            ),
-            child: Text(
-              cancelText,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ),
+          child:
+              cancelButtonGradient != null
+                  ? DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: cancelButtonGradient,
+                      borderRadius: BorderRadius.circular(borderRadius / 2),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (onCancel != null) {
+                          onCancel!();
+                        }
+                        Navigator.of(context).pop(false);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(borderRadius / 2),
+                        ),
+                      ),
+                      child: Text(
+                        cancelText,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  )
+                  : ElevatedButton(
+                    onPressed: () {
+                      if (onCancel != null) {
+                        onCancel!();
+                      }
+                      Navigator.of(context).pop(false);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: cancelButtonColor,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(borderRadius / 2),
+                      ),
+                    ),
+                    child: Text(
+                      cancelText,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
         ),
 
         SizedBox(width: buttonSpacing),
 
         // 확인 버튼
         Expanded(
-          child: ElevatedButton(
-            onPressed: () {
-              if (onConfirm != null) {
-                onConfirm!();
-              }
-              Navigator.of(context).pop(true);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: confirmButtonColor,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(borderRadius / 2),
-              ),
-            ),
-            child: Text(
-              confirmText,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ),
+          child:
+              confirmButtonGradient != null
+                  ? DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: confirmButtonGradient,
+                      borderRadius: BorderRadius.circular(borderRadius / 2),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (onConfirm != null) {
+                          onConfirm!();
+                        }
+                        Navigator.of(context).pop(true);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(borderRadius / 2),
+                        ),
+                      ),
+                      child: Text(
+                        confirmText,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  )
+                  : ElevatedButton(
+                    onPressed: () {
+                      if (onConfirm != null) {
+                        onConfirm!();
+                      }
+                      Navigator.of(context).pop(true);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: confirmButtonColor,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(borderRadius / 2),
+                      ),
+                    ),
+                    child: Text(
+                      confirmText,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
         ),
       ],
     );
   }
 }
-
 
 // 확장 메서드(다이얼로그 쉽게 호출 가능)
 // 원본 클래스 수정하지 않아도 기능 확장 가능
@@ -223,11 +363,19 @@ extension CustomDialogExtension on BuildContext {
     String confirmText = '확인',
     String cancelText = '취소',
     Color confirmButtonColor = Colors.blue,
-    Color cancelButtonColor = Colors.grey,
+    Color cancelButtonColor = Colors.black54,
     Color textColor = Colors.black87,
     VoidCallback? onConfirm,
     VoidCallback? onCancel,
     bool singleButtonMode = false,
+    Gradient? confirmButtonGradient,
+    Gradient? cancelButtonGradient,
+    double titleOpacity = 0.65,
+    Color titleBackgroundColor = Colors.black,
+    double dialogOpacity = 0.6,
+    Color dialogBackgroundColor = Colors.black,
+    double contentOpacity = 0.75,
+    double borderRadius = 16.0,
   }) {
     return showDialog<bool>(
       context: this,
@@ -245,6 +393,14 @@ extension CustomDialogExtension on BuildContext {
           onConfirm: onConfirm,
           onCancel: onCancel,
           singleButtonMode: singleButtonMode,
+          confirmButtonGradient: confirmButtonGradient,
+          cancelButtonGradient: cancelButtonGradient,
+          titleOpacity: titleOpacity,
+          titleBackgroundColor: titleBackgroundColor,
+          dialogOpacity: dialogOpacity,
+          dialogBackgroundColor: dialogBackgroundColor,
+          contentOpacity: contentOpacity,
+          borderRadius: borderRadius,
         );
       },
     );
@@ -257,6 +413,13 @@ extension CustomDialogExtension on BuildContext {
     String confirmText = '확인',
     Color confirmButtonColor = Colors.blue,
     VoidCallback? onConfirm,
+    Gradient? confirmButtonGradient,
+    double titleOpacity = 0.65,
+    Color titleBackgroundColor = Colors.black,
+    double dialogOpacity = 0.6,
+    Color dialogBackgroundColor = Colors.black,
+    double contentOpacity = 0.75,
+    double borderRadius = 16.0,
   }) {
     return showDialog<void>(
       context: this,
@@ -269,6 +432,13 @@ extension CustomDialogExtension on BuildContext {
           confirmButtonColor: confirmButtonColor,
           onConfirm: onConfirm,
           singleButtonMode: true,
+          confirmButtonGradient: confirmButtonGradient,
+          titleOpacity: titleOpacity,
+          titleBackgroundColor: titleBackgroundColor,
+          dialogOpacity: dialogOpacity,
+          dialogBackgroundColor: dialogBackgroundColor,
+          contentOpacity: contentOpacity,
+          borderRadius: borderRadius,
         );
       },
     );
@@ -284,6 +454,14 @@ extension CustomDialogExtension on BuildContext {
     Color cancelButtonColor = Colors.grey,
     VoidCallback? onConfirm,
     VoidCallback? onCancel,
+    Gradient? confirmButtonGradient,
+    Gradient? cancelButtonGradient,
+    double titleOpacity = 0.65,
+    Color titleBackgroundColor = Colors.black,
+    double dialogOpacity = 0.6,
+    Color dialogBackgroundColor = Colors.black,
+    double contentOpacity = 0.75,
+    double borderRadius = 16.0,
   }) {
     return showDialog<bool>(
       context: this,
@@ -299,6 +477,14 @@ extension CustomDialogExtension on BuildContext {
           onConfirm: onConfirm,
           onCancel: onCancel,
           singleButtonMode: false,
+          confirmButtonGradient: confirmButtonGradient,
+          cancelButtonGradient: cancelButtonGradient,
+          titleOpacity: titleOpacity,
+          titleBackgroundColor: titleBackgroundColor,
+          dialogOpacity: dialogOpacity,
+          dialogBackgroundColor: dialogBackgroundColor,
+          contentOpacity: contentOpacity,
+          borderRadius: borderRadius,
         );
       },
     );

@@ -92,11 +92,10 @@ class _ToastOverlayState extends State<_ToastOverlay>
   Widget build(BuildContext context) {
     return Positioned(
       bottom: MediaQuery.of(context).viewPadding.bottom + 70,
-      left: MediaQuery.of(context).size.width * 0.2, // 좌우 여백
-      right: MediaQuery.of(context).size.width * 0.2, // 좌우 여백
+      left: MediaQuery.of(context).size.width * 0.125, // 좌우 여백
+      right: MediaQuery.of(context).size.width * 0.125, // 좌우 여백
       child: GestureDetector(
         onTap: () {
-          // 터치하면 토스트 없어짐
           _animationController.reverse().then((_) {
             widget.onDismiss();
           });
@@ -106,16 +105,18 @@ class _ToastOverlayState extends State<_ToastOverlay>
           child: Material(
             color: Colors.transparent,
             child: Container(
-              width: MediaQuery.of(context).size.width * 0.6, // 토스트 가로 길이
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              width: MediaQuery.of(context).size.width * 0.75, // 가로 길이 증가
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: _getBackgroundColor(),
-                borderRadius: BorderRadius.circular(12), // 라운딩
+                color: AppColors.lightPurple.withValues(
+                  alpha: 0.7,
+                ), // 투명한 검정색 적용
+                borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
+                    color: Colors.black26,
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
@@ -135,12 +136,6 @@ class _ToastOverlayState extends State<_ToastOverlay>
         ),
       ),
     );
-  }
-
-  // 배경색
-  Color _getBackgroundColor() {
-    // return Colors.black;
-    return AppColors.lightPurple;
   }
 }
 

@@ -116,20 +116,23 @@ class MyChannelRemoteDataSourceImpl implements MyChannelRemoteDataSource {
     );
   }
 
-  /// 아티스트 앨범 목록 조회
-  @override
-  Future<List<ArtistAlbum>> getArtistAlbums(String memberId) async {
-    return _request<List<ArtistAlbum>>(
-      url: '/api/v1/artists/$memberId/albums',
-      method: 'GET',
-      fromJson: (data) {
-        final albumsList = data['albums'] as List<dynamic>? ?? [];
-        return albumsList
-            .map((albumJson) => ArtistAlbum.fromJson(albumJson))
-            .toList();
-      },
-    );
-  }
+/// 아티스트 앨범 목록 조회
+@override
+Future<List<ArtistAlbum>> getArtistAlbums(String memberId) async {
+  return _request<List<ArtistAlbum>>(
+    url: '/api/v1/artists/$memberId/albums',
+    method: 'GET',
+    fromJson: (data) {
+      // API 응답에서 앨범 배열을 직접 파싱
+      if (data is List) {
+        return data.map((albumJson) => ArtistAlbum.fromJson(albumJson)).toList();
+      } else {
+        print('❌ 앨범 데이터 파싱 중 예상치 못한 형식: ${data.runtimeType}, $data');
+        return [];
+      }
+    },
+  );
+}
 
   /// 아티스트 공지사항 조회
   @override
