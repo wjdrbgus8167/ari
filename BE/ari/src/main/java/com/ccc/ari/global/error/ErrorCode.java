@@ -74,7 +74,10 @@ public enum ErrorCode {
     GENRE_NOT_FOUND(HttpStatus.NOT_FOUND,"G001","존재하지 않는 장르입니다."),
 
     // 앨범 평점
-    ALBUM_RATING_NOT_FOUND(HttpStatus.NOT_FOUND,"AR001","등록된 평점이 없습니다.");
+    ALBUM_RATING_NOT_FOUND(HttpStatus.NOT_FOUND,"AR001","등록된 평점이 없습니다."),
+
+    // 검색 관련
+    INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "Q001", "검색어를 입력해주세요.");
 
     private final HttpStatus status;
     private final String code;
