@@ -1,6 +1,6 @@
 package com.ccc.ari.global.composition.controller.artist;
 
-import com.ccc.ari.global.composition.response.artiis.GetArtistAlbumListResponse;
+import com.ccc.ari.global.composition.response.artist.GetArtistAlbumListResponse;
 import com.ccc.ari.global.composition.service.artist.GetArtisAlbumListService;
 import com.ccc.ari.global.util.ApiUtils;
 import lombok.RequiredArgsConstructor;

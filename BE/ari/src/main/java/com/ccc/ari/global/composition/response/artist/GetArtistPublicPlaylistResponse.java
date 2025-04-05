@@ -1,4 +1,4 @@
-package com.ccc.ari.global.composition.response.artiis;
+package com.ccc.ari.global.composition.response.artist;
 
 import lombok.Builder;
 import lombok.Getter;

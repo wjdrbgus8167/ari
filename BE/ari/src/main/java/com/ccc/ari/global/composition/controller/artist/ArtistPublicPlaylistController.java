@@ -1,6 +1,6 @@
 package com.ccc.ari.global.composition.controller.artist;
 
-import com.ccc.ari.global.composition.response.artiis.GetArtistPublicPlaylistResponse;
+import com.ccc.ari.global.composition.response.artist.GetArtistPublicPlaylistResponse;
 import com.ccc.ari.global.composition.service.artist.GetArtistPublicPlaylistService;
 import com.ccc.ari.global.util.ApiUtils;
 import lombok.RequiredArgsConstructor;

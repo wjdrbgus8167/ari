@@ -1,6 +1,6 @@
 package com.ccc.ari.global.composition.service.artist;
 
-import com.ccc.ari.global.composition.response.artiis.GetArtistPublicPlaylistResponse;
+import com.ccc.ari.global.composition.response.artist.GetArtistPublicPlaylistResponse;
 import com.ccc.ari.member.domain.client.MemberClient;
 import com.ccc.ari.playlist.domain.playlist.PlaylistEntity;
 import com.ccc.ari.playlist.domain.playlist.client.PlaylistClient;
