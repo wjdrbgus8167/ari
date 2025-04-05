@@ -52,5 +52,8 @@ public class TrackClientImpl implements TrackClient {
         trackService.decreaseTrackLikeCount(trackId);
     }
 
-
+    @Override
+    public List<TrackDto> searchTracksByKeyword(String query) {
+        return trackService.searchTracksByKeyword(query);
+    }
 }
