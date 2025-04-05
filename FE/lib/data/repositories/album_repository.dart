@@ -18,13 +18,34 @@ class AlbumRepositoryImpl implements AlbumRepository {
       if (response.data == null) {
         return Left(Failure(message: "Response data is null"));
       }
-      // AlbumDetailModel는 데이터 모델이므로 도메인 엔티티로 변환해야 합니다.
-      return Right(_mapDataAlbumToDomain(response.data as data_model.Album));
+      // 직접 캐스팅 대신, 매핑 함수를 사용하여 도메인 엔티티로 변환합니다.
+      final domain.Album album = _mapAlbumDetailToDomain(
+        response.data as AlbumDetailModel,
+      );
+      return Right(album);
     } on Failure catch (failure) {
       return Left(failure);
     } catch (e) {
       return Left(Failure(message: e.toString()));
     }
+  }
+
+  // AlbumDetailModel을 도메인 엔티티 Album으로 변환하는 매핑 함수
+  domain.Album _mapAlbumDetailToDomain(AlbumDetailModel detail) {
+    return domain.Album(
+      albumId: detail.albumId,
+      albumTitle: detail.albumTitle,
+      artist: detail.artist,
+      description: detail.description,
+      albumLikeCount: detail.albumLikeCount,
+      genre: detail.genre,
+      commentCount: detail.commentCount,
+      rating: detail.rating,
+      createdAt: detail.createdAt,
+      coverImageUrl: detail.coverImageUrl,
+      comments: detail.comments, // 만약 타입이 다르다면 이 부분도 별도로 매핑 필요
+      tracks: detail.tracks, // 마찬가지로 매핑 필요할 수 있음
+    );
   }
 
   @override
