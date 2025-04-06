@@ -36,8 +36,8 @@ class UnfollowMemberUseCase {
 
   UnfollowMemberUseCase(this.repository);
 
-  Future<Either<Failure, Unit>> execute(String followId) {
-    return repository.unfollowMember(followId);
+  Future<Either<Failure, Unit>> execute(String memberId) {
+    return repository.unfollowMember(memberId);
   }
 }
 
@@ -62,6 +62,7 @@ class GetChannelRecentNoticesUseCase {
     return repository.getArtistNotices(memberId);
   }
 }
+
 /// 아티스트 팬톡 목록 조회 유스케이스
 class GetFanTalksUseCase {
   final MyChannelRepository repository;

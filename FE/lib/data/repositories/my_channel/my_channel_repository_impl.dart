@@ -12,13 +12,13 @@ import '../../models/my_channel/neighbor.dart';
 class MyChannelRepositoryImpl implements MyChannelRepository {
   final MyChannelRemoteDataSource remoteDataSource;
 
-  MyChannelRepositoryImpl({
-    required this.remoteDataSource,
-  });
+  MyChannelRepositoryImpl({required this.remoteDataSource});
 
   /// API 호출 중 예외가 발생하면 Left(Failure) 반환
   /// 성공적으로 데이터를 받으면 Right(T) 반환
-  Future<Either<Failure, T>> _handleApiCall<T>(Future<T> Function() apiCall) async {
+  Future<Either<Failure, T>> _handleApiCall<T>(
+    Future<T> Function() apiCall,
+  ) async {
     try {
       final result = await apiCall();
       return Right(result);
@@ -43,9 +43,9 @@ class MyChannelRepositoryImpl implements MyChannelRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> unfollowMember(String followId) async {
+  Future<Either<Failure, Unit>> unfollowMember(String memberId) async {
     return _handleApiCall(() async {
-      await remoteDataSource.unfollowMember(followId);
+      await remoteDataSource.unfollowMember(memberId);
       return unit;
     });
   }
@@ -56,17 +56,23 @@ class MyChannelRepositoryImpl implements MyChannelRepository {
   }
 
   @override
-  Future<Either<Failure, ArtistNoticeResponse>> getArtistNotices(String memberId) {
+  Future<Either<Failure, ArtistNoticeResponse>> getArtistNotices(
+    String memberId,
+  ) {
     return _handleApiCall(() => remoteDataSource.getArtistNotices(memberId));
   }
 
   @override
-  Future<Either<Failure, FanTalkResponse>> getFanTalks(String fantalkChannelId) {
+  Future<Either<Failure, FanTalkResponse>> getFanTalks(
+    String fantalkChannelId,
+  ) {
     return _handleApiCall(() => remoteDataSource.getFanTalks(fantalkChannelId));
   }
 
   @override
-  Future<Either<Failure, PublicPlaylistResponse>> getPublicPlaylists(String memberId) {
+  Future<Either<Failure, PublicPlaylistResponse>> getPublicPlaylists(
+    String memberId,
+  ) {
     return _handleApiCall(() => remoteDataSource.getPublicPlaylists(memberId));
   }
 
