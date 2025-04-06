@@ -90,8 +90,9 @@ contract SubscriptionContract is Ownable, AutomationCompatibleInterface {
 
     // 정산 관련 이벤트
     event SettlementRequestedRegular(uint256 indexed userId, uint256 periodStart, uint256 periodEnd, uint256 amount);
-    event SettlementRequestedArtist(uint256 indexed artistId, uint256 subscriberId, uint256 periodStart, uint256 periodEnd, uint256 amount);
-    event SettlementExecuted(uint256 userId, uint256 indexed artistId, uint256 subscriberId, uint256 amount, string ipfsCID);
+    event SettlementRequestedArtist(uint256 indexed subscriberId, uint256 artistId, uint256 periodStart, uint256 periodEnd, uint256 amount);
+    event SettlementExecutedRegular(uint256 indexed userId, uint256 indexed artistId, uint256 indexed cycleId, uint256 amount);
+    event SettlementExecutedArtist(uint256 indexed userId, uint256 indexed artistId, uint256 indexed cycleId, uint256 amount);
 
     constructor(
         uint256 _regularAmount,
@@ -276,6 +277,9 @@ contract SubscriptionContract is Ownable, AutomationCompatibleInterface {
         uint256 nextPaymentTime = sub.lastPaymentTime + sub.interval;
         if (block.timestamp < nextPaymentTime) return false;
 
+        // 결제 전, 구독 기간에 대한 정산 요청 이벤트 발생
+        emit SettlementRequestedArtist(subscriberId, artistId, sub.lastPaymentTime, nextPaymentTime, sub.amount);
+
         IERC20 token = IERC20(sub.tokenAddress);
         // low-level call을 사용하여 transferFrom 호출
         (bool success, bytes memory data) = address(token).call(
@@ -286,12 +290,6 @@ contract SubscriptionContract is Ownable, AutomationCompatibleInterface {
 
         if (transferSuccess) {
             sub.lastPaymentTime = block.timestamp;
-            // 10%는 플랫폼(소유자), 90%는 아티스트로 분배
-            uint256 ownerShare = (sub.amount * 10) / 100;
-            uint256 artistShare = sub.amount - ownerShare;
-            token.safeTransfer(artistAddresses[artistId], artistShare);
-            token.safeTransfer(owner(), ownerShare);
-
             emit PaymentProcessedArtist(subscriberId, artistId, sub.tokenAddress, sub.amount);
             return true;
         } else {
@@ -381,12 +379,12 @@ contract SubscriptionContract is Ownable, AutomationCompatibleInterface {
 
     // 정산 함수: 오프체인에서 전달받은 아티스트 별 스트리밍 횟수 데이터를 사용하여
     // 컨트랙트에 보관 중인 해당 구독자의 결제 토큰을 분배합니다.
-    function settleArtistPayments(
+    function settlePaymentsRegularByArtist(
         uint256 subscriberId,
+        uint256 cycleId, // 정산 주기 ID
         uint256 totalAmount, // 정산할 총 금액
         uint256[] calldata artistIds,
-        uint256[] calldata streamingCounts, // 각 아티스트의 스트리밍 횟수
-        string calldata ipfsCID
+        uint256[] calldata streamingCounts // 각 아티스트의 스트리밍 횟수
     ) external onlyOwner returns (bool) {
         require(artistIds.length == streamingCounts.length, "Mismatched array lengths");
 
@@ -403,11 +401,36 @@ contract SubscriptionContract is Ownable, AutomationCompatibleInterface {
             // 각 아티스트에게 지급할 금액 = distributable * (해당 아티스트 스트리밍 횟수) / (전체 스트리밍 횟수)
             uint256 payout = (distributable * streamingCounts[i]) / totalStreaming;
             IERC20(defaultTokenAddress).safeTransfer(artistAddr, payout);
-            _emitSettlementExecuted(subscriberId, artistIds[i], payout, ipfsCID);
+            _emitSettlementExecutedRegular(subscriberId, cycleId, artistIds[i], payout);
         }
 
         // 플랫폼 몫을 소유자(플랫폼)에게 송금
         IERC20(defaultTokenAddress).safeTransfer(owner(), platformShare);
+        return true;
+    }
+
+    // 정산 함수: 아티스트 구독에 대한 정산
+    // 플랫폼이 10% 아티스트는 90%를 가져감
+    function settlePaymentsArtist(
+        uint256 subscriberId,
+        uint256 artistId,
+        uint256 cycleId, // 정산 주기 ID
+        uint256 totalAmount // 정산할 총 금액
+    ) external onlyOwner returns (bool) {
+        require(artistAddresses[artistId] != address(0), "Artist not registered");
+
+        // 10%는 플랫폼(소유자), 90%는 아티스트로 분배
+        uint256 ownerShare = (totalAmount * 10) / 100;
+        uint256 artistShare = totalAmount - ownerShare;
+
+        // 아티스트 몫을 아티스트 주소에 송금
+        IERC20(defaultTokenAddress).safeTransfer(artistAddresses[artistId], artistShare);
+        // 정산 이벤트 발생
+        _emitSettlementExecutedArtist(subscriberId, artistId, cycleId, artistShare);
+
+        // 플랫폼 몫을 소유자(플랫폼)에게 송금
+        IERC20(defaultTokenAddress).safeTransfer(owner(), ownerShare);
+
         return true;
     }
 
@@ -489,14 +512,24 @@ contract SubscriptionContract is Ownable, AutomationCompatibleInterface {
         }
     }
 
-    // 헬퍼 함수: SettlementExecuted 이벤트를 emit (Stack too deep 완화)
-    function _emitSettlementExecuted(
+    // 헬퍼 함수: SettlementExecutedRegular 이벤트를 emit (Stack too deep 완화)
+    function _emitSettlementExecutedRegular(
         uint256 subscriberId,
         uint256 artistId,
-        uint256 payout,
-        string calldata ipfsCID
+        uint256 cycleId,
+        uint256 payout
     ) internal {
-        emit SettlementExecuted(subscriberId, artistId, subscriberId, payout, ipfsCID);
+        emit SettlementExecutedRegular(subscriberId, artistId, cycleId, payout);
+    }
+
+    // 헬퍼 함수: SettlementExecutedArtist 이벤트를 emit (Stack too deep 완화)
+    function _emitSettlementExecutedArtist(
+        uint256 subscriberId,
+        uint256 artistId,
+        uint256 cycleId,
+        uint256 payout
+    ) internal {
+        emit SettlementExecutedArtist(subscriberId, artistId, cycleId, payout);
     }
 
     // 정기구독 정보 조회
