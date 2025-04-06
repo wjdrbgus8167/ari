@@ -7,6 +7,7 @@ import 'package:ari/providers/navigation_history_provider.dart';
 import 'package:ari/presentation/widgets/common/bottom_nav.dart';
 import 'package:ari/presentation/widgets/common/playback_bar.dart';
 import 'package:ari/presentation/widgets/common/custom_toast.dart';
+import 'package:ari/presentation/pages/search/search_screen.dart';
 import '../../pages/my_channel/my_channel_screen.dart';
 
 // 인덱스 0: 홈 화면 (전달된 child)
@@ -41,13 +42,8 @@ class GlobalBottomWidget extends ConsumerWidget {
     if (bottomIndex != 0) {
       switch (bottomIndex) {
         case 1:
-          // TODO: 검색 화면
-          currentScreen = const Center(
-            child: Text(
-              '검색 화면',
-              style: TextStyle(color: Colors.white, fontSize: 24),
-            ),
-          );
+          // 검색 화면
+          currentScreen = const SearchScreen();
           break;
         case 2:
           // TODO: 음악 서랍 화면
