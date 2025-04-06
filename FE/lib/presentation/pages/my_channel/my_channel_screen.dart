@@ -157,6 +157,9 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
               // 배지 목록
               SliverToBoxAdapter(child: BadgeList(memberId: _currentUserId)),
 
+              // 섹션 간 여백 (배지와 앨범 사이)
+              const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
               // 아티스트 앨범 (아티스트인 경우에만 표시)
               SliverToBoxAdapter(
                 child: ArtistAlbumSection(
@@ -165,9 +168,19 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
                 ),
               ),
 
+              // 섹션 간 여백 (앨범과 공지 사이)
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 24), // 앨범과 공지 사이 간격
+              ),
+
               // 아티스트 공지사항 (아티스트인 경우에만 표시)
               SliverToBoxAdapter(
                 child: ArtistNoticeSection(memberId: _currentUserId),
+              ),
+
+              // 섹션 간 여백 (공지와 팬톡 사이)
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 24), // 공지와 팬톡 사이 간격
               ),
 
               // 팬톡 (아티스트인 경우에만 표시)
@@ -175,9 +188,19 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
                 child: FanTalkSection(memberId: _currentUserId),
               ),
 
+              // 섹션 간 여백 (팬톡과 플레이리스트 사이)
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 24), // 팬톡과 플레이리스트 사이 간격
+              ),
+
               // 공개된 플레이리스트
               SliverToBoxAdapter(
                 child: PublicPlaylistSection(memberId: _currentUserId),
+              ),
+
+              // 섹션 간 여백 (플레이리스트와 이웃 사이)
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 24), // 플레이리스트와 이웃 사이 간격
               ),
 
               // 이웃(팔로워/팔로잉) 섹션
