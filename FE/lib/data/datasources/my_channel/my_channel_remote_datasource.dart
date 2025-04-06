@@ -18,7 +18,6 @@ abstract class MyChannelRemoteDataSource {
   Future<void> followMember(String memberId);
 
   /// 팔로우 취소
-  /// [followId] : 취소할 팔로우 관계의 ID
   /// [return] : 성공 여부
   Future<void> unfollowMember(String memberId);
 

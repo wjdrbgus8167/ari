@@ -10,7 +10,6 @@ class ChannelInfo {
   final int followingCount; // 팔로잉 수
   final bool isArtist; // 아티스트 여부
   final bool isFollowed; // 내가 이 채널을 팔로우 했는지 여부
-  final String? followId; // 팔로우 관계 ID (언팔로우 시 필요)
   final int? fantalkChannelId; // 팬톡 채널 ID
 
   ChannelInfo({
@@ -23,7 +22,6 @@ class ChannelInfo {
     required this.followingCount,
     required this.isArtist,
     required this.isFollowed,
-    this.followId,
     this.fantalkChannelId,
   });
 
@@ -39,7 +37,6 @@ class ChannelInfo {
       followingCount: json['followingCount'] ?? 0,
       isArtist: json['isArtist'] ?? false,
       isFollowed: json['followedYn'] ?? false,
-      followId: json['followId'],
       fantalkChannelId: json['fantalkChannelId'],
     );
   }
@@ -66,11 +63,6 @@ class ChannelInfo {
       data['subscriberCount'] = subscriberCount;
     }
 
-    // followId가 null이 아닌 경우에만 포함
-    if (followId != null) {
-      data['followId'] = followId;
-    }
-
     // fantalkChannelId가 null이 아닌 경우에만 포함
     if (fantalkChannelId != null) {
       data['fantalkChannelId'] = fantalkChannelId;
@@ -90,7 +82,6 @@ class ChannelInfo {
     int? followingCount,
     bool? isArtist,
     bool? isFollowed,
-    String? followId,
     int? fantalkChannelId,
   }) {
     return ChannelInfo(
@@ -103,7 +94,6 @@ class ChannelInfo {
       followingCount: followingCount ?? this.followingCount,
       isArtist: isArtist ?? this.isArtist,
       isFollowed: isFollowed ?? this.isFollowed,
-      followId: followId ?? this.followId,
       fantalkChannelId: fantalkChannelId ?? this.fantalkChannelId,
     );
   }

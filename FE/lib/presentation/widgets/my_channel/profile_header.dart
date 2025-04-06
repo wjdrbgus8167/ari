@@ -204,7 +204,7 @@ class ProfileHeader extends ConsumerWidget {
         // 팔로우 상태에 따라
         // 관련 부분만 수정
         if (channelInfo.isFollowed) {
-          // 언팔로우 처리 - followId 대신 memberId 사용
+          // 언팔로우 처리 - memberId
           ref
               .read(myChannelProvider.notifier)
               .unfollowMember(channelInfo.memberId);
