@@ -4,6 +4,7 @@ import '../../../providers/my_channel/my_channel_providers.dart';
 import '../../../data/models/my_channel/channel_info.dart';
 import '../../viewmodels/my_channel/my_channel_viewmodel.dart';
 import '../../routes/app_router.dart';
+import '../../../core/constants/app_colors.dart';
 
 /// 나의 채널 프로필 헤더 위젯
 /// 사용자 프로필 이미지(배경), 이름, 구독자 수, 팔로우 버튼 등
@@ -38,7 +39,7 @@ class ProfileHeader extends ConsumerWidget {
       child:
           isLoading
               ? const Center(
-                child: CircularProgressIndicator(color: Colors.blue),
+                child: CircularProgressIndicator(color: AppColors.mediumGreen),
               )
               : hasError
               ? Center(
@@ -54,7 +55,7 @@ class ProfileHeader extends ConsumerWidget {
                       onPressed:
                           () => channelNotifier.loadChannelInfo(memberId),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
+                        backgroundColor: AppColors.mediumGreen,
                         foregroundColor: Colors.white,
                       ),
                       child: const Text('다시 시도'),
@@ -218,10 +219,14 @@ class ProfileHeader extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: channelInfo.isFollowed ? Colors.transparent : Colors.blue,
+          color:
+              channelInfo.isFollowed
+                  ? Colors.transparent
+                  : AppColors.mediumPurple,
           borderRadius: BorderRadius.circular(4),
           border: Border.all(
-            color: channelInfo.isFollowed ? Colors.grey : Colors.blue,
+            color:
+                channelInfo.isFollowed ? Colors.grey : AppColors.mediumPurple,
             width: 1,
           ),
         ),
