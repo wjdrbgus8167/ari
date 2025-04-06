@@ -10,10 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/mypage")
@@ -23,14 +19,12 @@ public class MyTrackListController {
     private final MyTrackListService myTrackListService;
 
     @GetMapping("/tracks/list")
-    public ApiUtils.ApiResponse<List<GetMyTrackListResponse>> getMyTrackList(
-            @AuthenticationPrincipal MemberUserDetails memberUserDetails) throws ExecutionException, InterruptedException {
+    public ApiUtils.ApiResponse<GetMyTrackListResponse> getMyTrackList(
+            @AuthenticationPrincipal MemberUserDetails memberUserDetails){
 
         Integer memberId = memberUserDetails.getMemberId();
-        CompletableFuture<List<GetMyTrackListResponse>> futureTracks = myTrackListService.getArtistTrackStreamingData(memberId);
+        GetMyTrackListResponse response = myTrackListService.getMyTrackList(memberId);
 
-        // CompletableFuture의 결과를 기다려서 받음
-        List<GetMyTrackListResponse> response = futureTracks.get();
 
         return ApiUtils.success(response);
     }
