@@ -178,8 +178,8 @@ class MyChannelNotifier extends StateNotifier<MyChannelState> {
   }
 
   /// 회원 언팔로우
-  Future<void> unfollowMember(String followId, String memberId) async {
-    final result = await unfollowMemberUseCase.execute(followId);
+  Future<void> unfollowMember(String memberId) async {
+    final result = await unfollowMemberUseCase.execute(memberId);
 
     result.fold((failure) => state = state.copyWith(error: failure), (_) async {
       // 언팔로우 성공 후 채널 정보 다시 로드

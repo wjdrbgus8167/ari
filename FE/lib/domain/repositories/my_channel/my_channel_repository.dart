@@ -11,28 +11,32 @@ import 'package:dartz/dartz.dart';
 abstract class MyChannelRepository {
   /// 채널 정보 조회
   Future<Either<Failure, ChannelInfo>> getChannelInfo(String memberId);
-  
+
   /// 팔로우
   Future<Either<Failure, Unit>> followMember(String memberId);
-  
+
   /// 팔로우 취소
-  Future<Either<Failure, Unit>> unfollowMember(String followId);
-  
+  Future<Either<Failure, Unit>> unfollowMember(String memberId);
+
   /// 아티스트의 앨범 목록 조회
   Future<Either<Failure, List<ArtistAlbum>>> getArtistAlbums(String memberId);
-  
+
   /// 아티스트의 공지사항 목록 조회
-  Future<Either<Failure, ArtistNoticeResponse>> getArtistNotices(String memberId);
-  
+  Future<Either<Failure, ArtistNoticeResponse>> getArtistNotices(
+    String memberId,
+  );
+
   /// 팬톡 목록 조회
   Future<Either<Failure, FanTalkResponse>> getFanTalks(String fantalkChannelId);
-  
+
   /// 공개된 플레이리스트 목록 조회
-  Future<Either<Failure, PublicPlaylistResponse>> getPublicPlaylists(String memberId);
-  
+  Future<Either<Failure, PublicPlaylistResponse>> getPublicPlaylists(
+    String memberId,
+  );
+
   /// 팔로워 목록 조회
   Future<Either<Failure, FollowerResponse>> getFollowers(String memberId);
-  
+
   /// 팔로잉 목록 조회
   Future<Either<Failure, FollowingResponse>> getFollowings(String memberId);
 }

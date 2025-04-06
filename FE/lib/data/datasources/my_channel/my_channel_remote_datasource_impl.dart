@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import '../../../core/constants/app_constants.dart';
 import '../../../core/exceptions/failure.dart';
 import '../../models/api_response.dart';
 import '../../models/my_channel/channel_info.dart';
@@ -24,13 +23,6 @@ class MyChannelRemoteDataSourceImpl implements MyChannelRemoteDataSource {
   }
 
   /// API 요청 처리, 결과를 반환
-  /// [url] : API 엔드포인트 URL
-  /// [method] : HTTP 메서드 (GET, POST, DELETE 등)
-  /// [fromJson] : API 응답 데이터를 객체로 변환하는 함수
-  /// [queryParameters] : URL 쿼리 파라미터
-  /// [data] : 요청 본문 데이터
-  /// [return] : 응답 데이터를 변환한 객체
-  /// [throws] : Failure 객체 (오류 발생 시)
   Future<T> _request<T>({
     required String url,
     required String method,
@@ -87,12 +79,26 @@ class MyChannelRemoteDataSourceImpl implements MyChannelRemoteDataSource {
   }
 
   /// 채널 정보 조회
+  /// API 응답 형식: { memberId, memberName, profileImageUrl, subscriberCount, followedYn, fantalkChannelId }
   @override
   Future<ChannelInfo> getChannelInfo(String memberId) async {
     return _request<ChannelInfo>(
-      url: '/api/v1/members/$memberId/channel-info',
+      url: '/api/v1/members/$memberId/channel-info', // API 엔드포인트 수정
       method: 'GET',
-      fromJson: (data) => ChannelInfo.fromJson(data),
+      fromJson: (data) {
+        // 백엔드 API 응답에 memberId가 없는 경우 수동으로 추가
+        // 수정된 부분: API 응답에 memberId 필드가 없어서 파라미터로 받은 값을 사용
+        if (data is Map<String, dynamic> && !data.containsKey('memberId')) {
+          data['memberId'] = memberId;
+        }
+
+        // 수정된 부분: followedYn -> isFollowed 매핑 (내부 모델 일관성 유지)
+        if (data is Map<String, dynamic> && data.containsKey('followedYn')) {
+          data['isFollowed'] = data['followedYn'];
+        }
+
+        return ChannelInfo.fromJson(data);
+      },
     );
   }
 
@@ -108,9 +114,9 @@ class MyChannelRemoteDataSourceImpl implements MyChannelRemoteDataSource {
 
   /// 회원 언팔로우
   @override
-  Future<void> unfollowMember(String followId) async {
+  Future<void> unfollowMember(String memberId) async {
     await _request<void>(
-      url: '/api/v1/follows/$followId',
+      url: '/api/v1/follows/members/$memberId',
       method: 'DELETE',
       fromJson: (_) {}, // 데이터 없으므로 null 반환
     );
