@@ -20,7 +20,7 @@ class CarouselContainer extends StatelessWidget {
     required this.children,
     this.height = 220.0, // 기본 높이
     this.itemWidth = 160.0, // 기본 아이템 너비
-    this.itemSpacing = 12.0, // 기본 간격
+    this.itemSpacing = 16.0, // 기본 간격
     this.padding = const EdgeInsets.symmetric(vertical: 16.0),
   });
 
