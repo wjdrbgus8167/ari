@@ -7,12 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/providers/global_providers.dart';
 
 final trackDataSourceProvider = Provider((ref) {
-  return TrackMockDataSourceImpl(
+  return TrackDataSourceImpl(
     dio: ref.watch(dioProvider),
-    baseUrl: const String.fromEnvironment(
-      'BASE_URL',
-      defaultValue: 'https://ari-music.duckdns.org',
-    ),
   ); // 필요한 경우 파라미터 전달
 });
 

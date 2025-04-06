@@ -6,9 +6,9 @@ class TrackHeader extends StatelessWidget {
   final String albumName;
   final String trackTitle;
   final String artistName;
-  final String likeCount;
-  final String commentCount;
-  final String playCount;
+  final int likeCount;
+  final int commentCount;
+  final int playCount;
   final String albumImageUrl;
   final String artistImageUrl;
   final int trackId;
@@ -29,6 +29,8 @@ class TrackHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('앨범이미지url : $albumImageUrl');
+    
     return Container(
       width: double.infinity,
       clipBehavior: Clip.antiAlias,
@@ -143,7 +145,7 @@ class TrackHeader extends StatelessWidget {
                           ),
                           const SizedBox(width: 3),
                           Text(
-                            likeCount,
+                            likeCount.toString(),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
@@ -164,7 +166,7 @@ class TrackHeader extends StatelessWidget {
                           ),
                           const SizedBox(width: 3),
                           Text(
-                            commentCount,
+                            commentCount.toString(),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
@@ -193,7 +195,7 @@ class TrackHeader extends StatelessWidget {
                             ),
                             const SizedBox(width: 1),
                             Text(
-                              playCount,
+                              '$playCount회 재생',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
