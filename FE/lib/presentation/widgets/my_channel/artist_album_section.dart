@@ -127,36 +127,33 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: () {
-                    // 약간의 딜레이 추가로 ripple 효과 체감 가능하게 함
-                    Future.delayed(const Duration(milliseconds: 150), () {
-                      // 페이지 전환 애니메이션 추가
-                      Navigator.of(context).push(
-                        PageRouteBuilder(
-                          pageBuilder:
-                              (context, animation, secondaryAnimation) =>
-                                  const AlbumUploadScreen(),
-                          transitionsBuilder: (
-                            context,
-                            animation,
-                            secondaryAnimation,
-                            child,
-                          ) {
-                            const begin = Offset(1.0, 0.0);
-                            const end = Offset.zero;
-                            const curve = Curves.easeInOut;
-                            var tween = Tween(
-                              begin: begin,
-                              end: end,
-                            ).chain(CurveTween(curve: curve));
-                            return SlideTransition(
-                              position: animation.drive(tween),
-                              child: child,
-                            );
-                          },
-                          transitionDuration: const Duration(milliseconds: 300),
-                        ),
-                      );
-                    });
+                    // ripple 효과는 기본적으로 적용됨
+                    Navigator.of(context).push(
+                      PageRouteBuilder(
+                        pageBuilder:
+                            (context, animation, secondaryAnimation) =>
+                                const AlbumUploadScreen(),
+                        transitionsBuilder: (
+                          context,
+                          animation,
+                          secondaryAnimation,
+                          child,
+                        ) {
+                          const begin = Offset(1.0, 0.0);
+                          const end = Offset.zero;
+                          const curve = Curves.easeInOut;
+                          var tween = Tween(
+                            begin: begin,
+                            end: end,
+                          ).chain(CurveTween(curve: curve));
+                          return SlideTransition(
+                            position: animation.drive(tween),
+                            child: child,
+                          );
+                        },
+                        transitionDuration: const Duration(milliseconds: 300),
+                      ),
+                    );
                   },
                   splashColor: AppColors.lightGreen.withValues(
                     alpha: 0.3,
@@ -269,7 +266,7 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
       title: '나의 앨범',
       height: 220,
       itemWidth: 160,
-      itemSpacing: 20.0,
+      itemSpacing: 12.0, // 앨범 사이 간격을 PublicPlaylistSection과 동일하게 조정
       children:
           artistAlbums.map((album) => _buildAlbumItem(context, album)).toList(),
     );
@@ -297,9 +294,9 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.mediumGreen,
-                  blurRadius: 3,
-                  offset: const Offset(0, 1.5),
+                  color: Colors.blue.withValues(alpha: 0.3),
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
                 ),
               ],
               image: DecorationImage(
@@ -319,46 +316,37 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
               ),
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8), // 앨범 제목과 가수명 사이 간격
           // 앨범 제목
-          SizedBox(
-            width: 158,
-            child: Text(
-              album.albumTitle,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
+          Text(
+            album.albumTitle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 2),
-          // 아티스트 이름
-          SizedBox(
-            width: 158,
-            child: Text(
-              album.artist,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: Colors.grey.withValues(alpha: 0.7),
-                fontSize: 12,
-              ),
-            ),
+          // 아티스트 이름 - 회색
+          Text(
+            album.artist,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(color: Colors.grey[400], fontSize: 12),
           ),
           const SizedBox(height: 2),
           // 수록곡 수
-          SizedBox(
-            width: 160,
-            child: Text(
-              '${album.trackCount}곡',
-              style: TextStyle(
-                color: Colors.grey.withValues(alpha: 0.4),
-                fontSize: 12,
+          Row(
+            children: [
+              Icon(Icons.music_note, size: 14, color: Colors.grey[400]),
+              const SizedBox(width: 4),
+              Text(
+                '${album.trackCount}곡',
+                style: TextStyle(color: Colors.grey[400], fontSize: 12),
               ),
-            ),
+            ],
           ),
         ],
       ),
