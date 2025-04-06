@@ -4,6 +4,7 @@ import '../../../providers/my_channel/my_channel_providers.dart';
 import '../../../data/models/my_channel/public_playlist.dart';
 import '../../viewmodels/my_channel/my_channel_viewmodel.dart';
 import '../common/carousel_container.dart';
+import '../../routes/app_router.dart';
 
 /// 공개된 플레이리스트 섹션 위젯
 /// 사용자가 공개한 플레이리스트 목록 표시
@@ -111,7 +112,7 @@ class PublicPlaylistSection extends ConsumerWidget {
 
   /// 개별 플레이리스트 아이템 위젯
   Widget _buildPlaylistItem(BuildContext context, PublicPlaylist playlist) {
-    // 기본 커버 이미지 URL (NULL인 경우 기본 이미지 사용)
+    // 커버 이미지 URL
     final imageUrl =
         playlist.coverImageUrl ??
         'https://via.placeholder.com/160?text=No+Cover';
@@ -121,11 +122,25 @@ class PublicPlaylistSection extends ConsumerWidget {
 
     return GestureDetector(
       onTap: () {
-        // TODO: 플레이리스트 상세 페이지로 이동
+        // TODO: 플레이리스트 상세 페이지로 이동 (확인)
+        Navigator.of(context).pushNamed(
+          AppRoutes.playlistDetail,
+          arguments: {'playlistId': playlist.playlistId},
+        );
+
+        // Riverpod을 활용한 라우팅 방식 (리팩토링 시 활용 가능)
+        // AppRouter.navigateTo(
+        //   context,
+        //   ref,
+        //   AppRoutes.playlistDetail,
+        //   {'playlistId': playlist.playlistId},
+        // );
+
         print(
-          '플레이리스트 클릭: ${playlist.playlistTitle} (ID: ${playlist.playlistId})',
+          '플레이리스트 상세로 이동: ${playlist.playlistTitle} (ID: ${playlist.playlistId})',
         );
       },
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
