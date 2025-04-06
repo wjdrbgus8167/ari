@@ -1,5 +1,3 @@
-// lib/presentation/widgets/my_channel/profile_header.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/my_channel/my_channel_providers.dart';
@@ -29,20 +27,13 @@ class ProfileHeader extends ConsumerWidget {
     final isLoading = channelState.channelInfoStatus == MyChannelStatus.loading;
     final hasError = channelState.channelInfoStatus == MyChannelStatus.error;
 
-    // 스크롤 위치에 따른 헤더 크기 조정
-    final scrollOffset =
-        scrollController.hasClients
-            ? scrollController.offset.clamp(0, 100)
-            : 0.0;
-    final shrinkPercentage = scrollOffset / 100;
+    // 고정 높이 (사진 참고)
+    const double headerHeight = 300;
 
-    // 헤더 높이 조정 (스크롤에 따라 축소)
-    final headerHeight = 300 - (50 * shrinkPercentage);
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 100),
+    return Container(
       height: headerHeight,
       width: double.infinity,
+      color: Colors.black,
       child:
           isLoading
               ? const Center(
@@ -88,130 +79,118 @@ class ProfileHeader extends ConsumerWidget {
     WidgetRef ref,
   ) {
     return Stack(
-      fit: StackFit.expand,
       children: [
-        // 프로필 이미지 배경
+        // 프로필 이미지 배경 (전체 영역 차지)
         if (channelInfo.profileImageUrl != null &&
             channelInfo.profileImageUrl!.isNotEmpty)
-          Image.network(channelInfo.profileImageUrl!, fit: BoxFit.cover)
+          Positioned.fill(
+            child: Image.network(
+              channelInfo.profileImageUrl!,
+              fit: BoxFit.cover,
+            ),
+          )
         else
-          Container(
-            color: Colors.grey[900],
-            child: const Center(
-              child: Icon(Icons.person, color: Colors.white54, size: 100),
+          Positioned.fill(
+            child: Container(
+              color: Colors.grey[900],
+              child: const Center(
+                child: Icon(Icons.person, color: Colors.white54, size: 100),
+              ),
             ),
           ),
 
         // 이미지 위에 그라데이션 오버레이
-        Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.transparent,
-                Colors.black.withValues(alpha: 0.5),
-                Colors.black,
-              ],
-              stops: const [0.5, 0.8, 1.0],
+        Positioned.fill(
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.black.withValues(alpha: 0.7),
+                  Colors.black,
+                ],
+                stops: const [0.4, 0.8, 1.0],
+              ),
             ),
           ),
         ),
 
-        // 콘텐츠
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 상단 여백
-            const Spacer(),
+        // 내용 배치 - 하단부 위주
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // "MY PAGE >" 텍스트 (내 프로필인 경우만)
+              if (isMyProfile)
+                Padding(
+                  padding: const EdgeInsets.only(left: 24, bottom: 8),
+                  child: Row(
+                    children: [
+                      Text(
+                        'MY PAGE',
+                        style: TextStyle(
+                          color: Colors.grey[300],
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Icon(
+                        Icons.chevron_right,
+                        color: Colors.grey[300],
+                        size: 18,
+                      ),
+                    ],
+                  ),
+                ),
 
-            // "MY PAGE >" 텍스트 (내 프로필인 경우만)
-            if (isMyProfile)
+              // 채널명
               Padding(
-                padding: const EdgeInsets.only(left: 20),
+                padding: const EdgeInsets.only(left: 24, right: 24),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    // 왼쪽 - 채널명
                     Text(
-                      'MY PAGE',
-                      style: TextStyle(color: Colors.grey[400], fontSize: 16),
+                      channelInfo.memberName,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    const Icon(
-                      Icons.chevron_right,
-                      color: Colors.grey,
-                      size: 20,
-                    ),
+
+                    // 오른쪽 - 팔로우 버튼 (자신의 프로필이 아닌 경우에만)
+                    if (!isMyProfile) _buildFollowButton(channelInfo, ref),
                   ],
                 ),
               ),
 
-            // 채널명
-            Padding(
-              padding: const EdgeInsets.only(left: 20, top: 8),
-              child: Text(
-                channelInfo.memberName,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-
-            // 구독자 수 & 팔로우 버튼
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 20,
-                right: 20,
-                top: 8,
-                bottom: 20,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // 구독자 수 (있는 경우만)
-                  if (channelInfo.subscriberCount > 0)
-                    Text(
-                      '${channelInfo.subscriberCount}명 구독중',
-                      style: TextStyle(color: Colors.grey[400], fontSize: 16),
-                    ),
-
-                  // 팔로우 버튼 (자신의 프로필이 아닌 경우에만 표시)
-                  if (!isMyProfile)
-                    _buildFollowButton(channelInfo, context, ref)
-                  else
-                    // "팔로우" 라벨 (오른쪽 정렬을 위한 빈 컨테이너)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Text(
-                        '팔로잉',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ],
+              // 구독자 수 (있는 경우만)
+              if (channelInfo.subscriberCount > 0)
+                Padding(
+                  padding: const EdgeInsets.only(left: 24, bottom: 24, top: 8),
+                  child: Text(
+                    '${channelInfo.subscriberCount}명 구독중',
+                    style: TextStyle(color: Colors.grey[400], fontSize: 16),
+                  ),
+                )
+              else
+                // 하단 여백
+                const SizedBox(height: 24),
+            ],
+          ),
         ),
       ],
     );
   }
 
   /// 팔로우/언팔로우 버튼 - 이미지 스타일에 맞게 커스텀
-  Widget _buildFollowButton(
-    ChannelInfo channelInfo,
-    BuildContext context,
-    WidgetRef ref,
-  ) {
+  Widget _buildFollowButton(ChannelInfo channelInfo, WidgetRef ref) {
     return GestureDetector(
       onTap: () {
         // 팔로우 상태에 따라 적절한 액션 수행
@@ -230,10 +209,10 @@ class ProfileHeader extends ConsumerWidget {
         }
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: channelInfo.isFollowed ? Colors.transparent : Colors.blue,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(4),
           border: Border.all(
             color: channelInfo.isFollowed ? Colors.grey : Colors.blue,
             width: 1,
