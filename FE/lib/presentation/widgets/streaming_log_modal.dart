@@ -42,7 +42,11 @@ class _StreamingHistoryModalState extends ConsumerState<StreamingHistoryModal>
     // 트랙 ID가 제공된 경우 해당 트랙의 스트리밍 로그를 로드
     Future.microtask(() {
       if (widget.trackId != null && widget.albumId != null) {
-        ref.read(streamingLogViewModelProvider.notifier).loadAlbumDetail(widget.albumId!, widget.trackId!);
+        final currentState = ref.read(streamingLogViewModelProvider);
+        // 로그가 비어 있거나 로딩 중이 아닌 경우에만 API 호출
+        if (!currentState.isLoading && currentState.logs.isEmpty && currentState.errorMessage == null) {
+          ref.read(streamingLogViewModelProvider.notifier).loadAlbumDetail(widget.albumId!, widget.trackId!);
+        }
       }
     });
   }

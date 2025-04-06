@@ -27,8 +27,10 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final dashboardData = ref.watch(artistDashboardProvider);
-    final hasWallet = dashboardData.walletAddress != null && dashboardData.walletAddress.isNotEmpty;
-    final hasTracks = true; // 트랙이 있는지 여부를 확인하는 getter가 있다고 가정
+    final hasWallet = dashboardData.walletAddress != null;
+    print("hasWallet: $hasWallet");
+    print("walletAddress: ${dashboardData.walletAddress}");
+    final hasTracks = dashboardData.hasTracks; // 트랙이 있는지 여부를 확인하는 getter가 있다고 가정
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -110,7 +112,7 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                         // 지갑 주소가 있는 경우와 없는 경우 다른 UI 표시
                         if (hasWallet)
                           WalletInfoWidget(
-                            walletAddress: dashboardData.walletAddress,
+                            walletAddress: dashboardData.walletAddress ?? '',
                           )
                         else
                           Container(

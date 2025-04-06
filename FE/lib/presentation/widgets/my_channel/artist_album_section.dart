@@ -57,6 +57,10 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
         channelState.artistAlbumsStatus == MyChannelStatus.loading;
     final hasError = channelState.artistAlbumsStatus == MyChannelStatus.error;
 
+    // 채널 정보에서 아티스트 이름 가져오기
+    final channelInfo = channelState.channelInfo;
+    final artistName = channelInfo?.memberName ?? '아티스트';
+
     // 로딩 중이면 로딩 표시
     if (isLoading) {
       return const Center(
@@ -102,6 +106,29 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
     //   );
     // }
 
+    // 커스텀 타이틀 위젯
+    final titleWidget = Row(
+      children: [
+        Text(
+          artistName,
+          style: const TextStyle(
+            // color: AppColors.mediumPurple,
+            color: AppColors.mediumGreen,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const Text(
+          '님의 앨범',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+
     // 앨범이 없거나 에러 발생 시 안내 메시지 표시
     if (artistAlbums == null || artistAlbums.isEmpty) {
       return Padding(
@@ -109,54 +136,43 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              '나의 앨범',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            titleWidget,
             const SizedBox(height: 12),
 
             // 내 프로필인 경우에만 업로드 안내 UI 표시
             if (widget.isMyProfile)
               // 탭 가능한 컨테이너 (아무데나 클릭해도 라우팅됨)
               Material(
-                // InkWell을 Material로 감싸 ripple 효과 개선
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: () {
-                    // 약간의 딜레이 추가로 ripple 효과 체감 가능하게 함
-                    Future.delayed(const Duration(milliseconds: 150), () {
-                      // 페이지 전환 애니메이션 추가
-                      Navigator.of(context).push(
-                        PageRouteBuilder(
-                          pageBuilder:
-                              (context, animation, secondaryAnimation) =>
-                                  const AlbumUploadScreen(),
-                          transitionsBuilder: (
-                            context,
-                            animation,
-                            secondaryAnimation,
-                            child,
-                          ) {
-                            const begin = Offset(1.0, 0.0);
-                            const end = Offset.zero;
-                            const curve = Curves.easeInOut;
-                            var tween = Tween(
-                              begin: begin,
-                              end: end,
-                            ).chain(CurveTween(curve: curve));
-                            return SlideTransition(
-                              position: animation.drive(tween),
-                              child: child,
-                            );
-                          },
-                          transitionDuration: const Duration(milliseconds: 300),
-                        ),
-                      );
-                    });
+                    // 네비게이션 즉시 실행(비동기 지연 제거)
+                    Navigator.of(context).push(
+                      PageRouteBuilder(
+                        pageBuilder:
+                            (context, animation, secondaryAnimation) =>
+                                const AlbumUploadScreen(),
+                        transitionsBuilder: (
+                          context,
+                          animation,
+                          secondaryAnimation,
+                          child,
+                        ) {
+                          const begin = Offset(1.0, 0.0);
+                          const end = Offset.zero;
+                          const curve = Curves.easeInOut;
+                          var tween = Tween(
+                            begin: begin,
+                            end: end,
+                          ).chain(CurveTween(curve: curve));
+                          return SlideTransition(
+                            position: animation.drive(tween),
+                            child: child,
+                          );
+                        },
+                        transitionDuration: const Duration(milliseconds: 300),
+                      ),
+                    );
                   },
                   splashColor: AppColors.lightGreen.withValues(
                     alpha: 0.3,
@@ -205,7 +221,7 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Container(
-                            width: 180, // 버튼 가로 길이 지정
+                            width: 180, // 버튼 가로 길이
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16,
                               vertical: 8,
@@ -264,12 +280,11 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
       );
     }
 
-    // 앨범이 있는 경우 CarouselContainer 위젯 사용 (아티스트로 간주)
+    // 앨범이 있는 경우 CarouselContainer
     return CarouselContainer(
-      title: '나의 앨범',
+      titleWidget: titleWidget, // 커스텀 타이틀 위젯 사용
       height: 220,
       itemWidth: 160,
-      itemSpacing: 20.0,
       children:
           artistAlbums.map((album) => _buildAlbumItem(context, album)).toList(),
     );
@@ -277,90 +292,79 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
 
   /// 개별 앨범 아이템
   Widget _buildAlbumItem(BuildContext context, ArtistAlbum album) {
-    return GestureDetector(
+    // 앨범 아이템 내용
+    return InkWell(
       onTap: () {
-        // 앨범 상세 페이지로
         Navigator.pushNamed(
           context,
           AppRoutes.album,
           arguments: {'albumId': album.albumId},
         );
       },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 앨범 커버 이미지
-          Container(
-            width: 160,
-            height: 160,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.mediumGreen,
-                  blurRadius: 3,
-                  offset: const Offset(0, 1.5),
+      child: SizedBox(
+        width: 160,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 앨범 커버 이미지만 그림자 효과
+            Container(
+              width: 160,
+              height: 160,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blue.withValues(alpha: 0.3),
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+                image: DecorationImage(
+                  image: NetworkImage(album.coverImageUrl),
+                  fit: BoxFit.cover,
                 ),
-              ],
-              image: DecorationImage(
-                image: NetworkImage(album.coverImageUrl),
-                fit: BoxFit.cover,
-                // 이미지 로드 실패 시 대체 이미지 표시
-                // errorBuilder: (context, error, stackTrace) {
-                //   return Container(
-                //     color: Colors.grey.withValues(alpha: 0.2),
-                //     child: const Icon(
-                //       Icons.broken_image,
-                //       color: Colors.white54,
-                //       size: 48,
-                //     ),
-                //   );
-                // },
               ),
             ),
-          ),
-          const SizedBox(height: 6),
-          // 앨범 제목
-          SizedBox(
-            width: 158,
-            child: Text(
-              album.albumTitle,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
+
+            Padding(
+              padding: const EdgeInsets.only(top: 6.0),
+              child: Text(
+                album.albumTitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 2),
-          // 아티스트 이름
-          SizedBox(
-            width: 158,
-            child: Text(
-              album.artist,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: Colors.grey.withValues(alpha: 0.7),
-                fontSize: 12,
+
+            // 가수 이름과 트랙 수를 한 줄에 표시 - overflowed 오류 방지
+            Padding(
+              padding: const EdgeInsets.only(top: 2.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      album.artist,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: Colors.grey[400], fontSize: 12),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(Icons.music_note, size: 12, color: Colors.grey[400]),
+                  const SizedBox(width: 2),
+                  Text(
+                    '${album.trackCount}곡',
+                    style: TextStyle(color: Colors.grey[400], fontSize: 11),
+                  ),
+                ],
               ),
             ),
-          ),
-          const SizedBox(height: 2),
-          // 수록곡 수
-          SizedBox(
-            width: 160,
-            child: Text(
-              '${album.trackCount}곡',
-              style: TextStyle(
-                color: Colors.grey.withValues(alpha: 0.4),
-                fontSize: 12,
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

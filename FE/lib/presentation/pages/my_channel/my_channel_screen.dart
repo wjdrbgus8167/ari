@@ -9,7 +9,6 @@ import '../../widgets/my_channel/artist_notice_section.dart';
 import '../../widgets/my_channel/fantalk_section.dart';
 import '../../widgets/my_channel/public_playlist_section.dart';
 import '../../widgets/my_channel/neighbors_section.dart';
-import '../../widgets/test/jwt_user_test_widget.dart';
 
 /// 나의 채널 화면
 /// 사용자 프로필, 뱃지, (앨범, 공지사항, 팬톡), 플레이리스트, 이웃 정보 표시
@@ -30,7 +29,7 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
   late bool _isMyProfile;
 
   // JWT 테스트용 상태
-  bool _showJwtTest = true; // 테스트 완료 후 false로 위젯 숨기기
+  final bool _showJwtTest = true; // 테스트 완료 후 false로 위젯 숨기기
 
   @override
   void initState() {
@@ -146,30 +145,6 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
             controller: _scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
-              // JWT 테스트 위젯 (테스트 완료 후 제거 예정)
-              if (_showJwtTest)
-                SliverToBoxAdapter(
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.close, color: Colors.white),
-                            onPressed: () {
-                              setState(() {
-                                _showJwtTest = false;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                      const JwtUserTestWidget(),
-                      const Divider(color: Colors.grey),
-                    ],
-                  ),
-                ),
-
               // 프로필 헤더
               SliverToBoxAdapter(
                 child: ProfileHeader(
@@ -182,6 +157,9 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
               // 배지 목록
               SliverToBoxAdapter(child: BadgeList(memberId: _currentUserId)),
 
+              // 섹션 간 여백 (배지와 앨범 사이)
+              const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
               // 아티스트 앨범 (아티스트인 경우에만 표시)
               SliverToBoxAdapter(
                 child: ArtistAlbumSection(
@@ -190,9 +168,19 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
                 ),
               ),
 
+              // 섹션 간 여백 (앨범과 공지 사이)
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 24), // 앨범과 공지 사이 간격
+              ),
+
               // 아티스트 공지사항 (아티스트인 경우에만 표시)
               SliverToBoxAdapter(
                 child: ArtistNoticeSection(memberId: _currentUserId),
+              ),
+
+              // 섹션 간 여백 (공지와 팬톡 사이)
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 24), // 공지와 팬톡 사이 간격
               ),
 
               // 팬톡 (아티스트인 경우에만 표시)
@@ -200,9 +188,19 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
                 child: FanTalkSection(memberId: _currentUserId),
               ),
 
+              // 섹션 간 여백 (팬톡과 플레이리스트 사이)
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 24), // 팬톡과 플레이리스트 사이 간격
+              ),
+
               // 공개된 플레이리스트
               SliverToBoxAdapter(
                 child: PublicPlaylistSection(memberId: _currentUserId),
+              ),
+
+              // 섹션 간 여백 (플레이리스트와 이웃 사이)
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 24), // 플레이리스트와 이웃 사이 간격
               ),
 
               // 이웃(팔로워/팔로잉) 섹션

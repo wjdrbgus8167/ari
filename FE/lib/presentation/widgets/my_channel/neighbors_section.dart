@@ -167,7 +167,7 @@ class _NeighborsSectionState extends ConsumerState<NeighborsSection> {
             const Padding(
               padding: EdgeInsets.only(left: 16, bottom: 16),
               child: Text(
-                '팔로워 & 팔로잉',
+                '팔로워 / 0    팔로잉 / 0',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -175,21 +175,26 @@ class _NeighborsSectionState extends ConsumerState<NeighborsSection> {
                 ),
               ),
             ),
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: Column(
-                  children: [
-                    Text(
-                      '팔로워 목록이 없습니다',
-                      style: TextStyle(color: Colors.grey[400], fontSize: 14),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '팔로잉 목록이 없습니다',
-                      style: TextStyle(color: Colors.grey[400], fontSize: 14),
-                    ),
-                  ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                  horizontal: 16,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Colors.grey.withOpacity(0.3),
+                    width: 1,
+                  ),
+                ),
+                child: const Text(
+                  '팔로워 / 팔로잉 목록이 없습니다.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey, fontSize: 14),
                 ),
               ),
             ),

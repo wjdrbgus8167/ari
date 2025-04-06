@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -44,6 +42,9 @@ class ArtistNoticeSection extends ConsumerWidget {
     final channelInfo = channelState.channelInfo;
     final artistName = channelInfo?.memberName ?? '아티스트';
 
+    // 아티스트 이름 여부 확인 (없으면 기본값 사용)
+    final displayArtistName = artistName.isNotEmpty ? artistName : '아티스트';
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Column(
@@ -57,13 +58,25 @@ class ArtistNoticeSection extends ConsumerWidget {
                 // 섹션 제목 영역
                 Row(
                   children: [
-                    const Text(
-                      '아티스트 공지',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          artistName,
+                          style: const TextStyle(
+                            color: AppColors.mediumPurple,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Text(
+                          "님의 공지",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                     // 공지사항 개수 표시
                     if (noticeResponse != null &&
@@ -156,42 +169,10 @@ class ArtistNoticeSection extends ConsumerWidget {
                   width: 1,
                 ),
               ),
-              child: Column(
-                children: [
-                  const Text(
-                    '작성한 공지사항이 없습니다.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey, fontSize: 14),
-                  ),
-
-                  // 내 채널인 경우 공지 작성 안내 추가
-                  if (isMyChannel) ...[
-                    const SizedBox(height: 12),
-                    ElevatedButton.icon(
-                      onPressed: () => _navigateToCreateNotice(context, ref),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.lightPurple.withValues(
-                          alpha: 0.15,
-                        ),
-                        foregroundColor: AppColors.mediumPurple,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(
-                            color: AppColors.mediumPurple.withValues(
-                              alpha: 0.3,
-                            ),
-                          ),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                      ),
-                      icon: const Icon(Icons.add, size: 16),
-                      label: const Text('첫 공지사항 작성하기'),
-                    ),
-                  ],
-                ],
+              child: const Text(
+                '작성한 공지사항이 없습니다.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey, fontSize: 14),
               ),
             )
           // 공지사항 표시 (최근 1개만)
