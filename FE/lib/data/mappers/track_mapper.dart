@@ -19,6 +19,8 @@ extension DataTrackMapper on data.Track {
       commentCount: 0,
       comments: [],
       createdAt: '',
+      albumTitle: '', // 서버에 없으면 빈 값 처리
+      genreName: '', // 서버에 없으면 빈 값 처리
     );
   }
 }

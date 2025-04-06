@@ -6,13 +6,21 @@
 // 인증 상태가 변경될 때 사용자 정보도 자동으로 업데이트/삭제
 
 import 'dart:convert';
+import 'package:ari/data/datasources/api_client.dart';
+import 'package:ari/data/datasources/user/profile_remote_data_source.dart';
+import 'package:ari/data/repositories/user_repository.dart';
+import 'package:ari/domain/entities/profile.dart';
+import 'package:ari/domain/repositories/user/user_repository.dart';
+import 'package:ari/domain/usecases/user/user_usecase.dart';
+import 'package:ari/providers/global_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:ari/core/utils/jwt_utils.dart';
 import 'package:ari/data/models/user_model.dart';
 import 'package:ari/domain/entities/user.dart';
-import 'package:ari/domain/usecases/auth_usecase.dart';
+import 'package:ari/domain/usecases/auth/auth_usecase.dart';
 import 'package:ari/providers/auth/auth_providers.dart';
+import 'dart:developer' as dev;
 
 /// 사용자 정보 저장 키
 const String _userStorageKey = 'current_user_info';
@@ -22,6 +30,7 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
   final GetTokensUseCase getTokensUseCase;
   final FlutterSecureStorage secureStorage;
   final AsyncValue<bool> authState;
+  final Ref ref;
 
   @override
   bool get mounted => !_disposed;
@@ -31,6 +40,7 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
     required this.getTokensUseCase,
     required this.secureStorage,
     required this.authState,
+    required this.ref,
   }) : super(const AsyncValue.loading()) {
     // 초기화 시 사용자 정보 로드
     _loadUserInfo();
@@ -53,7 +63,7 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
         clearUserInfo();
       } else {
         // 로그인 시 사용자 정보 추출
-        extractUserFromToken();
+        refreshUserInfo();
       }
     });
   }
@@ -73,7 +83,7 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
         state = AsyncValue.data(UserModel.fromJson(userMap));
       } else {
         // 저장된 정보가 없으면 토큰에서 추출 시도
-        await extractUserFromToken();
+        await refreshUserInfo();
       }
     } catch (e, stackTrace) {
       print('사용자 정보 로드 오류: $e');
@@ -109,6 +119,35 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
       // UserModel 생성
       final user = UserModel.fromJwtPayload(payload);
 
+      // mounted 체크 (최종 상태 업데이트 전)
+      if (!mounted) return user;
+
+      state = AsyncValue.data(user);
+      return user;
+    } catch (e, stackTrace) {
+      print('토큰에서 사용자 정보 추출 오류: $e');
+      // mounted 체크 (오류 상태 업데이트 전)
+      if (mounted) {
+        state = AsyncValue.error(e, stackTrace);
+      }
+      return null;
+    }
+  }
+
+  /// JWT 토큰에서 사용자 정보 추출
+  Future<User?> saveUserFromProfile(Profile profile, String email) async {
+    try {
+      // mounted 체크 (상태 업데이트 전)
+      if (!mounted) return null;
+
+      state = const AsyncValue.loading();
+
+      // mounted 체크 (비동기 작업 후)
+      if (!mounted) return null;
+
+      // UserModel 생성
+      final user = UserModel.fromProfileAndEmail(profile, email);
+
       // 추출한 정보 저장
       await _saveUserToStorage(user);
 
@@ -118,7 +157,7 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
       state = AsyncValue.data(user);
       return user;
     } catch (e, stackTrace) {
-      print('토큰에서 사용자 정보 추출 오류: $e');
+      print('사용자 정보 추출 오류: $e');
       // mounted 체크 (오류 상태 업데이트 전)
       if (mounted) {
         state = AsyncValue.error(e, stackTrace);
@@ -151,13 +190,34 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
       print('사용자 정보 삭제 오류: $e');
     }
   }
-
+  
   /// 사용자 정보 수동 새로고침
   Future<void> refreshUserInfo() async {
     // mounted 체크 (비동기 작업 시작 전)
     if (!mounted) return;
 
-    await extractUserFromToken();
+    try {
+
+      final userProfileUseCase = ref.read(getUserProfileUseCaseProvider);
+      final profileResult = await userProfileUseCase();
+      User? user = await extractUserFromToken();
+      // mounted 체크 (비동기 작업 이후)
+      if (!mounted) return;
+      
+      profileResult.fold(
+        (failure) {
+          // 프로필 정보 가져오기 실패 시 로그와 스낵바 표시
+          dev.log('사용자 프로필 정보 가져오기 실패: ${failure.message}');
+        },
+        (profile) {
+          saveUserFromProfile(profile, user?.email ?? '');
+          dev.log('사용자 프로필 정보 갱싱싱 성공');
+        }
+      );
+    } catch (e) {
+      dev.log('사용자 정보 새로고침 중 오류 발생: $e');
+
+    }
   }
 }
 
@@ -166,6 +226,7 @@ final userProvider = StateNotifierProvider<UserNotifier, AsyncValue<User?>>((
   ref,
 ) {
   return UserNotifier(
+    ref: ref,
     getTokensUseCase: ref.watch(getTokensUseCaseProvider),
     secureStorage: ref.watch(secureStorageProvider),
     authState: ref.watch(authStateProvider),
@@ -187,6 +248,16 @@ final userEmailProvider = Provider<String?>((ref) {
   final userState = ref.watch(userProvider);
   return userState.when(
     data: (user) => user?.email,
+    loading: () => null,
+    error: (_, __) => null,
+  );
+});
+
+/// 사용자 닉네임 간편 접근
+final userNicknameProvider = Provider<String?>((ref) {
+  final userState = ref.watch(userProvider);
+  return userState.when(
+    data: (user) => user?.nickname,
     loading: () => null,
     error: (_, __) => null,
   );
@@ -225,3 +296,8 @@ final authUserIdProvider = Provider<String>((ref) {
     error: (_, __) => "",
   );
 });
+
+
+final userRemoteDataSourceProvider = Provider<UserRemoteDataSource>((ref) => UserRemoteDataSourceImpl(apiClient: ref.read(apiClientProvider)));
+final userRepositoryProvider = Provider<UserRepository>((ref) => UserRepositoryImpl(dataSource: ref.read(userRemoteDataSourceProvider)));
+final getUserProfileUseCaseProvider = Provider((ref) => GetUserProfileUseCase(ref.read(userRepositoryProvider)));

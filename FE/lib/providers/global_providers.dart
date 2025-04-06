@@ -1,4 +1,5 @@
 import 'package:ari/core/utils/auth_interceptor.dart';
+import 'package:ari/data/datasources/api_client.dart';
 import 'package:ari/data/datasources/playlist/playlist_remote_datasource.dart';
 import 'package:ari/data/datasources/playlist/playlist_remote_datasource_impl.dart';
 import 'package:ari/data/repositories/playlist_repository_impl.dart';
@@ -184,3 +185,5 @@ final listeningQueueProvider =
         playlistRepository: playlistRepository,
       );
     });
+
+final apiClientProvider = Provider<ApiClient>((ref) => ApiClient(ref.read(dioProvider)));

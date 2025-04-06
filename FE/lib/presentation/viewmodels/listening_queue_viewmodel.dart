@@ -13,6 +13,8 @@ domain.Track mapDataTrackToDomain(data.Track dataTrack) {
     trackId: dataTrack.id,
     trackTitle: dataTrack.trackTitle,
     artistName: dataTrack.artist,
+    albumTitle: '',
+    genreName: '',
     // 단일 문자열을 리스트로 감싸서 전달 (필요시 로직 변경)
     composer: [dataTrack.composer],
     lyricist: [dataTrack.lyricist],

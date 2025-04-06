@@ -10,11 +10,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class TrackDetailScreen extends ConsumerStatefulWidget {
   final int albumId;
   final int trackId;
+  final String? albumCoverUrl; // 앨범 커버 URL을 받을 수 있도록 수정
   
   const TrackDetailScreen({
     super.key,
     required this.albumId,
     required this.trackId,
+    required this.albumCoverUrl,
   });
 
   @override
@@ -22,6 +24,7 @@ class TrackDetailScreen extends ConsumerStatefulWidget {
 }
  
 class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
+  
   @override
   void initState() {
     super.initState();
@@ -30,12 +33,14 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
       ref.read(trackDetailViewModelProvider.notifier).loadTrackDetail(widget.albumId, widget.trackId);
     });
   }
-  
+
 @override
   Widget build(BuildContext context) {
     final trackDetailState = ref.watch(trackDetailViewModelProvider);
     final track = trackDetailState.track; // null일 수 있는 track
-    
+    final albumCoverUrl = widget.albumCoverUrl; // 앨범 커버 URL
+
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
@@ -57,14 +62,14 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
                 TrackHeader(
                   albumId: track.albumId,
                   trackId: track.trackId,
-                  albumName: 'AFTER HOURS', // 실제 값으로 교체 필요
+                  albumName: track.albumTitle, // 실제 값으로 교체 필요
                   trackTitle: track.trackTitle,
                   artistName: track.artistName,
-                  likeCount: '2,040', // 실제 값으로 교체 필요
-                  commentCount: '${track.commentCount}',
-                  playCount: '100회 재생', // 실제 값으로 교체 필요
-                  albumImageUrl: "assets/images/default_album_cover.png",
-                  artistImageUrl: 'assets/images/default_album_cover.png',
+                  likeCount: track.trackLikeCount,
+                  commentCount: track.commentCount,
+                  playCount: 0, // 실제 값으로 교체 필요
+                  albumImageUrl: albumCoverUrl ?? '',
+                  artistImageUrl: track.trackFileUrl ?? '',
                 ),
                 
                 // 트랙 크레딧 위젯
@@ -73,7 +78,7 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
                   trackName: track.trackTitle,
                   lyricists: track.lyricist,
                   composers: track.composer,
-                  genres: ['재즈'], // 실제 값으로 교체 필요
+                  genres: [track.genreName], // 실제 값으로 교체 필요
                 ),
                 
                 // 트랙 가사 위젯

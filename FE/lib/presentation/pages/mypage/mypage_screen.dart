@@ -8,8 +8,8 @@ import 'package:ari/providers/auth/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// MyPageViewModel Provider 정의
-final myPageViewModelProvider = Provider.autoDispose<MyPageViewModel>((ref) {
+// MyPageViewModel Provider 정의 - StateNotifierProvider로 변경
+final myPageProvider = StateNotifierProvider<MyPageViewModel, MyPageState>((ref) {
   return MyPageViewModel(ref);
 });
 
@@ -26,13 +26,15 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
     super.initState();
     // 뷰모델 초기화 (화면이 렌더링된 후)
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(myPageViewModelProvider).initialize();
+      ref.read(myPageProvider.notifier).initialize();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = ref.watch(myPageViewModelProvider);
+    // 상태와 노티파이어를 각각 가져옴
+    final myPageState = ref.watch(myPageProvider);
+    final viewModel = ref.read(myPageProvider.notifier);
     
     // 로그인 상태 확인
     final authState = ref.watch(authStateProvider);
@@ -42,6 +44,8 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
     );
     print("로그인 여부 :$isLoggedIn");
     
+    // 프로필 정보
+    final userProfile = myPageState.userProfile;
 
     return Scaffold(
       body: Container(
@@ -59,8 +63,18 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
             ),
             
             // 로딩 표시
-            if (viewModel.isLoading)
+            if (myPageState.isLoading)
               const LinearProgressIndicator(),
+            
+            // 에러 메시지가 있는 경우 표시
+            if (myPageState.errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  myPageState.errorMessage!,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
             
             // 컨텐츠 부분 (스크롤 가능)
             Expanded(
@@ -70,13 +84,12 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
                   children: [
                     // 프로필 위젯
                     MypageProfile(
-                      name: viewModel.name,
-                      instagramId: viewModel.instagramId,
-                      bio: viewModel.bio,
-                      followers: viewModel.followers,
-                      following: viewModel.following,
-                      profileImage: viewModel.profileImage,
-                      secondaryImage: viewModel.secondaryImage,
+                      name: userProfile.nickname,
+                      instagramId: userProfile.instagram,
+                      bio: userProfile.bio,
+                      followers: userProfile.followerCount,
+                      following: userProfile.followingCount,
+                      profileImage: userProfile.profileImageUrl,
                       onEditPressed: () => viewModel.navigateToEditProfile(context),
                     ),
                     

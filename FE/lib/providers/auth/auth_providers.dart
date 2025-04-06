@@ -3,14 +3,16 @@
 // 토큰 관리, 인증 인터셉터 설정
 
 import 'package:ari/core/utils/auth_interceptor.dart';
-import 'package:ari/data/datasources/auth_local_data_source.dart';
-import 'package:ari/data/datasources/auth_remote_data_source.dart';
+import 'package:ari/data/datasources/auth/auth_local_data_source.dart';
+import 'package:ari/data/datasources/auth/auth_remote_data_source.dart';
 import 'package:ari/data/repositories/auth_repository_impl.dart';
 import 'package:ari/domain/repositories/auth_repository.dart';
-import 'package:ari/domain/usecases/auth_usecase.dart';
+import 'package:ari/domain/usecases/auth/auth_usecase.dart';
+import 'package:ari/domain/usecases/user/user_usecase.dart';
 import 'package:ari/presentation/viewmodels/auth/login_viewmodel.dart';
 import 'package:ari/presentation/viewmodels/auth/sign_up_viewmodel.dart';
 import 'package:ari/providers/global_providers.dart';
+import 'package:ari/providers/user_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -91,7 +93,9 @@ final signUpViewModelProvider =
 final loginViewModelProvider =
     StateNotifierProvider<LoginViewModel, LoginState>((ref) {
       return LoginViewModel(
+        ref: ref,
         loginUseCase: ref.read(loginUseCaseProvider),
+        getUserProfileUseCase: ref.read(getUserProfileUseCaseProvider),
         saveTokensUseCase: ref.read(saveTokensUseCaseProvider),
         authStateNotifier: ref.read(authStateProvider.notifier),
       );

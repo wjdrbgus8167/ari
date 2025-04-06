@@ -1,4 +1,4 @@
-import 'package:ari/domain/usecases/auth_usecase.dart';
+import 'package:ari/domain/usecases/auth/auth_usecase.dart';
 import 'package:dio/dio.dart';
 
 class AuthInterceptor extends Interceptor {

@@ -4,6 +4,8 @@ import 'package:ari/data/models/track.dart' as data;
 class Track {
   final int trackId;
   final int albumId;
+  final String albumTitle;
+  final String genreName;
   final String trackTitle;
   final String artistName;
   final String lyric;
@@ -20,6 +22,8 @@ class Track {
   const Track({
     required this.trackId,
     required this.albumId,
+    required this.albumTitle,
+    required this.genreName,
     required this.trackTitle,
     required this.artistName,
     required this.lyric,
@@ -44,6 +48,8 @@ class Track {
           json['albumId'] is int
               ? json['albumId']
               : int.tryParse(json['albumId'].toString()) ?? 0,
+      albumTitle: json['albumTitle'] as String? ?? '',
+      genreName: json['genreName'] as String? ?? '',
       trackTitle: json['trackTitle'] as String? ?? '',
       artistName: json['artistName'] as String? ?? '',
       lyric: json['lyrics'] as String? ?? '',
@@ -103,6 +109,8 @@ class Track {
       trackId: dataModel.id,
       albumId: dataModel.albumId,
       trackTitle: dataModel.trackTitle,
+      albumTitle: '',
+      genreName: '',
       artistName: dataModel.artist,
       lyric: dataModel.lyrics,
       trackNumber: 0, // 데이터 모델에 해당 정보가 없다면 기본값 사용

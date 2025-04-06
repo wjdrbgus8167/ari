@@ -35,6 +35,7 @@ class _AlbumDetailScreenState extends ConsumerState<AlbumDetailScreen> {
   Widget build(BuildContext context) {
     // 앨범 데이터 상태 가져오기
     final albumDetailState = ref.watch(albumDetailViewModelProvider);
+    print(albumDetailState.album?.coverImageUrl);
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
@@ -83,10 +84,8 @@ class _AlbumDetailScreenState extends ConsumerState<AlbumDetailScreen> {
                         releaseDate: albumDetailState.album!.createdAt,
                       ),
                       AlbumDetailTrackList(
-                        tracks:
-                            albumDetailState.album!.tracks
-                                .map((track) => track)
-                                .toList(),
+                        tracks: albumDetailState.album!.tracks,
+                        albumCoverUrl: albumDetailState.album?.coverImageUrl ?? '',
                       ),
                       AlbumDetailDescription(
                         description: albumDetailState.album!.description,

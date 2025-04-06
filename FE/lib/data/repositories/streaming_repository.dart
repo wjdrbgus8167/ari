@@ -1,8 +1,8 @@
 import 'package:ari/core/exceptions/failure.dart';
-import 'package:ari/data/datasources/streaming_remote_datasource.dart';
+import 'package:ari/data/datasources/track/streaming_remote_datasource.dart';
 import 'package:ari/data/models/streaming_log_model.dart';
 import 'package:ari/domain/entities/streaming_log.dart';
-import 'package:ari/domain/repositories/streaming_repository.dart';
+import 'package:ari/domain/repositories/track/streaming_repository.dart';
 import 'package:dartz/dartz.dart';
 
 class StreamingRepositoryImpl implements StreamingRepository {

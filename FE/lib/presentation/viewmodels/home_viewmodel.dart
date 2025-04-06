@@ -5,8 +5,8 @@ import 'package:ari/data/models/playlist.dart' as data;
 import 'package:ari/data/models/track.dart';
 import 'package:ari/core/utils/album_filter.dart';
 import 'package:ari/core/utils/genre_utils.dart';
+import 'package:ari/domain/repositories/album/album_detail_repository.dart';
 import 'package:ari/domain/usecases/get_charts_usecase.dart';
-import 'package:ari/domain/repositories/album_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class HomeState {

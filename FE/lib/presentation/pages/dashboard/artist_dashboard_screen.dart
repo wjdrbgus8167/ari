@@ -27,7 +27,7 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final dashboardData = ref.watch(artistDashboardProvider);
-    final hasWallet = dashboardData.walletAddress != null && dashboardData.walletAddress!.isNotEmpty;
+    final hasWallet = dashboardData.walletAddress != null && dashboardData.walletAddress.isNotEmpty;
     final hasTracks = true; // 트랙이 있는지 여부를 확인하는 getter가 있다고 가정
 
     return Scaffold(

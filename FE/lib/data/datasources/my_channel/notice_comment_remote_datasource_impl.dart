@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import '../../../core/exceptions/failure.dart';
 import '../../../data/models/api_response.dart';
 import '../../../data/models/my_channel/notice_comment_model.dart';
-import '../../../domain/usecases/auth_usecase.dart';
+import '../../../domain/usecases/auth/auth_usecase.dart';
 import 'notice_comment_remote_datasource.dart';
 
 /// 공지사항 댓글 원격 데이터소스 구현체

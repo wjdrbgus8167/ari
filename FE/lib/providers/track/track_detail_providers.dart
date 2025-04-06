@@ -1,5 +1,5 @@
 // 데이터 소스 Provider
-import 'package:ari/data/datasources/track_remote_datasource.dart';
+import 'package:ari/data/datasources/track/track_remote_datasource.dart';
 import 'package:ari/data/repositories/track_repository.dart';
 import 'package:ari/domain/usecases/track_detail_usecase.dart';
 import 'package:ari/presentation/viewmodels/track/track_detail_viewmodel.dart';
@@ -7,12 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/providers/global_providers.dart';
 
 final trackDataSourceProvider = Provider((ref) {
-  return TrackMockDataSourceImpl(
+  return TrackDataSourceImpl(
     dio: ref.watch(dioProvider),
-    baseUrl: const String.fromEnvironment(
-      'BASE_URL',
-      defaultValue: 'https://ari-music.duckdns.org',
-    ),
   ); // 필요한 경우 파라미터 전달
 });
 

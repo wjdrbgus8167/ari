@@ -202,6 +202,12 @@ class SubscriptionConstants {
 			},
 			{
 				"indexed": false,
+				"internalType": "uint256",
+				"name": "artistId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
 				"internalType": "address",
 				"name": "tokenAddress",
 				"type": "address"
@@ -211,15 +217,34 @@ class SubscriptionConstants {
 				"internalType": "uint256",
 				"name": "amount",
 				"type": "uint256"
+			}
+		],
+		"name": "PaymentProcessedArtist",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "userId",
+				"type": "uint256"
 			},
 			{
 				"indexed": false,
-				"internalType": "string",
-				"name": "subscriptionType",
-				"type": "string"
+				"internalType": "address",
+				"name": "tokenAddress",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
 			}
 		],
-		"name": "PaymentProcessed",
+		"name": "PaymentProcessedRegular",
 		"type": "event"
 	},
 	{
@@ -1263,33 +1288,6 @@ class SubscriptionConstants {
 		"stateMutability": "view",
 		"type": "function"
 	}
-]
-  ''';
-  
-  // ERC20 토큰 ABI (간소화 버전 - approve 함수만)
-  static const String tokenApproveAbi = '''
-[
-  {
-    "inputs": [
-      {
-        "name": "spender",
-        "type": "address"
-      },
-      {
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "approve",
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
 ]
   ''';
 }

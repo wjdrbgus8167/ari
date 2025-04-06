@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 class MypageProfile extends StatelessWidget {
-  final String name;
-  final String instagramId;
-  final String bio;
-  final int followers;
-  final int following;
-  final String profileImage;
-  final String secondaryImage;
+  final String? name;
+  final String? instagramId;
+  final String? bio;
+  final int? followers;
+  final int? following;
+  final String? profileImage;
+  final String? secondaryImage;
   final VoidCallback onEditPressed;
 
   const MypageProfile({
@@ -87,7 +87,7 @@ class MypageProfile extends StatelessWidget {
                       textBaseline: TextBaseline.alphabetic,
                       children: [
                         Text(
-                          name,
+                          name ?? "",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -111,7 +111,7 @@ class MypageProfile extends StatelessWidget {
                   
                     // Bio
                     Text(
-                      bio,
+                      bio ?? "",
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 12,

@@ -1,4 +1,8 @@
+import 'package:ari/core/utils/login_redirect_util.dart';
+import 'package:ari/presentation/routes/app_router.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path/path.dart';
 
 enum HeaderType {
   // 메인페이지 헤더: 로고 + 마이페이지 아이콘
@@ -9,7 +13,7 @@ enum HeaderType {
   backWithTitle,
 }
 
-class HeaderWidget extends StatelessWidget {
+class HeaderWidget extends ConsumerWidget {
   final HeaderType type;
 
   // 페이지 제목
@@ -34,7 +38,7 @@ class HeaderWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // 헤더 숨김
     if (!visible) {
       return Container();
@@ -43,14 +47,14 @@ class HeaderWidget extends StatelessWidget {
      // SafeArea로 헤더 감싸기
     return SafeArea(
       bottom: false, // 하단은 SafeArea 적용 안함
-      child: _buildHeaderByType(),
+      child: _buildHeaderByType(context, ref),
     );
   }
 
-  Widget _buildHeaderByType() {
+  Widget _buildHeaderByType(BuildContext context, WidgetRef ref) {
     switch (type) {
       case HeaderType.main:
-        return _buildMainHeader();
+        return _buildMainHeader(context, ref);
       case HeaderType.navbarPage:
         return _buildNavbarPageHeader();
       case HeaderType.backWithTitle:
@@ -59,7 +63,7 @@ class HeaderWidget extends StatelessWidget {
   }
 
   // 메인페이지 헤더
-  Widget _buildMainHeader() {
+  Widget _buildMainHeader(BuildContext context, WidgetRef ref) {
     return Container(
       height: 56,
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -85,7 +89,15 @@ class HeaderWidget extends StatelessWidget {
           // 마이페이지 아이콘
           IconButton(
             icon: const Icon(Icons.person),
-            onPressed: onMyPagePressed,
+            onPressed: () async {
+              await checkLoginAndRedirect(
+                context,
+                ref,
+                onLoginSuccess: () {
+                  Navigator.pushNamed(context, AppRoutes.myPage);
+                },
+              );
+            },
           ),
         ],
       ),

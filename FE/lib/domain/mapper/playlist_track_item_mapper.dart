@@ -19,6 +19,8 @@ extension PlaylistTrackItemMapper on PlaylistTrackItem {
       trackNumber: trackNumber,
       trackLikeCount: trackLikeCount,
       createdAt: '', // 서버에 없으면 빈 값 처리
+      albumTitle: '', // 서버에 없으면 빈 값 처리
+      genreName: '', // 서버에 없으면 빈 값 처리
     );
   }
 }
