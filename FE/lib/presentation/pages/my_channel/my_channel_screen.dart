@@ -155,10 +155,10 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
               ),
 
               // 배지 목록
-              SliverToBoxAdapter(child: BadgeList(memberId: _currentUserId)),
+              // SliverToBoxAdapter(child: BadgeList(memberId: _currentUserId)),
 
               // 섹션 간 여백 (배지와 앨범 사이)
-              const SliverToBoxAdapter(child: SizedBox(height: 16)),
+              // const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
               // 아티스트 앨범 (아티스트인 경우에만 표시)
               SliverToBoxAdapter(
