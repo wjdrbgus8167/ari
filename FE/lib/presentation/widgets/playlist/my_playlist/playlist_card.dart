@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../common/media_card.dart';
-import '../../../data/models/playlist.dart';
+import 'package:ari/presentation/widgets/common/media_card.dart';
+import 'package:ari/domain/entities/playlist.dart';
 
 class PlaylistCard extends StatelessWidget {
   final Playlist playlist;
@@ -9,8 +9,10 @@ class PlaylistCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MediaCard(
-      //이미지는 추후 해당 플리 안 트랙 이미지로 변경
-      imageUrl: 'assets/images/default_playlist_cover.png',
+      imageUrl:
+          playlist.coverImageUrl.isNotEmpty
+              ? playlist.coverImageUrl
+              : 'assets/images/default_playlist_cover.png',
       title: playlist.title,
       onTap: () {
         // 플레이리스트 상세 페이지로 이동하는 로직 구현

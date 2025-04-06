@@ -7,6 +7,7 @@ class Playlist {
   final bool isPublic;
   final int shareCount; // 공유 횟수
   final int trackCount; // 트랙 갯수
+  final String coverImageUrl;
   final List<PlaylistTrackItem> tracks;
 
   const Playlist({
@@ -16,12 +17,14 @@ class Playlist {
     required this.shareCount,
     required this.trackCount,
     required this.tracks,
+    required this.coverImageUrl,
   });
 
   factory Playlist.fromJson(Map<String, dynamic> json) {
     return Playlist(
       id: json['playlistId'] as int,
       title: json['playlistTitle'] as String,
+      coverImageUrl: json['coverImageUrl'] as String,
       isPublic: json['publicYn'] as bool,
       shareCount: json['shareCount'] as int,
       trackCount: json['trackCount'] as int,
@@ -40,6 +43,7 @@ class Playlist {
   data.Playlist toDataModel() {
     return data.Playlist(
       id: id,
+      coverImageUrl: coverImageUrl,
       trackCount: trackCount,
       shareCount: shareCount,
       isPublic: isPublic,

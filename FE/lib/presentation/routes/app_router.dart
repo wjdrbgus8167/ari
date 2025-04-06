@@ -1,6 +1,8 @@
+import 'package:ari/domain/entities/playlist.dart';
 import 'package:ari/presentation/pages/dashboard/artist_dashboard_screen.dart';
 import 'package:ari/presentation/pages/dashboard/my_album_stat_list.dart';
 import 'package:ari/presentation/pages/login/login_screen.dart';
+import 'package:ari/presentation/pages/playlist_detail/playlist_detail_screen.dart';
 import 'package:ari/presentation/pages/sign_up/sign_up_screen.dart';
 import 'package:ari/presentation/pages/subscription/artist_selection_screen.dart';
 import 'package:ari/presentation/pages/subscription/my_subscription_screen.dart';
@@ -31,6 +33,7 @@ class AppRoutes {
   static const String signUp = '/signup';
   static const String album = '/album';
   static const String playlist = '/playlist';
+  static const String playlistDetail = '/playlist-detail';
   static const String listeningqueue = '/listeningqueue';
   static const String track = '/track';
   static const String myChannel = '/mychannel';
@@ -104,6 +107,7 @@ class AppRouter {
           settings: settings,
           builder: (_) => const TrackUploadScreen(),
         );
+
       case AppRoutes.listeningqueue:
         return MaterialPageRoute(
           settings: settings,
@@ -125,6 +129,12 @@ class AppRouter {
 
       case AppRoutes.playlist:
         return MaterialPageRoute(builder: (_) => const PlaylistScreen());
+
+      case AppRoutes.playlistDetail:
+        final playlistId = args?['playlistId'] as int? ?? 0;
+        return MaterialPageRoute(
+          builder: (_) => PlaylistDetailScreen(playlistId: playlistId),
+        );
 
       case AppRoutes.myChannel:
         final memberId = args?['memberId'] as String?;

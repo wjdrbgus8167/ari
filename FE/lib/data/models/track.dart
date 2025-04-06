@@ -24,7 +24,7 @@ class Track extends HiveObject {
   final String lyricist; // 🔹 작사가
 
   @HiveField(5)
-  final String albumId;
+  final int albumId;
 
   @HiveField(6)
   final String trackFileUrl; // 🔹 음원 파일 URL
@@ -77,7 +77,7 @@ domain.Track mapDataTrackToDomain(model.Track dataTrack) {
     artistName: dataTrack.artist,
     composer: [dataTrack.composer],
     lyricist: [dataTrack.lyricist],
-    albumId: int.parse(dataTrack.albumId),
+    albumId: dataTrack.albumId,
     trackFileUrl: dataTrack.trackFileUrl,
     lyric: dataTrack.lyrics,
     coverUrl: dataTrack.coverUrl,

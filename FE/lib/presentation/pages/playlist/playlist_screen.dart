@@ -1,10 +1,10 @@
-import 'package:ari/presentation/widgets/playlist/playlist_track_controls.dart';
-import 'package:ari/presentation/widgets/playlist/playlist_track_list.dart';
+import 'package:ari/presentation/widgets/playlist/my_playlist/playlist_track_controls.dart';
+import 'package:ari/presentation/widgets/playlist/my_playlist/playlist_track_list.dart';
 import 'package:ari/providers/global_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/presentation/widgets/common/listening_queue_appbar.dart';
-import 'package:ari/presentation/widgets/playlist/playlist_selectbar.dart';
+import 'package:ari/presentation/widgets/playlist/my_playlist/playlist_selectbar.dart';
 import 'package:ari/presentation/widgets/common/global_bottom_widget.dart';
 import 'package:ari/presentation/widgets/common/search_bar.dart';
 

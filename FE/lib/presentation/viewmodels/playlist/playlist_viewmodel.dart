@@ -1,3 +1,4 @@
+import 'package:ari/data/dto/playlist_create_request.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/domain/entities/playlist.dart';
 import 'package:ari/domain/entities/playlist_trackitem.dart';
@@ -23,6 +24,21 @@ class PlaylistViewModel extends StateNotifier<PlaylistState> {
     }
   }
 
+  Future<void> createPlaylistAndAddTracks(
+    String title,
+    bool publicYn,
+    List<PlaylistTrackItem> selectedItems,
+  ) async {
+    final request = PlaylistCreateRequest(title: title, publicYn: publicYn);
+    final newPlaylist = await playlistRepository.createPlaylist(request);
+
+    for (var item in selectedItems) {
+      await playlistRepository.addTrack(newPlaylist.id, item.trackId);
+    }
+
+    print('[DEBUG] 새 플레이리스트 생성 및 트랙 추가 완료');
+  }
+
   Future<void> setPlaylist(Playlist basePlaylist) async {
     // 1. 목록 조회 API로 받아온 기본 정보를 상태에 설정합니다.
     state = state.copyWith(selectedPlaylist: basePlaylist, selectedTracks: {});
@@ -43,6 +59,7 @@ class PlaylistViewModel extends StateNotifier<PlaylistState> {
       final mergedPlaylist = Playlist(
         id: basePlaylist.id,
         title: basePlaylist.title,
+        coverImageUrl: basePlaylist.coverImageUrl,
         isPublic: basePlaylist.isPublic,
         trackCount: detailedPlaylist.tracks.length,
         shareCount: basePlaylist.shareCount,
@@ -117,6 +134,7 @@ class PlaylistViewModel extends StateNotifier<PlaylistState> {
     final newPlaylist = Playlist(
       id: state.selectedPlaylist!.id,
       title: state.selectedPlaylist!.title,
+      coverImageUrl: state.selectedPlaylist!.coverImageUrl,
       isPublic: state.selectedPlaylist!.isPublic,
       trackCount: updatedList.length,
       shareCount: state.selectedPlaylist!.shareCount,
@@ -135,6 +153,7 @@ class PlaylistViewModel extends StateNotifier<PlaylistState> {
     final newPlaylist = Playlist(
       id: state.selectedPlaylist!.id,
       title: state.selectedPlaylist!.title,
+      coverImageUrl: state.selectedPlaylist!.coverImageUrl,
       isPublic: state.selectedPlaylist!.isPublic,
       trackCount: newPlaylistTracks.length,
       shareCount: state.selectedPlaylist!.shareCount,

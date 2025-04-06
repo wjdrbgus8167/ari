@@ -7,4 +7,5 @@ abstract class IPlaylistRepository {
   Future<void> addTrack(int playlistId, int trackId);
   Future<void> deleteTrack(int playlistId, int trackId);
   Future<Playlist> getPlaylistDetail(int playlistId);
+  Future<void> sharePlaylist(int playlistId);
 }

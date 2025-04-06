@@ -29,18 +29,18 @@ class PlaylistTrackItem {
 
   factory PlaylistTrackItem.fromJson(Map<String, dynamic> json) {
     return PlaylistTrackItem(
-      trackOrder: json['trackOrder'] as int,
-      trackId: json['trackId'] as int,
-      artist: json['artist'] as String,
-      coverImageUrl: json['coverImageUrl'] as String,
-      composer: json['composer'] as String,
-      lyricist: json['lyricist'] as String,
-      lyrics: json['lyrics'] as String,
-      trackFileUrl: json['trackFileUrl'] as String,
-      trackLikeCount: json['trackLikeCount'] as int,
-      trackNumber: json['trackNumber'] as int,
-      trackTitle: json['trackTitle'] as String,
-      albumId: json['albumId'] as int,
+      trackOrder: json['trackOrder'] as int? ?? 0,
+      trackId: json['trackId'] as int? ?? 0,
+      artist: json['artist'] as String? ?? '',
+      coverImageUrl: json['coverImageUrl'] as String? ?? '',
+      composer: json['composer'] as String? ?? '',
+      lyricist: json['lyricist'] as String? ?? '',
+      lyrics: json['lyrics'] as String? ?? '',
+      trackFileUrl: json['trackFileUrl'] as String? ?? '',
+      trackLikeCount: json['trackLikeCount'] as int? ?? 0,
+      trackNumber: json['trackNumber'] as int? ?? 0,
+      trackTitle: json['trackTitle'] as String? ?? '',
+      albumId: json['albumId'] as int? ?? 0,
     );
   }
 

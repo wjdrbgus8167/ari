@@ -15,6 +15,7 @@ class PlaybackState {
   final String lyrics;
   final bool isPlaying;
   final bool isLiked;
+  final String currentQueueItemId;
 
   PlaybackState({
     this.currentTrackId,
@@ -26,6 +27,7 @@ class PlaybackState {
     this.lyrics = '',
     this.isPlaying = false,
     this.isLiked = false,
+    this.currentQueueItemId = '',
   });
 
   // PlaybackState의 새로운 상태 생성
@@ -41,6 +43,7 @@ class PlaybackState {
     String? lyrics,
     bool? isPlaying,
     bool? isLiked,
+    String? currentQueueItemId,
   }) {
     return PlaybackState(
       currentTrackId: currentTrackId ?? this.currentTrackId,
@@ -52,6 +55,7 @@ class PlaybackState {
       lyrics: lyrics ?? this.lyrics,
       isPlaying: isPlaying ?? this.isPlaying,
       isLiked: isLiked ?? this.isLiked,
+      currentQueueItemId: currentQueueItemId ?? this.currentQueueItemId, // 업데이트
     );
   }
 
@@ -93,6 +97,7 @@ class PlaybackNotifier extends StateNotifier<PlaybackState> {
     required int albumId,
     required String trackUrl,
     required bool isLiked,
+    required String currentQueueItemId,
   }) {
     state = state.copyWith(
       trackTitle: trackTitle,

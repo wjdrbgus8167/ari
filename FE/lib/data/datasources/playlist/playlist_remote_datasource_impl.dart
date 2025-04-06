@@ -119,6 +119,7 @@ class PlaylistRemoteDataSourceImpl implements IPlaylistRemoteDataSource {
         return Playlist(
           id: playlistId,
           title: '', // 기본값, ViewModel에서 목록 데이터와 병합할 예정
+          coverImageUrl: '', // 기본값, ViewModel에서 병합할 예정
           isPublic: false, // 기본값, ViewModel에서 병합할 예정
           shareCount: 0, // 기본값, ViewModel에서 병합할 예정
           trackCount: tracks.length,
@@ -149,6 +150,19 @@ class PlaylistRemoteDataSourceImpl implements IPlaylistRemoteDataSource {
         "tracks": [
           {"trackId": trackId},
         ],
+      },
+      fromJson: (_) {},
+    );
+  }
+
+  /// 플레이리스트에 여러 트랙 추가
+  @override
+  Future<void> addTracks(int playlistId, List<int> trackIds) async {
+    await _request<void>(
+      url: '/api/v1/playlists/$playlistId/tracks',
+      method: 'POST',
+      data: {
+        "tracks": trackIds.map((id) => {"trackId": id}).toList(),
       },
       fromJson: (_) {},
     );
@@ -185,7 +199,7 @@ class PlaylistRemoteDataSourceImpl implements IPlaylistRemoteDataSource {
     );
   }
 
-  /// 플레이리스트 공유
+  /// 플레이리스트 퍼가기
   @override
   Future<void> sharePlaylist(int playlistId) async {
     await _request<void>(
@@ -213,8 +227,13 @@ class PlaylistRemoteDataSourceImpl implements IPlaylistRemoteDataSource {
       url: '/api/v1/playlists/popular',
       method: 'GET',
       fromJson: (data) {
-        final List<dynamic> list = data as List<dynamic>;
-        return list.map((json) => Playlist.fromJson(json)).toList();
+        // data는 이미 API 응답의 data 필드를 전달받은 것으로 가정 (즉, data: { "playlists": [...] } )
+        final dynamic playlistsData = data['playlists'];
+        if (playlistsData is List) {
+          return playlistsData.map((json) => Playlist.fromJson(json)).toList();
+        } else {
+          return [];
+        }
       },
     );
   }

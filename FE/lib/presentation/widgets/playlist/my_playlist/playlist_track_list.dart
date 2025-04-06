@@ -1,6 +1,7 @@
 import 'package:ari/core/services/audio_service.dart';
+import 'package:ari/domain/mapper/playlist_track_item_mapper.dart';
 import 'package:ari/providers/global_providers.dart';
-import 'package:ari/presentation/widgets/playlist/playlist_track_list_tile.dart';
+import 'package:ari/presentation/widgets/playlist/my_playlist/playlist_track_list_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -41,21 +42,19 @@ class PlaylistTrackList extends ConsumerWidget {
           item: trackItem,
           isSelected: isSelected,
           selectionMode: playlistState.selectionMode,
-          onTap: () {
-            ref
+          onTap: () async {
+            final fullPlaylist = tracks.map((e) => e.toDomainTrack()).toList();
+            final selectedTrack = trackItem.toDomainTrack();
+
+            await ref
                 .read(audioServiceProvider)
-                .play(
-                  ref,
-                  trackItem.trackFileUrl,
-                  title: trackItem.trackTitle,
-                  artist: trackItem.artist,
-                  coverImageUrl: trackItem.coverImageUrl,
-                  lyrics: trackItem.lyrics,
-                  trackId: trackItem.trackId,
-                  albumId: trackItem.albumId,
-                  isLiked: false,
-                );
+                .playFromQueueSubset(ref, fullPlaylist, selectedTrack);
+
+            await ref
+                .read(listeningQueueProvider.notifier)
+                .trackPlayed(trackItem.toDataTrack());
           },
+
           onToggleSelection: () {
             // 중복된 항목도 각자 다르게 선택되도록 하려면,
             // selectedTracks 를 List 또는 index 기반 구조로 바꾸는 것도 고려해볼 수 있음
