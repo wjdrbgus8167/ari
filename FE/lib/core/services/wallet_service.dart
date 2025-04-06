@@ -23,9 +23,6 @@ class WalletService extends ChangeNotifier {
   bool _isTransferring = false;
   String? _lastTxHash;
   bool _isInitialized = false;
-  
-  // 고정된 송금 주소
-  final String transferAddress = "0x0DF66d97998A0f7814B6aBe73Cfe666B2d03Ff69";
 
   // LINK 토큰 주소 매핑 (네트워크별)
   final Map<String, String> linkTokenAddresses = {
@@ -42,7 +39,7 @@ class WalletService extends ChangeNotifier {
   // 구독 컨트랙트 주소 (네트워크별)
   final Map<String, String> subscriptionContractAddresses = {
     'eip155:1': '0xSubscriptionContractAddressOnEthereum',     // 이더리움 메인넷
-    'eip155:11155111': '0xcf12fc392263c51536d403b74e37affa4403e0ea', // Sepolia 테스트넷
+    'eip155:11155111': '0xd37402929f2836fc3f73e6abae33ad2f31ce6e42', // Sepolia 테스트넷
     'eip155:137': '0xSubscriptionContractAddressOnPolygon',     // Polygon 메인넷
   };
 
@@ -53,7 +50,7 @@ class WalletService extends ChangeNotifier {
     }
     
     final chainId = _appKitModal!.selectedChain!.chainId;
-    return linkTokenAddresses['eip155:$chainId'] ?? '';
+    return linkTokenAddresses[chainId] ?? '';
   }
 
   /// 현재 선택된 네트워크의 구독 컨트랙트 주소를 반환합니다.
@@ -63,7 +60,7 @@ class WalletService extends ChangeNotifier {
     }
     
     final chainId = _appKitModal!.selectedChain!.chainId;
-    return subscriptionContractAddresses['eip155:$chainId'] ?? '';
+    return subscriptionContractAddresses[chainId] ?? '';
   }
 
   /// 지원 네트워크 설정
@@ -154,7 +151,7 @@ class WalletService extends ChangeNotifier {
   /// 주소 업데이트
   void _updateAddress() {
     _address = _appKitModal?.session?.getAddress(
-      ReownAppKitModalNetworks.getNamespaceForChainId(
+      NamespaceUtils.getNamespaceFromChain(
         _appKitModal?.selectedChain?.chainId ?? "1",
       )
     );
@@ -356,7 +353,7 @@ class WalletService extends ChangeNotifier {
     TransactionCallback? onComplete,
   }) async {
     // ERC20 컨트랙트 ABI 정의 (제공된 ABI가 없으면 기본 ABI 사용)
-    final abi = contractAbi ?? jsonEncode([
+    final abi = jsonEncode([
       {
         "inputs": [
           {"name": "spender", "type": "address"},

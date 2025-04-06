@@ -1,8 +1,8 @@
 import 'package:ari/core/exceptions/failure.dart';
-import 'package:ari/data/datasources/album_remote_datasource.dart';
+import 'package:ari/data/datasources/album/album_remote_datasource.dart';
 import 'package:ari/data/models/album_detail.dart';
 import 'package:ari/domain/entities/album.dart';
-import 'package:ari/domain/repositories/album_repository.dart';
+import 'package:ari/domain/repositories/album/album_detail_repository.dart';
 import 'package:dartz/dartz.dart';
 
 class AlbumRepositoryImpl implements AlbumRepository {

@@ -1,8 +1,8 @@
 import 'package:ari/data/models/login_request.dart';
 import 'package:ari/domain/entities/token.dart';
 import 'package:ari/domain/repositories/auth_repository.dart';
-import 'package:ari/data/datasources/auth_local_data_source.dart';
-import 'package:ari/data/datasources/auth_remote_data_source.dart';
+import 'package:ari/data/datasources/auth/auth_local_data_source.dart';
+import 'package:ari/data/datasources/auth/auth_remote_data_source.dart';
 import 'package:ari/data/models/token_model.dart';
 import 'package:ari/data/models/sign_up_request.dart';
 

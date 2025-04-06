@@ -1,86 +1,126 @@
+import 'package:ari/domain/entities/profile.dart';
+import 'package:ari/domain/usecases/user/user_usecase.dart';
 import 'package:ari/presentation/routes/app_router.dart';
 import 'package:ari/presentation/widgets/common/custom_toast.dart';
 import 'package:ari/providers/auth/auth_providers.dart';
+import 'package:ari/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MyPageViewModel extends ChangeNotifier {
-  // 사용자 정보
-  final String _name = '진우석';
-  final String _instagramId = '인스타그램ID';
-  final String _bio = '안녕하세요~';
-  final int _followers = 0;
-  final int _following = 0;
-  final String _profileImage = "https://placehold.co/100x100";
-  final String _secondaryImage = "https://placehold.co/100x100";
+// 사용자 프로필 모델 클래스
+class UserProfile extends Profile {
+  UserProfile({
+    required super.memberId,
+    required super.nickname,
+    required super.instagram,
+    required super.bio,
+    required super.followerCount,
+    required super.followingCount,
+    required super.profileImageUrl,
+  });
   
-  // 로딩 상태
-  bool _isLoading = false;
-  
-  // 데이터 노출용 getters
-  String get name => _name;
-  String get instagramId => _instagramId;
-  String get bio => _bio;
-  int get followers => _followers;
-  int get following => _following;
-  String get profileImage => _profileImage;
-  String get secondaryImage => _secondaryImage;
-  bool get isLoading => _isLoading;
+  // 기본 생성자
+  factory UserProfile.empty() {
+    return UserProfile(
+      memberId: 1,
+      nickname: '',
+      instagram: '',
+      bio: '',
+      followerCount: 0,
+      followingCount: 0,
+      profileImageUrl: 'https://placehold.co/100x100',
+    );
+  }
+}
 
-  final Ref ref; // Riverpod ref 추가
-  MyPageViewModel(this.ref);
+// 마이페이지 상태 클래스
+class MyPageState {
+  final Profile userProfile;
+  final bool isLoading;
+  final String? errorMessage;
+  
+  MyPageState({
+    required this.userProfile,
+    this.isLoading = false,
+    this.errorMessage,
+  });
+  
+  // 초기 상태
+  factory MyPageState.initial() {
+    return MyPageState(
+      userProfile: UserProfile.empty(),
+      isLoading: false,
+    );
+  }
+  // copyWith 메서드
+  MyPageState copyWith({
+    Profile? userProfile,
+    bool? isLoading,
+    String? errorMessage,
+  }) {
+    return MyPageState(
+      userProfile: userProfile ?? this.userProfile,
+      isLoading: isLoading ?? this.isLoading,
+      errorMessage: errorMessage,
+    );
+  }
+}
+
+// NotifierProvider 정의
+// StateNotifierProvider 정의
+class MyPageViewModel extends StateNotifier<MyPageState> {
+  final Ref ref;
+  
+  MyPageViewModel(this.ref) : super(MyPageState.initial()) {
+    // 초기 상태 설정은 super 호출로 처리됨
+  }
+  
+  // 유저 프로필 유스케이스 접근자
+  GetUserProfileUseCase get getUserProfileUseCase => ref.read(getUserProfileUseCaseProvider);
   
   // 초기화 메서드
   Future<void> initialize() async {
-    _isLoading = true;
-    notifyListeners();
+    state = state.copyWith(isLoading: true);
     
     try {
-      // 여기에 사용자 정보를 가져오는 API 호출을 구현합니다.
-      // 예: final userInfo = await _userRepository.getUserProfile();
+      // 사용자 프로필 가져오기
+      await getUserProfile();
       
-      // 임시로 딜레이를 줘서 로딩 상태를 시뮬레이션
-      await Future.delayed(const Duration(seconds: 1));
-      
-      // 데이터 업데이트 (실제 구현에서는 API 응답으로 업데이트)
-      // _name = userInfo.name;
-      // _instagramId = userInfo.instagramId;
-      // ...
     } catch (e) {
       // 에러 처리
       debugPrint('사용자 정보 로딩 오류: $e');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+      state = state.copyWith(
+        errorMessage: '사용자 정보를 불러오는 중 오류가 발생했습니다.',
+        isLoading: false
+      );
     }
   }
   
-  // 프로필 편집 처리
+  // 프로필 편집 페이지로 이동
   void navigateToEditProfile(BuildContext context) {
-    // 프로필 수정 페이지로 이동하는 로직
     debugPrint('프로필 수정 버튼 클릭');
-    
     // 예: Navigator.pushNamed(context, AppRoutes.editProfile);
   }
   
   // 로그아웃 처리
   Future<void> logout(BuildContext context) async {
-    _isLoading = true;
-    notifyListeners();
+    state = state.copyWith(isLoading: true);
+    
     try {
       final isLoggedIn = ref.read(authStateProvider).when(
-            data: (value) => value,
-            loading: () => false,
-            error: (_, __) => false,
-          );
+        data: (value) => value,
+        loading: () => false,
+        error: (_, __) => false,
+      );
+      
       debugPrint(isLoggedIn.toString());
+      
       if (isLoggedIn) {
         // 로그아웃 수행
         await ref.read(authStateProvider.notifier).logout();
         
         // mounted 체크
         if (!context.mounted) {
-          // 로그 기록
           debugPrint('위젯이 이미 dispose되어 네비게이션 실행 불가');
           return;
         }
@@ -103,8 +143,37 @@ class MyPageViewModel extends ChangeNotifier {
       if (!context.mounted) return;
       context.showToast('로그아웃 중 오류가 발생했습니다.');
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
+  // 사용자 프로필 가져오기
+  Future<bool> getUserProfile() async {
+    try {
+      final result = await getUserProfileUseCase();
+      
+      return result.fold(
+        (failure) {
+          state = state.copyWith(
+            errorMessage: failure.message,
+            isLoading: false,
+          );
+          return false;
+        },
+        (profile) {
+          state = state.copyWith(
+            userProfile: profile,
+            isLoading: false,
+          );
+          return true;
+        }
+      );
+    } catch (e) {
+      state = state.copyWith(
+        errorMessage: '프로필을 가져오는 중 오류가 발생했습니다: ${e.toString()}',
+        isLoading: false,
+      );
+      return false;
     }
   }
   
@@ -113,3 +182,9 @@ class MyPageViewModel extends ChangeNotifier {
     Navigator.pushNamed(context, routeName);
   }
 }
+
+
+// Provider 정의
+final myPageProvider = StateNotifierProvider<MyPageViewModel, MyPageState>((ref) {
+  return MyPageViewModel(ref);
+});

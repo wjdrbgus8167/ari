@@ -1,6 +1,8 @@
 import 'package:ari/domain/entities/token.dart';
-import 'package:ari/domain/usecases/auth_usecase.dart';
+import 'package:ari/domain/usecases/auth/auth_usecase.dart';
+import 'package:ari/domain/usecases/user/user_usecase.dart';
 import 'package:ari/providers/auth/auth_providers.dart';
+import 'package:ari/providers/user_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -35,13 +37,17 @@ class LoginState {
 
 // 로그인 뷰모델
 class LoginViewModel extends StateNotifier<LoginState> {
+  final Ref ref;
   final LoginUseCase loginUseCase;
   final SaveTokensUseCase saveTokensUseCase;
   final AuthStateNotifier authStateNotifier;
+  final GetUserProfileUseCase getUserProfileUseCase;
 
   LoginViewModel({
+    required this.ref,
     required this.loginUseCase,
     required this.saveTokensUseCase,
+    required this.getUserProfileUseCase,
     required this.authStateNotifier,
   }) : super(LoginState());
 
@@ -64,19 +70,12 @@ class LoginViewModel extends StateNotifier<LoginState> {
   Future<bool> login() async {
 
     state = state.copyWith(isLoading: true, errorMessage: null);
-    try {
-      print(state.email);
-      await authStateNotifier.login(state.email, state.password);
-      state = state.copyWith(isLoading: false);
-      await authStateNotifier.refreshAuthState(); 
-      return true;
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '로그인 중 오류가 발생했습니다: ${e.toString()}',
-      );
-      return false;
-    }
+    await authStateNotifier.login(state.email, state.password);
+    state = state.copyWith(isLoading: false);
+    await authStateNotifier.refreshAuthState(); 
+    await ref.read(userProvider.notifier).refreshUserInfo();
+
+    return true;
   }
 
   // 소셜 로그인 시작 (구글)

@@ -1,4 +1,5 @@
 import 'package:ari/core/utils/auth_interceptor.dart';
+import 'package:ari/data/datasources/api_client.dart';
 import 'package:ari/data/datasources/playlist/playlist_remote_datasource.dart';
 import 'package:ari/data/datasources/playlist/playlist_remote_datasource_impl.dart';
 import 'package:ari/data/repositories/playlist_repository_impl.dart';
@@ -7,7 +8,6 @@ import 'package:ari/presentation/viewmodels/playlist/playlist_state.dart';
 import 'package:ari/presentation/viewmodels/playlist/playlist_viewmodel.dart';
 
 import 'package:ari/providers/auth/auth_providers.dart';
-import 'package:ari/providers/my_channel/my_channel_providers.dart';
 import 'package:ari/providers/user_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
@@ -178,3 +178,5 @@ final listeningQueueProvider =
         playlistRepository: playlistRepository,
       );
     });
+
+final apiClientProvider = Provider<ApiClient>((ref) => ApiClient(ref.read(dioProvider)));

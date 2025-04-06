@@ -1,25 +1,37 @@
+import 'package:ari/providers/user_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../pages/login/login_screen.dart';
 
-class LoginPrompt extends StatelessWidget {
+class LoginPrompt extends ConsumerWidget {
   const LoginPrompt({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // ref.watch를 const가 아닌 위치로 이동
+    final nickname = ref.watch(userNicknameProvider);
+    
     return Padding(
       padding: const EdgeInsets.only(left: 16),
       child: Align(
         alignment: Alignment.centerLeft,
         child: GestureDetector(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const LoginScreen()),
-            );
+            // 닉네임 유무에 따라 다른 화면으로 이동
+            if (nickname != null && nickname.isNotEmpty) {
+              // 로그인된 상태: 프로필 화면으로 이동
+              
+            } else {
+              // 비로그인 상태: 로그인 화면으로 이동
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+              );
+            }
           },
-          child: const Text(
-            '로그인해주세요 >',
-            style: TextStyle(
+          child: Text(
+            nickname != null && nickname.isNotEmpty ? '$nickname님 환영합니다.' : '로그인해주세요 >',
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 20,
               fontWeight: FontWeight.w600,
