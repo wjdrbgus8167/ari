@@ -1,6 +1,5 @@
 package com.ccc.ari.subscription.infrastructure.blockchain.config;
 
-import com.ccc.ari.global.contract.StreamingAggregationContract;
 import com.ccc.ari.global.contract.SubscriptionContract;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

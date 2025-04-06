@@ -128,4 +128,54 @@ public class StreamingAggregationContractEventListener {
             return Collections.emptyList();
         }
     }
+
+    public List<StreamingAggregationContract.RawArtistTracksUpdatedEventResponse> getAllRawArtistTracksUpdatedEvents() {
+        logger.info("RawArtistTracksUpdated 이벤트 조회를 시작합니다.");
+        try {
+            logger.info("스마트 컨트랙트 주소: {}", aggregationContract.getContractAddress());
+
+            // 이벤트 필터 생성 (모든 블록 범위)
+            EthFilter filter = new EthFilter(
+                    DefaultBlockParameterName.EARLIEST,
+                    DefaultBlockParameterName.LATEST,
+                    aggregationContract.getContractAddress()
+            );
+            logger.info("이벤트 필터 생성 완료: {}", filter);
+
+            // 이벤트 토픽 인코딩
+            filter.addSingleTopic(EventEncoder.encode(StreamingAggregationContract.RAWARTISTTRACKSUPDATED_EVENT));
+
+            // 로그 조회
+            EthLog ethLog = web3j.ethGetLogs(filter).send();
+            List<EthLog.LogResult> logs = ethLog.getLogs();
+            logger.info("이벤트 로그 조회 완료. 총 {}개의 로그를 가져왔습니다.", logs.size());
+
+            // 이벤트 응답 리스트 생성
+            List<StreamingAggregationContract.RawArtistTracksUpdatedEventResponse> eventResponses = new ArrayList<>();
+
+            // 각 로그에 대해 이벤트 처리
+            for (EthLog.LogResult logResult : logs) {
+                Log log = (Log) logResult.get();
+                logger.info("이벤트 로그 처리 중: {}", log);
+
+                // static 메서드 활용
+                StreamingAggregationContract.RawArtistTracksUpdatedEventResponse event =
+                        StreamingAggregationContract.getRawArtistTracksUpdatedEventFromLog(log);
+
+                eventResponses.add(event);
+                logger.info("이벤트 처리 완료: {}", event);
+            }
+
+            // 이벤트 응답 반환
+            logger.info("RawArtistTracksUpdated 이벤트 조회를 성공적으로 완료했습니다. 총 {}개의 이벤트 응답 반환.",
+                    eventResponses.size());
+
+            return eventResponses;
+
+        } catch (IOException e) {
+            // 네트워크 또는 이벤트 조회 중 예외 처리
+            logger.error("모든 이벤트 조회 중 네트워크 오류 발생", e);
+            return Collections.emptyList();
+        }
+    }
 }
