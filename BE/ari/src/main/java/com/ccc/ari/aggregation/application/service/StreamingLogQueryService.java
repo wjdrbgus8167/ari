@@ -69,4 +69,38 @@ public class StreamingLogQueryService {
 
         return allStreamingLogs;
     }
+
+    public List<StreamingLog> findStreamingLogByArtistId(Integer artistId) {
+        logger.info("findStreamingLogByArtistId 메서드 호출 - artistId: {}", artistId);
+
+        List<StreamingAggregationContract.RawArtistTracksUpdatedEventResponse> events =
+                streamingAggregationContractEventListener.getAllRawArtistTracksUpdatedEvents();
+        logger.info("블록체인으로부터 {}개의 이벤트가 조회되었습니다.", events.size());
+        logger.info("IPFS에서 데이터를 조회하고 처리 중입니다.");
+
+        // 각 이벤트별로 비동기적으로 IPFS 데이터를 조회
+        List<CompletableFuture<List<StreamingLog>>> futureStreamingLogs = events.stream()
+                .map(event -> CompletableFuture.supplyAsync(() -> {
+                    logger.info("IPFS 데이터 조회 시작. CID: {}", event.cid);
+                    String jsonData = ipfsClient.get(event.cid);
+                    logger.info("IPFS 데이터 조회 성공. 응답 크기: {}", jsonData.length());
+                    AggregatedData aggregatedData = AggregatedData.fromJson(jsonData);
+                    return aggregatedData.getStreamingLogs();
+                }))
+                .collect(Collectors.toList());
+
+        // 모든 CompletableFuture가 완료될 때까지 대기하고, 결과를 평탄화
+        List<StreamingLog> allStreamingLogs = futureStreamingLogs.stream()
+                .map(CompletableFuture::join)
+                .flatMap(List::stream)
+                .peek(log -> logger.debug("streamingLog 확인: {}", log))
+                // 타임스탬프 기준 정렬
+                .sorted(Comparator.comparing(StreamingLog::getTimestamp))
+                .collect(Collectors.toList());
+
+        logger.info("총 {}개의 스트리밍 로그가 정렬 및 필터링되었습니다.", allStreamingLogs.size());
+        logger.info("findStreamingLogByArtistId 처리 완료 - artistId: {}", artistId);
+
+        return allStreamingLogs;
+    }
 }
