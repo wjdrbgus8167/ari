@@ -1,11 +1,11 @@
-/// 공개된 플레이리스트 모델 클래스
+/// 공개된 플레이리스트
 class PublicPlaylist {
   final int playlistId;
   final String playlistTitle;
-  final bool publicYn; // 공개 여부
-  final int trackCount; // 트랙 수
-  final String? artist; // 아티스트 이름
-  final String? coverImageUrl; // 커버 URL
+  final bool publicYn;
+  final int trackCount;
+  final String? artist;
+  final String? coverImageUrl;
 
   /// 생성자(객체 초기화)
   PublicPlaylist({
@@ -44,15 +44,18 @@ class PublicPlaylist {
 
 /// API로부터 받은 플레이리스트 목록 데이터 저장
 class PublicPlaylistResponse {
+  final String artist;
   final List<PublicPlaylist> playlists; // 공개된 플레이리스트 목록
 
-  PublicPlaylistResponse({required this.playlists});
+  PublicPlaylistResponse({required this.artist, required this.playlists});
 
+  /// API 응답에서 데이터를 추출하여 객체 생성
   /// [return] 변환된 PublicPlaylistResponse 객체
   factory PublicPlaylistResponse.fromJson(Map<String, dynamic> json) {
     final playlistsList = json['playlists'] as List<dynamic>? ?? [];
 
     return PublicPlaylistResponse(
+      artist: json['artist'] ?? '',
       playlists:
           playlistsList
               .map((playlistJson) => PublicPlaylist.fromJson(playlistJson))
