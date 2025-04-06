@@ -120,7 +120,7 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
   @override
   Widget build(BuildContext context) {
     // userIdProvider 변경 감지를 위한 watch
-    final userId = ref.watch(userIdProvider);
+    final userId = ref.read(userIdProvider);
 
     // 내 채널 모드에서 userId가 변경되면 데이터 다시 로드
     if (widget.memberId == null && userId != null && userId != _currentUserId) {

@@ -51,7 +51,7 @@ class _FollowersManagementWidgetState
   @override
   Widget build(BuildContext context) {
     // 나의 ID 확인 (본인 채널이면 팔로우 버튼 표시 안 함)
-    final myUserId = ref.watch(userIdProvider);
+    final myUserId = ref.read(userIdProvider);
     final isMySelf = myUserId == widget.targetMemberId;
 
     // 본인 채널이면 버튼 표시 안 함

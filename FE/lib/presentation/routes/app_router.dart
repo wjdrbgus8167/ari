@@ -1,3 +1,4 @@
+import 'package:ari/data/models/subscription_history_model.dart';
 import 'package:ari/domain/entities/playlist.dart';
 import 'package:ari/presentation/pages/dashboard/artist_dashboard_screen.dart';
 import 'package:ari/presentation/pages/dashboard/my_album_stat_list.dart';
@@ -6,6 +7,7 @@ import 'package:ari/presentation/pages/playlist_detail/playlist_detail_screen.da
 import 'package:ari/presentation/pages/sign_up/sign_up_screen.dart';
 import 'package:ari/presentation/pages/subscription/artist_selection_screen.dart';
 import 'package:ari/presentation/pages/subscription/my_subscription_screen.dart';
+import 'package:ari/presentation/pages/subscription/subscription_history_screen.dart';
 import 'package:ari/presentation/pages/subscription/subscription_payment_screen.dart';
 import 'package:ari/presentation/pages/subscription/subscription_select_screen.dart';
 import 'package:ari/presentation/viewmodels/subscription/artist_selection_viewmodel.dart';
@@ -38,6 +40,7 @@ class AppRoutes {
   static const String track = '/track';
   static const String myChannel = '/mychannel';
   static const String subscription = '/subscription';
+  static const String subscriptionHistory = '/subscription-history';
   static const String subscriptionPayment = '/subscription/payment';
   static const String albumUpload = '/album-upload';
   static const String trackUpload = '/album-upload/add-track';
@@ -168,6 +171,9 @@ class AppRouter {
                 artistInfo: artistInfo,
               ),
         );
+
+      case AppRoutes.subscriptionHistory:
+        return MaterialPageRoute(builder: (_) => const SubscriptionHistoryScreen());
 
       case AppRoutes.artistSelection:
         return MaterialPageRoute(builder: (_) => const ArtistSelectionScreen());

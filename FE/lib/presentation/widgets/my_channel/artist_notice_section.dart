@@ -30,7 +30,7 @@ class ArtistNoticeSection extends ConsumerWidget {
     final isArtist = true;
 
     // 현재 로그인한 사용자 ID 가져오기 (내 채널 여부 확인용)
-    final currentUserId = ref.watch(userIdProvider);
+    final currentUserId = ref.read(userIdProvider);
     final isMyChannel = currentUserId != null && currentUserId == memberId;
 
     // 아티스트가 아닌 경우 위젯을 표시x
