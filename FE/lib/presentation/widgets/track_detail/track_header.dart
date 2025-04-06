@@ -8,7 +8,7 @@ class TrackHeader extends StatelessWidget {
   final String artistName;
   final int likeCount;
   final int commentCount;
-  final int playCount;
+  final int? playCount;
   final String albumImageUrl;
   final String artistImageUrl;
   final int trackId;
@@ -195,7 +195,7 @@ class TrackHeader extends StatelessWidget {
                             ),
                             const SizedBox(width: 1),
                             Text(
-                              '$playCount회 재생',
+                              playCount == null ? "불러오는 중..." : '$playCount회 재생',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
