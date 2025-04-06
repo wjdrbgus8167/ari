@@ -123,11 +123,10 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
             if (widget.isMyProfile)
               // 탭 가능한 컨테이너 (아무데나 클릭해도 라우팅됨)
               Material(
-                // InkWell을 Material로 감싸 ripple 효과 개선
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: () {
-                    // ripple 효과는 기본적으로 적용됨
+                    // 네비게이션 즉시 실행(비동기 지연 제거)
                     Navigator.of(context).push(
                       PageRouteBuilder(
                         pageBuilder:
@@ -202,7 +201,7 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Container(
-                            width: 180, // 버튼 가로 길이 지정
+                            width: 180, // 버튼 가로 길이
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16,
                               vertical: 8,
@@ -261,12 +260,12 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
       );
     }
 
-    // 앨범이 있는 경우 CarouselContainer 위젯 사용 (아티스트로 간주)
+    // 앨범이 있는 경우 CarouselContainer
     return CarouselContainer(
       title: '나의 앨범',
       height: 220,
       itemWidth: 160,
-      itemSpacing: 12.0, // 앨범 사이 간격을 PublicPlaylistSection과 동일하게 조정
+      itemSpacing: 12.0,
       children:
           artistAlbums.map((album) => _buildAlbumItem(context, album)).toList(),
     );
@@ -274,81 +273,79 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
 
   /// 개별 앨범 아이템
   Widget _buildAlbumItem(BuildContext context, ArtistAlbum album) {
-    return GestureDetector(
+    // 앨범 아이템 내용
+    return InkWell(
       onTap: () {
-        // 앨범 상세 페이지로
         Navigator.pushNamed(
           context,
           AppRoutes.album,
           arguments: {'albumId': album.albumId},
         );
       },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 앨범 커버 이미지
-          Container(
-            width: 160,
-            height: 160,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.blue.withValues(alpha: 0.3),
-                  blurRadius: 5,
-                  offset: const Offset(0, 3),
+      child: SizedBox(
+        width: 160,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 앨범 커버 이미지만 그림자 효과
+            Container(
+              width: 160,
+              height: 160,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blue.withValues(alpha: 0.3),
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+                image: DecorationImage(
+                  image: NetworkImage(album.coverImageUrl),
+                  fit: BoxFit.cover,
                 ),
-              ],
-              image: DecorationImage(
-                image: NetworkImage(album.coverImageUrl),
-                fit: BoxFit.cover,
-                // 이미지 로드 실패 시 대체 이미지 표시
-                // errorBuilder: (context, error, stackTrace) {
-                //   return Container(
-                //     color: Colors.grey.withValues(alpha: 0.2),
-                //     child: const Icon(
-                //       Icons.broken_image,
-                //       color: Colors.white54,
-                //       size: 48,
-                //     ),
-                //   );
-                // },
               ),
             ),
-          ),
-          const SizedBox(height: 8), // 앨범 제목과 가수명 사이 간격
-          // 앨범 제목
-          Text(
-            album.albumTitle,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 2),
-          // 아티스트 이름 - 회색
-          Text(
-            album.artist,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(color: Colors.grey[400], fontSize: 12),
-          ),
-          const SizedBox(height: 2),
-          // 수록곡 수
-          Row(
-            children: [
-              Icon(Icons.music_note, size: 14, color: Colors.grey[400]),
-              const SizedBox(width: 4),
-              Text(
-                '${album.trackCount}곡',
-                style: TextStyle(color: Colors.grey[400], fontSize: 12),
+
+            Padding(
+              padding: const EdgeInsets.only(top: 6.0),
+              child: Text(
+                album.albumTitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ],
-          ),
-        ],
+            ),
+
+            // 가수 이름과 트랙 수를 한 줄에 표시 - overflowed 오류 방지
+            Padding(
+              padding: const EdgeInsets.only(top: 2.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      album.artist,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: Colors.grey[400], fontSize: 12),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(Icons.music_note, size: 12, color: Colors.grey[400]),
+                  const SizedBox(width: 2),
+                  Text(
+                    '${album.trackCount}곡',
+                    style: TextStyle(color: Colors.grey[400], fontSize: 11),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
