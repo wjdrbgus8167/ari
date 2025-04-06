@@ -1,5 +1,5 @@
 // 데이터 소스 Provider
-import 'package:ari/data/datasources/streaming_remote_datasource.dart';
+import 'package:ari/data/datasources/track/streaming_remote_datasource.dart';
 import 'package:ari/data/repositories/streaming_repository.dart';
 import 'package:ari/domain/usecases/get_streaming_usecase.dart';
 import 'package:ari/presentation/viewmodels/track/streaming_log_viewmodel.dart';

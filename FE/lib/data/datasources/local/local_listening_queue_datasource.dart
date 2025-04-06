@@ -24,17 +24,25 @@ Future<void> saveListeningQueue(String userId, List<Track> tracks) async {
 }
 
 /// 재생목록에 새로운 트랙을 추가하는 함수
-/// 만약 마지막 트랙과 동일하면 중복 추가하지 않고, 다른 곡 후 다시 추가되면 중복 저장되도록 함.
+/// (중복된 트랙도 쌓이도록 하며, 외부에서 재생 시 새 트랙이 최상단에 오도록 합니다.)
 Future<void> addTrackToListeningQueue(String userId, Track track) async {
   final box = await openListeningQueueBox(userId);
-  if (box.values.isNotEmpty) {
-    final lastTrack = box.values.last;
-    // 마지막 트랙과 동일한 경우, 추가하지 않음 (연속 재생 시 중복 방지)
-    if (lastTrack.id == track.id) {
-      return;
-    }
+  // 디버깅: 추가 전 현재 재생목록 길이 출력
+  print('[DEBUG] addTrackToListeningQueue: 추가 전 재생목록 길이: ${box.values.length}');
+
+  // 현재 큐에 있는 트랙들을 모두 가져옵니다.
+  final currentTracks = box.values.toList();
+  // 새 트랙을 최상단에 추가하기 위해 새 목록 생성
+  final newTracks = [track, ...currentTracks];
+
+  // 박스의 기존 내용을 모두 지우고 새 목록을 저장
+  await box.clear();
+  for (var t in newTracks) {
+    await box.add(t);
   }
-  await box.add(track);
+
+  // 디버깅: 추가 후 재생목록 길이 출력
+  print('[DEBUG] addTrackToListeningQueue: 추가 후 재생목록 길이: ${box.values.length}');
 }
 
 /// 재생목록에서 특정 트랙을 삭제하는 함수

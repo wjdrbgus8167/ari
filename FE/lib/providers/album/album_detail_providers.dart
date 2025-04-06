@@ -1,5 +1,5 @@
 // 데이터 소스 Provider
-import 'package:ari/data/datasources/album_remote_datasource.dart';
+import 'package:ari/data/datasources/album/album_remote_datasource.dart';
 import 'package:ari/data/repositories/album_repository.dart';
 import 'package:ari/domain/usecases/album_detail_usecase.dart';
 import 'package:ari/presentation/viewmodels/album/album_detail_viewmodel.dart';

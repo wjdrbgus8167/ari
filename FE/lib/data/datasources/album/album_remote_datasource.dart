@@ -1,18 +1,23 @@
 import 'package:ari/core/exceptions/failure.dart';
+import 'package:ari/data/models/album.dart';
 import 'package:ari/data/models/album_detail.dart';
 import 'package:ari/data/models/api_response.dart';
 import 'package:dio/dio.dart';
 
 abstract class AlbumDataSource {
   Future<ApiResponse<AlbumDetailModel>> getAlbumDetail(int albumId);
+
+  // 인기 앨범 목록을 가져오는 메서드 추가
+  Future<List<Album>> fetchPopularAlbums();
+
+  // 최신 앨범 목록을 가져오는 메서드 추가
+  Future<List<Album>> fetchLatestAlbums();
 }
 
 class AlbumDataSourceImpl implements AlbumDataSource {
   final Dio dio;
 
-  AlbumDataSourceImpl({
-    required this.dio,
-  });
+  AlbumDataSourceImpl({required this.dio});
 
   @override
   Future<ApiResponse<AlbumDetailModel>> getAlbumDetail(int albumId) async {
@@ -22,7 +27,10 @@ class AlbumDataSourceImpl implements AlbumDataSource {
       final response = await dio.get(url);
       print("파싱 : ${AlbumDetailModel.fromJson(response.data['data'])}");
       // ApiResponse 객체로 변환
-      final apiResponse = ApiResponse.fromJson(response.data, (json) => AlbumDetailModel.fromJson(json));
+      final apiResponse = ApiResponse.fromJson(
+        response.data,
+        (json) => AlbumDetailModel.fromJson(json),
+      );
       print("datasource 2");
       if (apiResponse.status == 200) {
         print("datasource return");
@@ -30,7 +38,6 @@ class AlbumDataSourceImpl implements AlbumDataSource {
       } else {
         throw Failure(message: "에러가 났음요");
       }
-      
     } catch (e) {
       // DioError 또는 기타 예외 처리
       if (e is DioException) {
@@ -39,6 +46,48 @@ class AlbumDataSourceImpl implements AlbumDataSource {
       } else {
         // 기타 예외 처리
         throw Failure(message: "에러가 났음요");
+      }
+    }
+  }
+
+  @override
+  Future<List<Album>> fetchPopularAlbums() async {
+    try {
+      final response = await dio.get('/api/v1/albums/popular');
+      if (response.statusCode == 200) {
+        final albumsJson = response.data['data']['albums'] as List;
+        return albumsJson
+            .map((albumJson) => Album.fromJson(albumJson))
+            .toList();
+      } else {
+        throw Failure(message: "인기 앨범 로드 실패: ${response.statusCode}");
+      }
+    } catch (e) {
+      if (e is DioException) {
+        throw Failure(message: "네트워크 에러 발생: ${e.message}");
+      } else {
+        throw Failure(message: "알 수 없는 에러 발생: $e");
+      }
+    }
+  }
+
+  @override
+  Future<List<Album>> fetchLatestAlbums() async {
+    try {
+      final response = await dio.get('/api/v1/albums/new');
+      if (response.statusCode == 200) {
+        final albumsJson = response.data['data']['albums'] as List;
+        return albumsJson
+            .map((albumJson) => Album.fromJson(albumJson))
+            .toList();
+      } else {
+        throw Failure(message: "최신 앨범 로드 실패: ${response.statusCode}");
+      }
+    } catch (e) {
+      if (e is DioException) {
+        throw Failure(message: "네트워크 에러 발생: ${e.message}");
+      } else {
+        throw Failure(message: "알 수 없는 에러 발생: $e");
       }
     }
   }

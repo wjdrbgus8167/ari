@@ -1,6 +1,4 @@
 import 'package:ari/core/services/audio_service.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/providers/global_providers.dart';
 import 'package:ari/presentation/widgets/common/listening_queue_appbar.dart';
 import 'package:ari/presentation/widgets/common/track_count_bar.dart';
@@ -8,9 +6,11 @@ import 'package:ari/presentation/widgets/listening_queue/track_list_tile.dart';
 import 'package:ari/presentation/widgets/listening_queue/bottom_sheet_options.dart';
 import 'package:ari/presentation/widgets/common/global_bottom_widget.dart';
 import 'package:ari/presentation/widgets/common/search_bar.dart';
-
 import 'package:ari/presentation/widgets/listening_queue/playlist_selection_bottom_sheet.dart';
 import 'package:ari/presentation/widgets/listening_queue/create_playlist_modal.dart';
+import 'package:ari/providers/playback/playback_state_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ListeningQueueScreen extends ConsumerStatefulWidget {
   const ListeningQueueScreen({Key? key}) : super(key: key);
@@ -26,11 +26,17 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // state.filteredPlaylist: List<ListeningQueueItem>
-    // state.selectedTracks: Set<ListeningQueueItem>
-    // state.playlists: List<Playlist>
+    // listeningQueueProvider의 상태
     final state = ref.watch(listeningQueueProvider);
     final viewModel = ref.read(listeningQueueProvider.notifier);
+    // playbackProvider의 상태를 받아 현재 재생 중인 트랙 정보 확인
+    final playbackState = ref.watch(playbackProvider);
+
+    // 디버깅: 현재 전역 재생 상태 출력
+    print(
+      '[DEBUG] Global PlaybackState: isPlaying=${playbackState.isPlaying}, '
+      'currentQueueItemId=${playbackState.currentQueueItemId}',
+    );
 
     return GlobalBottomWidget(
       child: Container(
@@ -92,7 +98,6 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                             builder: (context) {
                               return CreatePlaylistModal(
                                 onCreate: (title, publicYn) {
-                                  // 새 플레이리스트 생성 로직 (API 호출 등)
                                   debugPrint(
                                     "플레이리스트 생성: $title / 공개여부: $publicYn",
                                   );
@@ -115,7 +120,7 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                   state.filteredPlaylist.isEmpty
                       ? const Center(
                         child: Text(
-                          "재생목록이 없습니다.",
+                          "재생 목록이 없습니다.",
                           style: TextStyle(color: Colors.white70, fontSize: 18),
                         ),
                       )
@@ -126,6 +131,21 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                           final item = state.filteredPlaylist[index];
                           final isSelected = state.selectedTracks.contains(
                             item,
+                          );
+                          // 디버깅: 각 항목의 uniqueId와 전역 PlaybackState의 currentQueueItemId 출력
+                          print(
+                            '[DEBUG] ListTile[$index]: item.uniqueId = ${item.uniqueId}',
+                          );
+                          print(
+                            '[DEBUG] Global PlaybackState: currentQueueItemId = ${playbackState.currentQueueItemId}, isPlaying = ${playbackState.isPlaying}',
+                          );
+
+                          // 재생 표시: 전역 PlaybackState의 currentQueueItemId와 비교
+                          final isPlayingIndicator =
+                              playbackState.isPlaying &&
+                              playbackState.currentQueueItemId == item.uniqueId;
+                          print(
+                            '[DEBUG] ListTile[$index]: isPlayingIndicator = $isPlayingIndicator',
                           );
 
                           return Dismissible(
@@ -164,25 +184,24 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                                 key: ValueKey(item.uniqueId),
                                 track: item.track,
                                 isSelected: isSelected,
-                                onToggleSelection:
-                                    () => viewModel.toggleTrackSelection(item),
+                                isPlayingIndicator: isPlayingIndicator,
                                 onTap: () {
-                                  // 트랙 타일을 터치하면 AudioService를 통해 재생
+                                  // 디버깅: onTap에서 고유 식별자 출력
+                                  print(
+                                    '[DEBUG] onTap: uniqueId = ${item.uniqueId}',
+                                  );
                                   ref
                                       .read(audioServiceProvider)
-                                      .play(
+                                      .playFromQueueSubset(
                                         ref,
-                                        item.track.trackFileUrl ?? '',
-                                        title: item.track.trackTitle,
-                                        artist: item.track.artistName,
-                                        coverImageUrl:
-                                            item.track.coverUrl ?? '',
-                                        lyrics: item.track.lyric,
-                                        trackId: item.track.trackId,
-                                        albumId: item.track.albumId,
-                                        isLiked: false,
+                                        state.filteredPlaylist
+                                            .map((e) => e.track)
+                                            .toList(), // 전체 재생목록
+                                        item.track, // 클릭한 트랙
                                       );
                                 },
+                                onToggleSelection:
+                                    () => viewModel.toggleTrackSelection(item),
                               ),
                             ),
                           );

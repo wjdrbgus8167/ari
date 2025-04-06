@@ -10,6 +10,7 @@ domain.Playlist toEntity(data.Playlist model) {
     isPublic: model.isPublic,
     shareCount: model.shareCount,
     trackCount: model.trackCount,
+    coverImageUrl: model.coverImageUrl,
     tracks: [],
   );
 }
@@ -22,6 +23,7 @@ domain.Playlist toEntityForDetail(data.Playlist model) {
     isPublic: model.isPublic,
     shareCount: model.shareCount,
     trackCount: model.trackCount,
+    coverImageUrl: model.coverImageUrl,
     tracks:
         model.tracks.map((trackModel) => toEntityTrack(trackModel)).toList(),
   );

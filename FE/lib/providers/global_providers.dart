@@ -1,13 +1,14 @@
 import 'package:ari/core/utils/auth_interceptor.dart';
+import 'package:ari/data/datasources/api_client.dart';
 import 'package:ari/data/datasources/playlist/playlist_remote_datasource.dart';
 import 'package:ari/data/datasources/playlist/playlist_remote_datasource_impl.dart';
 import 'package:ari/data/repositories/playlist_repository_impl.dart';
 import 'package:ari/domain/repositories/playlist_repository.dart';
 import 'package:ari/presentation/viewmodels/playlist/playlist_state.dart';
 import 'package:ari/presentation/viewmodels/playlist/playlist_viewmodel.dart';
+import 'package:ari/providers/album/album_detail_providers.dart';
 
 import 'package:ari/providers/auth/auth_providers.dart';
-import 'package:ari/providers/my_channel/my_channel_providers.dart';
 import 'package:ari/providers/user_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
@@ -45,17 +46,18 @@ final bottomNavProvider = StateNotifierProvider<BottomNavState, int>((ref) {
   return BottomNavState();
 });
 
-
 // 재생 상태 전역 관리
 class PlaybackState {
   final String? currentTrackId;
   final String trackTitle;
   final bool isPlaying;
+  final String currentQueueItemId;
 
   PlaybackState({
     this.currentTrackId,
     required this.trackTitle,
     this.isPlaying = false,
+    this.currentQueueItemId = '',
   });
 
   PlaybackState copyWith({String? currentTrackId, bool? isPlaying}) {
@@ -63,6 +65,7 @@ class PlaybackState {
       currentTrackId: currentTrackId ?? this.currentTrackId,
       trackTitle: trackTitle,
       isPlaying: isPlaying ?? this.isPlaying,
+      currentQueueItemId: this.currentQueueItemId,
     );
   }
 }
@@ -143,9 +146,13 @@ final getChartsUseCaseProvider = Provider<GetChartsUseCase>((ref) {
 final homeViewModelProvider = StateNotifierProvider<HomeViewModel, HomeState>((
   ref,
 ) {
+  final getChartsUseCase = ref.watch(getChartsUseCaseProvider);
+  final playlistRemoteDataSource = ref.watch(playlistRemoteDataSourceProvider);
+  final albumRepository = ref.watch(albumRepositoryProvider);
   return HomeViewModel(
-    getChartsUseCase: ref.watch(getChartsUseCaseProvider),
-    playlistRemoteDataSource: ref.watch(playlistRemoteDataSourceProvider),
+    getChartsUseCase: getChartsUseCase,
+    playlistRemoteDataSource: playlistRemoteDataSource,
+    albumRepository: albumRepository,
   );
 });
 
@@ -178,3 +185,5 @@ final listeningQueueProvider =
         playlistRepository: playlistRepository,
       );
     });
+
+final apiClientProvider = Provider<ApiClient>((ref) => ApiClient(ref.read(dioProvider)));

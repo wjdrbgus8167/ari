@@ -114,14 +114,13 @@ class _PlaylistSelectbarState extends ConsumerState<PlaylistSelectbar> {
                               final playlist = playlists[index];
                               final hasTracks = playlist.tracks.isNotEmpty;
                               final coverImage =
-                                  hasTracks
-                                      ? NetworkImage(
-                                        playlist.tracks.first.coverImageUrl ??
-                                            '',
-                                      )
+                                  (playlist.coverImageUrl != null &&
+                                          playlist.coverImageUrl!.isNotEmpty)
+                                      ? NetworkImage(playlist.coverImageUrl!)
                                       : const AssetImage(
                                         "assets/images/default_album_cover.png",
                                       );
+
                               //디버깅
 
                               debugPrint(

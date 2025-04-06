@@ -9,16 +9,14 @@ abstract class TrackDataSource {
 
 class TrackDataSourceImpl implements TrackDataSource {
   final Dio dio;
-  final String baseUrl;
 
   TrackDataSourceImpl({
     required this.dio,
-    required this.baseUrl,
   });
 
   @override
   Future<ApiResponse<TrackDetailModel>> getTrackDetail(int albumId, int trackId) async {
-    final url = '$baseUrl/api/v1/albums/$albumId/tracks/$trackId';
+    final url = '/api/v1/albums/$albumId/tracks/$trackId';
     try {
       // Dio를 사용하여 GET 요청 보내기
       final response = await dio.get(url);
@@ -48,11 +46,9 @@ class TrackDataSourceImpl implements TrackDataSource {
 class TrackMockDataSourceImpl implements TrackDataSource {
 
   final Dio dio;
-  final String baseUrl;
 
   TrackMockDataSourceImpl({
     required this.dio,
-    required this.baseUrl,
   });
 
   @override
@@ -64,36 +60,33 @@ class TrackMockDataSourceImpl implements TrackDataSource {
       "status" : 200,
       "message" : "Success",
       "data": {
-        "albumId": 1,
         "trackId":1,
         "albumTitle": "hiyo",
         "trackTitle": "ahah",
         "artist": "유캔도",
         "composer": "김준석",
-        "lylist" : "김준석", 
-        "discription" : "이 앨범은....",
-        "albumLikeCount": 150,
-        "genre": "호러",
+        "lyricist" : "김준석", 
         "trackLikeCount" :12433,
-        "commentCount":180,
+        "trackCommentCount":180,
         "createdAt":"2024-08-12",
         "lyric" : "나는있자나...",
-        "coverImageUrl": "",
-        "comments" : [
+        "trackFileUrl": "",
+        "genreName": "발라드",
+        "trackComments" : [
           {
-            "trackId" : 1,
+            "memberId" : 1,
             "commentId":1,
             "nickname":"hgg",
             "content": "This track is amazing!",
-            "contentTimestamp": "01:25",
+            "timestamp": "01:25",
             "createdAt":"2025-01-25"
           },
           {
-            "trackId" : 1,
+            "memberId" : 1,
             "commentId":2,
-            "nickname":"yuio",
+            "nickname":"hgg",
             "content": "This track is amazing!",
-            "contentTimestamp": "01:25",
+            "timestamp": "01:25",
             "createdAt":"2025-01-25"
           },
         ]

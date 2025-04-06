@@ -7,9 +7,9 @@ class AlbumDetailCover extends StatelessWidget {
     super.key,
     required this.coverImage,
   });
-  
   @override
   Widget build(BuildContext context) {
+    print(this.coverImage);
     return Container(
       width: 360,
       height: 360,
@@ -37,7 +37,7 @@ class AlbumDetailCover extends StatelessWidget {
               height: 320,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage(coverImage),
+                  image: NetworkImage(coverImage),
                   fit: BoxFit.cover,
                 ),
               ),

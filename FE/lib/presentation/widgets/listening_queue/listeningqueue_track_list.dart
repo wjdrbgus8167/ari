@@ -26,31 +26,30 @@ class ListeningQueueTrackList extends ConsumerWidget {
       itemBuilder: (context, index) {
         final item = tracks[index];
         final isSelected = state.selectedTracks.contains(item);
+        final uniqueId =
+            '$index-${item.track.trackId}-${item.track.trackTitle}';
 
         return TrackListTile(
-          key: ValueKey(
-            '$index-${item.track.trackId}-${item.track.trackTitle}',
-          ),
+          key: ValueKey(uniqueId),
           track: item.track,
           isSelected: isSelected,
-          onTap: () {
-            ref
-                .read(audioServiceProvider)
-                .play(
-                  ref,
-                  item.track.trackFileUrl ?? '',
-                  title: item.track.trackTitle,
-                  artist: item.track.artistName,
-                  coverImageUrl: item.track.coverUrl ?? '',
-                  lyrics: item.track.lyric,
-                  trackId: item.track.trackId,
-                  albumId: item.track.albumId,
-                  isLiked: false,
-                );
-          },
           onToggleSelection: () {
             viewModel.toggleTrackSelection(item);
           },
+          onTap: () {
+            ref
+                .read(audioServiceProvider)
+                .playFromQueueSubset(
+                  ref,
+                  state.filteredPlaylist
+                      .map((e) => e.track)
+                      .toList(), // 전체 재생목록
+                  item.track, // 클릭한 트랙
+                );
+          },
+          // onToggleSelection: () {
+          //   viewModel.toggleTrackSelection(item);
+          // },
         );
       },
     );

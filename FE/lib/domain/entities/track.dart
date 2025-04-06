@@ -4,6 +4,8 @@ import 'package:ari/data/models/track.dart' as data;
 class Track {
   final int trackId;
   final int albumId;
+  final String albumTitle;
+  final String genreName;
   final String trackTitle;
   final String artistName;
   final String lyric;
@@ -20,6 +22,8 @@ class Track {
   const Track({
     required this.trackId,
     required this.albumId,
+    required this.albumTitle,
+    required this.genreName,
     required this.trackTitle,
     required this.artistName,
     required this.lyric,
@@ -44,6 +48,8 @@ class Track {
           json['albumId'] is int
               ? json['albumId']
               : int.tryParse(json['albumId'].toString()) ?? 0,
+      albumTitle: json['albumTitle'] as String? ?? '',
+      genreName: json['genreName'] as String? ?? '',
       trackTitle: json['trackTitle'] as String? ?? '',
       artistName: json['artistName'] as String? ?? '',
       lyric: json['lyrics'] as String? ?? '',
@@ -89,7 +95,7 @@ class Track {
       // 도메인에서는 List<String>로 관리하지만, 데이터 모델에서는 단일 문자열로 관리하는 경우 join()을 이용
       composer: composer.join(', '),
       lyricist: lyricist.join(', '),
-      albumId: albumId.toString(),
+      albumId: albumId,
       trackFileUrl: trackFileUrl ?? '',
       lyrics: lyric,
       coverUrl: coverUrl,
@@ -101,9 +107,10 @@ class Track {
   factory Track.fromDataModel(data.Track dataModel) {
     return Track(
       trackId: dataModel.id,
-      // 데이터 모델의 albumId는 String이므로 int로 변환 (실패할 경우 0)
-      albumId: int.tryParse(dataModel.albumId) ?? 0,
+      albumId: dataModel.albumId,
       trackTitle: dataModel.trackTitle,
+      albumTitle: '',
+      genreName: '',
       artistName: dataModel.artist,
       lyric: dataModel.lyrics,
       trackNumber: 0, // 데이터 모델에 해당 정보가 없다면 기본값 사용

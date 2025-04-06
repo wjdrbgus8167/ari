@@ -1,5 +1,5 @@
 class TrackComment {
-  final int trackId;
+  final int memberId;
   final int commentId;
   final String nickname;
   final String content;
@@ -7,7 +7,7 @@ class TrackComment {
   final String createdAt; // 코멘트 생성 시간
 
   TrackComment({
-    required this.trackId,
+    required this.memberId,
     required this.commentId,
     required this.nickname,
     required this.content,
@@ -17,10 +17,10 @@ class TrackComment {
 
   factory TrackComment.fromJson(Map<String, dynamic> json) {
     return TrackComment(
-      trackId:
-          json['trackId'] is int
-              ? json['trackId']
-              : int.tryParse(json['trackId']?.toString() ?? '0') ?? 0,
+      memberId:
+          json['memberId'] is int
+              ? json['memberId']
+              : int.tryParse(json['memberId']?.toString() ?? '0') ?? 0,
       commentId:
           json['commentId'] is int
               ? json['commentId']

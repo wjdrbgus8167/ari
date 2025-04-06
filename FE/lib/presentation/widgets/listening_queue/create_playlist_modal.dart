@@ -1,3 +1,4 @@
+import 'package:ari/presentation/widgets/common/button_large.dart';
 import 'package:flutter/material.dart';
 
 class CreatePlaylistModal extends StatefulWidget {
@@ -26,7 +27,7 @@ class _CreatePlaylistModalState extends State<CreatePlaylistModal> {
           bottom: MediaQuery.of(context).viewInsets.bottom + 16,
         ),
         decoration: const BoxDecoration(
-          color: Colors.grey,
+          color: const Color(0xFF282828),
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
@@ -70,17 +71,15 @@ class _CreatePlaylistModalState extends State<CreatePlaylistModal> {
               ],
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
+            PrimaryButtonLarge(
+              text: "만들기",
               onPressed: () {
                 final title = _titleController.text.trim();
-                if (title.isEmpty) {
-                  // 제목이 비어있을 경우 간단한 에러 처리 (추후 개선 가능)
-                  return;
-                }
+                if (title.isEmpty) return;
                 widget.onCreate(title, _publicYn);
-                Navigator.pop(context); // 모달창 닫기
+                Navigator.pop(context);
               },
-              child: const Text("만들기"),
+              width: double.infinity,
             ),
           ],
         ),
