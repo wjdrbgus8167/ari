@@ -8,7 +8,6 @@ import 'package:ari/presentation/viewmodels/playlist/playlist_viewmodel.dart';
 import 'package:ari/providers/album/album_detail_providers.dart';
 
 import 'package:ari/providers/auth/auth_providers.dart';
-import 'package:ari/providers/my_channel/my_channel_providers.dart';
 import 'package:ari/providers/user_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
@@ -45,7 +44,6 @@ class BottomNavState extends StateNotifier<int> {
 final bottomNavProvider = StateNotifierProvider<BottomNavState, int>((ref) {
   return BottomNavState();
 });
-
 
 // 재생 상태 전역 관리
 class PlaybackState {

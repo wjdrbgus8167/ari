@@ -192,18 +192,12 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                                   );
                                   ref
                                       .read(audioServiceProvider)
-                                      .play(
+                                      .playFromQueueSubset(
                                         ref,
-                                        item.track.trackFileUrl ?? '',
-                                        title: item.track.trackTitle,
-                                        artist: item.track.artistName,
-                                        coverImageUrl:
-                                            item.track.coverUrl ?? '',
-                                        lyrics: item.track.lyric,
-                                        trackId: item.track.trackId,
-                                        albumId: item.track.albumId,
-                                        isLiked: false,
-                                        currentQueueItemId: item.uniqueId,
+                                        state.filteredPlaylist
+                                            .map((e) => e.track)
+                                            .toList(), // 전체 재생목록
+                                        item.track, // 클릭한 트랙
                                       );
                                 },
                                 onToggleSelection:

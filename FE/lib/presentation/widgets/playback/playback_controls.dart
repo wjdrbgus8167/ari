@@ -6,7 +6,7 @@ import 'package:ari/core/services/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
 
 class PlaybackControls extends ConsumerStatefulWidget {
-  final VoidCallback onToggle; // 트랙이 로드되지 않았을 경우 호출할 콜백
+  final VoidCallback onToggle;
   const PlaybackControls({Key? key, required this.onToggle}) : super(key: key);
 
   @override
@@ -17,6 +17,23 @@ class _PlaybackControlsState extends ConsumerState<PlaybackControls> {
   double _sliderValue = 0.0;
   bool _isUserInteracting = false;
   LoopMode _currentLoopMode = LoopMode.off;
+  bool _isShuffleEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initLoopAndShuffle();
+  }
+
+  Future<void> _initLoopAndShuffle() async {
+    final player = ref.read(audioServiceProvider).audioPlayer;
+    final shuffle = await player.shuffleModeEnabled;
+    final loop = player.loopMode;
+    setState(() {
+      _isShuffleEnabled = shuffle;
+      _currentLoopMode = loop;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,13 +105,21 @@ class _PlaybackControlsState extends ConsumerState<PlaybackControls> {
             children: [
               // 셔플 버튼
               IconButton(
-                icon: const Icon(
+                icon: Icon(
                   Icons.shuffle,
-                  color: Colors.white70,
+                  color: _isShuffleEnabled ? Colors.white : Colors.white38,
                   size: 28,
                 ),
                 onPressed: () async {
                   await ref.read(audioServiceProvider).toggleShuffle();
+                  final enabled =
+                      await ref
+                          .read(audioServiceProvider)
+                          .audioPlayer
+                          .shuffleModeEnabled;
+                  setState(() {
+                    _isShuffleEnabled = enabled;
+                  });
                 },
               ),
               // 이전 곡
@@ -141,15 +166,16 @@ class _PlaybackControlsState extends ConsumerState<PlaybackControls> {
                   await ref.read(audioServiceProvider).playNext();
                 },
               ),
-              // 루프 버튼: 버튼을 누를 때마다 LoopMode 순환 (off → all → one → off)
+              // 루프 버튼
               IconButton(
                 icon: Icon(
-                  _currentLoopMode == LoopMode.off
-                      ? Icons.repeat
-                      : _currentLoopMode == LoopMode.all
-                      ? Icons.repeat
-                      : Icons.repeat_one,
-                  color: Colors.white70,
+                  _currentLoopMode == LoopMode.one
+                      ? Icons.repeat_one
+                      : Icons.repeat,
+                  color:
+                      _currentLoopMode == LoopMode.off
+                          ? Colors.white38
+                          : Colors.white,
                   size: 28,
                 ),
                 onPressed: () async {

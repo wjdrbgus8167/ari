@@ -1,6 +1,7 @@
+import 'package:ari/data/mappers/track_mapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../data/models/track.dart' as ari;
+import 'package:ari/data/models/track.dart' as ari;
 import 'package:ari/core/services/audio_service.dart';
 import 'package:ari/providers/global_providers.dart'; // listeningQueueProvider, audioServiceProvider 등
 
@@ -156,29 +157,26 @@ class _ChartItem extends ConsumerWidget {
               constraints: const BoxConstraints(),
               icon: const Icon(Icons.play_arrow, color: Colors.white),
               onPressed: () async {
-                // 재생 로직: AudioService를 통해 트랙 재생
-                final uniqueId = track.id.toString();
+                final audioService = ref.read(audioServiceProvider);
+                final queueNotifier = ref.read(listeningQueueProvider.notifier);
 
-                await ref
-                    .read(audioServiceProvider)
-                    .play(
-                      ref,
-                      track.trackFileUrl,
-                      title: track.trackTitle,
-                      artist: track.artist,
-                      coverImageUrl:
-                          track.coverUrl ??
-                          'assets/images/default_album_cover.png',
-                      lyrics: track.lyrics,
-                      trackId: track.id,
-                      albumId: track.albumId,
-                      isLiked: false,
-                      currentQueueItemId: uniqueId,
-                    );
-                // 재생목록(큐)에 해당 트랙 추가
-                await ref
-                    .read(listeningQueueProvider.notifier)
-                    .trackPlayed(track);
+                // 1. 재생목록 최상단에 트랙 추가
+                await queueNotifier.trackPlayed(track);
+
+                // 2. 전체 큐를 도메인 트랙으로 변환하여 가져오기
+                final fullQueue =
+                    ref
+                        .read(listeningQueueProvider)
+                        .playlist
+                        .map((e) => (e.track as ari.Track).toDomainTrack())
+                        .toList();
+
+                // 3. 선택된 트랙도 변환하여 재생
+                await audioService.playFromQueueSubset(
+                  ref,
+                  fullQueue,
+                  track.toDomainTrack(),
+                );
               },
             ),
           ),

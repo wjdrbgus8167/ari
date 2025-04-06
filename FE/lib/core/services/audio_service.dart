@@ -1,190 +1,203 @@
+// lib/core/services/audio_service.dart
 import 'package:just_audio/just_audio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/providers/playback/playback_state_provider.dart';
-import 'package:ari/data/models/track.dart'; // Hive에 저장된 Track 모델 (또는 API 모델)
+import 'package:ari/domain/entities/track.dart';
 
 class AudioService {
+  // 오디오 플레이어 인스턴스
   final AudioPlayer audioPlayer = AudioPlayer();
 
-  // 재생 위치 및 전체 길이 스트림 (just_audio 사용)
+  // 재생목록 큐를 구성할 수 있는 소스
+  final ConcatenatingAudioSource _playlistSource = ConcatenatingAudioSource(
+    children: [],
+  );
+
+  // 재생 위치 스트림
   Stream<Duration> get onPositionChanged => audioPlayer.positionStream;
+
+  // 총 길이 스트림
   Stream<Duration?> get onDurationChanged => audioPlayer.durationStream;
 
-  /// 단일 트랙 재생 (기존 방식)
-  Future<void> play(
-    WidgetRef ref,
-    String trackFileUrl, {
-    required String title,
-    required String artist,
-    required String coverImageUrl,
-    required String lyrics,
-    required int trackId,
-    required int albumId,
-    required bool isLiked,
-    required String currentQueueItemId,
-  }) async {
-    print('[DEBUG] AudioService.play() 호출됨');
-    try {
-      // 먼저 트랙 정보를 업데이트하여 UI에 바로 반영
-      ref
-          .read(playbackProvider.notifier)
-          .updateTrackInfo(
-            trackTitle: title,
-            artist: artist,
-            coverImageUrl: coverImageUrl,
-            lyrics: lyrics,
-            currentTrackId: trackId,
-            albumId: albumId,
-            trackUrl: trackFileUrl,
-            isLiked: isLiked,
-            currentQueueItemId: currentQueueItemId,
-          );
-      // 오디오 소스를 설정하고 재생 시작
-      await audioPlayer.setAudioSource(
-        AudioSource.uri(Uri.parse(trackFileUrl)),
-      );
-      await audioPlayer.play();
-      // 재생 상태 업데이트 (이 값은 PlaybackNotifier의 스트림 구독으로도 보완 가능)
-      ref.read(playbackProvider.notifier).updatePlaybackState(true);
-      print('[DEBUG] AudioService.play() 상태 업데이트 완료');
-    } catch (e) {
-      print('[ERROR] AudioService.play() 에러 발생: $e');
-      rethrow;
-    }
+  // 기본 설정: 자동 다음곡, 루프, 셔플 적용
+  AudioService() {
+    _initializePlayer();
   }
 
-  /// 재생목록(플레이리스트) 재생: ConcatenatingAudioSource를 사용하여 트랙 목록 전체를 재생
-  Future<void> playPlaylist(
-    WidgetRef ref,
-    List<Track> tracks, {
-    int initialIndex = 0,
-  }) async {
-    print('[DEBUG] AudioService.playPlaylist() 호출됨');
-    try {
-      // 각 트랙의 trackFileUrl을 이용해 AudioSource 목록 생성
-      final sources =
-          tracks.map((track) {
-            return AudioSource.uri(Uri.parse(track.trackFileUrl));
-          }).toList();
-
-      // ConcatenatingAudioSource를 생성
-      final playlistSource = ConcatenatingAudioSource(children: sources);
-
-      // 플레이리스트를 세팅하며, initialIndex를 지정
-      await audioPlayer.setAudioSource(
-        playlistSource,
-        initialIndex: initialIndex,
-      );
-
-      await audioPlayer.play();
-
-      // 초기 재생 트랙의 정보를 PlaybackState에 업데이트
-      final currentTrack = tracks[initialIndex];
-      final uniqueId = "track_${currentTrack.id}";
-
-      ref
-          .read(playbackProvider.notifier)
-          .updateTrackInfo(
-            trackTitle: currentTrack.trackTitle,
-            artist: currentTrack.artist,
-            coverImageUrl: currentTrack.coverUrl ?? '',
-            lyrics: currentTrack.lyrics,
-            currentTrackId: currentTrack.id,
-            albumId: currentTrack.albumId,
-            trackUrl: currentTrack.trackFileUrl,
-            isLiked: false,
-            currentQueueItemId: uniqueId,
-          );
-      ref.read(playbackProvider.notifier).updatePlaybackState(true);
-      print('[DEBUG] AudioService.playPlaylist() 재생 시작됨');
-    } catch (e) {
-      print('[ERROR] AudioService.playPlaylist() 에러 발생: $e');
-      rethrow;
-    }
+  void _initializePlayer() {
+    // 트랙이 끝났을 때 자동 다음곡 재생
+    audioPlayer.playerStateStream.listen((state) async {
+      if (state.processingState == ProcessingState.completed) {
+        await audioPlayer.seekToNext();
+        await audioPlayer.play();
+      }
+    });
   }
 
-  /// 이어재생 (resume)
+  // 단일 트랙 재생 (예: 처음 재생)
+  Future<void> playSingleTrack(WidgetRef ref, Track track) async {
+    final source = AudioSource.uri(Uri.parse(track.trackFileUrl ?? ''));
+    await audioPlayer.setAudioSource(source);
+    await audioPlayer.play();
+
+    final uniqueId = "track_\${track.trackId}";
+    ref
+        .read(playbackProvider.notifier)
+        .updateTrackInfo(
+          trackTitle: track.trackTitle,
+          artist: track.artistName,
+          coverImageUrl: track.coverUrl ?? '',
+          lyrics: track.lyric ?? '',
+          currentTrackId: track.trackId,
+          albumId: track.albumId,
+          trackUrl: track.trackFileUrl ?? '',
+          isLiked: false,
+          currentQueueItemId: uniqueId,
+        );
+    ref.read(playbackProvider.notifier).updatePlaybackState(true);
+  }
+
+  // 전체 큐에서 특정 트랙부터 재생
+  Future<void> playPlaylistFromTrack(
+    WidgetRef ref,
+    List<Track> playlist,
+    Track startTrack,
+  ) async {
+    _playlistSource.clear();
+
+    for (final track in playlist) {
+      _playlistSource.add(AudioSource.uri(Uri.parse(track.trackFileUrl ?? '')));
+    }
+
+    final initialIndex = playlist.indexWhere(
+      (t) => t.trackId == startTrack.trackId,
+    );
+    await audioPlayer.setAudioSource(
+      _playlistSource,
+      initialIndex: initialIndex,
+    );
+    await audioPlayer.play();
+
+    final uniqueId = "track_\${startTrack.trackId}";
+    ref
+        .read(playbackProvider.notifier)
+        .updateTrackInfo(
+          trackTitle: startTrack.trackTitle,
+          artist: startTrack.artistName,
+          coverImageUrl: startTrack.coverUrl ?? '',
+          lyrics: startTrack.lyric ?? '',
+          currentTrackId: startTrack.trackId,
+          albumId: startTrack.albumId,
+          trackUrl: startTrack.trackFileUrl ?? '',
+          isLiked: false,
+          currentQueueItemId: uniqueId,
+        );
+    ref.read(playbackProvider.notifier).updatePlaybackState(true);
+  }
+
+  // 선택된 트랙부터 큐 끝까지 재생 (차트, 플레이리스트 전용)
+  Future<void> playFromQueueSubset(
+    WidgetRef ref,
+    List<Track> fullQueue,
+    Track selectedTrack,
+  ) async {
+    _playlistSource.clear();
+
+    for (final track in fullQueue) {
+      _playlistSource.add(AudioSource.uri(Uri.parse(track.trackFileUrl ?? '')));
+    }
+
+    final initialIndex = fullQueue.indexWhere(
+      (t) => t.trackId == selectedTrack.trackId,
+    );
+
+    await audioPlayer.setAudioSource(
+      _playlistSource,
+      initialIndex: initialIndex,
+    );
+    await audioPlayer.play();
+
+    final uniqueId = "track_${selectedTrack.trackId}";
+    ref
+        .read(playbackProvider.notifier)
+        .updateTrackInfo(
+          trackTitle: selectedTrack.trackTitle,
+          artist: selectedTrack.artistName,
+          coverImageUrl: selectedTrack.coverUrl ?? '',
+          lyrics: selectedTrack.lyric ?? '',
+          currentTrackId: selectedTrack.trackId,
+          albumId: selectedTrack.albumId,
+          trackUrl: selectedTrack.trackFileUrl ?? '',
+          isLiked: false,
+          currentQueueItemId: uniqueId,
+        );
+    ref.read(playbackProvider.notifier).updatePlaybackState(true);
+  }
+
+  // 다음에 재생할 트랙을 큐에 추가하고 즉시 재생
+  Future<void> addAndPlayNext(WidgetRef ref, Track newTrack) async {
+    final source = AudioSource.uri(Uri.parse(newTrack.trackFileUrl ?? ''));
+    await _playlistSource.insert(0, source);
+    await audioPlayer.setAudioSource(_playlistSource, initialIndex: 0);
+    await audioPlayer.play();
+
+    final uniqueId = "track_\${newTrack.trackId}";
+    ref
+        .read(playbackProvider.notifier)
+        .updateTrackInfo(
+          trackTitle: newTrack.trackTitle,
+          artist: newTrack.artistName,
+          coverImageUrl: newTrack.coverUrl ?? '',
+          lyrics: newTrack.lyric ?? '',
+          currentTrackId: newTrack.trackId,
+          albumId: newTrack.albumId,
+          trackUrl: newTrack.trackFileUrl ?? '',
+          isLiked: false,
+          currentQueueItemId: uniqueId,
+        );
+    ref.read(playbackProvider.notifier).updatePlaybackState(true);
+  }
+
+  // 재생 재개
   Future<void> resume(WidgetRef ref) async {
-    print('[DEBUG] AudioService.resume() 호출됨');
-    try {
-      await audioPlayer.play();
-      ref.read(playbackProvider.notifier).updatePlaybackState(true);
-      print('[DEBUG] AudioService.resume() 이어서 재생됨');
-    } catch (e) {
-      print('[ERROR] AudioService.resume() 에러 발생: $e');
-      rethrow;
-    }
+    await audioPlayer.play();
+    ref.read(playbackProvider.notifier).updatePlaybackState(true);
   }
 
-  /// 일시 정지
+  // 일시정지
   Future<void> pause(WidgetRef ref) async {
-    print('[DEBUG] AudioService.pause() 호출됨');
-    try {
-      await audioPlayer.pause();
-      ref.read(playbackProvider.notifier).updatePlaybackState(false);
-      print('[DEBUG] AudioService.pause() 일시 정지됨');
-    } catch (e) {
-      print('[ERROR] AudioService.pause() 에러 발생: $e');
-      rethrow;
-    }
+    await audioPlayer.pause();
+    ref.read(playbackProvider.notifier).updatePlaybackState(false);
   }
 
-  /// 지정된 위치로 이동
+  // 특정 위치로 이동
   Future<void> seekTo(Duration position) async {
-    print('[DEBUG] AudioService.seekTo() 호출됨, 이동할 위치: ${position.inSeconds}s');
-    try {
-      await audioPlayer.seek(position);
-      print('[DEBUG] AudioService.seekTo() 완료');
-    } catch (e) {
-      print('[ERROR] AudioService.seekTo() 에러 발생: $e');
-      rethrow;
-    }
+    await audioPlayer.seek(position);
   }
 
-  /// 다음 트랙 재생
+  // 다음 곡 재생
   Future<void> playNext() async {
-    print('[DEBUG] AudioService.playNext() 호출됨');
-    try {
-      await audioPlayer.seekToNext();
-      print('[DEBUG] AudioService.playNext() 완료');
-    } catch (e) {
-      print('[ERROR] AudioService.playNext() 에러 발생: $e');
-      rethrow;
-    }
+    await audioPlayer.seekToNext();
+    await audioPlayer.play();
   }
 
-  /// 이전 트랙 재생
+  // 이전 곡 재생
   Future<void> playPrevious() async {
-    print('[DEBUG] AudioService.playPrevious() 호출됨');
-    try {
-      await audioPlayer.seekToPrevious();
-      print('[DEBUG] AudioService.playPrevious() 완료');
-    } catch (e) {
-      print('[ERROR] AudioService.playPrevious() 에러 발생: $e');
-      rethrow;
-    }
+    await audioPlayer.seekToPrevious();
+    await audioPlayer.play();
   }
 
-  /// 셔플 모드 토글
+  // 셔플 모드 토글
   Future<void> toggleShuffle() async {
-    try {
-      final enabled = audioPlayer.shuffleModeEnabled;
-      await audioPlayer.setShuffleModeEnabled(!enabled);
-    } catch (e) {
-      print('[ERROR] AudioService.toggleShuffle() 에러 발생: $e');
-      rethrow;
-    }
+    final enabled = audioPlayer.shuffleModeEnabled;
+    await audioPlayer.setShuffleModeEnabled(!enabled);
   }
 
-  /// 루프 모드 설정: LoopMode.off, LoopMode.one, LoopMode.all
+  // 반복 모드 설정
   Future<void> setLoopMode(LoopMode loopMode) async {
-    try {
-      await audioPlayer.setLoopMode(loopMode);
-    } catch (e) {
-      print('[ERROR] AudioService.setLoopMode() 에러 발생: $e');
-      rethrow;
-    }
+    await audioPlayer.setLoopMode(loopMode);
   }
 }
 
+// 전역 Provider 등록
 final audioServiceProvider = Provider<AudioService>((ref) => AudioService());

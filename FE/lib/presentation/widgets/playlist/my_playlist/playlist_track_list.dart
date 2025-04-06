@@ -1,4 +1,5 @@
 import 'package:ari/core/services/audio_service.dart';
+import 'package:ari/domain/mapper/playlist_track_item_mapper.dart';
 import 'package:ari/providers/global_providers.dart';
 import 'package:ari/presentation/widgets/playlist/my_playlist/playlist_track_list_tile.dart';
 import 'package:flutter/material.dart';
@@ -42,24 +43,13 @@ class PlaylistTrackList extends ConsumerWidget {
           isSelected: isSelected,
           selectionMode: playlistState.selectionMode,
           onTap: () async {
-            final computedUniqueId = '$index-${trackItem.trackId}';
+            final fullPlaylist = tracks.map((e) => e.toDomainTrack()).toList();
+            final selectedTrack = trackItem.toDomainTrack();
 
-            // 트랙 재생
             await ref
                 .read(audioServiceProvider)
-                .play(
-                  ref,
-                  trackItem.trackFileUrl,
-                  title: trackItem.trackTitle,
-                  artist: trackItem.artist,
-                  coverImageUrl: trackItem.coverImageUrl,
-                  lyrics: trackItem.lyrics,
-                  trackId: trackItem.trackId,
-                  albumId: trackItem.albumId,
-                  isLiked: false,
-                  currentQueueItemId: computedUniqueId,
-                );
-            // 재생목록(큐)에 트랙 추가 (domain -> data 모델 변환)
+                .playFromQueueSubset(ref, fullPlaylist, selectedTrack);
+
             await ref
                 .read(listeningQueueProvider.notifier)
                 .trackPlayed(trackItem.toDataTrack());
