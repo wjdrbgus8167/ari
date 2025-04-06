@@ -265,7 +265,6 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
       title: '나의 앨범',
       height: 220,
       itemWidth: 160,
-      itemSpacing: 12.0,
       children:
           artistAlbums.map((album) => _buildAlbumItem(context, album)).toList(),
     );

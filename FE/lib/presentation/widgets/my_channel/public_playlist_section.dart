@@ -137,7 +137,6 @@ class PublicPlaylistSection extends ConsumerWidget {
       titleWidget: titleWidget, // 커스텀 타이틀 위젯 사용
       height: 220, // 앨범 섹션과 동일한 높이
       itemWidth: 160, // 앨범 섹션과 동일한 너비
-      itemSpacing: 12.0,
       children:
           playlistResponse.playlists
               .map((playlist) => _buildPlaylistItem(context, playlist))
