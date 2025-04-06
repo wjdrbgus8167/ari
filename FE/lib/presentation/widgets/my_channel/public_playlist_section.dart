@@ -5,6 +5,7 @@ import '../../../data/models/my_channel/public_playlist.dart';
 import '../../viewmodels/my_channel/my_channel_viewmodel.dart';
 import '../common/carousel_container.dart';
 import '../../routes/app_router.dart';
+import '../../../core/constants/app_colors.dart';
 
 /// 공개된 플레이리스트 섹션 위젯
 /// 사용자가 공개한 플레이리스트 목록 표시
@@ -52,22 +53,36 @@ class PublicPlaylistSection extends ConsumerWidget {
     if (playlistResponse == null || playlistResponse.playlists.isEmpty) {
       // 아티스트 이름 표시 추가
       final artistName = playlistResponse?.artist ?? '';
-      final titleText =
-          artistName.isNotEmpty ? '$artistName님의 공개된 플레이리스트' : '공개된 플레이리스트';
+      final displayArtistName = artistName.isNotEmpty ? artistName : '아티스트';
+
+      // 아티스트 이름에 강조 효과를 위한 커스텀 타이틀 위젯
+      final titleWidget = Row(
+        children: [
+          Text(
+            displayArtistName,
+            style: const TextStyle(
+              color: AppColors.mediumPurple,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const Text(
+            '님의 플레이리스트',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      );
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.only(left: 16, top: 16, bottom: 12),
-            child: Text(
-              titleText,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            child: titleWidget,
           ),
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -93,13 +108,33 @@ class PublicPlaylistSection extends ConsumerWidget {
 
     // 플레이리스트가 있는 경우
     // 아티스트 이름이 있으면 타이틀에 반영
-    final titleText =
-        playlistResponse.artist.isNotEmpty
-            ? '${playlistResponse.artist}님의 공개된 플레이리스트'
-            : '공개된 플레이리스트';
+    final displayArtistName =
+        playlistResponse.artist.isNotEmpty ? playlistResponse.artist : '아티스트';
+
+    // 아티스트 이름에 강조 효과를 위한 커스텀 타이틀 위젯
+    final titleWidget = Row(
+      children: [
+        Text(
+          displayArtistName,
+          style: const TextStyle(
+            color: AppColors.mediumPurple,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const Text(
+          '님의 플레이리스트',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
 
     return CarouselContainer(
-      title: titleText,
+      titleWidget: titleWidget, // 커스텀 타이틀 위젯 사용
       height: 220, // 앨범 섹션과 동일한 높이
       itemWidth: 160, // 앨범 섹션과 동일한 너비
       itemSpacing: 12.0,
