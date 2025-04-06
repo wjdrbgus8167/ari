@@ -1,4 +1,5 @@
 import 'package:ari/core/services/audio_service.dart';
+import 'package:ari/presentation/widgets/common/custom_toast.dart';
 import 'package:ari/providers/global_providers.dart';
 import 'package:ari/presentation/widgets/common/listening_queue_appbar.dart';
 import 'package:ari/presentation/widgets/common/track_count_bar.dart';
@@ -164,11 +165,7 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                             ),
                             onDismissed: (direction) {
                               viewModel.removeTrack(item);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text("${item.track.trackTitle} 삭제됨"),
-                                ),
-                              );
+                              context.showToast("${item.track.trackTitle} 삭제됨");
                             },
                             child: GestureDetector(
                               onLongPress: () {

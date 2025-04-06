@@ -1,4 +1,5 @@
 import 'package:ari/presentation/viewmodels/playback/playback_state.dart';
+import 'package:ari/presentation/widgets/common/custom_toast.dart';
 import 'package:ari/providers/global_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -114,11 +115,7 @@ class PlaybackBar extends ConsumerWidget {
                                 // 현재 재생 중인 트랙이 없으면 재생목록(리슨잉 큐)에서 셔플하여 재생
                                 final queue = queueState.filteredPlaylist;
                                 if (queue.isEmpty) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('재생 가능한 곡이 없습니다.'),
-                                    ),
-                                  );
+                                  context.showToast('재생 가능한 곡이 없습니다.');
                                 } else {
                                   final shuffledQueue = List.from(queue);
                                   shuffledQueue.shuffle();

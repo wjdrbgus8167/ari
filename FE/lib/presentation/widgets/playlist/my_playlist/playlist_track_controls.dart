@@ -1,4 +1,5 @@
 // 전체 트랙 선택 라디오버튼, 곡수표시, 하나이상 선택시 우측 삭제버튼
+import 'package:ari/presentation/widgets/common/custom_toast.dart';
 import 'package:ari/providers/global_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -53,9 +54,7 @@ class PlaylistTrackControls extends ConsumerWidget {
                 for (final item in selectedTracks) {
                   viewModel.removeTrack(item);
                 }
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("선택된 트랙이 삭제되었습니다.")),
-                );
+                context.showToast("선택된 트랙이 삭제되었습니다.");
               },
               child: const Text(
                 "삭제하기",
