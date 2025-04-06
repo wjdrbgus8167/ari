@@ -11,4 +11,7 @@ public interface MemberClient {
 
     // 회원 검색
     List<MemberDto> searchMembersByKeyword(String query);
+
+    // 프로필 이미지 가져오기
+    String getProfileImageUrlByMemberId(Integer memberId);
 }
