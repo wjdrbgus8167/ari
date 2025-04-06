@@ -375,49 +375,10 @@ class SubscriptionConstants {
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "subscriberId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "totalAmount",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256[]",
-				"name": "artistIds",
-				"type": "uint256[]"
-			},
-			{
-				"internalType": "uint256[]",
-				"name": "streamingCounts",
-				"type": "uint256[]"
-			},
-			{
-				"internalType": "string",
-				"name": "ipfsCID",
-				"type": "string"
-			}
-		],
-		"name": "settleArtistPayments",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"anonymous": false,
 		"inputs": [
 			{
-				"indexed": false,
+				"indexed": true,
 				"internalType": "uint256",
 				"name": "userId",
 				"type": "uint256"
@@ -429,9 +390,9 @@ class SubscriptionConstants {
 				"type": "uint256"
 			},
 			{
-				"indexed": false,
+				"indexed": true,
 				"internalType": "uint256",
-				"name": "subscriberId",
+				"name": "cycleId",
 				"type": "uint256"
 			},
 			{
@@ -439,15 +400,9 @@ class SubscriptionConstants {
 				"internalType": "uint256",
 				"name": "amount",
 				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "ipfsCID",
-				"type": "string"
 			}
 		],
-		"name": "SettlementExecuted",
+		"name": "SettlementExecutedArtist",
 		"type": "event"
 	},
 	{
@@ -456,13 +411,44 @@ class SubscriptionConstants {
 			{
 				"indexed": true,
 				"internalType": "uint256",
+				"name": "userId",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
 				"name": "artistId",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "cycleId",
 				"type": "uint256"
 			},
 			{
 				"indexed": false,
 				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "SettlementExecutedRegular",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
 				"name": "subscriberId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "artistId",
 				"type": "uint256"
 			},
 			{
@@ -517,6 +503,79 @@ class SubscriptionConstants {
 		],
 		"name": "SettlementRequestedRegular",
 		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "subscriberId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "artistId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "cycleId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalAmount",
+				"type": "uint256"
+			}
+		],
+		"name": "settlePaymentsArtist",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "subscriberId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "cycleId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalAmount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256[]",
+				"name": "artistIds",
+				"type": "uint256[]"
+			},
+			{
+				"internalType": "uint256[]",
+				"name": "streamingCounts",
+				"type": "uint256[]"
+			}
+		],
+		"name": "settlePaymentsRegularByArtist",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
 	},
 	{
 		"inputs": [
