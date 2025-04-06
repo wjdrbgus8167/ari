@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.Comparator;
+import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
@@ -30,5 +31,13 @@ public class SubscriptionCycleRepositoryImpl implements SubscriptionCycleReposit
                 .max(LATEST_CYCLE_COMPARATOR)
                 .map(SubscriptionCycleEntity::toModel)
                 .orElse(null);
+    }
+
+    @Override
+    public List<SubscriptionCycle> getSubscriptionCycleList(SubscriptionId subscriptionId) {
+        return subscriptionCycleJpaRepository.findAllBySubscriptionId(subscriptionId.getValue())
+                .stream()
+                .map(SubscriptionCycleEntity::toModel)
+                .toList();
     }
 }

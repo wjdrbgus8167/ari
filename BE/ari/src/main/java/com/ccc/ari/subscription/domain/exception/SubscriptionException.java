@@ -13,7 +13,8 @@ public abstract class SubscriptionException extends RuntimeException {
         SUBSCRIPTION_NOT_FOUND("SUB_001"),
         SUBSCRIPTION_NOT_ACTIVE("SUB_002"),
         REGULAR_PLAN_NOT_FOUND("REG_001"),
-        ARTIST_PLAN_NOT_FOUND("ART_001");
+        ARTIST_PLAN_NOT_FOUND("ART_001"),
+        REGULAR_SUBSCRIPTION_NOT_FOUND("REG_SUB_001");
 
         private final String code;
 

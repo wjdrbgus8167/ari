@@ -10,5 +10,5 @@ public interface SubscriptionJpaRepository extends JpaRepository<SubscriptionEnt
     
     Optional<SubscriptionEntity> findByMemberId(Integer memberId);
     List<SubscriptionEntity> findAllByMemberId(Integer memberId);
-
+    Optional<List<SubscriptionEntity>> findByMemberIdAndSubscriptionPlanId(Integer memberId, Integer subscriptionPlanId);
 }
