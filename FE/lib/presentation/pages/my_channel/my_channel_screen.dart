@@ -9,7 +9,6 @@ import '../../widgets/my_channel/artist_notice_section.dart';
 import '../../widgets/my_channel/fantalk_section.dart';
 import '../../widgets/my_channel/public_playlist_section.dart';
 import '../../widgets/my_channel/neighbors_section.dart';
-import '../../widgets/test/jwt_user_test_widget.dart';
 
 /// 나의 채널 화면
 /// 사용자 프로필, 뱃지, (앨범, 공지사항, 팬톡), 플레이리스트, 이웃 정보 표시
@@ -30,7 +29,7 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
   late bool _isMyProfile;
 
   // JWT 테스트용 상태
-  bool _showJwtTest = true; // 테스트 완료 후 false로 위젯 숨기기
+  final bool _showJwtTest = true; // 테스트 완료 후 false로 위젯 숨기기
 
   @override
   void initState() {
@@ -146,30 +145,6 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
             controller: _scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
-              // JWT 테스트 위젯 (테스트 완료 후 제거 예정)
-              if (_showJwtTest)
-                SliverToBoxAdapter(
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.close, color: Colors.white),
-                            onPressed: () {
-                              setState(() {
-                                _showJwtTest = false;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                      const JwtUserTestWidget(),
-                      const Divider(color: Colors.grey),
-                    ],
-                  ),
-                ),
-
               // 프로필 헤더
               SliverToBoxAdapter(
                 child: ProfileHeader(
