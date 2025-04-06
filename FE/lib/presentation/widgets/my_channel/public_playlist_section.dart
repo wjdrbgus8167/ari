@@ -4,6 +4,8 @@ import '../../../providers/my_channel/my_channel_providers.dart';
 import '../../../data/models/my_channel/public_playlist.dart';
 import '../../viewmodels/my_channel/my_channel_viewmodel.dart';
 import '../common/carousel_container.dart';
+import '../../routes/app_router.dart';
+import '../../../core/constants/app_colors.dart';
 
 /// 공개된 플레이리스트 섹션 위젯
 /// 사용자가 공개한 플레이리스트 목록 표시
@@ -49,19 +51,38 @@ class PublicPlaylistSection extends ConsumerWidget {
 
     // 플레이리스트가 없는 경우에도 타이틀, 안내 메시지 표시
     if (playlistResponse == null || playlistResponse.playlists.isEmpty) {
+      // 아티스트 이름 표시 추가
+      final artistName = playlistResponse?.artist ?? '';
+      final displayArtistName = artistName.isNotEmpty ? artistName : '아티스트';
+
+      // 아티스트 이름에 강조 효과를 위한 커스텀 타이틀 위젯
+      final titleWidget = Row(
+        children: [
+          Text(
+            displayArtistName,
+            style: const TextStyle(
+              color: AppColors.mediumPurple,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const Text(
+            '님의 플레이리스트',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      );
+
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.only(left: 16, top: 16, bottom: 12),
-            child: const Text(
-              '공개된 플레이리스트',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            child: titleWidget,
           ),
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -75,7 +96,7 @@ class PublicPlaylistSection extends ConsumerWidget {
                 width: 1,
               ),
             ),
-            child: Text(
+            child: const Text(
               '공개된 플레이리스트가 없습니다.',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey, fontSize: 14),
@@ -86,11 +107,36 @@ class PublicPlaylistSection extends ConsumerWidget {
     }
 
     // 플레이리스트가 있는 경우
+    // 아티스트 이름이 있으면 타이틀에 반영
+    final displayArtistName =
+        playlistResponse.artist.isNotEmpty ? playlistResponse.artist : '아티스트';
+
+    // 아티스트 이름에 강조 효과를 위한 커스텀 타이틀 위젯
+    final titleWidget = Row(
+      children: [
+        Text(
+          displayArtistName,
+          style: const TextStyle(
+            color: AppColors.mediumPurple,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const Text(
+          '님의 플레이리스트',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+
     return CarouselContainer(
-      title: '공개된 플레이리스트',
+      titleWidget: titleWidget, // 커스텀 타이틀 위젯 사용
       height: 220, // 앨범 섹션과 동일한 높이
       itemWidth: 160, // 앨범 섹션과 동일한 너비
-      itemSpacing: 12.0,
       children:
           playlistResponse.playlists
               .map((playlist) => _buildPlaylistItem(context, playlist))
@@ -100,11 +146,35 @@ class PublicPlaylistSection extends ConsumerWidget {
 
   /// 개별 플레이리스트 아이템 위젯
   Widget _buildPlaylistItem(BuildContext context, PublicPlaylist playlist) {
+    // 커버 이미지 URL
+    final imageUrl =
+        playlist.coverImageUrl ??
+        'https://via.placeholder.com/160?text=No+Cover';
+
+    // 트랙 수를 표시하는 문자열
+    final trackCountText = '${playlist.trackCount}곡';
+
     return GestureDetector(
       onTap: () {
-        // TODO: 플레이리스트 상세 페이지로 이동
-        print('플레이리스트 클릭: ${playlist.playlistTitle}');
+        // TODO: 플레이리스트 상세 페이지로 이동 (확인)
+        Navigator.of(context).pushNamed(
+          AppRoutes.playlistDetail,
+          arguments: {'playlistId': playlist.playlistId},
+        );
+
+        // Riverpod을 활용한 라우팅 방식 (리팩토링 시 활용 가능)
+        // AppRouter.navigateTo(
+        //   context,
+        //   ref,
+        //   AppRoutes.playlistDetail,
+        //   {'playlistId': playlist.playlistId},
+        // );
+
+        print(
+          '플레이리스트 상세로 이동: ${playlist.playlistTitle} (ID: ${playlist.playlistId})',
+        );
       },
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -122,7 +192,7 @@ class PublicPlaylistSection extends ConsumerWidget {
                 ),
               ],
               image: DecorationImage(
-                image: NetworkImage(playlist.playlistImageUrl),
+                image: NetworkImage(imageUrl),
                 fit: BoxFit.cover,
               ),
             ),
@@ -140,13 +210,13 @@ class PublicPlaylistSection extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 2),
-          // 퍼가기된 횟수
+          // 트랙 수 표시
           Row(
             children: [
-              Icon(Icons.share, size: 14, color: Colors.grey[400]),
+              Icon(Icons.music_note, size: 14, color: Colors.grey[400]),
               const SizedBox(width: 4),
               Text(
-                '${playlist.shareCount}회',
+                trackCountText,
                 style: TextStyle(color: Colors.grey[400], fontSize: 12),
               ),
             ],
