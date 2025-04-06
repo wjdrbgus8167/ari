@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 
 class AlbumDetailTrackList extends StatelessWidget {
   final List<Track> tracks;
+  final String albumCoverUrl;
   
   const AlbumDetailTrackList({
     super.key,
     required this.tracks,
+    required this.albumCoverUrl,
   });
   
   @override
@@ -33,7 +35,15 @@ class AlbumDetailTrackList extends StatelessWidget {
                 Track track = entry.value;
                 return GestureDetector(
                   onTap: () {
-                    Navigator.of(context).pushNamed(AppRoutes.track);
+                    print('앨범이미지url : $albumCoverUrl');
+                    Navigator.of(context).pushNamed(
+                      AppRoutes.track,
+                      arguments: {
+                        'albumId': track.albumId, // 앨범 ID 추가
+                        'trackId': track.trackId, // 트랙 ID 추가 
+                        'albumCoverUrl': albumCoverUrl,
+                      },
+                    );
                   },
                   child: Text(
                     '${index + 1}. ${track.trackTitle}',  // 숫자와 track을 결합

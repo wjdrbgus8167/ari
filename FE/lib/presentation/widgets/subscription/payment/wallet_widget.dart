@@ -180,11 +180,9 @@ class _WalletWidgetState extends ConsumerState<WalletWidget> {
                     onTap: () {
                       if (_walletService.appKitModal.isConnected) {
                         // 이미 연결된 경우 연결 해제
-                        print("asdf");
                         _walletService.appKitModal.disconnect();
                       } else {
                         // 연결되지 않은 경우 연결 모달 열기
-                        print("asdf");
                         _walletService.appKitModal.openModalView();
                       }
                     },

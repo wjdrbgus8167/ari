@@ -113,9 +113,15 @@ class AppRouter {
       case AppRoutes.track:
         final albumId = args?['albumId'] as int? ?? 1;
         final trackId = args?['trackId'] as int? ?? 1;
+        final albumCoverUrl = args?['albumCoverUrl'] as String?; // 추가된 부분
         return MaterialPageRoute(
-          builder: (_) => TrackDetailScreen(albumId: albumId, trackId: trackId),
+          builder: (_) => TrackDetailScreen(
+            albumId: albumId, 
+            trackId: trackId,
+            albumCoverUrl: albumCoverUrl, // 추가된 부분
+          ),
         );
+
 
       case AppRoutes.playlist:
         return MaterialPageRoute(builder: (_) => const PlaylistScreen());

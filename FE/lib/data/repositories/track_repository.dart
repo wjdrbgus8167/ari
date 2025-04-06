@@ -20,7 +20,7 @@ class TrackRepositoryImpl implements TrackRepository {
         return Left(Failure(message: "Response data is null"));
       }
       final result = response.data as TrackDetailModel;
-      return Right(result.toEntity());
+      return Right(result.toEntity(albumId));
     } on Failure catch (failure) {
       return Left(failure);
     } catch (e) {

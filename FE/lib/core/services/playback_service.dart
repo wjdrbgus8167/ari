@@ -75,6 +75,8 @@ class PlaybackService {
         final domain.Track trackObj = domain.Track(
           trackId: trackId,
           albumId: albumId,
+          albumTitle: title,
+          genreName: '', // 누락된 필수 매개변수 추가
           trackTitle: title,
           artistName: artist,
           lyric: lyrics,

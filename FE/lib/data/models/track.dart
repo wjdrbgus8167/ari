@@ -71,6 +71,8 @@ class Track extends HiveObject {
 domain.Track mapDataTrackToDomain(model.Track dataTrack) {
   return domain.Track(
     trackId: dataTrack.id,
+    albumTitle: '',
+    genreName: '',
     trackTitle: dataTrack.trackTitle,
     artistName: dataTrack.artist,
     composer: [dataTrack.composer],
