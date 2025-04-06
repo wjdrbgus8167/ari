@@ -16,13 +16,13 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/mypages")
 public class MyProfileController {
 
     private final MyProfileService myProfileService;
     private final GetMyAlbumListService getMyAlbumListService;
     private
-    @GetMapping("/mypages/profile")
+    @GetMapping("/profile")
     ApiUtils.ApiResponse<MyProfileResponse> getMyProfile(
             @AuthenticationPrincipal MemberUserDetails member
     ){
