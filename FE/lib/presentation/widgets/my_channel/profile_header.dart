@@ -5,6 +5,7 @@ import '../../../data/models/my_channel/channel_info.dart';
 import '../../viewmodels/my_channel/my_channel_viewmodel.dart';
 import '../../routes/app_router.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../widgets/my_channel/followers_management_widget.dart';
 
 /// 나의 채널 프로필 헤더 위젯
 /// 사용자 프로필 이미지(배경), 이름, 구독자 수, 팔로우 버튼 등
@@ -199,44 +200,13 @@ class ProfileHeader extends ConsumerWidget {
 
   /// 팔로우/언팔로우 버튼
   Widget _buildFollowButton(ChannelInfo channelInfo, WidgetRef ref) {
-    return GestureDetector(
-      onTap: () {
-        // 팔로우 상태에 따라
-        // 관련 부분만 수정
-        if (channelInfo.isFollowed) {
-          // 언팔로우 처리 - memberId
-          ref
-              .read(myChannelProvider.notifier)
-              .unfollowMember(channelInfo.memberId);
-        } else {
-          // 팔로우 처리
-          ref
-              .read(myChannelProvider.notifier)
-              .followMember(channelInfo.memberId);
-        }
+    return FollowersManagementWidget(
+      targetMemberId: channelInfo.memberId,
+      isFollowing: channelInfo.isFollowed,
+      onFollowChanged: () {
+        // 팔로우 상태 변경 후 필요한 작업 (선택적)
+        print('팔로우 상태가 변경되었습니다: ${channelInfo.memberName}');
       },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color:
-              channelInfo.isFollowed
-                  ? Colors.transparent
-                  : AppColors.mediumPurple,
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(
-            color:
-                channelInfo.isFollowed ? Colors.grey : AppColors.mediumPurple,
-            width: 1,
-          ),
-        ),
-        child: Text(
-          channelInfo.isFollowed ? '팔로잉' : '팔로우',
-          style: TextStyle(
-            color: channelInfo.isFollowed ? Colors.grey : Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
     );
   }
 }
