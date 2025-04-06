@@ -42,8 +42,8 @@ class ArtistNoticeSection extends ConsumerWidget {
     final channelInfo = channelState.channelInfo;
     final artistName = channelInfo?.memberName ?? '아티스트';
 
-    // 아티스트 이름이 있으면 타이틀에 반영
-    final titleText = artistName.isNotEmpty ? '$artistName의 공지' : '아티스트 공지';
+    // 아티스트 이름 여부 확인 (없으면 기본값 사용)
+    final displayArtistName = artistName.isNotEmpty ? artistName : '아티스트';
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -58,13 +58,25 @@ class ArtistNoticeSection extends ConsumerWidget {
                 // 섹션 제목 영역
                 Row(
                   children: [
-                    Text(
-                      titleText,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          artistName,
+                          style: const TextStyle(
+                            color: AppColors.mediumPurple,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Text(
+                          "님의 공지",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                     // 공지사항 개수 표시
                     if (noticeResponse != null &&
