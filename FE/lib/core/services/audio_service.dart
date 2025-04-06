@@ -102,6 +102,10 @@ class AudioService {
     Track selectedTrack,
   ) async {
     _playlistSource.clear();
+    if (selectedTrack.trackFileUrl == null ||
+        selectedTrack.trackFileUrl!.isEmpty) {
+      throw Exception('❌ 선택된 트랙에 유효한 URL이 없습니다.');
+    }
 
     for (final track in fullQueue) {
       _playlistSource.add(AudioSource.uri(Uri.parse(track.trackFileUrl ?? '')));

@@ -7,11 +7,12 @@ import 'package:ari/presentation/widgets/track_detail/track_lyrics.dart';
 import 'package:ari/providers/track/track_detail_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 class TrackDetailScreen extends ConsumerStatefulWidget {
   final int albumId;
   final int trackId;
   final String? albumCoverUrl; // 앨범 커버 URL을 받을 수 있도록 수정
-  
+
   const TrackDetailScreen({
     super.key,
     required this.albumId,
@@ -22,24 +23,24 @@ class TrackDetailScreen extends ConsumerStatefulWidget {
   @override
   _TrackDetailScreenState createState() => _TrackDetailScreenState();
 }
- 
+
 class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
-  
   @override
   void initState() {
     super.initState();
     // 화면이 로드될 때 트랙 데이터 가져오기
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(trackDetailViewModelProvider.notifier).loadTrackDetail(widget.albumId, widget.trackId);
+      ref
+          .read(trackDetailViewModelProvider.notifier)
+          .loadTrackDetail(widget.albumId, widget.trackId);
     });
   }
 
-@override
+  @override
   Widget build(BuildContext context) {
     final trackDetailState = ref.watch(trackDetailViewModelProvider);
     final track = trackDetailState.track; // null일 수 있는 track
     final albumCoverUrl = widget.albumCoverUrl; // 앨범 커버 URL
-
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -51,11 +52,13 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
               // 트랙 헤더 위젯
               SafeArea(
                 child: HeaderWidget(
-                  type: HeaderType.backWithTitle, 
-                  onBackPressed: () { Navigator.pop(context); }
+                  type: HeaderType.backWithTitle,
+                  onBackPressed: () {
+                    Navigator.pop(context);
+                  },
                 ),
               ),
-              
+
               // 트랙 데이터가 로드되었는지 확인
               if (track != null) ...[
                 // 트랙 정보가 있는 경우에만 위젯 표시
@@ -70,8 +73,9 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
                   playCount: 0, // 실제 값으로 교체 필요
                   albumImageUrl: albumCoverUrl ?? '',
                   artistImageUrl: track.trackFileUrl ?? '',
+                  trackFileUrl: track.trackFileUrl ?? '',
                 ),
-                
+
                 // 트랙 크레딧 위젯
                 TrackCredit(
                   title: '크레딧',
@@ -80,15 +84,12 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
                   composers: track.composer,
                   genres: [track.genreName], // 실제 값으로 교체 필요
                 ),
-                
+
                 // 트랙 가사 위젯
-                TrackLyrics(
-                  title: '가사',
-                  lyrics: track.lyric,
-                ),
-                
+                TrackLyrics(title: '가사', lyrics: track.lyric),
+
                 TrackDetailCommentHeader(commentCount: track.commentCount),
-                
+
                 // 댓글 목록 처리
                 if (track.comments.isNotEmpty) ...[
                   // 첫 번째 댓글
@@ -102,9 +103,7 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
                 const Center(
                   child: Padding(
                     padding: EdgeInsets.all(20.0),
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                    ),
+                    child: CircularProgressIndicator(color: Colors.white),
                   ),
                 ),
               ],
