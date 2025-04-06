@@ -49,14 +49,19 @@ class PublicPlaylistSection extends ConsumerWidget {
 
     // 플레이리스트가 없는 경우에도 타이틀, 안내 메시지 표시
     if (playlistResponse == null || playlistResponse.playlists.isEmpty) {
+      // 아티스트 이름 표시 추가
+      final artistName = playlistResponse?.artist ?? '';
+      final titleText =
+          artistName.isNotEmpty ? '$artistName님의 공개된 플레이리스트' : '공개된 플레이리스트';
+
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.only(left: 16, top: 16, bottom: 12),
-            child: const Text(
-              '공개된 플레이리스트',
-              style: TextStyle(
+            child: Text(
+              titleText,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -75,7 +80,7 @@ class PublicPlaylistSection extends ConsumerWidget {
                 width: 1,
               ),
             ),
-            child: Text(
+            child: const Text(
               '공개된 플레이리스트가 없습니다.',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey, fontSize: 14),
@@ -86,8 +91,14 @@ class PublicPlaylistSection extends ConsumerWidget {
     }
 
     // 플레이리스트가 있는 경우
+    // 아티스트 이름이 있으면 타이틀에 반영
+    final titleText =
+        playlistResponse.artist.isNotEmpty
+            ? '${playlistResponse.artist}님의 공개된 플레이리스트'
+            : '공개된 플레이리스트';
+
     return CarouselContainer(
-      title: '공개된 플레이리스트',
+      title: titleText,
       height: 220, // 앨범 섹션과 동일한 높이
       itemWidth: 160, // 앨범 섹션과 동일한 너비
       itemSpacing: 12.0,
@@ -100,10 +111,20 @@ class PublicPlaylistSection extends ConsumerWidget {
 
   /// 개별 플레이리스트 아이템 위젯
   Widget _buildPlaylistItem(BuildContext context, PublicPlaylist playlist) {
+    // 기본 커버 이미지 URL (NULL인 경우 기본 이미지 사용)
+    final imageUrl =
+        playlist.coverImageUrl ??
+        'https://via.placeholder.com/160?text=No+Cover';
+
+    // 트랙 수를 표시하는 문자열
+    final trackCountText = '${playlist.trackCount}곡';
+
     return GestureDetector(
       onTap: () {
         // TODO: 플레이리스트 상세 페이지로 이동
-        print('플레이리스트 클릭: ${playlist.playlistTitle}');
+        print(
+          '플레이리스트 클릭: ${playlist.playlistTitle} (ID: ${playlist.playlistId})',
+        );
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,7 +143,7 @@ class PublicPlaylistSection extends ConsumerWidget {
                 ),
               ],
               image: DecorationImage(
-                image: NetworkImage(playlist.playlistImageUrl),
+                image: NetworkImage(imageUrl),
                 fit: BoxFit.cover,
               ),
             ),
@@ -140,13 +161,13 @@ class PublicPlaylistSection extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 2),
-          // 퍼가기된 횟수
+          // 트랙 수 표시
           Row(
             children: [
-              Icon(Icons.share, size: 14, color: Colors.grey[400]),
+              Icon(Icons.music_note, size: 14, color: Colors.grey[400]),
               const SizedBox(width: 4),
               Text(
-                '${playlist.shareCount}회',
+                trackCountText,
                 style: TextStyle(color: Colors.grey[400], fontSize: 12),
               ),
             ],
