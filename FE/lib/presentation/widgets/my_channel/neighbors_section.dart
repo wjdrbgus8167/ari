@@ -167,7 +167,7 @@ class _NeighborsSectionState extends ConsumerState<NeighborsSection> {
             const Padding(
               padding: EdgeInsets.only(left: 16, bottom: 16),
               child: Text(
-                '팔로워 & 팔로잉',
+                '팔로워 / 0    팔로잉 / 0',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -181,14 +181,10 @@ class _NeighborsSectionState extends ConsumerState<NeighborsSection> {
                 child: Column(
                   children: [
                     Text(
-                      '팔로워 목록이 없습니다',
+                      '팔로워 / 팔로잉 목록이 없습니다',
                       style: TextStyle(color: Colors.grey[400], fontSize: 14),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      '팔로잉 목록이 없습니다',
-                      style: TextStyle(color: Colors.grey[400], fontSize: 14),
-                    ),
                   ],
                 ),
               ),
