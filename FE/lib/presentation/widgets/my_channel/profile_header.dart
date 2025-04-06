@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/my_channel/my_channel_providers.dart';
 import '../../../data/models/my_channel/channel_info.dart';
 import '../../viewmodels/my_channel/my_channel_viewmodel.dart';
+import '../../routes/app_router.dart';
 
 /// 나의 채널 프로필 헤더 위젯
 /// 사용자 프로필 이미지(배경), 이름, 구독자 수, 팔로우 버튼 등
@@ -27,7 +28,7 @@ class ProfileHeader extends ConsumerWidget {
     final isLoading = channelState.channelInfoStatus == MyChannelStatus.loading;
     final hasError = channelState.channelInfoStatus == MyChannelStatus.error;
 
-    // 고정 높이 (사진 참고)
+    // 고정 높이
     const double headerHeight = 300;
 
     return Container(
@@ -129,22 +130,28 @@ class ProfileHeader extends ConsumerWidget {
               if (isMyProfile)
                 Padding(
                   padding: const EdgeInsets.only(left: 24, bottom: 8),
-                  child: Row(
-                    children: [
-                      Text(
-                        'MY PAGE',
-                        style: TextStyle(
-                          color: Colors.grey[300],
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                  child: GestureDetector(
+                    onTap: () {
+                      // 마이페이지로 이동
+                      AppRouter.navigateTo(context, ref, AppRoutes.myPage);
+                    },
+                    child: Row(
+                      children: [
+                        Text(
+                          'MY PAGE',
+                          style: TextStyle(
+                            color: Colors.grey[300],
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                      Icon(
-                        Icons.chevron_right,
-                        color: Colors.grey[300],
-                        size: 18,
-                      ),
-                    ],
+                        Icon(
+                          Icons.chevron_right,
+                          color: Colors.grey[300],
+                          size: 18,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 
@@ -189,11 +196,11 @@ class ProfileHeader extends ConsumerWidget {
     );
   }
 
-  /// 팔로우/언팔로우 버튼 - 이미지 스타일에 맞게 커스텀
+  /// 팔로우/언팔로우 버튼
   Widget _buildFollowButton(ChannelInfo channelInfo, WidgetRef ref) {
     return GestureDetector(
       onTap: () {
-        // 팔로우 상태에 따라 적절한 액션 수행
+        // 팔로우 상태에 따라
         if (channelInfo.isFollowed) {
           // 언팔로우 처리
           if (channelInfo.followId != null) {
