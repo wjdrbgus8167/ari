@@ -41,4 +41,12 @@ public class MemberClientImpl implements MemberClient {
                 .map(MemberMapper::toDto)
                 .toList();
     }
+
+    @Override
+    public String getProfileImageUrlByMemberId(Integer memberId) {
+        MemberEntity member = jpaMemberJpaRepository.findById(memberId)
+                .orElseThrow(() -> new ApiException(ErrorCode.MEMBER_NOT_FOUND));
+
+        return member.getProfileImageUrl();
+    }
 }
