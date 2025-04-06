@@ -126,8 +126,8 @@ public class SubscriptionContractEventListner implements ApplicationListener<App
 
         DefaultBlockParameter fromBlock;
         if (lastProcessedBlock == null) {
-            logger.info("이전에 처리된 정기 구독 결제 완료 블록 정보 없음. 최신 블록부터 시작합니다.");
-            fromBlock = DefaultBlockParameterName.LATEST;
+            logger.info("이전에 처리된 정기 구독 결제 완료 블록 정보 없음. 첫 블록부터 시작합니다.");
+            fromBlock = DefaultBlockParameterName.EARLIEST;
         } else {
             logger.info("이전에 처리된 정기 구독 결제 완료 마지막 블록 번호: {}. 해당 블록부터 구독 시작", lastProcessedBlock);
             // 마지막 블록부터 다시 시작하여 블록 내 이벤트 누락 방지
@@ -175,8 +175,8 @@ public class SubscriptionContractEventListner implements ApplicationListener<App
 
         DefaultBlockParameter fromBlock;
         if (lastProcessedBlock == null) {
-            logger.info("이전에 처리된 아티스트 구독 결제 완료 블록 정보 없음. 최신 블록부터 시작합니다.");
-            fromBlock = DefaultBlockParameterName.LATEST;
+            logger.info("이전에 처리된 아티스트 구독 결제 완료 블록 정보 없음. 첫 블록부터 시작합니다.");
+            fromBlock = DefaultBlockParameterName.EARLIEST;
         } else {
             logger.info("이전에 처리된 아티스트 구독 결제 완료 마지막 블록 번호: {}. 해당 블록부터 구독 시작", lastProcessedBlock);
             // 마지막 블록부터 다시 시작하여 블록 내 이벤트 누락 방지
@@ -224,8 +224,8 @@ public class SubscriptionContractEventListner implements ApplicationListener<App
 
         DefaultBlockParameter fromBlock;
         if (lastProcessedBlock == null) {
-            logger.info("이전에 처리된 정기 구독 정산 요청 블록 정보 없음. 최신 블록부터 시작합니다.");
-            fromBlock = DefaultBlockParameterName.LATEST;
+            logger.info("이전에 처리된 정기 구독 정산 요청 블록 정보 없음. 첫 블록부터 시작합니다.");
+            fromBlock = DefaultBlockParameterName.EARLIEST;
         } else {
             logger.info("이전에 처리된 정기 구독 정산 요청 마지막 블록 번호: {}. 해당 블록부터 구독 시작",
                     lastProcessedBlock);
@@ -264,8 +264,8 @@ public class SubscriptionContractEventListner implements ApplicationListener<App
 
         DefaultBlockParameter fromBlock;
         if (lastProcessedBlock == null) {
-            logger.info("이전에 처리된 아티스트 구독 정산 요청 블록 정보 없음. 최신 블록부터 시작합니다.");
-            fromBlock = DefaultBlockParameterName.LATEST;
+            logger.info("이전에 처리된 아티스트 구독 정산 요청 블록 정보 없음. 첫 블록부터 시작합니다.");
+            fromBlock = DefaultBlockParameterName.EARLIEST;
         } else {
             logger.info("이전에 처리된 아티스트 구독 정산 요청 마지막 블록 번호: {}. 해당 블록부터 구독 시작",
                     lastProcessedBlock);

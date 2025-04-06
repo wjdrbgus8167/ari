@@ -72,4 +72,12 @@ public class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
         return Optional.of(subscriptions);
     }
+
+    @Override
+    public Optional<List<Subscription>> findListByMemberIdAndSubscriptionPlanId(Integer memberId, Integer subscriptionPlanId) {
+        return subscriptionJpaRepository.findByMemberIdAndSubscriptionPlanId(memberId, subscriptionPlanId)
+                .map(subscriptionEntities -> subscriptionEntities.stream()
+                        .map(SubscriptionEntity::toModel)
+                        .toList());
+    }
 }
