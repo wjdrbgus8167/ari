@@ -57,6 +57,10 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
         channelState.artistAlbumsStatus == MyChannelStatus.loading;
     final hasError = channelState.artistAlbumsStatus == MyChannelStatus.error;
 
+    // 채널 정보에서 아티스트 이름 가져오기
+    final channelInfo = channelState.channelInfo;
+    final artistName = channelInfo?.memberName ?? '아티스트';
+
     // 로딩 중이면 로딩 표시
     if (isLoading) {
       return const Center(
@@ -102,6 +106,29 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
     //   );
     // }
 
+    // 커스텀 타이틀 위젯
+    final titleWidget = Row(
+      children: [
+        Text(
+          artistName,
+          style: const TextStyle(
+            // color: AppColors.mediumPurple,
+            color: AppColors.mediumGreen,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const Text(
+          '님의 앨범',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+
     // 앨범이 없거나 에러 발생 시 안내 메시지 표시
     if (artistAlbums == null || artistAlbums.isEmpty) {
       return Padding(
@@ -109,14 +136,7 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              '나의 앨범',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            titleWidget,
             const SizedBox(height: 12),
 
             // 내 프로필인 경우에만 업로드 안내 UI 표시
@@ -262,7 +282,7 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
 
     // 앨범이 있는 경우 CarouselContainer
     return CarouselContainer(
-      title: '나의 앨범',
+      titleWidget: titleWidget, // 커스텀 타이틀 위젯 사용
       height: 220,
       itemWidth: 160,
       children:
