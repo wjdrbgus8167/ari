@@ -1,4 +1,5 @@
 /// 채널 정보 모델 클래스
+/// 채널 소유자의 정보와 팔로우 관련 정보 포함
 class ChannelInfo {
   final String memberId; // 회원 ID
   final String memberName; // 회원 이름 (채널명/닉네임)
@@ -8,7 +9,7 @@ class ChannelInfo {
   final int followerCount; // 팔로워 수
   final int followingCount; // 팔로잉 수
   final bool isArtist; // 아티스트 여부
-  final bool followedYn; // 내가 이 채널을 팔로우 했는지 여부
+  final bool isFollowed; // 내가 이 채널을 팔로우 했는지 여부
   final String? followId; // 팔로우 관계 ID (언팔로우 시 필요)
   final int? fantalkChannelId; // 팬톡 채널 ID
 
@@ -16,18 +17,17 @@ class ChannelInfo {
     required this.memberId,
     required this.memberName,
     this.profileImageUrl,
-    this.introduction = '',
+    required this.introduction,
     required this.subscriberCount,
-    this.followerCount = 0,
-    this.followingCount = 0,
-    this.isArtist = false,
-    required this.followedYn,
+    required this.followerCount,
+    required this.followingCount,
+    required this.isArtist,
+    required this.isFollowed,
     this.followId,
     this.fantalkChannelId,
   });
 
-  /// [json] : API에서 받은 JSON 데이터
-  /// [return] : 생성된 ChannelInfo 객체
+  /// JSON에서 ChannelInfo 객체 생성
   factory ChannelInfo.fromJson(Map<String, dynamic> json) {
     return ChannelInfo(
       memberId: json['memberId']?.toString() ?? '',
@@ -38,7 +38,7 @@ class ChannelInfo {
       followerCount: json['followerCount'] ?? 0,
       followingCount: json['followingCount'] ?? 0,
       isArtist: json['isArtist'] ?? false,
-      followedYn: json['followedYn'] ?? false,
+      isFollowed: json['followedYn'] ?? false,
       followId: json['followId'],
       fantalkChannelId: json['fantalkChannelId'],
     );
@@ -53,7 +53,7 @@ class ChannelInfo {
       'followerCount': followerCount,
       'followingCount': followingCount,
       'isArtist': isArtist,
-      'followedYn': followedYn,
+      'followedYn': isFollowed,
     };
 
     // null이 아닌 경우에만 포함
@@ -89,7 +89,7 @@ class ChannelInfo {
     int? followerCount,
     int? followingCount,
     bool? isArtist,
-    bool? followedYn,
+    bool? isFollowed,
     String? followId,
     int? fantalkChannelId,
   }) {
@@ -102,7 +102,7 @@ class ChannelInfo {
       followerCount: followerCount ?? this.followerCount,
       followingCount: followingCount ?? this.followingCount,
       isArtist: isArtist ?? this.isArtist,
-      followedYn: followedYn ?? this.followedYn,
+      isFollowed: isFollowed ?? this.isFollowed,
       followId: followId ?? this.followId,
       fantalkChannelId: fantalkChannelId ?? this.fantalkChannelId,
     );
