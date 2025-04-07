@@ -28,7 +28,6 @@ public class SubscriptionEventEntity {
     @Column(name = "subscriber_id")
     private Integer subscriberId;
 
-    @Nullable
     @Column(name = "plan_type")
     private PlanType planType;
 
