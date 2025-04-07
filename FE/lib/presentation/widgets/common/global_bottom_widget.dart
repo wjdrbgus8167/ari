@@ -1,4 +1,5 @@
 import 'package:ari/presentation/routes/app_router.dart';
+import 'package:ari/presentation/widgets/common/custom_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -344,12 +345,8 @@ class _GlobalNavigationContainerState
       _lastBackPressTime = now;
 
       print('첫 번째 뒤로가기 감지 - 앱 종료 안내');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('뒤로가기 버튼을 한 번 더 누르면 종료됩니다'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+      // SnackBar 대신 Toast 사용하도록 수정
+      context.showToast("'뒤로' 버튼을 한 번 더 누르면 종료됩니다");
     } else {
       // 2초 이내의 두 번째 뒤로가기
       _backPressCount++;

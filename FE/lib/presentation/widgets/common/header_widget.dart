@@ -149,7 +149,7 @@ class HeaderWidget extends ConsumerWidget {
         children: [
           // 뒤로가기 버튼
           IconButton(
-            icon: Image.asset('assets/images/prev_btn.png'),
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
             onPressed: onBackPressed,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),

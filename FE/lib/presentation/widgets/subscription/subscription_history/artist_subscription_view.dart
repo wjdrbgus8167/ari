@@ -1,23 +1,26 @@
 // widgets/subscription/artist_subscription_view.dart
-import 'package:ari/data/models/subscription_history_model.dart';
-import 'package:ari/presentation/viewmodels/subscription/subscription_history_viewmodel.dart';
+import 'package:ari/data/models/subscription/artist_subscription_models.dart';
+import 'package:ari/data/models/subscription/regular_subscription_models.dart';
+import 'package:ari/presentation/viewmodels/subscription/artist_subscription_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ArtistSubscriptionView extends ConsumerWidget {
-  const ArtistSubscriptionView({super.key});
+  const ArtistSubscriptionView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(subscriptionHistoryViewModelProvider);
-    final artists = state.artists;
-    final selectedArtist = state.selectedArtist;
+    final state = ref.watch(artistSubscriptionViewModelProvider);
 
-    // 선택된 아티스트 찾기
-    final artistData = artists.firstWhere(
-      (artist) => artist.name == selectedArtist,
-      orElse: () => artists.first,
-    );
+    // 데이터 로드 (필요 시)
+    if (state.artists.isEmpty && !state.isLoading) {
+      Future.microtask(
+        () =>
+            ref
+                .read(artistSubscriptionViewModelProvider.notifier)
+                .loadArtistList(),
+      );
+    }
 
     if (state.isLoading) {
       return Center(child: CircularProgressIndicator(color: Colors.white));
@@ -29,11 +32,24 @@ class ArtistSubscriptionView extends ConsumerWidget {
       );
     }
 
+    if (state.artists.isEmpty) {
+      return Center(
+        child: Text('구독한 아티스트가 없습니다.', style: TextStyle(color: Colors.white)),
+      );
+    }
+
+    final selectedArtist = state.selectedArtist;
+    final artistDetail = state.artistDetail;
+
+    if (selectedArtist == null || artistDetail == null) {
+      return Center(child: CircularProgressIndicator(color: Colors.white));
+    }
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 아티스트 선택 부분
+          // 아티스트 선택 부분 (드롭다운으로 변경)
           Padding(
             padding: const EdgeInsets.only(
               top: 20,
@@ -41,25 +57,31 @@ class ArtistSubscriptionView extends ConsumerWidget {
               right: 20,
               bottom: 10,
             ),
-            child: Row(
-              children: [
-                Text(
-                  artistData.name,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(width: 10),
-                // 여기에 드롭다운 버튼 (실제 구현에서는 GestureDetector로 감싸 아티스트 선택 기능 추가)
-                Container(
-                  width: 15,
-                  height: 15,
-                  decoration: BoxDecoration(color: const Color(0xFFD9D9D9)),
-                ),
-              ],
+            child: DropdownButton<Artist>(
+              value: selectedArtist,
+              dropdownColor: const Color(0xFF373737),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w600,
+              ),
+              icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+              underline: Container(), // 밑줄 제거
+              onChanged: (newValue) {
+                if (newValue != null) {
+                  ref
+                      .read(artistSubscriptionViewModelProvider.notifier)
+                      .selectArtist(newValue);
+                }
+              },
+              items:
+                  state.artists.map<DropdownMenuItem<Artist>>((artist) {
+                    return DropdownMenuItem<Artist>(
+                      value: artist,
+                      child: Text(artist.artistNickname),
+                    );
+                  }).toList(),
             ),
           ),
 
@@ -97,7 +119,7 @@ class ArtistSubscriptionView extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '${artistData.name} 구독',
+                              '${artistDetail.artistNickname} 구독',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -109,7 +131,7 @@ class ArtistSubscriptionView extends ConsumerWidget {
                             Row(
                               children: [
                                 Text(
-                                  '0.213',
+                                  artistDetail.totalSettlement.toString(),
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 24,
@@ -135,7 +157,7 @@ class ArtistSubscriptionView extends ConsumerWidget {
                           ],
                         ),
                         Text(
-                          '총 ${artistData.streamingCount}회 스트리밍',
+                          '총 ${artistDetail.totalStreamingCount}회 스트리밍',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 12,
@@ -148,7 +170,7 @@ class ArtistSubscriptionView extends ConsumerWidget {
                   ),
 
                   // 구독 내역 목록
-                  _buildSubscriptionDetails(state),
+                  _buildSubscriptionDetails(artistDetail),
                 ],
               ),
             ),
@@ -158,17 +180,23 @@ class ArtistSubscriptionView extends ConsumerWidget {
     );
   }
 
-  Widget _buildSubscriptionDetails(SubscriptionHistoryState state) {
+  Widget _buildSubscriptionDetails(ArtistDetail artistDetail) {
     return Column(
       children:
-          state.subscriptions
-              .map((subscription) => _buildSubscriptionDetailItem(subscription))
+          artistDetail.subscriptions
+              .map(
+                (subscription) =>
+                    _buildSubscriptionDetailItem(artistDetail, subscription),
+              )
               .toList(),
     );
   }
 
-  Widget _buildSubscriptionDetailItem(SubscriptionHistory subscription) {
-    return SizedBox(
+  Widget _buildSubscriptionDetailItem(
+    ArtistDetail artistDetail,
+    ArtistSubscriptionDetail subscription,
+  ) {
+    return Container(
       width: double.infinity,
       child: Container(
         width: double.infinity,
@@ -182,7 +210,7 @@ class ArtistSubscriptionView extends ConsumerWidget {
                   height: 30,
                   decoration: ShapeDecoration(
                     image: DecorationImage(
-                      image: NetworkImage("https://placehold.co/30x30"),
+                      image: NetworkImage(artistDetail.profileImageUrl),
                       fit: BoxFit.cover,
                     ),
                     shape: RoundedRectangleBorder(
@@ -195,7 +223,7 @@ class ArtistSubscriptionView extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${subscription.period} ${subscription.type == 'regular' ? '정기 구독' : '아티스트 구독'}',
+                      '${subscription.startedAt} ~ ${subscription.endedAt} ${subscription.planType == 'M' ? '정기 구독' : '아티스트 구독'}',
                       style: TextStyle(
                         color: const Color(0xFFD9D9D9),
                         fontSize: 8,
@@ -207,7 +235,7 @@ class ArtistSubscriptionView extends ConsumerWidget {
                     Row(
                       children: [
                         Text(
-                          '${subscription.amount}',
+                          '${subscription.settlement}',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 12,

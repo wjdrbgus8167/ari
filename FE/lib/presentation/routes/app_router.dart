@@ -1,3 +1,4 @@
+import 'package:ari/domain/entities/playlist.dart';
 import 'package:ari/presentation/pages/dashboard/artist_dashboard_screen.dart';
 import 'package:ari/presentation/pages/dashboard/my_album_stat_list.dart';
 import 'package:ari/presentation/pages/login/login_screen.dart';
@@ -25,6 +26,9 @@ import 'package:ari/presentation/pages/my_channel/my_channel_screen.dart';
 import 'package:ari/presentation/pages/mypage/album_upload_screen.dart';
 import 'package:ari/presentation/pages/mypage/track_upload_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+// 장르별 페이지
+import 'package:ari/core/utils/genre_utils.dart';
+import 'package:ari/presentation/pages/genre/genre_page.dart';
 
 class AppRoutes {
   static const String home = '/';
@@ -46,6 +50,7 @@ class AppRoutes {
   static const String artistSelection = '/subscription/select/artist';
   static const String artistDashboard = '/artist-dashboard';
   static const String myAlbumStatList = '/artist-dashboard/my-album-stats';
+  static const String genre = '/genre';
 
   static final Set<String> _protectedRoutes = {
     myPage,
@@ -183,6 +188,13 @@ class AppRouter {
 
       case AppRoutes.myAlbumStatList:
         return MaterialPageRoute(builder: (_) => const MyTrackStatListScreen());
+
+      case AppRoutes.genre:
+        final genre = args?['genre'] as Genre;
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => GenrePage(genre: genre),
+        );
 
       default:
         // 없는 경로는 홈으로 리다이렉트, 스낵바로 알림

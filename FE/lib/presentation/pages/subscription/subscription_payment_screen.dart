@@ -283,7 +283,7 @@ class SubscriptionPaymentScreenState
         subscribeResult = await walletService.subscribeToArtist(
           contractAddress: subscriptionContractAddress,
           subscriberId: userId,
-          artistId: widget.artistInfo!.id,
+          artistId: 1, // widget.artistInfo!.id,
           contractAbi: SubscriptionConstants.subscriptionContractAbi,
           onComplete: (subTxHash, subSuccess, subErrorMessage) {
             dev.log(

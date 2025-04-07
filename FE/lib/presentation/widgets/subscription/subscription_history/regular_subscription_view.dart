@@ -1,17 +1,36 @@
 // widgets/subscription/regular_subscription_view.dart
-import 'package:ari/data/models/subscription_history_model.dart';
-import 'package:ari/presentation/viewmodels/subscription/subscription_history_viewmodel.dart';
+import 'package:ari/data/models/subscription/regular_subscription_models.dart';
+import 'package:ari/presentation/viewmodels/subscription/regular_subscription_viewmodel.dart';
 import 'package:ari/presentation/widgets/subscription/subscription_history/subscription_chart.dart';
+import 'package:ari/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class RegularSubscriptionView extends ConsumerWidget {
-  const RegularSubscriptionView({super.key});
+class RegularSubscriptionView extends ConsumerStatefulWidget {
+  const RegularSubscriptionView({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(subscriptionHistoryViewModelProvider);
-    final artists = state.artists;
+  _RegularSubscriptionViewState createState() =>
+      _RegularSubscriptionViewState();
+}
+
+class _RegularSubscriptionViewState
+    extends ConsumerState<RegularSubscriptionView> {
+  @override
+  void initState() {
+    super.initState();
+    // 초기 데이터 로드
+    Future.microtask(
+      () =>
+          ref
+              .read(regularSubscriptionViewModelProvider.notifier)
+              .loadSubscriptionCycles(),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(regularSubscriptionViewModelProvider);
 
     if (state.isLoading) {
       return Center(child: CircularProgressIndicator(color: Colors.white));
@@ -23,11 +42,15 @@ class RegularSubscriptionView extends ConsumerWidget {
       );
     }
 
+    // 표시할 아티스트 목록 - 더보기 상태에 따라 전체 또는 최대 3개만 표시
+    final displaySettlements = state.displaySettlements;
+    final artistAllocations = state.artistAllocations;
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 현재 구독 기간 표시
+          // 현재 구독 기간 표시 (드롭다운으로 변경)
           Padding(
             padding: const EdgeInsets.only(
               top: 20,
@@ -35,15 +58,44 @@ class RegularSubscriptionView extends ConsumerWidget {
               right: 20,
               bottom: 10,
             ),
-            child: Text(
-              '${state.currentSubscriptionPeriod} 정기 구독',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontFamily: 'Pretendard',
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            child:
+                state.cycles.isEmpty
+                    ? SizedBox() // 사이클이 없으면 빈 공간 표시
+                    : DropdownButton<SubscriptionCycle>(
+                      value: state.selectedCycle,
+                      dropdownColor: const Color(0xFF373737),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w600,
+                      ),
+                      icon: const Icon(
+                        Icons.arrow_drop_down,
+                        color: Colors.white,
+                      ),
+                      underline: Container(), // 밑줄 제거
+                      onChanged: (newValue) {
+                        if (newValue != null) {
+                          ref
+                              .read(
+                                regularSubscriptionViewModelProvider.notifier,
+                              )
+                              .selectCycle(newValue);
+                        }
+                      },
+                      items:
+                          state.cycles.map<DropdownMenuItem<SubscriptionCycle>>(
+                            (cycle) {
+                              return DropdownMenuItem<SubscriptionCycle>(
+                                value: cycle,
+                                child: Text(
+                                  '${cycle.startedAt} ~ ${cycle.endedAt} 정기 구독',
+                                ),
+                              );
+                            },
+                          ).toList(),
+                    ),
           ),
 
           // 구독 정보 컨테이너
@@ -52,9 +104,7 @@ class RegularSubscriptionView extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(vertical: 20),
             decoration: ShapeDecoration(
               color: Colors.black,
-              shape: RoundedRectangleBorder(
-                side: BorderSide(width: 1, color: const Color(0xFF989595)),
-              ),
+              shape: Border(bottom: BorderSide(width: 1, color: Colors.white)),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -80,7 +130,7 @@ class RegularSubscriptionView extends ConsumerWidget {
                       Row(
                         children: [
                           Text(
-                            '0.213',
+                            state.subscriptionDetail?.price.toString() ?? '0.0',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 24,
@@ -110,9 +160,10 @@ class RegularSubscriptionView extends ConsumerWidget {
                 SizedBox(height: 20),
 
                 // 차트
-                SubscriptionChart(artists: artists),
+                if (artistAllocations.isNotEmpty)
+                  SubscriptionChart(artistAllocations: artistAllocations),
 
-                SizedBox(height: 20),
+                SizedBox(height: 60),
 
                 // 아티스트 목록
                 Container(
@@ -120,64 +171,87 @@ class RegularSubscriptionView extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     children:
-                        artists
-                            .map((artist) => _buildArtistItem(artist))
+                        displaySettlements
+                            .map((settlement) => _buildArtistItem(settlement))
                             .toList(),
                   ),
                 ),
 
                 SizedBox(height: 20),
 
-                // 더 보기 버튼
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 15,
-                    vertical: 8,
-                  ),
-                  decoration: ShapeDecoration(
-                    color: const Color(0xFF323232),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                // 더 보기 버튼 - 3개 이상일 때만 표시
+                if (state.subscriptionDetail != null &&
+                    state.subscriptionDetail!.settlements.length > 3)
+                  GestureDetector(
+                    onTap: () {
+                      ref
+                          .read(regularSubscriptionViewModelProvider.notifier)
+                          .toggleShowAllArtists();
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 15,
+                        vertical: 8,
+                      ),
+                      decoration: ShapeDecoration(
+                        color: const Color(0xFF323232),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text(
+                        state.showAllArtists ? '접기' : '더 보기',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
                     ),
                   ),
-                  child: Text(
-                    '더 보기',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
 
           // 아티스트별 스트리밍 정보
-          ...artists.map((artist) => _buildArtistStreamingInfo(artist)),
+          ...displaySettlements
+              .map((settlement) => _buildArtistStreamingInfo(settlement))
+              .toList(),
         ],
       ),
     );
   }
 
-  Widget _buildArtistItem(Artist artist) {
+  Widget _buildArtistItem(ArtistSettlement settlement) {
+    // 해당 아티스트의 할당정보 찾기
+    final allocation = ref
+        .read(regularSubscriptionViewModelProvider)
+        .artistAllocations
+        .firstWhere(
+          (a) => a.artistNickname == settlement.artistNickname,
+          orElse:
+              () => ArtistAllocation(
+                artistNickname: settlement.artistNickname,
+                profileImageUrl: settlement.profileImageUrl,
+                streamingCount: settlement.streamingCount,
+                allocation: 0,
+                color: Colors.grey,
+              ),
+        );
+
     return Container(
-      width: double.infinity,
-      margin: EdgeInsets.only(bottom: 8),
-      decoration: ShapeDecoration(
-        shape: RoundedRectangleBorder(side: BorderSide(color: Colors.white)),
-      ),
+      margin: EdgeInsets.only(bottom: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
               Container(
-                width: 16,
-                height: 16,
+                width: 20,
+                height: 20,
                 decoration: ShapeDecoration(
-                  color: artist.color,
+                  color: allocation.color,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(100),
                   ),
@@ -185,10 +259,10 @@ class RegularSubscriptionView extends ConsumerWidget {
               ),
               SizedBox(width: 12),
               Text(
-                artist.name,
+                settlement.artistNickname,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 12,
+                  fontSize: 14,
                   fontFamily: 'Pretendard',
                   fontWeight: FontWeight.w400,
                 ),
@@ -196,12 +270,12 @@ class RegularSubscriptionView extends ConsumerWidget {
             ],
           ),
           Text(
-            '${artist.allocation.toStringAsFixed(0)}%',
+            '${allocation.allocation.toStringAsFixed(0)}%',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 12,
+              fontSize: 14,
               fontFamily: 'Pretendard',
-              fontWeight: FontWeight.w400,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -209,14 +283,14 @@ class RegularSubscriptionView extends ConsumerWidget {
     );
   }
 
-  Widget _buildArtistStreamingInfo(Artist artist) {
-    return SizedBox(
+  Widget _buildArtistStreamingInfo(ArtistSettlement settlement) {
+    return Container(
       width: double.infinity,
       child: Column(
         children: [
-          SizedBox(
+          Container(
             width: double.infinity,
-            height: 66,
+            height: 70,
             child: Column(
               children: [
                 Container(
@@ -235,7 +309,7 @@ class RegularSubscriptionView extends ConsumerWidget {
                             height: 30,
                             decoration: ShapeDecoration(
                               image: DecorationImage(
-                                image: NetworkImage(artist.imageUrl),
+                                image: NetworkImage(settlement.profileImageUrl),
                                 fit: BoxFit.cover,
                               ),
                               shape: RoundedRectangleBorder(
@@ -248,7 +322,7 @@ class RegularSubscriptionView extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                artist.name,
+                                settlement.artistNickname,
                                 style: TextStyle(
                                   color: const Color(0xFFD9D9D9),
                                   fontSize: 8,
@@ -258,7 +332,7 @@ class RegularSubscriptionView extends ConsumerWidget {
                               ),
                               SizedBox(height: 5),
                               Text(
-                                '${artist.streamingCount}회 스트리밍',
+                                '${settlement.streamingCount}회 스트리밍',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,
@@ -273,7 +347,7 @@ class RegularSubscriptionView extends ConsumerWidget {
                       Row(
                         children: [
                           Text(
-                            '0.24',
+                            settlement.settlement.toString(),
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16,

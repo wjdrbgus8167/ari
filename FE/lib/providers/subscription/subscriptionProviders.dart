@@ -3,10 +3,6 @@ import 'package:ari/presentation/viewmodels/subscription/my_subscription_viewmod
 import 'package:ari/presentation/viewmodels/subscription/subscription_select_viewmodel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final subscriptionViewModelProvider = StateNotifierProvider<SubscriptionViewModel, SubscriptionState>((ref) {
-  return SubscriptionViewModel();
-});
-
 // ViewModel Provider
 final subscriptionSelectViewModelProvider = 
     StateNotifierProvider<SubscriptionSelectViewModel, List<SubscriptionPlan>>((ref) {
