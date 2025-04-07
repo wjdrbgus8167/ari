@@ -87,6 +87,18 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   ),
                 ),
               ),
+            // 검색 중 로딩 인디케이터
+            // if (searchState.isLoading)
+            //   Container(
+            //     margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+            //     height: 2, // 매우 얇은 인디케이터
+            //     child: const LinearProgressIndicator(
+            //       backgroundColor: Colors.transparent,
+            //       valueColor: AlwaysStoppedAnimation<Color>(
+            //         AppColors.lightPurple,
+            //       ),
+            //     ),
+            //   ),
 
             // 검색 결과 or 장르 카테고리 표시
             Expanded(
