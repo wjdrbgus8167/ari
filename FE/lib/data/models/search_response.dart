@@ -7,15 +7,24 @@ class SearchResponse {
   SearchResponse({required this.artists, required this.tracks});
 
   factory SearchResponse.fromJson(Map<String, dynamic> json) {
+    // null 안전성 처리: artists나 tracks가 null인 경우 빈 리스트 반환
     return SearchResponse(
       artists:
-          (json['artists'] as List)
-              .map((artist) => ArtistSearchResult.fromJson(artist))
-              .toList(),
+          json['artists'] != null
+              ? List<ArtistSearchResult>.from(
+                (json['artists'] as List).map(
+                  (artist) => ArtistSearchResult.fromJson(artist),
+                ),
+              )
+              : [],
       tracks:
-          (json['tracks'] as List)
-              .map((track) => TrackSearchResult.fromJson(track))
-              .toList(),
+          json['tracks'] != null
+              ? List<TrackSearchResult>.from(
+                (json['tracks'] as List).map(
+                  (track) => TrackSearchResult.fromJson(track),
+                ),
+              )
+              : [],
     );
   }
 }
@@ -33,10 +42,11 @@ class ArtistSearchResult {
   });
 
   factory ArtistSearchResult.fromJson(Map<String, dynamic> json) {
+    // null 처리
     return ArtistSearchResult(
-      memberId: json['memberId'],
-      nickname: json['nickname'],
-      profileImageUrl: json['profileImageUrl'],
+      memberId: json['memberId'] ?? 0,
+      nickname: json['nickname'] ?? '',
+      profileImageUrl: json['profileImageUrl'] ?? '',
     );
   }
 }
@@ -56,11 +66,12 @@ class TrackSearchResult {
   });
 
   factory TrackSearchResult.fromJson(Map<String, dynamic> json) {
+    // null 처리
     return TrackSearchResult(
-      trackId: json['trackId'],
-      trackTitle: json['trackTitle'],
-      artist: json['artist'],
-      coverImageUrl: json['coverImageUrl'],
+      trackId: json['trackId'] ?? 0,
+      trackTitle: json['trackTitle'] ?? '',
+      artist: json['artist'] ?? '',
+      coverImageUrl: json['coverImageUrl'] ?? '',
     );
   }
 }
