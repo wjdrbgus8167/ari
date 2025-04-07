@@ -7,8 +7,10 @@ import com.ccc.ari.subscription.infrastructure.persistence.entity.SubscriptionCy
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -39,5 +41,16 @@ public class SubscriptionCycleRepositoryImpl implements SubscriptionCycleReposit
                 .stream()
                 .map(SubscriptionCycleEntity::toModel)
                 .toList();
+    }
+
+    @Override
+    public Optional<SubscriptionCycle> getSubscriptionCycleByPeriod(SubscriptionId subscriptionId,
+                                                                    LocalDateTime startTime, LocalDateTime endTime) {
+        return subscriptionCycleJpaRepository.findAllBySubscriptionId(subscriptionId.getValue())
+                .stream()
+                .filter(cycle ->
+                        (!cycle.getStartedAt().isBefore(startTime) && !cycle.getStartedAt().isAfter(endTime)))
+                .findFirst()
+                .map(SubscriptionCycleEntity::toModel);
     }
 }

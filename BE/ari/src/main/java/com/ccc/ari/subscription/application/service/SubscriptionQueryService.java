@@ -6,6 +6,8 @@ import com.ccc.ari.subscription.application.response.GetMyRegularCyclesResponse;
 import com.ccc.ari.subscription.domain.Subscription;
 import com.ccc.ari.subscription.domain.SubscriptionCycle;
 import com.ccc.ari.subscription.domain.SubscriptionPlan;
+import com.ccc.ari.subscription.domain.exception.ArtistSubscriptionNotFoundException;
+import com.ccc.ari.subscription.domain.exception.CycleNotFoundException;
 import com.ccc.ari.subscription.domain.exception.RegularPlanNotFoundException;
 import com.ccc.ari.subscription.domain.exception.RegularSubscriptionNotFoundException;
 import com.ccc.ari.subscription.domain.repository.SubscriptionCycleRepository;
@@ -13,7 +15,10 @@ import com.ccc.ari.subscription.domain.repository.SubscriptionPlanRepository;
 import com.ccc.ari.subscription.domain.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,7 +30,9 @@ public class SubscriptionQueryService {
     private final SubscriptionRepository subscriptionRepository;
     private final SubscriptionPlanRepository subscriptionPlanRepository;
     private final SubscriptionCycleRepository subscriptionCycleRepository;
+    private final SubscriptionPlanCoordinationService subscriptionPlanCoordinationService;
 
+    @Transactional(readOnly = true)
     public List<GetMyRegularCyclesResponse> getRegularCycles(GetMyRegularCyclesCommand command) {
         // 1. 정기 구독 플랜 ID 조회
         SubscriptionPlan regularPlan = subscriptionPlanRepository
@@ -53,5 +60,40 @@ public class SubscriptionQueryService {
                 .startedAt(cycle.getStartedAt())
                 .endedAt(cycle.getEndedAt())
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public SubscriptionCycle getRegularSubscriptionCycleByPeriod(Integer subscriberId,
+                                                                 LocalDateTime startTime, LocalDateTime endTime) {
+        // 1. 정기 구독 플랜 가져오기
+        SubscriptionPlan regularPlan =
+                subscriptionPlanCoordinationService.getOrCreateRegularPlan(BigDecimal.ONE);
+        // 2. 정기 구독 가져오기
+        Subscription regularSubscription =
+                subscriptionRepository.findActiveSubscription(subscriberId,
+                                                              regularPlan.getSubscriptionPlanId().getValue())
+                    .orElseThrow(RegularSubscriptionNotFoundException::new);
+        // 3. 두 시간의 사이에 사이클이 시작한 사이클 가져오기
+        return subscriptionCycleRepository.getSubscriptionCycleByPeriod(regularSubscription.getSubscriptionId(),
+                                                                         startTime, endTime)
+                        .orElseThrow(() -> new CycleNotFoundException(startTime, endTime));
+
+    }
+
+    @Transactional(readOnly = true)
+    public SubscriptionCycle getArtistSubscriptionCycleIdByPeriod(Integer subscriberId, Integer artistId,
+                                                                  LocalDateTime startTime, LocalDateTime endTime) {
+        // 1. 아티스트 구독 플랜 가져오기
+        SubscriptionPlan artistPlan =
+                subscriptionPlanCoordinationService.getOrCreateArtistPlan(artistId, BigDecimal.ONE);
+        // 2. 아티스트 구독 가져오기
+        Subscription artistSubscription =
+                subscriptionRepository.findActiveSubscription(subscriberId,
+                                                              artistPlan.getSubscriptionPlanId().getValue())
+                        .orElseThrow(() -> new ArtistSubscriptionNotFoundException(artistId));
+        // 3. 두 시간의 사이에 사이클이 시작한 사이클 가져오기
+        return subscriptionCycleRepository.getSubscriptionCycleByPeriod(artistSubscription.getSubscriptionId(),
+                                                                        startTime, endTime)
+                        .orElseThrow(() -> new CycleNotFoundException(startTime, endTime));
     }
 }
