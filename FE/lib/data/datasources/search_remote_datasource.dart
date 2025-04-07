@@ -11,8 +11,7 @@ class SearchRemoteDataSource {
 
   SearchRemoteDataSource({required this.dio});
 
-  /// 검색어로 아티스트와 트랙을 검색
-  ///
+  /// 검색어로 아티스트, 트랙 검색
   /// [query] 검색어
   /// [return] 검색 결과 (아티스트 목록, 트랙 목록)
   Future<SearchResponse> searchContent(String query) async {
@@ -28,10 +27,27 @@ class SearchRemoteDataSource {
         queryParameters: {'q': query},
       );
 
+      // 응답 로깅
+      print('검색 API 응답: ${response.data}');
+
       // API 응답 처리
+      if (response.data == null) {
+        throw Failure(message: '서버 응답이 없습니다');
+      }
+
+      // Map이 아닌 경우 처리
+      if (response.data is! Map<String, dynamic>) {
+        // 응답 본문이 Map이 아니면 SearchResponse로 변환 불가능
+        print('응답 형식 오류: ${response.data.runtimeType}');
+        return SearchResponse(artists: [], tracks: []);
+      }
+
       final apiResponse = ApiResponse.fromJson(
-        response.data,
-        (json) => SearchResponse.fromJson(json),
+        response.data as Map<String, dynamic>,
+        (json) =>
+            json != null
+                ? SearchResponse.fromJson(json as Map<String, dynamic>)
+                : SearchResponse(artists: [], tracks: []),
       );
 
       // 오류 확인
@@ -43,14 +59,26 @@ class SearchRemoteDataSource {
         );
       }
 
+      // 결과가 null인 경우 빈 결과 반환
+      if (apiResponse.data == null) {
+        return SearchResponse(artists: [], tracks: []);
+      }
+
       // 검색 결과 반환
       return apiResponse.data as SearchResponse;
     } on DioException catch (e) {
+      print(
+        'DioException 발생: ${e.message}, 응답 상태 코드: ${e.response?.statusCode}',
+      );
+      print('응답 데이터: ${e.response?.data}');
+
       throw Failure(
         message: e.message ?? '네트워크 오류가 발생했습니다',
         statusCode: e.response?.statusCode,
       );
     } catch (e) {
+      print('알 수 없는 오류 발생: $e');
+
       if (e is Failure) {
         rethrow;
       }
