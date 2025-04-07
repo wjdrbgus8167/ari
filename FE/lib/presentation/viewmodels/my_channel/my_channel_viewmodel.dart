@@ -385,13 +385,27 @@ class MyChannelNotifier extends StateNotifier<MyChannelState> {
     String memberId,
     String? fantalkChannelId,
   ) async {
-    // 각 데이터 로드 시도 (각각 독립적으로 처리, 에러가 다른 로드에 영향 없도록)
-    _loadSafely(() => loadChannelInfo(memberId), '채널 정보');
+    // 채널 정보 먼저 로드
+    await _loadSafely(() => loadChannelInfo(memberId), '채널 정보');
+
+    // 채널 정보 로드 후 구독자 수 확인
+    final channelInfo = state.channelInfo;
+    final hasSubscribers =
+        channelInfo != null && channelInfo.subscriberCount > 0;
+
+    // 다른 데이터 로드
     _loadSafely(() => loadArtistAlbums(memberId), '아티스트 앨범');
     _loadSafely(() => loadArtistNotices(memberId), '아티스트 공지사항');
 
-    if (fantalkChannelId != null) {
+    // 구독자가 있는 경우에만 팬톡 로드
+    if (hasSubscribers && fantalkChannelId != null) {
       _loadSafely(() => loadFanTalks(fantalkChannelId), '팬톡');
+    } else {
+      // 구독자가 없는 경우 팬톡 상태를 성공으로 설정하되 데이터는 비움
+      state = state.copyWith(
+        fanTalksStatus: MyChannelStatus.success,
+        fanTalks: null,
+      );
     }
 
     _loadSafely(() => loadPublicPlaylists(memberId), '공개된 플레이리스트');
