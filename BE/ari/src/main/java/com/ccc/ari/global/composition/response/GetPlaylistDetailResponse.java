@@ -6,10 +6,11 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+
 @Getter
 @NoArgsConstructor
 public class GetPlaylistDetailResponse {
-    List<com.ccc.ari.playlist.ui.response.GetPlaylistDetailResponse.TrackDetail> tracks;
+    List<TrackDetail> tracks;
 
     @Getter
     @NoArgsConstructor
@@ -17,6 +18,7 @@ public class GetPlaylistDetailResponse {
         int trackOrder;
         Integer trackId;
         String artist;
+        Integer artistId;
         String composer;
         String lyricist;
         String lyrics;
@@ -30,7 +32,7 @@ public class GetPlaylistDetailResponse {
         @Builder
         public TrackDetail(int trackOrder,Integer trackId,String composer, String lyricist, String lyrics,
                            String trackFileUrl, Integer trackLikeCount, Integer trackNumber, String trackTitle
-                ,String coverImageUrl,String artist,Integer albumId) {
+                           ,String coverImageUrl,String artist,Integer albumId,Integer artistId) {
             this.trackOrder = trackOrder;
             this.trackId = trackId;
             this.composer = composer;
@@ -43,12 +45,12 @@ public class GetPlaylistDetailResponse {
             this.albumId = albumId;
             this.coverImageUrl = coverImageUrl;
             this.artist = artist;
-
+            this.artistId = artistId;
         }
     }
 
     @Builder
-    public GetPlaylistDetailResponse(List<com.ccc.ari.playlist.ui.response.GetPlaylistDetailResponse.TrackDetail> tracks) {
+    public GetPlaylistDetailResponse(List<TrackDetail> tracks) {
         this.tracks = tracks;
     }
 

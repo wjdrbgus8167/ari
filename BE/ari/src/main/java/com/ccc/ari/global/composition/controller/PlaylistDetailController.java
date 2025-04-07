@@ -3,7 +3,7 @@ package com.ccc.ari.global.composition.controller;
 import com.ccc.ari.global.composition.service.GetPlaylistDetailService;
 import com.ccc.ari.global.util.ApiUtils;
 import com.ccc.ari.playlist.application.command.GetPlaylistDetailCommand;
-import com.ccc.ari.playlist.ui.response.GetPlaylistDetailResponse;
+import com.ccc.ari.global.composition.response.GetPlaylistDetailResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
