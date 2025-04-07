@@ -76,6 +76,7 @@ public class AlbumDetailService {
                 .albumId(album.getAlbumId())
                 .albumTitle(album.getTitle())
                 .artist(album.getArtist())
+                .artistId(album.getMemberId())
                 .description(album.getDescription())
                 .genreName(album.getGenreName())
                 .coverImageUrl(album.getCoverImageUrl())
