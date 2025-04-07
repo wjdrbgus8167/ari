@@ -49,7 +49,7 @@ class ListeningQueueNotifier extends StateNotifier<List<domain.Track>> {
 
 final listeningQueueProvider =
     StateNotifierProvider<ListeningQueueViewModel, ListeningQueueState>((ref) {
-      final userId = ref.watch(authUserIdProvider);
+      final userId = ref.read(authUserIdProvider);
       final playlistRepository = ref.watch(playlistRepositoryProvider);
       return ListeningQueueViewModel(
         userId: userId,

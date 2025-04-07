@@ -39,13 +39,17 @@ class _ArtistAlbumSectionState extends ConsumerState<ArtistAlbumSection> {
     super.didUpdateWidget(oldWidget);
     // memberId가 변경되면 데이터 다시 로드
     if (oldWidget.memberId != widget.memberId) {
-      _loadAlbums();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _loadAlbums();
+      });
     }
   }
 
   void _loadAlbums() {
     // 채널 뷰모델에서 앨범 목록 로드 함수 호출
-    ref.read(myChannelProvider.notifier).loadArtistAlbums(widget.memberId);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(myChannelProvider.notifier).loadArtistAlbums(widget.memberId);
+    });
   }
 
   @override

@@ -9,9 +9,8 @@ import 'artist_notice_remote_datasource.dart';
 
 class ArtistNoticeRemoteDataSourceImpl implements ArtistNoticeRemoteDataSource {
   final Dio dio;
-  final GetTokensUseCase? getTokensUseCase; // 토큰 직접 가져오기 위한 의존성
 
-  ArtistNoticeRemoteDataSourceImpl({required this.dio, this.getTokensUseCase});
+  ArtistNoticeRemoteDataSourceImpl({required this.dio});
 
   /// 공지사항 목록 조회
   @override
@@ -117,12 +116,7 @@ class ArtistNoticeRemoteDataSourceImpl implements ArtistNoticeRemoteDataSource {
       print('📝 이미지 첨부 여부: ${noticeImage != null}');
 
       // 토큰 직접 가져오기 (인터셉터와 별개로)
-      String? accessToken;
-      if (getTokensUseCase != null) {
-        final tokens = await getTokensUseCase!();
-        accessToken = tokens?.accessToken;
-        print('📝 직접 가져온 토큰: ${accessToken?.substring(0, 20)}...');
-      }
+
 
       // FormData 준비
       final formData = FormData();
@@ -132,21 +126,10 @@ class ArtistNoticeRemoteDataSourceImpl implements ArtistNoticeRemoteDataSource {
         formData.files.add(MapEntry('noticeImage', noticeImage));
       }
 
-      // 요청 옵션 준비 - 인증 헤더 직접 설정
-      final options = Options(
-        headers: {
-          'Authorization': 'Bearer $accessToken', // 인증 헤더
-          'Accept': 'application/json',
-        },
-      );
-
-      print('📝 요청 옵션: ${options.headers}');
-
       // API 요청 보내기
       final response = await dio.post(
         '/api/v1/artists/notices',
         data: formData,
-        options: options,
       );
 
       print('📝 공지사항 등록 응답 상태: ${response.statusCode}');

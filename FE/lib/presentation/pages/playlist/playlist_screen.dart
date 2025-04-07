@@ -41,8 +41,7 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen> {
       );
     }
 
-    return GlobalBottomWidget(
-      child: Container(
+    return Container(
         color: Colors.black,
         child: Column(
           children: [
@@ -88,7 +87,6 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen> {
             const Expanded(child: PlaylistTrackList()),
           ],
         ),
-      ),
     );
   }
 }

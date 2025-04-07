@@ -54,8 +54,7 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
     final playlistState = ref.watch(playlistViewModelProvider);
     final playlist = playlistState.selectedPlaylist;
 
-    return GlobalBottomWidget(
-      child: Scaffold(
+    return Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(
           backgroundColor: Colors.black,
@@ -171,7 +170,6 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
                     const Expanded(child: PlaylistTrackList()),
                   ],
                 ),
-      ),
     );
   }
 }

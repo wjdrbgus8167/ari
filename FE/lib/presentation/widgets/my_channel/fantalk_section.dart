@@ -17,6 +17,7 @@ class FanTalkSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // 팬톡 상태 가져오기
+    
     final channelState = ref.watch(myChannelProvider);
     final fanTalkResponse = channelState.fanTalks;
     final isLoading = channelState.fanTalksStatus == MyChannelStatus.loading;
