@@ -91,8 +91,8 @@ class SubscriptionModel {
 class MonthlySubscription {
   final String id;
   final double price;
-  final String subscribedAt;
-  final String expiredAt;
+  final String? subscribedAt;
+  final String? expiredAt;
 
   MonthlySubscription({
     required this.id,
@@ -135,8 +135,8 @@ class ArtistSubscription {
   final String id;
   final String artistNickname;
   final double price;
-  final String subscribedAt;
-  final String expiredAt;
+  final String? subscribedAt;
+  final String? expiredAt;
 
   ArtistSubscription({
     required this.id,

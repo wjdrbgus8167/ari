@@ -1,5 +1,3 @@
-import 'package:ari/presentation/viewmodels/subscription/my_subscription_viewmodel.dart';
-
 class MySubscriptionModel {
   final List<MonthlySubscription> monthly;
   final List<ArtistSubscription> artists;
@@ -56,7 +54,7 @@ class ArtistSubscription {
 
   factory ArtistSubscription.fromJson(Map<String, dynamic> json) {
     return ArtistSubscription(
-      artistNickname: json['artistNickname'],
+      artistNickname: json['artistName'],
       price: json['price'] is int ? (json['price'] as int).toDouble() : json['price'],
       subscribeAt: json['subscribeAt'],
       expiredAt: json['expiredAt'],  // null 허용

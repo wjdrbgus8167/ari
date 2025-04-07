@@ -1,4 +1,5 @@
-// screens/subscription_screen.dart
+// screens/subscription_history_screen.dart
+import 'package:ari/presentation/widgets/common/header_widget.dart';
 import 'package:ari/presentation/viewmodels/subscription/subscription_history_viewmodel.dart';
 import 'package:ari/presentation/widgets/subscription/subscription_history/artist_subscription_view.dart';
 import 'package:ari/presentation/widgets/subscription/subscription_history/regular_subscription_view.dart';
@@ -16,6 +17,14 @@ class SubscriptionHistoryScreen extends ConsumerWidget {
       backgroundColor: Colors.black,
       body: Column(
         children: [
+          // 헤더 부분
+          HeaderWidget(
+            type: HeaderType.backWithTitle,
+            title: "구독 내역",
+            onBackPressed: () {
+              Navigator.pop(context);
+            },
+          ),
           // 여기에 Tab 부분 (정기 구독/아티스트 구독 스위치)
           _buildTabSwitch(context, ref, state),
           
@@ -65,8 +74,8 @@ class SubscriptionHistoryScreen extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          border: isSelected
-              ? Border.all(width: 1, color: Colors.white)
+          border: isSelected 
+              ? const Border(bottom: BorderSide(width: 2, color: Colors.white)) 
               : null,
         ),
         child: Row(
