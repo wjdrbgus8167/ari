@@ -21,8 +21,11 @@ public class FantalkListResponse {
 
     private List<FantalkItem> fantalks;
     private int fantalkCount;
+    private Boolean subscribedYn;
 
-    public static FantalkListResponse from(List<FantalkDto> fantalks, Map<Integer, MemberDto> memberMap, Map<Integer, TrackDto> trackMap, Map<Integer, AlbumDto> albumMap) {
+    public static FantalkListResponse from(List<FantalkDto> fantalks, Map<Integer, MemberDto> memberMap,
+                                           Map<Integer, TrackDto> trackMap, Map<Integer, AlbumDto> albumMap,
+                                           Boolean subscribedYn) {
         List<FantalkItem> fantalkItems = fantalks.stream()
                 .map(fantalk -> {
 
@@ -66,6 +69,7 @@ public class FantalkListResponse {
         return FantalkListResponse.builder()
                 .fantalks(fantalkItems)
                 .fantalkCount(fantalks.size())
+                .subscribedYn(subscribedYn)
                 .build();
     }
 

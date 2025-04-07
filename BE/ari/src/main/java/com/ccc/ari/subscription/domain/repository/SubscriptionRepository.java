@@ -26,4 +26,6 @@ public interface SubscriptionRepository {
      * (활성화, 비활성화 모두)
      */
     Optional<List<Subscription>> findListByMemberIdAndSubscriptionPlanId(Integer memberId, Integer subscriptionPlanId);
+
+    Integer countBySubscriptionPlanIdAndActivateYnIsTrue(Integer subscriptionPlanId);
 }

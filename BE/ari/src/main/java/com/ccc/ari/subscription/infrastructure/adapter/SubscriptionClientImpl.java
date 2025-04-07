@@ -19,4 +19,14 @@ public class SubscriptionClientImpl implements SubscriptionClient {
     public Optional<List<Subscription>> getSubscriptionInfo(Integer memberId) {
         return subscriptionRepository.findListByMemberId(memberId);
     }
+
+    @Override
+    public Boolean hasActiveSubscription(Integer memberId, Integer subscriptionPlanId) {
+        return subscriptionRepository.findActiveSubscription(memberId, subscriptionPlanId).isPresent();
+    }
+
+    @Override
+    public Integer countActiveSubscribersByPlanId(Integer subscriptionPlanId) {
+        return subscriptionRepository.countBySubscriptionPlanIdAndActivateYnIsTrue(subscriptionPlanId);
+    }
 }

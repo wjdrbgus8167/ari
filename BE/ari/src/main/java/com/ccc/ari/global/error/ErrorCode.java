@@ -36,6 +36,7 @@ public enum ErrorCode {
 
     // 팬톡 관련
     FANTALK_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "F001", "팬톡 생성 중 오류가 발생했습니다."),
+    FANTALK_CHANNEL_NOT_FOUND(HttpStatus.NOT_FOUND, "F002", "팬톡 채널을 찾을 수 없습니다."),
 
     //플레이리스트 관련
     PLAYLIST_TRACK_ADD_FAIL(HttpStatus.NOT_FOUND,"P001","해당 트랙을 추가하는데 실패했습니다."),

@@ -80,4 +80,9 @@ public class SubscriptionRepositoryImpl implements SubscriptionRepository {
                         .map(SubscriptionEntity::toModel)
                         .toList());
     }
+
+    @Override
+    public Integer countBySubscriptionPlanIdAndActivateYnIsTrue(Integer subscriptionPlanId) {
+        return subscriptionJpaRepository.countBySubscriptionPlanIdAndActivateYnIsTrue(subscriptionPlanId);
+    }
 }

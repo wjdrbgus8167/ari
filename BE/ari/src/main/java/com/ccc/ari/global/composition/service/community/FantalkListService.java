@@ -1,5 +1,6 @@
 package com.ccc.ari.global.composition.service.community;
 
+import com.ccc.ari.community.domain.fantalk.client.FantalkChannelClient;
 import com.ccc.ari.community.domain.fantalk.client.FantalkClient;
 import com.ccc.ari.community.domain.fantalk.client.FantalkDto;
 import com.ccc.ari.global.composition.response.community.FantalkListResponse;
@@ -9,12 +10,16 @@ import com.ccc.ari.music.domain.album.AlbumDto;
 import com.ccc.ari.music.domain.album.client.AlbumClient;
 import com.ccc.ari.music.domain.track.TrackDto;
 import com.ccc.ari.music.domain.track.client.TrackClient;
+import com.ccc.ari.subscription.domain.SubscriptionPlan;
+import com.ccc.ari.subscription.domain.client.SubscriptionClient;
+import com.ccc.ari.subscription.domain.client.SubscriptionPlanClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,10 +29,14 @@ public class FantalkListService {
     private final MemberClient memberClient;
     private final TrackClient trackClient;
     private final AlbumClient albumClient;
+    private final FantalkChannelClient fantalkChannelClient;
+    private final SubscriptionPlanClient subscriptionPlanClient;
+    private final SubscriptionClient subscriptionClient;
 
-    public FantalkListResponse getFantalkList(Integer fantalkChannelId) {
+    public FantalkListResponse getFantalkList(Integer fantalkChannelId, Integer currentMemberId) {
         // 1. fantalkChannelId에 해당하는 팬톡 목록을 조회합니다.
         List<FantalkDto> fantalks = fantalkClient.getFantalksByChannelId(fantalkChannelId);
+        Integer channelOwnerId = fantalkChannelClient.getFantalkChannelById(fantalkChannelId).getArtistId();
 
         // 2. 팬톡 작성자 정보를 조회합니다.
         // TODO: N+1 문제 해결
@@ -58,7 +67,20 @@ public class FantalkListService {
             }
         }
 
-        // 2. 응답 데이터를 구성합니다.
-        return FantalkListResponse.from(fantalks, memberMap, trackMap, albumMap);
+        // 4. 구독 상태를 확인합니다.
+        boolean subscribedYn = false;
+        if (channelOwnerId.equals(currentMemberId)) {
+            subscribedYn = true;
+        } else {
+            Optional<SubscriptionPlan> artistPlan = subscriptionPlanClient.getSubscriptionPlanByArtistId(channelOwnerId);
+
+            if (artistPlan.isPresent()) {
+                Integer planId = artistPlan.get().getSubscriptionPlanId().getValue();
+                subscribedYn = subscriptionClient.hasActiveSubscription(currentMemberId, planId);
+            }
+        }
+
+        // 5. 응답 데이터를 구성합니다.
+        return FantalkListResponse.from(fantalks, memberMap, trackMap, albumMap, subscribedYn);
     }
 }
