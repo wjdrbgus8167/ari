@@ -31,6 +31,11 @@ public class AlbumClientImpl implements AlbumClient {
         return albumService.getAllAlbumsByMember(memberId);
     }
 
+    @Override
+    public List<AlbumEntity> getAllAlbums(Integer memberId) {
+        return albumService.getAllAlbums(memberId);
+    }
+
     // 가장 최신 앨범 10개 조회
     @Override
     public List<AlbumEntity> getTop10ByReleasedAt() {

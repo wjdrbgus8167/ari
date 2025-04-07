@@ -81,4 +81,10 @@ public class AlbumService {
         album.decreaseLikeCount();
     }
 
+    public List<AlbumEntity> getAllAlbums(Integer memberId){
+        List<AlbumEntity> list = jpaAlbumRepository.findAllByMember_MemberId(memberId);
+
+        return list;
+    }
+
 }
