@@ -11,7 +11,7 @@ class GenreRemoteDataSource {
 
   GenreRemoteDataSource({required this.dio});
 
-  // 장르에 따른 실제 API ID 반환 메서드 추가
+  // 장르에 따른 실제 API ID 반환 메서드
   int _getApiGenreId(Genre genre) {
     switch (genre) {
       case Genre.hiphop:
