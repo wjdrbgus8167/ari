@@ -35,8 +35,8 @@ class PlaylistTrackItem {
       trackOrder: json['trackOrder'] as int,
       trackId: json['trackId'] as int,
       composer: json['composer'] as String,
-      artist: json['artist'] as String,
-      coverImageUrl: json['coverImageUrl'] as String,
+      artist: json['artistName'] as String? ?? '', // ✅ 수정!
+      coverImageUrl: json['trackCoverImageUrl'] as String? ?? '', // ✅ 수정!
       lyricist: json['lyricist'] as String,
       lyrics: json['lyrics'] as String,
       trackFileUrl: json['trackFileUrl'] as String,

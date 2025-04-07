@@ -113,6 +113,7 @@ class PlaybackNotifier extends StateNotifier<PlaybackState> {
       isLiked: isLiked,
     );
     print('[DEBUG] PlaybackState 업데이트 완료: ${state.toString()}');
+    print('[DEBUG] 🔁 업데이트: artist=${artist}, cover=$coverImageUrl');
   }
 }
 

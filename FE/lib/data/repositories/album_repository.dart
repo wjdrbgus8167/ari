@@ -99,7 +99,7 @@ class AlbumRepositoryImpl implements AlbumRepository {
               albumTitle: album.title,
               genreName: album.genre,
               trackTitle: track.trackTitle,
-              artistName: track.artistName,
+              artistName: album.artist,
               lyric: track.lyric,
               trackNumber: track.trackNumber,
               commentCount: track.commentCount,
@@ -107,7 +107,7 @@ class AlbumRepositoryImpl implements AlbumRepository {
               composer: track.composer,
               comments: track.comments,
               createdAt: track.createdAt,
-              coverUrl: track.coverUrl,
+              coverUrl: album.coverUrl,
               trackFileUrl: track.trackFileUrl,
               trackLikeCount: track.trackLikeCount,
             );

@@ -31,8 +31,9 @@ class PlaylistTrackItem {
     return PlaylistTrackItem(
       trackOrder: json['trackOrder'] as int? ?? 0,
       trackId: json['trackId'] as int? ?? 0,
-      artist: json['artist'] as String? ?? '',
-      coverImageUrl: json['coverImageUrl'] as String? ?? '',
+      artist: json['artistName'] as String? ?? '', // ✅ 수정!
+      coverImageUrl: json['trackCoverImageUrl'] as String? ?? '', // ✅ 수정!
+
       composer: json['composer'] as String? ?? '',
       lyricist: json['lyricist'] as String? ?? '',
       lyrics: json['lyrics'] as String? ?? '',

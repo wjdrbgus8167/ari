@@ -118,6 +118,7 @@ class PlaylistRemoteDataSourceImpl implements IPlaylistRemoteDataSource {
         // 상세조회 API는 트랙 목록만 반환하므로, 기본 정보는 빈 값 또는 기본값으로 지정합니다.
         return Playlist(
           id: playlistId,
+          artist: '', // 기본값, ViewModel에서 병합할 예정
           title: '', // 기본값, ViewModel에서 목록 데이터와 병합할 예정
           coverImageUrl: '', // 기본값, ViewModel에서 병합할 예정
           isPublic: false, // 기본값, ViewModel에서 병합할 예정
