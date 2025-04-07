@@ -190,6 +190,7 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                                   ref
                                       .read(audioServiceProvider)
                                       .playFromQueueSubset(
+                                        context,
                                         ref,
                                         state.filteredPlaylist
                                             .map((e) => e.track)

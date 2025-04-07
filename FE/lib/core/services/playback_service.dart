@@ -8,6 +8,7 @@ import 'package:ari/providers/global_providers.dart';
 import 'package:ari/domain/entities/track.dart' as domain;
 import 'package:ari/providers/listening_queue/listening_queue_provider.dart'
     as lq;
+import 'package:ari/domain/usecases/playback_permission_usecase.dart';
 
 class PlaybackService {
   final Dio dio;
@@ -22,6 +23,14 @@ class PlaybackService {
     required int trackId,
     required WidgetRef ref,
   }) async {
+    final permissionResult = await ref
+        .read(playbackPermissionUsecaseProvider)
+        .check(albumId, trackId);
+
+    if (permissionResult.isError) {
+      throw Exception(permissionResult.message);
+    }
+
     final url = '/api/v1/albums/$albumId/tracks/$trackId';
     try {
       final response = await dio.post(url);
@@ -48,7 +57,7 @@ class PlaybackService {
 
         // AudioService를 사용해 API에서 받은 trackFileUrl로 트랙을 처음부터 재생 시작
         final audioService = ref.read(audioServiceProvider);
-        await audioService.playSingleTrack(
+        await audioService.playSingleTrackWithPermission(
           ref,
           domain.Track(
             trackId: trackId,

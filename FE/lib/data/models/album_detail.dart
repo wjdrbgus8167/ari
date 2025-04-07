@@ -93,22 +93,22 @@ class TrackModel extends Track {
     required int albumId,
     required String title,
   }) : super(
-        trackId: trackId,
-        albumId: albumId,
-        albumTitle: '',
-        genreName: '', // 누락된 필수 매개변수 추가 
-        trackTitle: title,
-        trackNumber: 0,
-        artistName: '', // 누락된 필수 매개변수 추가
-        lyric: '', // 누락된 필수 매개변수 추가
-        comments: const [], // 누락된 필수 매개변수 추가
-        commentCount: 0, // 필요한 경우 추가
-        lyricist: const [], // 필요한 경우 추가
-        composer: const [], // 필요한 경우 추가
-        createdAt: '', // 필요한 경우 추가
-        trackFileUrl: '', // 필요한 경우 추가
-        coverUrl: '', // 필요한 경우 추가
-        trackLikeCount: 0, // 필요한 경우 추가
+         trackId: trackId,
+         albumId: albumId,
+         albumTitle: '',
+         genreName: '', // 누락된 필수 매개변수 추가
+         trackTitle: title,
+         trackNumber: 0,
+         artistName: '', // 누락된 필수 매개변수 추가
+         lyric: '', // 누락된 필수 매개변수 추가
+         comments: const [], // 누락된 필수 매개변수 추가
+         commentCount: 0, // 필요한 경우 추가
+         lyricist: const [], // 필요한 경우 추가
+         composer: const [], // 필요한 경우 추가
+         createdAt: '', // 필요한 경우 추가
+         trackFileUrl: '', // 필요한 경우 추가
+         coverUrl: '', // 필요한 경우 추가
+         trackLikeCount: 0, // 필요한 경우 추가
        );
 
   factory TrackModel.fromJson(Map<String, dynamic> json, int albumId) {

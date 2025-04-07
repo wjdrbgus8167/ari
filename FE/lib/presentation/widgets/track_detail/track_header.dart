@@ -124,6 +124,7 @@ class TrackHeader extends ConsumerWidget {
                                   .toList();
 
                           await audioService.playFromQueueSubset(
+                            context,
                             ref,
                             fullQueue,
                             currentTrack.toDomainTrack(),
@@ -220,7 +221,9 @@ class TrackHeader extends ConsumerWidget {
                             ),
                             const SizedBox(width: 1),
                             Text(
-                              playCount == null ? "불러오는 중..." : '$playCount회 재생',
+                              playCount == null
+                                  ? "불러오는 중..."
+                                  : '$playCount회 재생',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,

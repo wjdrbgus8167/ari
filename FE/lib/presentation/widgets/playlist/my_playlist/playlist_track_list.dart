@@ -48,7 +48,7 @@ class PlaylistTrackList extends ConsumerWidget {
 
             await ref
                 .read(audioServiceProvider)
-                .playFromQueueSubset(ref, fullPlaylist, selectedTrack);
+                .playFromQueueSubset(context, ref, fullPlaylist, selectedTrack);
 
             await ref
                 .read(listeningQueueProvider.notifier)

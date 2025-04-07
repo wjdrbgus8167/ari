@@ -1,6 +1,7 @@
 import 'package:ari/presentation/viewmodels/playback/playback_state.dart';
 import 'package:ari/presentation/widgets/common/custom_toast.dart';
 import 'package:ari/providers/global_providers.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/providers/playback/playback_state_provider.dart';
@@ -27,14 +28,22 @@ class PlaybackBar extends ConsumerWidget {
     final queueState = ref.watch(listeningQueueProvider);
 
     return GestureDetector(
-      onTap: () {
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) => const ExpandedPlaybackScreen(),
-        );
+      onTap: () async {
+        try {
+          // 프레임 딜레이를 줘서 build 중 상태 변화에 의한 재빌드와 충돌을 피함
+          await Future.delayed(Duration.zero);
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => const ExpandedPlaybackScreen(),
+          );
+        } catch (e, stack) {
+          debugPrint('❌ 에러 발생: $e');
+          debugPrint('🧱 스택: $stack');
+        }
       },
+
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -52,6 +61,13 @@ class PlaybackBar extends ConsumerWidget {
                       width: 40,
                       height: 40,
                       fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(
+                          Icons.music_note,
+                          size: 40,
+                          color: Colors.white70,
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -108,11 +124,29 @@ class PlaybackBar extends ConsumerWidget {
                             if (playbackState.isPlaying) {
                               await audioService.pause(ref);
                             } else {
-                              // 현재 재생 중인 트랙이 있다면 이어서 재생(resume)
                               if (playbackState.currentTrackId != null) {
-                                await audioService.resume(ref);
+                                try {
+                                  await audioService.resume(ref);
+                                } on DioException catch (e) {
+                                  final code =
+                                      e.response?.data['error']?['code'];
+                                  if (code == 'S001') {
+                                    context.showToast(
+                                      '🔒 구독권이 없습니다. 구독 후 이용해 주세요.',
+                                    );
+                                  } else if (code == 'S002') {
+                                    context.showToast(
+                                      '🚫 현재 구독권으로는 재생할 수 없는 곡입니다.',
+                                    );
+                                  } else if (code == 'S003') {
+                                    context.showToast('⚠️ 로그인 후 이용해 주세요.');
+                                  } else {
+                                    context.showToast('❌ 알 수 없는 오류가 발생했습니다.');
+                                  }
+                                } catch (_) {
+                                  context.showToast('❗예상치 못한 오류가 발생했습니다.');
+                                }
                               } else {
-                                // 현재 재생 중인 트랙이 없으면 재생목록(리슨잉 큐)에서 셔플하여 재생
                                 final queue = queueState.filteredPlaylist;
                                 if (queue.isEmpty) {
                                   context.showToast('재생 가능한 곡이 없습니다.');
@@ -121,11 +155,32 @@ class PlaybackBar extends ConsumerWidget {
                                   shuffledQueue.shuffle();
                                   final listeningQueueItem =
                                       shuffledQueue.first;
-                                  await playbackService.playTrack(
-                                    albumId: listeningQueueItem.track.albumId,
-                                    trackId: listeningQueueItem.track.trackId,
-                                    ref: ref,
-                                  );
+
+                                  try {
+                                    await playbackService.playTrack(
+                                      albumId: listeningQueueItem.track.albumId,
+                                      trackId: listeningQueueItem.track.trackId,
+                                      ref: ref,
+                                    );
+                                  } on DioException catch (e) {
+                                    final code =
+                                        e.response?.data['error']?['code'];
+                                    if (code == 'S001') {
+                                      context.showToast(
+                                        '🔒 구독권이 없습니다. 구독 후 이용해 주세요.',
+                                      );
+                                    } else if (code == 'S002') {
+                                      context.showToast(
+                                        '🚫 현재 구독권으로는 재생할 수 없는 곡입니다.',
+                                      );
+                                    } else if (code == 'S003') {
+                                      context.showToast('⚠️ 로그인 후 이용해 주세요.');
+                                    } else {
+                                      context.showToast('❌ 알 수 없는 오류가 발생했습니다.');
+                                    }
+                                  } catch (_) {
+                                    context.showToast('❗예상치 못한 오류가 발생했습니다.');
+                                  }
                                 }
                               }
                             }
@@ -144,15 +199,12 @@ class PlaybackBar extends ConsumerWidget {
           LayoutBuilder(
             builder: (context, constraints) {
               final maxWidth = constraints.maxWidth;
-              final position = ref
-                  .watch(playbackPositionProvider)
-                  .maybeWhen(data: (pos) => pos, orElse: () => Duration.zero);
-              final duration = ref
-                  .watch(playbackDurationProvider)
-                  .maybeWhen(
-                    data: (dur) => dur ?? Duration.zero,
-                    orElse: () => Duration.zero,
-                  );
+              final positionAsync = ref.watch(playbackPositionProvider);
+              final durationAsync = ref.watch(playbackDurationProvider);
+
+              final position = positionAsync.asData?.value ?? Duration.zero;
+              final duration = durationAsync.asData?.value ?? Duration.zero;
+
               double progressFraction = 0;
               if (duration.inMilliseconds > 0) {
                 progressFraction =

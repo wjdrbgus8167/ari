@@ -1,8 +1,11 @@
 // lib/core/services/audio_service.dart
+import 'package:ari/domain/usecases/playback_permission_usecase.dart';
+import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/providers/playback/playback_state_provider.dart';
 import 'package:ari/domain/entities/track.dart';
+import 'package:ari/presentation/widgets/common/custom_toast.dart';
 
 class AudioService {
   // 오디오 플레이어 인스턴스
@@ -24,6 +27,20 @@ class AudioService {
     _initializePlayer();
   }
 
+  Future<void> playSingleTrackWithPermission(WidgetRef ref, Track track) async {
+    final permissionUsecase = ref.read(playbackPermissionUsecaseProvider);
+    final permissionResult = await permissionUsecase.check(
+      track.albumId,
+      track.trackId,
+    );
+
+    if (permissionResult.isError) {
+      throw Exception(permissionResult.message);
+    }
+
+    await _playSingleTrack(ref, track); // 내부 진짜 재생 로직 호출
+  }
+
   void _initializePlayer() {
     // 트랙이 끝났을 때 자동 다음곡 재생
     audioPlayer.playerStateStream.listen((state) async {
@@ -35,7 +52,7 @@ class AudioService {
   }
 
   // 단일 트랙 재생 (예: 처음 재생)
-  Future<void> playSingleTrack(WidgetRef ref, Track track) async {
+  Future<void> _playSingleTrack(WidgetRef ref, Track track) async {
     final source = AudioSource.uri(Uri.parse(track.trackFileUrl ?? ''));
     await audioPlayer.setAudioSource(source);
     await audioPlayer.play();
@@ -97,6 +114,7 @@ class AudioService {
 
   // 선택된 트랙부터 큐 끝까지 재생 (차트, 플레이리스트 전용)
   Future<void> playFromQueueSubset(
+    BuildContext context, // ✅ context 인자 추가
     WidgetRef ref,
     List<Track> fullQueue,
     Track selectedTrack,
@@ -106,6 +124,11 @@ class AudioService {
         selectedTrack.trackFileUrl!.isEmpty) {
       throw Exception('❌ 선택된 트랙에 유효한 URL이 없습니다.');
     }
+    if (fullQueue.isEmpty) {
+      // 사용자에게 토스트 또는 SnackBar로 안내
+      context.showToast('재생할 트랙이 없습니다.'); // 커스텀 토스트 함수 예시
+      return;
+    }
 
     for (final track in fullQueue) {
       _playlistSource.add(AudioSource.uri(Uri.parse(track.trackFileUrl ?? '')));
@@ -114,6 +137,10 @@ class AudioService {
     final initialIndex = fullQueue.indexWhere(
       (t) => t.trackId == selectedTrack.trackId,
     );
+    if (initialIndex == -1) {
+      context.showToast('선택한 트랙이 재생목록에 없습니다.');
+      return;
+    }
 
     await audioPlayer.setAudioSource(
       _playlistSource,

@@ -3,7 +3,16 @@ import 'package:ari/data/models/track.dart';
 
 /// 사용자별 재생목록을 저장하는 Box를 엽니다.
 Future<Box<Track>> openListeningQueueBox(String userId) async {
-  return await Hive.openBox<Track>('listening_queue_$userId');
+  final boxName = 'listening_queue_$userId';
+
+  // // ❗ 기존 박스를 삭제(개발용 코드)
+  // if (await Hive.boxExists(boxName)) {
+  //   print('[DEBUG] 기존 박스 삭제: $boxName');
+  //   await Hive.deleteBoxFromDisk(boxName);
+  // }
+
+  // ✅ 새로운 박스 열기
+  return await Hive.openBox<Track>(boxName);
 }
 
 /// 사용자별 재생목록을 불러오는 함수
@@ -17,9 +26,9 @@ Future<List<Track>> loadListeningQueue(String userId) async {
 Future<void> saveListeningQueue(String userId, List<Track> tracks) async {
   final box = await openListeningQueueBox(userId);
   await box.clear();
-  // 순서를 유지하면서 저장합니다.
+
   for (var track in tracks) {
-    await box.add(track);
+    await box.add(track.clone()); // ✅ clone으로 새 인스턴스 저장
   }
 }
 
@@ -27,21 +36,16 @@ Future<void> saveListeningQueue(String userId, List<Track> tracks) async {
 /// (중복된 트랙도 쌓이도록 하며, 외부에서 재생 시 새 트랙이 최상단에 오도록 합니다.)
 Future<void> addTrackToListeningQueue(String userId, Track track) async {
   final box = await openListeningQueueBox(userId);
-  // 디버깅: 추가 전 현재 재생목록 길이 출력
   print('[DEBUG] addTrackToListeningQueue: 추가 전 재생목록 길이: ${box.values.length}');
 
-  // 현재 큐에 있는 트랙들을 모두 가져옵니다.
   final currentTracks = box.values.toList();
-  // 새 트랙을 최상단에 추가하기 위해 새 목록 생성
-  final newTracks = [track, ...currentTracks];
+  final newTracks = [track.clone(), ...currentTracks]; // ✅ 새 인스턴스로 삽입
 
-  // 박스의 기존 내용을 모두 지우고 새 목록을 저장
   await box.clear();
   for (var t in newTracks) {
-    await box.add(t);
+    await box.add(t.clone()); // ✅ 각각 clone해서 안전하게 저장
   }
 
-  // 디버깅: 추가 후 재생목록 길이 출력
   print('[DEBUG] addTrackToListeningQueue: 추가 후 재생목록 길이: ${box.values.length}');
 }
 

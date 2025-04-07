@@ -1,9 +1,14 @@
-import 'package:ari/data/mappers/track_mapper.dart';
+import 'package:ari/presentation/routes/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ari/data/models/track.dart' as ari;
+
+import 'package:ari/providers/global_providers.dart';
+
 import 'package:ari/core/services/audio_service.dart';
-import 'package:ari/providers/global_providers.dart'; // listeningQueueProvider, audioServiceProvider 등
+import 'package:ari/core/utils/safe_to_domain_track.dart';
+
+import 'package:ari/data/mappers/track_mapper.dart';
+import 'package:ari/data/models/track.dart' as ari;
 
 class HotChartList extends StatefulWidget {
   final List<ari.Track> tracks;
@@ -93,20 +98,29 @@ class _ChartItem extends ConsumerWidget {
           // 앨범 커버 컨테이너
           Padding(
             padding: const EdgeInsets.only(left: 8),
-            child: Container(
-              width: 50,
-              height: 50,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: Image.network(
-                  track.coverUrl ?? 'assets/images/default_album_cover.png',
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Image.asset(
-                      'assets/images/default_album_cover.png',
-                      fit: BoxFit.cover,
-                    );
-                  },
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.album,
+                  arguments: {'albumId': track.albumId},
+                );
+              },
+              child: Container(
+                width: 50,
+                height: 50,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: Image.network(
+                    track.coverUrl ?? 'assets/images/default_album_cover.png',
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Image.asset(
+                        'assets/images/default_album_cover.png',
+                        fit: BoxFit.cover,
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
@@ -168,11 +182,12 @@ class _ChartItem extends ConsumerWidget {
                     ref
                         .read(listeningQueueProvider)
                         .playlist
-                        .map((e) => (e.track as ari.Track).toDomainTrack())
+                        .map((e) => safeToDomainTrack(e.track))
                         .toList();
 
                 // 3. 선택된 트랙도 변환하여 재생
                 await audioService.playFromQueueSubset(
+                  context,
                   ref,
                   fullQueue,
                   track.toDomainTrack(),
