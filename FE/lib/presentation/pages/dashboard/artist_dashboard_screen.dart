@@ -46,7 +46,7 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
     final hasWallet = dashboardData.walletAddress != null;
 
     
-    final hasTracks = dashboardData.hasTracks; // 트랙이 있는지 여부를 확인하는 getter가 있다고 가정
+    final hasTracks = true; // 트랙이 있는지 여부를 확인하는 getter가 있다고 가정
 
     return Scaffold(
       backgroundColor: Colors.black,

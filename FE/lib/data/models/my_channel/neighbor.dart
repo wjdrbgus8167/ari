@@ -4,12 +4,16 @@ class Neighbor {
   final String memberName;
   final String profileImageUrl;
   final int followerCount;
+  final int subscriberCount;
+  final bool subscribeYn;
 
   Neighbor({
     required this.memberId,
     required this.memberName,
     required this.profileImageUrl,
     required this.followerCount,
+    this.subscriberCount = 0,
+    this.subscribeYn = false,
   });
 
   factory Neighbor.fromJson(Map<String, dynamic> json) {
@@ -18,6 +22,8 @@ class Neighbor {
       memberName: json['memberName'] ?? '',
       profileImageUrl: json['profileImageUrl'] ?? '',
       followerCount: json['followerCount'] ?? 0,
+      subscriberCount: json['subscriberCount'] ?? 0,
+      subscribeYn: json['subscribeYn'] ?? false,
     );
   }
 }
