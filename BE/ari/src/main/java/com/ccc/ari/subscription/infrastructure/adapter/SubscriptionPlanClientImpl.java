@@ -6,8 +6,8 @@ import com.ccc.ari.subscription.domain.repository.SubscriptionPlanRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Optional;
+
 
 @Component
 @RequiredArgsConstructor
@@ -15,15 +15,13 @@ public class SubscriptionPlanClientImpl implements SubscriptionPlanClient {
 
     private final SubscriptionPlanRepository subscriptionPlanRepository;
 
-
     @Override
     public SubscriptionPlan getSubscriptionPlan(Integer subscriptionPlanId) {
         return subscriptionPlanRepository.findSubscriptionPlanBySubscriptionPlanId(subscriptionPlanId);
     }
 
     @Override
-    public SubscriptionPlan getSubscriptionPlanByArtistId(Integer artistId) {
-        return subscriptionPlanRepository.findSubscriptionPlanByArtistId(artistId).orElse(null);
+    public Optional<SubscriptionPlan> getSubscriptionPlanByArtistId(Integer artistId) {
+        return subscriptionPlanRepository.findSubscriptionPlanByArtistId(artistId);
     }
-
 }

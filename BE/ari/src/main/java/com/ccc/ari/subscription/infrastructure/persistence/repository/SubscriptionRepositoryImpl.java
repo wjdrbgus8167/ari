@@ -1,7 +1,5 @@
 package com.ccc.ari.subscription.infrastructure.persistence.repository;
 
-import com.ccc.ari.global.error.ApiException;
-import com.ccc.ari.global.error.ErrorCode;
 import com.ccc.ari.subscription.domain.Subscription;
 import com.ccc.ari.subscription.domain.repository.SubscriptionRepository;
 import com.ccc.ari.subscription.infrastructure.persistence.entity.SubscriptionEntity;
@@ -80,6 +78,11 @@ public class SubscriptionRepositoryImpl implements SubscriptionRepository {
                 .map(subscriptionEntities -> subscriptionEntities.stream()
                         .map(SubscriptionEntity::toModel)
                         .toList());
+    }
+
+    @Override
+    public Integer countBySubscriptionPlanIdAndActivateYnIsTrue(Integer subscriptionPlanId) {
+        return subscriptionJpaRepository.countBySubscriptionPlanIdAndActivateYnIsTrue(subscriptionPlanId);
     }
 
     @Override

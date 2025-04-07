@@ -70,10 +70,11 @@ public class StreamingCountClient {
                 .build();
     }
 
-    public GetListenerAggregationResponse getListenerAggregation(Integer artistId,
+    public GetListenerAggregationResponse getListenerAggregation(Integer subscriptionId,
                                                                  LocalDateTime startTime, LocalDateTime endTime) {
         // 아티스트의 모든 스트리밍 로그 조회
-        List<StreamingLog> streamingLogs = streamingLogQueryService.findStreamingLogByArtistId(artistId);
+        List<StreamingLog> streamingLogs =
+                streamingLogQueryService.findStreamingLogByUserIdAndPeriod(subscriptionId, startTime, endTime);
 
         // 주어진 기간에 해당하는 로그만 필터링
         Map<Integer, Long> artistCounts = streamingLogs.stream()

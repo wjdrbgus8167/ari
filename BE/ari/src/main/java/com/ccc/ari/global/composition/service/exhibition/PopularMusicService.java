@@ -85,6 +85,7 @@ public class PopularMusicService {
             trackItems.add(PopularAlbumResponse.TrackItem.builder()
                     .trackId(track.getTrackId())
                     .trackTitle(track.getTitle())
+                    .trackFileUrl(track.getTrackFileUrl())
                     .build());
         }
 
@@ -130,6 +131,7 @@ public class PopularMusicService {
                 .trackTitle(trackDto.getTitle())
                 .artist(artistName)
                 .coverImageUrl(albumDto.getCoverImageUrl())
+                .trackFileUrl(trackDto.getTrackFileUrl())
                 .build();
     }
 }

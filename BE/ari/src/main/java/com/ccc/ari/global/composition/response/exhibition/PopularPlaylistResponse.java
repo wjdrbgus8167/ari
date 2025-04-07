@@ -29,5 +29,6 @@ public class PopularPlaylistResponse {
         private String trackTitle;
         private String trackCoverImageUrl;
         private String artistName;
+        private String trackFileUrl;
     }
 }

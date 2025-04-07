@@ -72,6 +72,7 @@ public class PopularPlaylistService {
                         .trackTitle(trackDto.getTitle())
                         .trackCoverImageUrl(albumDto.getCoverImageUrl())
                         .artistName(artistName)
+                        .trackFileUrl(trackDto.getTrackFileUrl())
                         .build());
             }
 

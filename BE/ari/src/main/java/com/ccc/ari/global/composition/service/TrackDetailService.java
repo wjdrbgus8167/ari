@@ -55,6 +55,7 @@ public class TrackDetailService {
                 .trackTitle(track.getTitle())
                 .albumTitle(album.getTitle())
                 .artist(member.getNickname())
+                .artistId(album.getMemberId())
                 .composer(track.getComposer())
                 .lyricist(track.getLyricist())
                 .lyric(track.getLyrics())

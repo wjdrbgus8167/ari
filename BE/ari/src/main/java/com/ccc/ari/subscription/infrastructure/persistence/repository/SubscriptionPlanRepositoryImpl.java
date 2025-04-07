@@ -5,7 +5,6 @@ import com.ccc.ari.global.error.ErrorCode;
 import com.ccc.ari.subscription.domain.SubscriptionPlan;
 import com.ccc.ari.subscription.domain.repository.SubscriptionPlanRepository;
 import com.ccc.ari.global.type.PlanType;
-import com.ccc.ari.subscription.infrastructure.persistence.entity.SubscriptionEntity;
 import com.ccc.ari.subscription.infrastructure.persistence.entity.SubscriptionPlanEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -19,8 +18,8 @@ public class SubscriptionPlanRepositoryImpl implements SubscriptionPlanRepositor
     private final SubscriptionPlanJpaRepository subscriptionPlanJpaRepository;
 
     @Override
-    public void save(SubscriptionPlan subscriptionPlan) {
-        subscriptionPlanJpaRepository.save(SubscriptionPlanEntity.from(subscriptionPlan));
+    public SubscriptionPlan save(SubscriptionPlan subscriptionPlan) {
+        return subscriptionPlanJpaRepository.save(SubscriptionPlanEntity.fromNew(subscriptionPlan)).toModel();
     }
 
     @Override

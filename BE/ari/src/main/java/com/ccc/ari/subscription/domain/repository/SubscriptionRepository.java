@@ -29,6 +29,8 @@ public interface SubscriptionRepository {
      */
     Optional<List<Subscription>> findListByMemberIdAndSubscriptionPlanId(Integer memberId, Integer subscriptionPlanId);
 
+    Integer countBySubscriptionPlanIdAndActivateYnIsTrue(Integer subscriptionPlanId);
+
     /**
      *  구독 플랜 Id로 활성화되어 있는 구독 목록 조회
      */

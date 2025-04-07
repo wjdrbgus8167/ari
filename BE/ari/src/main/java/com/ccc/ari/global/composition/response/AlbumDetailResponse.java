@@ -19,6 +19,7 @@ public class AlbumDetailResponse {
     private final Integer albumId;
     private final String albumTitle;
     private final String artist;
+    private final Integer artistId;
     private final String description;
     private final String genreName;
     private final String coverImageUrl;
