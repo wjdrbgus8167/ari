@@ -39,8 +39,7 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
       'currentQueueItemId=${playbackState.currentQueueItemId}',
     );
 
-    return GlobalBottomWidget(
-      child: Container(
+    return Container(
         color: Colors.black,
         child: Column(
           children: [
@@ -208,7 +207,6 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
             ),
           ],
         ),
-      ),
     );
   }
 }

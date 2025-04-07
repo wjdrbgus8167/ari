@@ -107,6 +107,14 @@ class _NeighborsSectionState extends ConsumerState<NeighborsSection> {
           _scrollController.jumpTo(0);
         }
       });
+
+      // 데이터 다시 로드 - 탭 전환 시 항상 새로고침
+      final notifier = ref.read(myChannelProvider.notifier);
+      if (tab == NeighborTab.followers) {
+        notifier.loadFollowers(widget.memberId);
+      } else {
+        notifier.loadFollowings(widget.memberId);
+      }
     }
   }
 

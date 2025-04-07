@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/my_channel/my_channel_providers.dart';
 import '../../../data/models/my_channel/channel_info.dart';
 import '../../viewmodels/my_channel/my_channel_viewmodel.dart';
-import 'followers_management_widget.dart';
+import '../../routes/app_router.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../widgets/my_channel/followers_management_widget.dart';
 
 /// 나의 채널 프로필 헤더 위젯
-/// 사용자 이름, 프로필 이미지, 팔로우 버튼 등
+/// 사용자 프로필 이미지(배경), 이름, 구독자 수, 팔로우 버튼 등
 class ProfileHeader extends ConsumerWidget {
   final String memberId;
   final bool isMyProfile; // 내 프로필인지
@@ -26,38 +28,41 @@ class ProfileHeader extends ConsumerWidget {
     final channelNotifier = ref.read(myChannelProvider.notifier);
     final channelInfo = channelState.channelInfo;
     final isLoading = channelState.channelInfoStatus == MyChannelStatus.loading;
+    final hasError = channelState.channelInfoStatus == MyChannelStatus.error;
 
-    // 스크롤 위치에 따른 헤더 크기 조정
-    final scrollOffset =
-        scrollController.hasClients
-            ? scrollController.offset.clamp(0, 100)
-            : 0.0;
-    final shrinkPercentage = scrollOffset / 100;
+    // 고정 높이
+    const double headerHeight = 300;
 
-    // 프로필 이미지 크기 조정 (스크롤에 따라 축소)
-    final profileSize = 100 - (30 * shrinkPercentage);
-
-    // 헤더 높이 조정 (스크롤에 따라 축소)
-    final headerHeight = 220 - (50 * shrinkPercentage);
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 100),
+    return Container(
       height: headerHeight,
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.black,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.blue.withValues(alpha: 0.2),
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
+      color: Colors.black,
       child:
           isLoading
               ? const Center(
-                child: CircularProgressIndicator(color: Colors.blue),
+                child: CircularProgressIndicator(color: AppColors.mediumGreen),
+              )
+              : hasError
+              ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      '채널 정보를 불러올 수 없습니다.',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    const SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed:
+                          () => channelNotifier.loadChannelInfo(memberId),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.mediumGreen,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text('다시 시도'),
+                    ),
+                  ],
+                ),
               )
               : (channelInfo == null
                   ? const Center(
@@ -66,92 +71,140 @@ class ProfileHeader extends ConsumerWidget {
                       style: TextStyle(color: Colors.white),
                     ),
                   )
-                  : _buildProfileContent(
-                    context,
-                    channelInfo,
-                    channelNotifier,
-                    profileSize,
-                  )),
+                  : _buildProfileContent(context, channelInfo, ref)),
     );
   }
 
-  /// 프로필 콘텐츠 구성 (프로필 이미지, 이름, 팔로우 버튼 등)
+  /// 프로필 콘텐츠 구성 (프로필 이미지 배경, 이름, 구독자 수, 팔로우 버튼 등)
   Widget _buildProfileContent(
     BuildContext context,
     ChannelInfo channelInfo,
-    MyChannelNotifier channelNotifier,
-    double profileSize,
+    WidgetRef ref,
   ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Stack(
+      children: [
+        // 프로필 이미지 배경 (전체 영역 차지)
+        if (channelInfo.profileImageUrl != null &&
+            channelInfo.profileImageUrl!.isNotEmpty)
+          Positioned.fill(
+            child: Image.network(
+              channelInfo.profileImageUrl!,
+              fit: BoxFit.cover,
+            ),
+          )
+        else
+          Positioned.fill(
+            child: Container(
+              color: Colors.grey[900],
+              child: const Center(
+                child: Icon(Icons.person, color: Colors.white54, size: 100),
+              ),
+            ),
+          ),
+
+        // 이미지 위에 그라데이션 오버레이
+        Positioned.fill(
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.black.withValues(alpha: 0.7),
+                  Colors.black,
+                ],
+                stops: const [0.4, 0.8, 1.0],
+              ),
+            ),
+          ),
+        ),
+
+        // 내용 배치 - 하단부 위주
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 프로필 이미지
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 100),
-                width: profileSize,
-                height: profileSize,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.blue, width: 2),
-                  image: DecorationImage(
-                    image: NetworkImage(channelInfo.profileImageUrl),
-                    fit: BoxFit.cover,
+              // "MY PAGE >" 텍스트 (내 프로필인 경우만)
+              if (isMyProfile)
+                Padding(
+                  padding: const EdgeInsets.only(left: 24, bottom: 8),
+                  child: GestureDetector(
+                    onTap: () {
+                      // 마이페이지로 이동
+                      AppRouter.navigateTo(context, ref, AppRoutes.myPage);
+                    },
+                    child: Row(
+                      children: [
+                        Text(
+                          'MY PAGE',
+                          style: TextStyle(
+                            color: Colors.grey[300],
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Icon(
+                          Icons.chevron_right,
+                          color: Colors.grey[300],
+                          size: 18,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                child:
-                    channelInfo.profileImageUrl.isEmpty
-                        ? Icon(
-                          Icons.person,
-                          color: Colors.white,
-                          size: profileSize * 0.6,
-                        )
-                        : null,
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+
+              // 채널명
+              Padding(
+                padding: const EdgeInsets.only(left: 24, right: 24),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // 채널명
+                    // 왼쪽 - 채널명
                     Text(
                       channelInfo.memberName,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 24,
+                        fontSize: 40,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 5),
-                    // 구독자 수
-                    Text(
-                      '${channelInfo.subscriberCount}명 구독중',
-                      style: TextStyle(color: Colors.grey[400], fontSize: 14),
-                    ),
-                    const SizedBox(height: 10),
-                    // 팔로우 버튼 (자신의 프로필이 아닌 경우에만 표시)
-                    if (!isMyProfile) _buildFollowButton(channelInfo),
+
+                    // 오른쪽 - 팔로우 버튼 (자신의 프로필이 아닌 경우에만)
+                    if (!isMyProfile) _buildFollowButton(channelInfo, ref),
                   ],
                 ),
               ),
+
+              // 구독자 수 (있는 경우만)
+              if (channelInfo.subscriberCount > 0)
+                Padding(
+                  padding: const EdgeInsets.only(left: 24, bottom: 24, top: 8),
+                  child: Text(
+                    '${channelInfo.subscriberCount}명 구독중',
+                    style: TextStyle(color: Colors.grey[400], fontSize: 16),
+                  ),
+                )
+              else
+                // 하단 여백
+                const SizedBox(height: 24),
             ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  /// 팔로우/언팔로우 버튼 - FollowersManagementWidget 사용
-  Widget _buildFollowButton(ChannelInfo channelInfo) {
+  /// 팔로우/언팔로우 버튼
+  Widget _buildFollowButton(ChannelInfo channelInfo, WidgetRef ref) {
     return FollowersManagementWidget(
-      targetMemberId: memberId,
+      targetMemberId: channelInfo.memberId,
       isFollowing: channelInfo.isFollowed,
-      followId: channelInfo.followId, // ChannelInfo 모델에 followId 필드 추가 필요
       onFollowChanged: () {
-        // 팔로우 상태 변경 후 필요한 작업 (선택임 이건)
+        // 팔로우 상태 변경 후 필요한 작업 (선택적)
         print('팔로우 상태가 변경되었습니다: ${channelInfo.memberName}');
       },
     );

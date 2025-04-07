@@ -3,36 +3,56 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/my_channel/my_channel_providers.dart';
 import '../../../providers/user_provider.dart';
 import '../../../presentation/viewmodels/my_channel/my_channel_viewmodel.dart';
+import '../../../core/constants/app_colors.dart';
 
 /// 팔로우/언팔로우 관리
 /// 프로필 헤더 등에 표시되는 팔로우 버튼과 관련 기능 처리
-class FollowersManagementWidget extends ConsumerWidget {
+class FollowersManagementWidget extends ConsumerStatefulWidget {
   final String targetMemberId; // 팔로우/언팔로우 대상 사용자 ID
   final bool isFollowing; // 현재 팔로우 중인지 여부
-  final String? followId; // 팔로우 관계 ID (언팔로우 시 필요)
   final VoidCallback? onFollowChanged; // 팔로우 변경 후 콜백
 
-  /// [targetMemberId] : 팔로우/언팔로우 대상 사용자 ID
-  /// [isFollowing] : 현재 팔로우 중인지 여부
-  /// [followId] : 팔로우 관계 ID (언팔로우 시 필요)
-  /// [onFollowChanged] : 팔로우 변경 후 콜백
   const FollowersManagementWidget({
     super.key,
     required this.targetMemberId,
     required this.isFollowing,
-    this.followId,
     this.onFollowChanged,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // 나의 ID 확인 (본인 채널이면 팔로우 버튼 표시 안 함)
-    final myUserId = ref.watch(userIdProvider);
-    final isMySelf = myUserId == targetMemberId;
+  ConsumerState<FollowersManagementWidget> createState() =>
+      _FollowersManagementWidgetState();
+}
 
-    // 로딩 상태 감지
-    final channelState = ref.watch(myChannelProvider);
-    final isChannelInfoLoading = channelState.channelInfoStatus == MyChannelStatus.loading;
+class _FollowersManagementWidgetState
+    extends ConsumerState<FollowersManagementWidget> {
+  // 로컬 상태
+  late bool _isFollowing;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // 초기 팔로우 상태
+    _isFollowing = widget.isFollowing;
+  }
+
+  @override
+  void didUpdateWidget(FollowersManagementWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 외부에서 isFollowing이 변경되면 로컬 상태 업데이트
+    if (oldWidget.isFollowing != widget.isFollowing && !_isLoading) {
+      setState(() {
+        _isFollowing = widget.isFollowing;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // 나의 ID 확인 (본인 채널이면 팔로우 버튼 표시 안 함)
+    final myUserId = ref.read(userIdProvider);
+    final isMySelf = myUserId == widget.targetMemberId;
 
     // 본인 채널이면 버튼 표시 안 함
     if (isMySelf) {
@@ -40,56 +60,72 @@ class FollowersManagementWidget extends ConsumerWidget {
     }
 
     return ElevatedButton(
-      onPressed: isChannelInfoLoading
-          ? null // 로딩 중이면 버튼 비활성화
-          : () => _handleFollowAction(ref),
+      onPressed: _isLoading ? null : _handleFollowAction,
       style: ElevatedButton.styleFrom(
-        backgroundColor: isFollowing ? Colors.grey[800] : Colors.blue,
+        backgroundColor:
+            _isFollowing ? Colors.grey[800] : AppColors.mediumPurple,
         foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
-      child: isChannelInfoLoading
-          ? const SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(
-                color: Colors.white,
-                strokeWidth: 2,
+      child:
+          _isLoading
+              ? const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+              )
+              : Text(
+                _isFollowing ? '팔로잉' : '팔로우',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            )
-          : Text(
-              isFollowing ? '팔로잉' : '팔로우',
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
     );
   }
 
   /// 팔로우/언팔로우 처리
-  Future<void> _handleFollowAction(WidgetRef ref) async {
+  Future<void> _handleFollowAction() async {
     final channelNotifier = ref.read(myChannelProvider.notifier);
 
-    if (isFollowing) {
-      // 이미 팔로우 중이면 언팔로우
-      if (followId != null) {
-        await channelNotifier.unfollowMember(followId!, targetMemberId);
-      } else {
-        // followId가 없으면 오류 (UI에서는 발생하지 않도록 처리)
-        debugPrint('언팔로우 시도 중 오류: followId가 null입니다.');
-      }
-    } else {
-      // 언팔로우 중이면 팔로우
-      await channelNotifier.followMember(targetMemberId);
-    }
+    // 로딩 상태 시작
+    setState(() {
+      _isLoading = true;
+    });
 
-    // 팔로우 변경 후 콜백 호출
-    if (onFollowChanged != null) {
-      onFollowChanged!();
+    try {
+      bool success;
+
+      if (_isFollowing) {
+        // 이미 팔로우 중이면 언팔로우
+        success = await channelNotifier.unfollowMember(widget.targetMemberId);
+      } else {
+        // 언팔로우 중이면 팔로우
+        success = await channelNotifier.followMember(widget.targetMemberId);
+      }
+
+      // 성공하면 로컬 상태 업데이트 (실패 시 viewModel에서 원래 상태로 복원)
+      if (success) {
+        setState(() {
+          _isFollowing = !_isFollowing;
+        });
+
+        // 팔로우 변경 후 콜백 호출
+        if (widget.onFollowChanged != null) {
+          widget.onFollowChanged!();
+        }
+      }
+    } finally {
+      // 작업 완료 후 로딩 상태 종료
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 }

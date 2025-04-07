@@ -165,28 +165,88 @@ class MyChannelNotifier extends StateNotifier<MyChannelState> {
     );
   }
 
-  /// 회원 팔로우
-  Future<void> followMember(String memberId) async {
-    final result = await followMemberUseCase.execute(memberId);
+  // lib/presentation/viewmodels/my_channel/my_channel_viewmodel.dart의 수정 부분
 
-    result.fold((failure) => state = state.copyWith(error: failure), (_) async {
-      // 팔로우 성공 후 채널 정보 다시 로드
-      if (state.channelInfo != null) {
-        await loadChannelInfo(memberId);
-      }
-    });
+  /// 회원 팔로우 - 낙관적 UI 업데이트 포함
+  Future<bool> followMember(String memberId) async {
+    // 현재 채널 정보 저장
+    final currentChannelInfo = state.channelInfo;
+    if (currentChannelInfo == null) return false;
+
+    try {
+      // 1. 낙관적 UI 업데이트 - 즉시 팔로우 상태로 변경
+      state = state.copyWith(
+        channelInfo: currentChannelInfo.copyWith(isFollowed: true),
+      );
+
+      // 2. 실제 API 호출
+      final result = await followMemberUseCase.execute(memberId);
+
+      // 3. 결과 처리
+      return result.fold(
+        (failure) {
+          // API 호출 실패 시 원래 상태로 복원
+          state = state.copyWith(
+            channelInfo: currentChannelInfo,
+            error: failure,
+          );
+          return false;
+        },
+        (_) async {
+          // 성공 시 채널 정보 다시 로드
+          await loadChannelInfo(memberId);
+          return true;
+        },
+      );
+    } catch (e) {
+      // 예외 발생 시 원래 상태로 복원
+      state = state.copyWith(
+        channelInfo: currentChannelInfo,
+        error: e is Failure ? e : Failure(message: e.toString()),
+      );
+      return false;
+    }
   }
 
-  /// 회원 언팔로우
-  Future<void> unfollowMember(String followId, String memberId) async {
-    final result = await unfollowMemberUseCase.execute(followId);
+  /// 회원 언팔로우 - 낙관적 UI 업데이트 포함
+  Future<bool> unfollowMember(String memberId) async {
+    // 현재 채널 정보 저장
+    final currentChannelInfo = state.channelInfo;
+    if (currentChannelInfo == null) return false;
 
-    result.fold((failure) => state = state.copyWith(error: failure), (_) async {
-      // 언팔로우 성공 후 채널 정보 다시 로드
-      if (state.channelInfo != null) {
-        await loadChannelInfo(memberId);
-      }
-    });
+    try {
+      // 1. 낙관적 UI 업데이트 - 즉시 언팔로우 상태로 변경
+      state = state.copyWith(
+        channelInfo: currentChannelInfo.copyWith(isFollowed: false),
+      );
+
+      // 2. 실제 API 호출
+      final result = await unfollowMemberUseCase.execute(memberId);
+
+      // 3. 결과 처리
+      return result.fold(
+        (failure) {
+          // API 호출 실패 시 원래 상태로 복원
+          state = state.copyWith(
+            channelInfo: currentChannelInfo,
+            error: failure,
+          );
+          return false;
+        },
+        (_) async {
+          // 성공 시 채널 정보 다시 로드
+          await loadChannelInfo(memberId);
+          return true;
+        },
+      );
+    } catch (e) {
+      // 예외 발생 시 원래 상태로 복원
+      state = state.copyWith(
+        channelInfo: currentChannelInfo,
+        error: e is Failure ? e : Failure(message: e.toString()),
+      );
+      return false;
+    }
   }
 
   /// 아티스트 앨범 목록 로딩
