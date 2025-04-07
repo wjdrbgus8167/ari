@@ -96,14 +96,14 @@ class GenrePage extends ConsumerWidget {
                     constraints: const BoxConstraints(),
                   ),
 
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 2),
 
                   // 그라디언트 적용된 장르 제목
                   ShaderMask(
                     shaderCallback:
                         (bounds) => genreGradient.createShader(bounds),
                     child: Text(
-                      displayGenreName,
+                      '$displayGenreName Page',
                       style: const TextStyle(
                         fontSize: 35,
                         fontWeight: FontWeight.bold,
@@ -315,7 +315,7 @@ class GenrePage extends ConsumerWidget {
         title,
         style: const TextStyle(
           color: Colors.white,
-          fontSize: 30,
+          fontSize: 25,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -341,7 +341,7 @@ class GenrePage extends ConsumerWidget {
                 '차트',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 30,
+                  fontSize: 25,
                   fontWeight: FontWeight.bold,
                 ),
               ),
