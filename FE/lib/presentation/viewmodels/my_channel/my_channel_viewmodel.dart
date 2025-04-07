@@ -165,8 +165,6 @@ class MyChannelNotifier extends StateNotifier<MyChannelState> {
     );
   }
 
-  // lib/presentation/viewmodels/my_channel/my_channel_viewmodel.dart의 수정 부분
-
   /// 회원 팔로우 - 낙관적 UI 업데이트 포함
   Future<bool> followMember(String memberId) async {
     // 현재 채널 정보 저장
