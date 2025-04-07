@@ -271,7 +271,7 @@ class SubscriptionPaymentScreenState extends ConsumerState<SubscriptionPaymentSc
         subscribeResult = await walletService.subscribeToArtist(
           contractAddress: subscriptionContractAddress,
           subscriberId: userId,
-          artistId: widget.artistInfo!.id,
+          artistId: 1, // widget.artistInfo!.id,
           contractAbi: SubscriptionConstants.subscriptionContractAbi,
           onComplete: (subTxHash, subSuccess, subErrorMessage) {
             dev.log("[구독] 정기 구독 완료: 성공=$subSuccess, 해시=$subTxHash, 오류=$subErrorMessage");

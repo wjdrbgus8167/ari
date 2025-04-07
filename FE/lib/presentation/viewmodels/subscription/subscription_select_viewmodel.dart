@@ -42,7 +42,7 @@ class SubscriptionSelectViewModel extends StateNotifier<List<SubscriptionPlan>> 
       title: '무제한 듣기',
       subtitle: '정기 결제',
       description: '아리와 함께 힙한 하루를 보내보세요',
-      price: 0.24,
+      price: 1,
       borderColor: const Color(0xFF2B9FFF),
     ),
     // 아티스트 구독
@@ -51,7 +51,7 @@ class SubscriptionSelectViewModel extends StateNotifier<List<SubscriptionPlan>> 
       title: '아티스트 구독',
       subtitle: '아티스트 정기 결제',
       description: '좋아하는 아티스트와 함께라면 뭐든 할 수 있죠',
-      price: 0.24,
+      price: 1,
       borderColor: const Color(0xFFDE85FC),
     ),
   ]);

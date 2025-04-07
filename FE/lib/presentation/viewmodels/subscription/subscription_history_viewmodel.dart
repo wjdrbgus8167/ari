@@ -85,7 +85,7 @@ class SubscriptionHistoryViewModel extends StateNotifier<SubscriptionHistoryStat
         SubscriptionHistory(
           period: '2025.01.12 ~ 2025.02.11',
           type: 'artist',
-          amount: 0.24,
+          amount: 1,
           streamingCount: 20,
         ),
       ];

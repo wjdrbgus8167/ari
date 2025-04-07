@@ -265,7 +265,7 @@ class RegularSubscriptionView extends ConsumerWidget {
                       Row(
                         children: [
                           Text(
-                            '0.24',
+                            '1',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16,
