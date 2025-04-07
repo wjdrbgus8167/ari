@@ -56,8 +56,18 @@ public class SubscriptionPlanEntity {
                 .build();
     }
 
-    // from 도메인 모델 to 엔터티
-    public static SubscriptionPlanEntity from(SubscriptionPlan subscriptionPlan) {
+    // from 새롭게 생성한 도메인 모델 to 엔터티
+    public static SubscriptionPlanEntity fromNew(SubscriptionPlan subscriptionPlan) {
+        return SubscriptionPlanEntity.builder()
+                .subscriptionPlanId(null)
+                .artistId(subscriptionPlan.getArtistId())
+                .planType(subscriptionPlan.getPlanType())
+                .price(subscriptionPlan.getPrice())
+                .build();
+    }
+
+    // from 존재하던 도메인 모델 to 엔터티
+    public static SubscriptionPlanEntity fromExisting(SubscriptionPlan subscriptionPlan) {
         return SubscriptionPlanEntity.builder()
                 .subscriptionPlanId(subscriptionPlan.getSubscriptionPlanId().getValue())
                 .artistId(subscriptionPlan.getArtistId())

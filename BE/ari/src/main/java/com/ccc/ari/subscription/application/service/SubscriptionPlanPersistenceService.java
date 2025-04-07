@@ -3,7 +3,6 @@ package com.ccc.ari.subscription.application.service;
 import com.ccc.ari.subscription.domain.repository.SubscriptionPlanRepository;
 import com.ccc.ari.subscription.domain.SubscriptionPlan;
 import com.ccc.ari.subscription.domain.service.SubscriptionPlanManageService;
-import com.ccc.ari.subscription.infrastructure.persistence.entity.SubscriptionPlanEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,9 +24,9 @@ public class SubscriptionPlanPersistenceService {
     }
 
     @Transactional
-    public void createArtistSubscriptionPlan(Integer artistId, BigDecimal price) {
-        SubscriptionPlan artistSubscriptionPlan = 
+    public SubscriptionPlan createArtistSubscriptionPlan(Integer artistId, BigDecimal price) {
+        SubscriptionPlan artistSubscriptionPlan =
                 subscriptionPlanManageService.createArtistSubscriptionPlan(artistId, price);
-        subscriptionPlanRepository.save(artistSubscriptionPlan);
+        return subscriptionPlanRepository.save(artistSubscriptionPlan);
     }
 }

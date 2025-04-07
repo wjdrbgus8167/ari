@@ -8,6 +8,7 @@ import com.ccc.ari.subscription.domain.exception.RegularPlanNotFoundException;
 import com.ccc.ari.subscription.domain.repository.SubscriptionPlanRepository;
 import com.ccc.ari.subscription.domain.repository.SubscriptionRepository;
 import com.ccc.ari.subscription.domain.service.SubscriptionCycleService;
+import com.ccc.ari.subscription.event.OnChainArtistPaymentProcessedEvent;
 import com.ccc.ari.subscription.event.OnChainArtistSubscriptionCreatedEvent;
 import com.ccc.ari.subscription.event.OnChainRegularPaymentProcessedEvent;
 import com.ccc.ari.subscription.event.OnChainRegularSubscriptionCreatedEvent;
@@ -109,9 +110,12 @@ public class OffChainSubscriptionCreateService {
                                     subscription.getMemberId(), subscription.getSubscriptionPlanId());
 
                             // 4. 생성한 구독 도메인 객체 저장
-                            subscriptionRepository.save(subscription);
+                            Subscription savedSubscription = subscriptionRepository.save(subscription);
                             logger.info("아티스트 구독 도메인 객체 저장 완료 - Member ID: {}, Plan ID: {}",
                                     subscription.getMemberId(), subscription.getSubscriptionPlanId());
+
+                            // 5. 구독 사이클 시작
+                            subscriptionCycleService.startFirstSubscriptionCycle(savedSubscription);
                         });
     }
 
@@ -135,7 +139,7 @@ public class OffChainSubscriptionCreateService {
     @EventListener
     @Async
     @Transactional
-    public void renewSubscriptionCycle(OnChainArtistSubscriptionCreatedEvent event) {
+    public void renewSubscriptionCycle(OnChainArtistPaymentProcessedEvent event) {
         logger.info("아티스트 구독 결제 완료 이벤트 수신 - Subscriber Id: {}, Artist Id: {}",
                 event.getSubscriberId(), event.getArtistId());
 
