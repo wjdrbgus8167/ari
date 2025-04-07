@@ -5,8 +5,10 @@ import com.ccc.ari.community.domain.follow.client.FollowerDto;
 import com.ccc.ari.community.domain.follow.client.FollowingDto;
 import com.ccc.ari.global.composition.response.community.FollowerListResponse;
 import com.ccc.ari.global.composition.response.community.FollowingListResponse;
+import com.ccc.ari.global.composition.response.community.MyFollowingListResponse;
 import com.ccc.ari.member.domain.client.MemberClient;
 import com.ccc.ari.member.domain.member.MemberDto;
+import com.ccc.ari.settlement.ui.client.WalletClient;
 import com.ccc.ari.subscription.domain.SubscriptionPlan;
 import com.ccc.ari.subscription.domain.client.SubscriptionClient;
 import com.ccc.ari.subscription.domain.client.SubscriptionPlanClient;
@@ -27,8 +29,9 @@ public class FollowListService {
     private final MemberClient memberClient;
     private final SubscriptionPlanClient subscriptionPlanClient;
     private final SubscriptionClient subscriptionClient;
+    private final WalletClient walletClient;
 
-    public FollowingListResponse getFollowingList(Integer memberId, Integer currentMemberId) {
+    public Object getFollowingList(Integer memberId, Integer currentMemberId) {
         // 1. memberId가 팔로우 하는 팔로잉 목록을 조회합니다.
         List<FollowingDto> followings = followClient.getFollowingsByMemberId(memberId);
 
@@ -52,10 +55,11 @@ public class FollowListService {
         }
 
         // 6. 자신의 팔로잉 목록 조회인 경우에만 구독 정보를 추가합니다.
-        Map<Integer, Integer> subscriberCountMap = new HashMap<>();
-        Map<Integer, Boolean> subscribedYnMap = new HashMap<>();
-
         if (memberId.equals(currentMemberId)) {
+            Map<Integer, Integer> subscriberCountMap = new HashMap<>();
+            Map<Integer, Boolean> subscribedYnMap = new HashMap<>();
+            Map<Integer, Boolean> artistYnMap = new HashMap<>();
+
             for (Integer followingId : followingMemberIds) {
                 Optional<SubscriptionPlan> artistPlan = subscriptionPlanClient.getSubscriptionPlanByArtistId(followingId);
 
@@ -70,13 +74,16 @@ public class FollowListService {
                     subscriberCountMap.put(followingId, 0);
                     subscribedYnMap.put(followingId, false);
                 }
-            }
-        }
 
-        // 6. 응답 객체를 구성합니다.
-        if (memberId.equals(currentMemberId)) {
-            return FollowingListResponse.fromWithSubscription(followings, followingCount, followerCountMap, memberInfoMap,
-                subscriberCountMap, subscribedYnMap);
+                if (walletClient.getWalletByArtistId(followingId) != null) {
+                    artistYnMap.put(followingId, true);
+                } else {
+                    artistYnMap.put(followingId, false);
+                }
+            }
+
+            return MyFollowingListResponse.from(followings, followingCount, followerCountMap, memberInfoMap,
+                    subscriberCountMap, subscribedYnMap, artistYnMap);
         } else {
             return FollowingListResponse.from(followings, followingCount, followerCountMap, memberInfoMap);
         }

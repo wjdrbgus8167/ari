@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 팔로잉 목록 조회 응답 DTO
+ * 다른 사용자의 팔로잉 목록 조회
  */
 @Getter
 @Builder
@@ -22,45 +22,15 @@ public class FollowingListResponse {
                                              Map<Integer, Integer> followerCountMap, Map<Integer, MemberDto> memberInfoMap) {
         List<FollowingMember> followingMembers = followings.stream()
                 .map(following -> {
-                        Integer followingId = following.getFollowingId();
-                        int followerCount = followerCountMap.getOrDefault(followingId, 0);
-                    MemberDto memberInfo = memberInfoMap.get(followingId);
-
-                        return FollowingMember.builder()
-                            .memberId(following.getFollowingId())
-                            .memberName(memberInfo.getNickname())
-                            .profileImageUrl(memberInfo.getProfileImageUrl())
-                            .followerCount(followerCount)
-                            .build();
-                })
-                .toList();
-
-        return FollowingListResponse.builder()
-                .followings(followingMembers)
-                .followingCount(followingCount)
-                .build();
-    }
-
-    public static FollowingListResponse fromWithSubscription(List<FollowingDto> followings, Integer followingCount,
-                                                             Map<Integer, Integer> followerCountMap,
-                                                             Map<Integer, MemberDto> memberInfoMap,
-                                                             Map<Integer, Integer> subscriberCountMap,
-                                                             Map<Integer, Boolean> subscribedYnMap) {
-        List<FollowingMember> followingMembers = followings.stream()
-                .map(following -> {
                     Integer followingId = following.getFollowingId();
                     int followerCount = followerCountMap.getOrDefault(followingId, 0);
                     MemberDto memberInfo = memberInfoMap.get(followingId);
-                    Integer subscriberCount = subscriberCountMap.getOrDefault(followingId, 0);
-                    Boolean subscribedYn = subscribedYnMap.getOrDefault(followingId, false);
 
                     return FollowingMember.builder()
                             .memberId(followingId)
                             .memberName(memberInfo.getNickname())
                             .profileImageUrl(memberInfo.getProfileImageUrl())
                             .followerCount(followerCount)
-                            .subscriberCount(subscriberCount)
-                            .subscribedYn(subscribedYn)
                             .build();
                 })
                 .toList();
@@ -78,7 +48,5 @@ public class FollowingListResponse {
         private String memberName;
         private String profileImageUrl;
         private Integer followerCount;
-        private Integer subscriberCount;
-        private Boolean subscribedYn;
     }
 }
