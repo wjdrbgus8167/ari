@@ -112,14 +112,22 @@ class _ExpandedPlaybackScreenState
                               .read(playbackProvider.notifier)
                               .updatePlaybackState(false);
                         } else {
-                          await playbackService.playTrack(
-                            albumId: 1,
-                            trackId: 2,
-                            ref: ref,
-                          );
-                          ref
-                              .read(playbackProvider.notifier)
-                              .updatePlaybackState(true);
+                          final albumId = playbackState.albumId;
+                          final trackId = playbackState.currentTrackId;
+
+                          if (albumId != null && trackId != null) {
+                            await playbackService.playTrack(
+                              albumId: albumId,
+                              trackId: trackId,
+                              ref: ref,
+                            );
+                            ref
+                                .read(playbackProvider.notifier)
+                                .updatePlaybackState(true);
+                          } else {
+                            // 재생할 트랙 정보가 없을 때의 fallback 처리
+                            debugPrint("❗앨범 ID 또는 트랙 ID가 없습니다.");
+                          }
                         }
                       },
                     ),

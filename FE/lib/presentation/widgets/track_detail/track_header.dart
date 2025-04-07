@@ -1,7 +1,13 @@
-import 'package:ari/presentation/widgets/streaming_log_modal.dart';
+import 'package:ari/data/mappers/track_mapper.dart';
+import 'package:ari/data/models/track.dart' as data;
+import 'package:ari/core/services/audio_service.dart';
+import 'package:ari/providers/global_providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ari/presentation/widgets/streaming_log_modal.dart';
+import 'package:ari/core/utils/safe_to_domain_track.dart';
 
-class TrackHeader extends StatelessWidget {
+class TrackHeader extends ConsumerWidget {
   final int albumId;
   final String albumName;
   final String trackTitle;
@@ -12,6 +18,7 @@ class TrackHeader extends StatelessWidget {
   final String albumImageUrl;
   final String artistImageUrl;
   final int trackId;
+  final String trackFileUrl;
 
   const TrackHeader({
     Key? key,
@@ -25,12 +32,11 @@ class TrackHeader extends StatelessWidget {
     required this.albumImageUrl,
     required this.artistImageUrl,
     required this.trackId,
+    required this.trackFileUrl,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    print('앨범이미지url : $albumImageUrl');
-    
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       width: double.infinity,
       clipBehavior: Clip.antiAlias,
@@ -44,48 +50,100 @@ class TrackHeader extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 3),
-                  // 앨범명
-                  Row(children: [
-                    Text(
-                      albumName,
-                      style: const TextStyle(
-                        color: Color(0xFF9D9D9D),
-                        fontSize: 12,
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w400,
+                  Row(
+                    children: [
+                      Text(
+                        albumName,
+                        style: const TextStyle(
+                          color: Color(0xFF9D9D9D),
+                          fontSize: 12,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w400,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(width: 1),
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      color: Color(0xFF9D9D9D),
-                      size: 14,
-                    ),
-                  ]),
-                  const SizedBox(height: 4),
-                  // 트랙 제목
-                  Text(
-                    trackTitle,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontFamily: 'Helvetica',
-                      fontWeight: FontWeight.w700,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                      const SizedBox(width: 1),
+                      const Icon(
+                        Icons.arrow_forward_ios,
+                        color: Color(0xFF9D9D9D),
+                        size: 14,
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 4),
+
+                  // 🔥 트랙 제목 + 아이콘 (인라인 밀착)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          trackTitle,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w700,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      InkWell(
+                        onTap: () async {
+                          final audioService = ref.read(audioServiceProvider);
+                          final queueNotifier = ref.read(
+                            listeningQueueProvider.notifier,
+                          );
+
+                          final currentTrack = data.Track(
+                            id: trackId,
+                            trackTitle: trackTitle,
+                            artist: artistName,
+                            composer: '',
+                            lyricist: '',
+                            albumId: albumId,
+                            trackFileUrl: trackFileUrl,
+                            lyrics: '',
+                            coverUrl: albumImageUrl,
+                            trackLikeCount: likeCount,
+                          );
+
+                          await queueNotifier.trackPlayed(currentTrack);
+
+                          final fullQueue =
+                              ref
+                                  .read(listeningQueueProvider)
+                                  .playlist
+                                  .map((e) => safeToDomainTrack(e.track))
+                                  .toList();
+
+                          await audioService.playFromQueueSubset(
+                            context,
+                            ref,
+                            fullQueue,
+                            currentTrack.toDomainTrack(),
+                          );
+                        },
+                        child: const Icon(
+                          Icons.play_arrow,
+                          color: Colors.white70,
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 4),
+
                   // 아티스트 정보
                   Row(
                     children: [
-                      // 아티스트 이미지
                       ClipRRect(
                         borderRadius: BorderRadius.circular(50),
                         child: Image.network(
@@ -93,29 +151,18 @@ class TrackHeader extends StatelessWidget {
                           width: 26,
                           height: 26,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              width: 26,
-                              height: 26,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[800],
-                                borderRadius: BorderRadius.circular(50),
-                              ),
-                              child: const Icon(Icons.person, size: 16, color: Colors.white70),
-                            );
-                          },
+                          errorBuilder:
+                              (context, error, stackTrace) =>
+                                  const Icon(Icons.person),
                         ),
                       ),
                       const SizedBox(width: 5),
-                      // 아티스트 이름
                       Expanded(
                         child: Text(
                           artistName,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,
-                            fontFamily: 'Helvetica',
-                            fontWeight: FontWeight.w400,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -124,95 +171,75 @@ class TrackHeader extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 6),
-                  // 좋아요, 댓글, 재생 횟수 정보
+
+                  // 좋아요/댓글/재생 횟수
                   Row(
                     children: [
-                      // 좋아요 카운트
                       Row(
                         children: [
-                          Container(
-                            width: 20,
-                            height: 20,
-                            decoration: const ShapeDecoration(
-                              color: Color(0x19F74440),
-                              shape: OvalBorder(),
-                            ),
-                            child: const Icon(
-                              Icons.favorite,
-                              size: 12,
-                              color: Color(0xFFF74440),
-                            ),
+                          const Icon(
+                            Icons.favorite,
+                            size: 14,
+                            color: Colors.redAccent,
                           ),
                           const SizedBox(width: 3),
                           Text(
-                            likeCount.toString(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontFamily: 'Helvetica',
-                              fontWeight: FontWeight.w400,
-                            ),
+                            '$likeCount',
+                            style: const TextStyle(color: Colors.white),
                           ),
                         ],
                       ),
                       const SizedBox(width: 9),
-                      // 댓글 카운트
                       Row(
                         children: [
                           const Icon(
                             Icons.chat_bubble_outline,
-                            size: 15,
+                            size: 14,
                             color: Colors.white,
                           ),
                           const SizedBox(width: 3),
                           Text(
-                            commentCount.toString(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontFamily: 'Helvetica',
-                              fontWeight: FontWeight.w400,
-                            ),
+                            '$commentCount',
+                            style: const TextStyle(color: Colors.white),
                           ),
                         ],
                       ),
                       const SizedBox(width: 9),
-                      // 재생 횟수
-                    
                       GestureDetector(
                         onTap: () {
-                          // 여기서 모달을 표시합니다
-                          context.showStreamingHistoryModal(albumId: albumId, trackId: trackId); // trackId는 해당 트랙의 ID
+                          context.showStreamingHistoryModal(
+                            albumId: albumId,
+                            trackId: trackId,
+                          );
                         },
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.play_arrow,
                               color: Colors.white,
                               size: 15,
                             ),
                             const SizedBox(width: 1),
                             Text(
-                              playCount == null ? "불러오는 중..." : '$playCount회 재생',
+                              playCount == null
+                                  ? "불러오는 중..."
+                                  : '$playCount회 재생',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
-                                fontFamily: 'Pretendard',
-                                fontWeight: FontWeight.w400,
                               ),
                             ),
                           ],
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
           ),
-          // 앨범 커버 이미지
+
+          // 앨범 커버
           Padding(
             padding: const EdgeInsets.all(12),
             child: ClipRRect(
@@ -222,17 +249,12 @@ class TrackHeader extends StatelessWidget {
                 width: 100,
                 height: 100,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[800],
-                      borderRadius: BorderRadius.circular(10),
+                errorBuilder:
+                    (context, error, stackTrace) => const Icon(
+                      Icons.album,
+                      size: 60,
+                      color: Colors.white70,
                     ),
-                    child: const Icon(Icons.album, size: 50, color: Colors.white70),
-                  );
-                },
               ),
             ),
           ),

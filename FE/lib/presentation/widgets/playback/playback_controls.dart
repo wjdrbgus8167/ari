@@ -51,8 +51,16 @@ class _PlaybackControlsState extends ConsumerState<PlaybackControls> {
       duration = durationAsync.asData!.value!;
     }
 
-    if (!_isUserInteracting && duration.inMilliseconds > 0) {
-      _sliderValue = position.inMilliseconds / duration.inMilliseconds;
+    if (!_isUserInteracting &&
+        mounted &&
+        duration.inMilliseconds > 0 &&
+        position.inMilliseconds <= duration.inMilliseconds) {
+      final newValue = position.inMilliseconds / duration.inMilliseconds;
+      if ((_sliderValue - newValue).abs() > 0.01) {
+        setState(() {
+          _sliderValue = newValue;
+        });
+      }
     }
 
     return Container(

@@ -40,6 +40,7 @@ class ListeningQueueTrackList extends ConsumerWidget {
             ref
                 .read(audioServiceProvider)
                 .playFromQueueSubset(
+                  context,
                   ref,
                   state.filteredPlaylist
                       .map((e) => e.track)

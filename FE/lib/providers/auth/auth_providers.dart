@@ -2,6 +2,7 @@
 // AuthStateNotifier는 사용자 로그인 상태만을 관리
 // 토큰 관리, 인증 인터셉터 설정
 
+import 'package:ari/core/services/audio_service.dart';
 import 'package:ari/core/utils/auth_interceptor.dart';
 import 'package:ari/data/datasources/auth/auth_local_data_source.dart';
 import 'package:ari/data/datasources/auth/auth_remote_data_source.dart';
@@ -12,6 +13,7 @@ import 'package:ari/domain/usecases/user/user_usecase.dart';
 import 'package:ari/presentation/viewmodels/auth/login_viewmodel.dart';
 import 'package:ari/presentation/viewmodels/auth/sign_up_viewmodel.dart';
 import 'package:ari/providers/global_providers.dart';
+import 'package:ari/providers/playback/playback_state_provider.dart';
 import 'package:ari/providers/user_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -151,9 +153,22 @@ class AuthStateNotifier extends StateNotifier<AsyncValue<bool>> {
   Future<void> logout() async {
     print('[AuthStateNotifier] 로그아웃 시도');
     state = const AsyncValue.loading();
+
     try {
       await logoutUseCase();
       print('[AuthStateNotifier] 로그아웃 성공');
+
+      // ✅ 오디오 재생 중단 및 상태 초기화
+      final container = ProviderContainer(); // 외부 Provider 접근용
+      final audioService = container.read(audioServiceProvider);
+      final playbackNotifier = container.read(playbackProvider.notifier);
+
+      await audioService.audioPlayer.stop(); // 오디오 중단
+      playbackNotifier.reset(); // 상태 초기화
+
+      // 필요하다면 재생 큐도 정리 가능
+      // container.read(listeningQueueProvider.notifier).clear();
+
       state = const AsyncValue.data(false);
     } catch (e, stackTrace) {
       print('[AuthStateNotifier] 로그아웃 실패: $e');

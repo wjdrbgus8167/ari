@@ -1,8 +1,11 @@
 // lib/core/services/audio_service.dart
+import 'package:ari/domain/usecases/playback_permission_usecase.dart';
+import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/providers/playback/playback_state_provider.dart';
 import 'package:ari/domain/entities/track.dart';
+import 'package:ari/presentation/widgets/common/custom_toast.dart';
 
 class AudioService {
   // 오디오 플레이어 인스턴스
@@ -24,6 +27,77 @@ class AudioService {
     _initializePlayer();
   }
 
+  // 플레이리스트, 앨범 전체재생
+  Future<void> playFullTrackList({
+    required WidgetRef ref,
+    required BuildContext context,
+    required List<Track> tracks,
+  }) async {
+    if (tracks.isEmpty) {
+      context.showToast('재생할 트랙이 없습니다.');
+      return;
+    }
+
+    final permissionUsecase = ref.read(playbackPermissionUsecaseProvider);
+
+    // ✅ 권한이 있는 트랙만 필터링
+    final allowedTracks = <Track>[];
+
+    for (final track in tracks) {
+      final result = await permissionUsecase.check(
+        track.albumId,
+        track.trackId,
+      );
+      if (!result.isError) {
+        allowedTracks.add(track);
+      }
+    }
+
+    if (allowedTracks.isEmpty) {
+      context.showToast('⛔ 재생 가능한 트랙이 없습니다.');
+      return;
+    }
+
+    _playlistSource.clear();
+    for (final track in allowedTracks) {
+      _playlistSource.add(AudioSource.uri(Uri.parse(track.trackFileUrl ?? '')));
+    }
+
+    await audioPlayer.setAudioSource(_playlistSource, initialIndex: 0);
+    await audioPlayer.play();
+
+    final firstTrack = allowedTracks.first;
+    final uniqueId = "track_${firstTrack.trackId}";
+    ref
+        .read(playbackProvider.notifier)
+        .updateTrackInfo(
+          trackTitle: firstTrack.trackTitle,
+          artist: firstTrack.artistName,
+          coverImageUrl: firstTrack.coverUrl ?? '',
+          lyrics: firstTrack.lyric,
+          currentTrackId: firstTrack.trackId,
+          albumId: firstTrack.albumId,
+          trackUrl: firstTrack.trackFileUrl ?? '',
+          isLiked: false,
+          currentQueueItemId: uniqueId,
+        );
+    ref.read(playbackProvider.notifier).updatePlaybackState(true);
+  }
+
+  Future<void> playSingleTrackWithPermission(WidgetRef ref, Track track) async {
+    final permissionUsecase = ref.read(playbackPermissionUsecaseProvider);
+    final permissionResult = await permissionUsecase.check(
+      track.albumId,
+      track.trackId,
+    );
+
+    if (permissionResult.isError) {
+      throw Exception(permissionResult.message);
+    }
+
+    await _playSingleTrack(ref, track); // 내부 진짜 재생 로직 호출
+  }
+
   void _initializePlayer() {
     // 트랙이 끝났을 때 자동 다음곡 재생
     audioPlayer.playerStateStream.listen((state) async {
@@ -35,7 +109,7 @@ class AudioService {
   }
 
   // 단일 트랙 재생 (예: 처음 재생)
-  Future<void> playSingleTrack(WidgetRef ref, Track track) async {
+  Future<void> _playSingleTrack(WidgetRef ref, Track track) async {
     final source = AudioSource.uri(Uri.parse(track.trackFileUrl ?? ''));
     await audioPlayer.setAudioSource(source);
     await audioPlayer.play();
@@ -63,22 +137,39 @@ class AudioService {
     List<Track> playlist,
     Track startTrack,
   ) async {
-    _playlistSource.clear();
+    final permissionUsecase = ref.read(playbackPermissionUsecaseProvider);
+
+    final allowedTracks = <Track>[];
 
     for (final track in playlist) {
+      final result = await permissionUsecase.check(
+        track.albumId,
+        track.trackId,
+      );
+      if (!result.isError) {
+        allowedTracks.add(track);
+      }
+    }
+
+    if (allowedTracks.isEmpty) return;
+
+    final initialIndex = allowedTracks.indexWhere(
+      (t) => t.trackId == startTrack.trackId,
+    );
+    if (initialIndex == -1) return;
+
+    _playlistSource.clear();
+    for (final track in allowedTracks) {
       _playlistSource.add(AudioSource.uri(Uri.parse(track.trackFileUrl ?? '')));
     }
 
-    final initialIndex = playlist.indexWhere(
-      (t) => t.trackId == startTrack.trackId,
-    );
     await audioPlayer.setAudioSource(
       _playlistSource,
       initialIndex: initialIndex,
     );
     await audioPlayer.play();
 
-    final uniqueId = "track_\${startTrack.trackId}";
+    final uniqueId = "track_${startTrack.trackId}";
     ref
         .read(playbackProvider.notifier)
         .updateTrackInfo(
@@ -97,19 +188,41 @@ class AudioService {
 
   // 선택된 트랙부터 큐 끝까지 재생 (차트, 플레이리스트 전용)
   Future<void> playFromQueueSubset(
+    BuildContext context,
     WidgetRef ref,
     List<Track> fullQueue,
     Track selectedTrack,
   ) async {
-    _playlistSource.clear();
+    final permissionUsecase = ref.read(playbackPermissionUsecaseProvider);
 
+    final allowedTracks = <Track>[];
     for (final track in fullQueue) {
-      _playlistSource.add(AudioSource.uri(Uri.parse(track.trackFileUrl ?? '')));
+      final result = await permissionUsecase.check(
+        track.albumId,
+        track.trackId,
+      );
+      if (!result.isError) {
+        allowedTracks.add(track);
+      }
     }
 
-    final initialIndex = fullQueue.indexWhere(
+    if (allowedTracks.isEmpty) {
+      context.showToast('⛔ 재생 가능한 트랙이 없습니다.');
+      return;
+    }
+
+    final initialIndex = allowedTracks.indexWhere(
       (t) => t.trackId == selectedTrack.trackId,
     );
+    if (initialIndex == -1) {
+      context.showToast('선택한 트랙은 재생할 수 없습니다.');
+      return;
+    }
+
+    _playlistSource.clear();
+    for (final track in allowedTracks) {
+      _playlistSource.add(AudioSource.uri(Uri.parse(track.trackFileUrl ?? '')));
+    }
 
     await audioPlayer.setAudioSource(
       _playlistSource,

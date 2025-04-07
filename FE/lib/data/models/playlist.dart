@@ -21,6 +21,8 @@ class Playlist {
   });
 
   factory Playlist.fromJson(Map<String, dynamic> json) {
+    print('📦 Playlist.fromJson → json: $json'); // ✅ 확인용
+
     return Playlist(
       id: json['playlistId'] as int? ?? 0, // null이면 0으로 처리
       trackCount: json['trackCount'] as int? ?? 0,

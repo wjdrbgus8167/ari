@@ -8,11 +8,12 @@ import 'package:ari/providers/track/streaming_log_providers.dart';
 import 'package:ari/providers/track/track_detail_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 class TrackDetailScreen extends ConsumerStatefulWidget {
   final int albumId;
   final int trackId;
   final String? albumCoverUrl; // 앨범 커버 URL을 받을 수 있도록 수정
-  
+
   const TrackDetailScreen({
     super.key,
     required this.albumId,
@@ -23,23 +24,26 @@ class TrackDetailScreen extends ConsumerStatefulWidget {
   @override
   _TrackDetailScreenState createState() => _TrackDetailScreenState();
 }
- 
+
 class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
-  
   @override
   void initState() {
     super.initState();
     // 화면이 로드될 때 트랙 데이터 가져오기
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(trackDetailViewModelProvider.notifier).loadTrackDetail(widget.albumId, widget.trackId);
-      ref.read(streamingLogViewModelProvider.notifier).loadAlbumDetail(widget.albumId, widget.trackId);
+      ref
+          .read(trackDetailViewModelProvider.notifier)
+          .loadTrackDetail(widget.albumId, widget.trackId);
+      ref
+          .read(streamingLogViewModelProvider.notifier)
+          .loadAlbumDetail(widget.albumId, widget.trackId);
     });
   }
 
-@override
+  @override
   Widget build(BuildContext context) {
     final trackDetailState = ref.watch(trackDetailViewModelProvider);
-    final streamingLogState = ref.watch(streamingLogViewModelProvider); 
+    final streamingLogState = ref.watch(streamingLogViewModelProvider);
     final track = trackDetailState.track; // null일 수 있는 track
     final albumCoverUrl = widget.albumCoverUrl; // 앨범 커버 URL
 
@@ -47,7 +51,7 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
     final int playCount = streamingLogState.logs.length;
     final bool isLoadingPlayCount = streamingLogState.isLoading;
 
-     return Scaffold(
+    return Scaffold(
       body: SingleChildScrollView(
         child: Container(
           clipBehavior: Clip.antiAlias,
@@ -57,11 +61,13 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
               // 트랙 헤더 위젯
               SafeArea(
                 child: HeaderWidget(
-                  type: HeaderType.backWithTitle, 
-                  onBackPressed: () { Navigator.pop(context); }
+                  type: HeaderType.backWithTitle,
+                  onBackPressed: () {
+                    Navigator.pop(context);
+                  },
                 ),
               ),
-              
+
               // 트랙 데이터가 로드되었는지 확인
               if (track != null) ...[
                 // 트랙 정보가 있는 경우에만 위젯 표시
@@ -73,11 +79,13 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
                   artistName: track.artistName,
                   likeCount: track.trackLikeCount,
                   commentCount: track.commentCount,
-                  playCount: isLoadingPlayCount ? null : playCount, // 로딩 중인 경우 null 전달
+                  playCount:
+                      isLoadingPlayCount ? null : playCount, // 로딩 중인 경우 null 전달
                   albumImageUrl: albumCoverUrl ?? '',
                   artistImageUrl: track.trackFileUrl ?? '',
+                  trackFileUrl: track.trackFileUrl ?? '',
                 ),
-                
+
                 // 이하 동일
                 TrackCredit(
                   title: '크레딧',
@@ -86,14 +94,11 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
                   composers: track.composer,
                   genres: [track.genreName],
                 ),
-                
-                TrackLyrics(
-                  title: '가사',
-                  lyrics: track.lyric,
-                ),
-                
+
+                TrackLyrics(title: '가사', lyrics: track.lyric),
+
                 TrackDetailCommentHeader(commentCount: track.commentCount),
-                
+
                 if (track.comments.isNotEmpty) ...[
                   TrackDetailComments(comment: track.comments[0]),
                   if (track.comments.length > 1)
@@ -103,9 +108,7 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
                 const Center(
                   child: Padding(
                     padding: EdgeInsets.all(20.0),
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                    ),
+                    child: CircularProgressIndicator(color: Colors.white),
                   ),
                 ),
               ],

@@ -38,51 +38,24 @@ class Track {
     required this.trackLikeCount,
   });
 
-  factory Track.fromJson(Map<String, dynamic> json) {
+  factory Track.fromJson(Map<String, dynamic> json, int albumId) {
     return Track(
-      trackId:
-          json['trackId'] is int
-              ? json['trackId']
-              : int.tryParse(json['trackId'].toString()) ?? 0,
-      albumId:
-          json['albumId'] is int
-              ? json['albumId']
-              : int.tryParse(json['albumId'].toString()) ?? 0,
-      albumTitle: json['albumTitle'] as String? ?? '',
-      genreName: json['genreName'] as String? ?? '',
-      trackTitle: json['trackTitle'] as String? ?? '',
-      artistName: json['artistName'] as String? ?? '',
-      lyric: json['lyrics'] as String? ?? '',
-      trackNumber:
-          json['trackNumber'] is int
-              ? json['trackNumber']
-              : int.tryParse(json['trackNumber']?.toString() ?? '0') ?? 0,
-      commentCount:
-          json['commentCount'] is int
-              ? json['commentCount']
-              : int.tryParse(json['commentCount']?.toString() ?? '0') ?? 0,
-      lyricist:
-          (json['lyricist'] is List)
-              ? List<String>.from(json['lyricist'])
-              : [json['lyricist']?.toString() ?? ''],
-      composer:
-          (json['composer'] is List)
-              ? List<String>.from(json['composer'])
-              : [json['composer']?.toString() ?? ''],
-      comments:
-          (json['comments'] as List<dynamic>?)
-              ?.map((e) => TrackComment.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-      createdAt: json['createdAt'] as String? ?? '',
-      coverUrl: json['cover_url'] as String?,
-      trackFileUrl:
-          (json['trackFileUrl'] as String?) ??
-          (json['track_file_url'] as String?),
-      trackLikeCount:
-          json['trackLikeCount'] is int
-              ? json['trackLikeCount']
-              : int.tryParse(json['trackLikeCount']?.toString() ?? '0') ?? 0,
+      trackId: json['trackId'] ?? 0,
+      albumId: albumId,
+      albumTitle: json['albumTitle'] ?? '',
+      genreName: json['genreName'] ?? '',
+      trackTitle: json['trackTitle'] ?? '',
+      artistName: json['artistName'] ?? json['artist'] ?? '',
+      lyric: json['lyrics'] ?? '',
+      trackNumber: json['trackNumber'] ?? 0,
+      commentCount: json['commentCount'] ?? 0,
+      lyricist: [],
+      composer: [],
+      comments: [],
+      createdAt: '',
+      coverUrl: json['coverImageUrl'] ?? '',
+      trackFileUrl: json['trackFileUrl'] ?? '',
+      trackLikeCount: json['trackLikeCount'] ?? 0,
     );
   }
 
@@ -106,8 +79,8 @@ class Track {
   /// 데이터 모델(예: Hive 모델)에서 도메인 모델로 변환하는 팩토리 생성자
   factory Track.fromDataModel(data.Track dataModel) {
     return Track(
-      trackId: dataModel.id,
-      albumId: dataModel.albumId,
+      trackId: dataModel.id ?? 0,
+      albumId: dataModel.albumId ?? 0,
       trackTitle: dataModel.trackTitle,
       albumTitle: '',
       genreName: '',
@@ -122,7 +95,7 @@ class Track {
       createdAt: '', // 필요한 경우 별도의 값 할당
       coverUrl: dataModel.coverUrl,
       trackFileUrl: dataModel.trackFileUrl,
-      trackLikeCount: dataModel.trackLikeCount,
+      trackLikeCount: dataModel.trackLikeCount ?? 0,
     );
   }
 }

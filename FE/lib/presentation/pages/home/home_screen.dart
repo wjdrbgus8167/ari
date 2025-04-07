@@ -5,7 +5,6 @@ import 'package:ari/providers/global_providers.dart';
 
 import 'package:ari/core/utils/genre_utils.dart';
 
-import 'package:ari/presentation/routes/app_router.dart';
 import 'package:ari/presentation/widgets/album/album_section_header.dart';
 import 'package:ari/presentation/widgets/album/album_card.dart';
 import 'package:ari/presentation/widgets/common/carousel_container.dart';
@@ -30,11 +29,7 @@ class HomeScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SafeArea(
-              child: HeaderWidget(
-                type: HeaderType.main,
-              ),
-            ),
+            SafeArea(child: HeaderWidget(type: HeaderType.main)),
             const SizedBox(height: 8),
             const LoginPrompt(),
             const SizedBox(height: 16),

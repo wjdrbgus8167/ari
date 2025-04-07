@@ -5,6 +5,7 @@ import 'package:ari/data/models/album.dart' as data_model;
 import 'package:ari/domain/entities/album.dart' as domain;
 import 'package:ari/domain/repositories/album/album_detail_repository.dart';
 import 'package:dartz/dartz.dart';
+import 'package:ari/domain/entities/track.dart' as domain_track;
 
 class AlbumRepositoryImpl implements AlbumRepository {
   final AlbumDataSource dataSource;
@@ -82,15 +83,35 @@ class AlbumRepositoryImpl implements AlbumRepository {
       albumId: album.id,
       albumTitle: album.title,
       artist: album.artist,
-      description: "", // 기본값 빈 문자열 할당
-      albumLikeCount: 0, // 기본값 0 할당
+      description: "", // 기본값
+      albumLikeCount: 0,
       genre: album.genre,
-      commentCount: 0, // 기본값 0 할당
-      rating: "0", // 기본값 "0" 할당
+      commentCount: 0,
+      rating: "0",
       createdAt: album.releaseDate.toString(),
       coverImageUrl: album.coverUrl,
-      comments: [], // 기본값 빈 리스트 할당
-      tracks: [], // 기본값 빈 리스트 할당
+      comments: [],
+      tracks:
+          album.tracks.map((track) {
+            return domain_track.Track(
+              trackId: track.trackId,
+              albumId: track.albumId,
+              albumTitle: album.title,
+              genreName: album.genre,
+              trackTitle: track.trackTitle,
+              artistName: track.artistName,
+              lyric: track.lyric,
+              trackNumber: track.trackNumber,
+              commentCount: track.commentCount,
+              lyricist: track.lyricist,
+              composer: track.composer,
+              comments: track.comments,
+              createdAt: track.createdAt,
+              coverUrl: track.coverUrl,
+              trackFileUrl: track.trackFileUrl,
+              trackLikeCount: track.trackLikeCount,
+            );
+          }).toList(),
     );
   }
 }

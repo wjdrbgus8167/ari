@@ -51,6 +51,22 @@ class Track extends HiveObject {
     this.trackLikeCount = 0,
   });
 
+  /// ✅ clone 메서드 추가
+  Track clone() {
+    return Track(
+      id: id,
+      trackTitle: trackTitle,
+      artist: artist,
+      composer: composer,
+      lyricist: lyricist,
+      albumId: albumId,
+      trackFileUrl: trackFileUrl,
+      lyrics: lyrics,
+      coverUrl: coverUrl,
+      trackLikeCount: trackLikeCount,
+    );
+  }
+
   /// ✅ 앨범 데이터를 받아서 coverUrl을 설정하는 팩토리 생성자 추가
   factory Track.fromAlbum({required Track track, required Album album}) {
     return Track(
