@@ -2,6 +2,7 @@ package com.ccc.ari.subscription.infrastructure.persistence.entity;
 
 import com.ccc.ari.global.type.EventType;
 import com.ccc.ari.global.type.PlanType;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -27,7 +28,7 @@ public class SubscriptionEventEntity {
     @Column(name = "subscriber_id")
     private Integer subscriberId;
 
-    @NotNull
+    @Nullable
     @Column(name = "plan_type")
     private PlanType planType;
 

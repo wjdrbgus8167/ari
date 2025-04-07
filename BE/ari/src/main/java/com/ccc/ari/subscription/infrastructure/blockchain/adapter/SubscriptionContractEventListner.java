@@ -1,6 +1,7 @@
 package com.ccc.ari.subscription.infrastructure.blockchain.adapter;
 
 import com.ccc.ari.global.contract.SubscriptionContract;
+import com.ccc.ari.global.event.ArtistRegisteredEvent;
 import com.ccc.ari.global.event.ArtistSettlementRequestedEvent;
 import com.ccc.ari.global.event.RegularSettlementRequestedEvent;
 import com.ccc.ari.global.type.EventType;
@@ -47,6 +48,8 @@ public class SubscriptionContractEventListner implements ApplicationListener<App
     // 정산 요청 이벤트 ID
     private final String SETTLEMENT_REQUESTED_REGULAR = "SettlementRequestedRegular";
     private final String SETTLEMENT_REQUESTED_ARTIST = "SettlementRequestedArtist";
+    // 아티스트 등록 이벤트 ID
+    private final String ARTIST_REGISTERED = "ArtistRegistered";
 
     @Autowired
     public SubscriptionContractEventListner(@Qualifier("subscriptionContractWeb3j") Web3j web3j,
@@ -78,6 +81,8 @@ public class SubscriptionContractEventListner implements ApplicationListener<App
         // 정산 요청 컨트랙트 이벤트
         subscribeToSettlementRequestedRegularEvent();
         subscribeToSettlementRequestedArtistEvent();
+        // 아티스트 등록 컨트랙트 이벤트
+        subscribeToArtistRegisteredEvent();
     }
 
     /**
@@ -312,6 +317,55 @@ public class SubscriptionContractEventListner implements ApplicationListener<App
                 });
     }
 
+    /**
+     * 아티스트의 지갑 등록 이벤트를 감지합니다.
+     */
+    public void subscribeToArtistRegisteredEvent() {
+
+        BigInteger lastProcessedBlock =
+                blockNumberRepository.getLastProcessedBlockNumber(ARTIST_REGISTERED).orElse(null);
+
+        DefaultBlockParameter fromBlock;
+        if (lastProcessedBlock == null) {
+            logger.info("이전에 처리된 아티스트 등록 블록 정보 없음. 첫 블록부터 시작합니다.");
+            fromBlock = DefaultBlockParameterName.EARLIEST;
+        } else {
+            logger.info("이전에 처리된 아티스트 등록 마지막 블록 번호: {}. 해당 블록부터 구독 시작", lastProcessedBlock);
+            // 마지막 블록부터 다시 시작하여 블록 내 이벤트 누락 방지
+            fromBlock = DefaultBlockParameter.valueOf(lastProcessedBlock);
+        }
+
+        subscriptionContract.artistRegisteredEventFlowable(
+                        fromBlock,
+                        DefaultBlockParameterName.LATEST)
+                .subscribe(event -> {
+                    String eventId = event.log.getTransactionHash() + "-" + event.log.getLogIndex();
+                    logger.info("새로운 ArtistRegistered 이벤트 감지. Event ID: {}", eventId);
+
+                    if (!subscriptionEventRepository.existsBySubscriptionEventIdAndEventType(eventId, EventType.A)) {
+                        logger.info("처리되지 않은 새로운 아티스트 등록 이벤트(Event ID: {})입니다. 처리 시작.", eventId);
+                        handleArtistRegisteredEvent(event);
+
+                        subscriptionEventRepository.save(eventId, EventType.A, event.artistId.intValue(), null);
+                        logger.info("아티스트 등록 이벤트(ID: {})를 저장했습니다.", eventId);
+                    } else {
+                        logger.info("Event ID {}는 이미 처리된 아티스트 등록 이벤트입니다. 처리 건너뜀.", eventId);
+                    }
+
+                    BigInteger currentBlock = event.log.getBlockNumber();
+                    BigInteger savedBlock =
+                            blockNumberRepository.getLastProcessedBlockNumber(ARTIST_REGISTERED).orElse(null);
+
+                    if (savedBlock == null || currentBlock.compareTo(savedBlock) > 0) {
+                        blockNumberRepository.saveLastProcessedBlock(ARTIST_REGISTERED, currentBlock);
+                        logger.info("아티스트 등록 이벤트의 마지막 처리 블록 번호를 {}로 업데이트했습니다.", currentBlock);
+                    }
+                }, error -> {
+                    logger.error("아티스트 등록 이벤트 구독 중 오류가 발생했습니다.", error);
+                });
+
+    }
+
     @Async
     protected void handleRegularSubscriptionEvent(SubscriptionContract.RegularSubscriptionCreatedEventResponse event) {
         logger.info("정기 구독 생성 온체인 이벤트가 발생했습니다. 구독자 ID: {}", event.userId);
@@ -384,5 +438,15 @@ public class SubscriptionContractEventListner implements ApplicationListener<App
                                                                        event.periodStart, event.periodEnd));
         logger.info("ArtistSettlementRequestedEvent가 성공적으로 발행되었습니다. 구독자 ID: {}, 아티스트 ID:{}",
                 event.subscriberId, event.artistId);
+    }
+
+    @Async
+    protected void handleArtistRegisteredEvent(SubscriptionContract.ArtistRegisteredEventResponse event) {
+        logger.info("아티스트 등록 온체인 이벤트가 발생했습니다. 아티스트 ID:{}, 지갑 주소:{}",
+                event.artistId, event.artistAddress);
+
+        eventPublisher.publishEvent(new ArtistRegisteredEvent(event.artistId.intValue(), event.artistAddress));
+        logger.info("ArtistRegisteredEvent가 성공적으로 발행되었습니다. 아티스트 ID:{}, 지갑 주소:{}",
+                event.artistId, event.artistAddress);
     }
 }

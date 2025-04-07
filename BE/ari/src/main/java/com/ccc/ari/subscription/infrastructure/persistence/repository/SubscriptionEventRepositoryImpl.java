@@ -25,6 +25,11 @@ public class SubscriptionEventRepositoryImpl implements SubscriptionEventReposit
     }
 
     @Override
+    public boolean existsBySubscriptionEventIdAndEventType(String subscriptionEventId, EventType eventType) {
+        return subscriptionEventJpaRepository.existsBySubscriptionEventIdAndEventType(subscriptionEventId, eventType);
+    }
+
+    @Override
     public void save(String subscriptionEventId, EventType eventType, Integer subscriberId, PlanType planType) {
         subscriptionEventJpaRepository.save(
                 new SubscriptionEventEntity(subscriptionEventId, eventType, subscriberId, planType));
