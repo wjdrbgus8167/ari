@@ -112,11 +112,11 @@ class _FantalkListScreenState extends ConsumerState<FantalkListScreen> {
     required bool isSubscribed,
   }) {
     // 로딩 중
-    if (isLoading && fanTalks.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.mediumGreen),
-      );
-    }
+if (isLoading && (fantalkState.fanTalks == null || fanTalks.isEmpty)) {
+  return const Center(
+    child: CircularProgressIndicator(color: AppColors.primary),
+  );
+}
 
     // 에러 발생
     if (hasError) {

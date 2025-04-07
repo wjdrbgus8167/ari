@@ -23,8 +23,19 @@ class FantalkRemoteDataSourceImpl implements FantalkRemoteDataSource {
         '/api/v1/fantalk-channels/$fantalkChannelId/fantalks',
       );
 
+      // 응답 상태 코드와 status 필드로 성공 여부 확인
       if (response.statusCode == 200 && response.data['status'] == 200) {
-        return FanTalkResponse.fromJson(response.data['data']);
+        // data 필드가 있는지 확인
+        if (response.data['data'] != null) {
+          return FanTalkResponse.fromJson(response.data['data']);
+        } else {
+          // data 필드가 null인 경우 빈 응답 반환
+          return FanTalkResponse(
+            fantalks: [],
+            fantalkCount: 0,
+            subscribedYn: false,
+          );
+        }
       } else {
         throw Failure(
           message: response.data['message'] ?? '팬톡 목록 조회에 실패했습니다.',
