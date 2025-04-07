@@ -22,6 +22,7 @@ import 'package:ari/presentation/pages/listeningqueue/listening_queue_screen.dar
 import 'package:ari/presentation/pages/playlist/playlist_screen.dart';
 // 나의 채널
 import 'package:ari/presentation/pages/my_channel/my_channel_screen.dart';
+import 'package:ari/presentation/pages/my_channel/fantalk_list_screen.dart';
 // 음원 업로드
 import 'package:ari/presentation/pages/mypage/album_upload_screen.dart';
 import 'package:ari/presentation/pages/mypage/track_upload_screen.dart';
@@ -41,6 +42,7 @@ class AppRoutes {
   static const String listeningqueue = '/listeningqueue';
   static const String track = '/track';
   static const String myChannel = '/mychannel';
+  static const String fantalkList = '/fantalk-list';
   static const String subscription = '/subscription';
   static const String subscriptionHistory = '/subscription-history';
   static const String subscriptionPayment = '/subscription/payment';
@@ -194,6 +196,20 @@ class AppRouter {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => GenrePage(genre: genre),
+        );
+
+      case AppRoutes.fantalkList:
+        final memberId = args?['memberId'] as String;
+        final fantalkChannelId = args?['fantalkChannelId'] as String;
+        final isSubscribed = args?['isSubscribed'] as bool? ?? false;
+        return MaterialPageRoute(
+          settings: settings,
+          builder:
+              (_) => FantalkListScreen(
+                memberId: memberId,
+                fantalkChannelId: fantalkChannelId,
+                isSubscribed: isSubscribed,
+              ),
         );
 
       default:
