@@ -148,7 +148,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
           // R&B 장르 카드
           GenreCard(
-            title: 'R & B',
+            title: 'R&B',
             gradient: AppColors.greenGradientHorizontal,
             onTap: () {
               Navigator.of(
