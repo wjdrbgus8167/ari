@@ -51,6 +51,22 @@ class Track extends HiveObject {
     this.trackLikeCount = 0,
   });
 
+  /// ✅ clone 메서드 추가
+  Track clone() {
+    return Track(
+      id: id,
+      trackTitle: trackTitle,
+      artist: artist,
+      composer: composer,
+      lyricist: lyricist,
+      albumId: albumId,
+      trackFileUrl: trackFileUrl,
+      lyrics: lyrics,
+      coverUrl: coverUrl,
+      trackLikeCount: trackLikeCount,
+    );
+  }
+
   /// ✅ 앨범 데이터를 받아서 coverUrl을 설정하는 팩토리 생성자 추가
   factory Track.fromAlbum({required Track track, required Album album}) {
     return Track(
@@ -64,6 +80,21 @@ class Track extends HiveObject {
       lyrics: track.lyrics,
       coverUrl: album.coverUrl,
       trackLikeCount: track.trackLikeCount,
+    );
+  }
+
+  factory Track.fromJson(Map<String, dynamic> json) {
+    return Track(
+      id: json['trackId'],
+      trackTitle: json['trackTitle'],
+      artist: json['artist'],
+      composer: json['composer'] ?? '', // API 응답에 없는 필드는 기본값 사용
+      lyricist: json['lyricist'] ?? '', // API 응답에 없는 필드는 기본값 사용
+      albumId: json['albumId'] ?? 0, // API 응답에 없을 수 있음
+      trackFileUrl: json['trackFileUrl'] ?? '', // API 응답에 없을 수 있음
+      lyrics: json['lyrics'] ?? '', // API 응답에 없는 필드
+      coverUrl: json['coverImageUrl'], // API에서는 coverImageUrl
+      trackLikeCount: json['trackLikeCount'] ?? 0, // API 응답에 없는 필드
     );
   }
 }

@@ -106,15 +106,34 @@ class BottomSheetOptions extends StatelessWidget {
         ),
       ),
       onTap: () {
-        // 바텀시트 닫기
-        Navigator.pop(context);
-        // "앨범으로 이동" 옵션 선택 시 앨범 상세 페이지로 이동
+        Navigator.pop(context); // 바텀시트 닫기
+
         if (title == '앨범으로 이동') {
-          Navigator.pushNamed(context, AppRoutes.album);
+          Navigator.pushNamed(
+            context,
+            AppRoutes.album,
+            arguments: {'albumId': track.albumId},
+          );
         } else if (title == '트랙 정보로 이동') {
-          Navigator.pushNamed(context, AppRoutes.track);
+          Navigator.pushNamed(
+            context,
+            AppRoutes.track,
+            arguments: {
+              'trackId': track.trackId,
+              'albumId': track.albumId,
+              'albumCoverUrl': track.coverUrl,
+            },
+          );
+        } else if (title == '아티스트 채널로 이동') {
+          Navigator.pushNamed(
+            context,
+            AppRoutes.myChannel,
+            arguments: {
+              //임시로 track.trackId를 사용
+              'memberId': track.trackId,
+            },
+          );
         }
-        // 다른 옵션에 대해서는 필요한 네비게이션 로직 추가 가능
       },
     );
   }

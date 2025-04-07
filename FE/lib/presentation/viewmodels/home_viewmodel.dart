@@ -8,6 +8,7 @@ import 'package:ari/core/utils/genre_utils.dart';
 import 'package:ari/domain/repositories/album/album_detail_repository.dart';
 import 'package:ari/domain/usecases/get_charts_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ari/data/mappers/playlist_trackitem_mapper.dart';
 
 class HomeState {
   final Genre selectedGenreLatest;
@@ -126,7 +127,7 @@ class HomeViewModel extends StateNotifier<HomeState> {
       isPublic: playlist.isPublic,
       trackCount: playlist.trackCount,
       shareCount: playlist.shareCount,
-      tracks: [], // 플레이리스트 목록 조회에서는 tracks가 없으므로 빈 리스트 처리
+      tracks: playlist.tracks.map(toEntityTrack).toList(),
     );
   }
 

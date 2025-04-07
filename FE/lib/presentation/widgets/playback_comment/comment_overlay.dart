@@ -75,7 +75,6 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
 
   @override
   Widget build(BuildContext context) {
-    final playbackState = ref.watch(playbackProvider);
     final positionAsyncValue = ref.watch(playbackPositionProvider);
     final Duration currentPosition = positionAsyncValue.when(
       data: (duration) => duration,

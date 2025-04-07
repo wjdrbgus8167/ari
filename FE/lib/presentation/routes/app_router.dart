@@ -26,6 +26,9 @@ import 'package:ari/presentation/pages/my_channel/my_channel_screen.dart';
 import 'package:ari/presentation/pages/mypage/album_upload_screen.dart';
 import 'package:ari/presentation/pages/mypage/track_upload_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+// 장르별 페이지
+import 'package:ari/core/utils/genre_utils.dart';
+import 'package:ari/presentation/pages/genre/genre_page.dart';
 
 class AppRoutes {
   static const String home = '/';
@@ -47,6 +50,7 @@ class AppRoutes {
   static const String artistSelection = '/subscription/select/artist';
   static const String artistDashboard = '/artist-dashboard';
   static const String myAlbumStatList = '/artist-dashboard/my-album-stats';
+  static const String genre = '/genre';
 
   static final Set<String> _protectedRoutes = {
     myPage,
@@ -121,13 +125,13 @@ class AppRouter {
         final trackId = args?['trackId'] as int? ?? 1;
         final albumCoverUrl = args?['albumCoverUrl'] as String?; // 추가된 부분
         return MaterialPageRoute(
-          builder: (_) => TrackDetailScreen(
-            albumId: albumId, 
-            trackId: trackId,
-            albumCoverUrl: albumCoverUrl, // 추가된 부분
-          ),
+          builder:
+              (_) => TrackDetailScreen(
+                albumId: albumId,
+                trackId: trackId,
+                albumCoverUrl: albumCoverUrl, // 추가된 부분
+              ),
         );
-
 
       case AppRoutes.playlist:
         return MaterialPageRoute(builder: (_) => const PlaylistScreen());
@@ -172,7 +176,9 @@ class AppRouter {
         );
 
       case AppRoutes.subscriptionHistory:
-        return MaterialPageRoute(builder: (_) => const SubscriptionHistoryScreen());
+        return MaterialPageRoute(
+          builder: (_) => const SubscriptionHistoryScreen(),
+        );
 
       case AppRoutes.artistSelection:
         return MaterialPageRoute(builder: (_) => const ArtistSelectionScreen());
@@ -182,6 +188,13 @@ class AppRouter {
 
       case AppRoutes.myAlbumStatList:
         return MaterialPageRoute(builder: (_) => const MyTrackStatListScreen());
+
+      case AppRoutes.genre:
+        final genre = args?['genre'] as Genre;
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => GenrePage(genre: genre),
+        );
 
       default:
         // 없는 경로는 홈으로 리다이렉트, 스낵바로 알림

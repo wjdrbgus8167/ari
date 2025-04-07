@@ -86,13 +86,11 @@ class MyChannelRemoteDataSourceImpl implements MyChannelRemoteDataSource {
       url: '/api/v1/members/$memberId/channel-info', // API 엔드포인트 수정
       method: 'GET',
       fromJson: (data) {
-        // 백엔드 API 응답에 memberId가 없는 경우 수동으로 추가
-        // 수정된 부분: API 응답에 memberId 필드가 없어서 파라미터로 받은 값을 사용
+        // 백엔드 API 응답에 memberId가 없어서 파라미터로 받은 값을 사용
         if (data is Map<String, dynamic> && !data.containsKey('memberId')) {
           data['memberId'] = memberId;
         }
 
-        // 수정된 부분: followedYn -> isFollowed 매핑 (내부 모델 일관성 유지)
         if (data is Map<String, dynamic> && data.containsKey('followedYn')) {
           data['isFollowed'] = data['followedYn'];
         }
