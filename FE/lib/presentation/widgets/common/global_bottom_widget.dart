@@ -143,6 +143,9 @@ class _GlobalNavigationContainerState
 
     // 홈 탭(0)의 페이지를 캐시에 추가
     _cachedPages[0] = _buildNavigator(0);
+
+    // 검색 탭(1)의 페이지도 미리 캐시에 추가
+    _cachedPages[1] = _buildSearchNavigator();
   }
 
   @override
@@ -159,7 +162,12 @@ class _GlobalNavigationContainerState
 
     // 선택된 탭의 페이지가 없으면 생성하여 캐시에 추가
     if (!_cachedPages.containsKey(selectedTab)) {
-      _cachedPages[selectedTab] = _buildNavigator(selectedTab);
+      // 특수 케이스: 탭 1은 검색 스크린
+      if (selectedTab == 1) {
+        _cachedPages[selectedTab] = _buildSearchNavigator();
+      } else {
+        _cachedPages[selectedTab] = _buildNavigator(selectedTab);
+      }
     }
 
     // 이중 방어를 위한 접근법
@@ -210,6 +218,12 @@ class _GlobalNavigationContainerState
                     return;
                   }
 
+                  // 검색 탭은 특별한 로그인 확인 없이 바로 이동
+                  if (index == 1) {
+                    _navigateToTab(index);
+                    return;
+                  }
+
                   if (index == 2 || index == 3) {
                     final isLoggedIn = await _checkLoginStatus(context, index);
                     if (!isLoggedIn) return;
@@ -233,6 +247,14 @@ class _GlobalNavigationContainerState
     final currentNavigatorKey = navigatorKeys[selectedTab];
     final canPopInCurrentTab =
         currentNavigatorKey?.currentState?.canPop() ?? false;
+
+    // 검색 탭(1)에서의 특별 처리
+    if (selectedTab == 1) {
+      // 검색 탭에서 뒤로가기는 항상 홈 탭으로 이동
+      print('검색 탭에서 홈 탭으로 이동');
+      _navigateToTab(0);
+      return;
+    }
 
     // 홈 탭(0)에서의 처리
     if (selectedTab == 0) {
@@ -291,7 +313,11 @@ class _GlobalNavigationContainerState
         setState(() {
           // 이전 탭 UI 캐시 확인
           if (!_cachedPages.containsKey(previousTab)) {
-            _cachedPages[previousTab] = _buildNavigator(previousTab);
+            if (previousTab == 1) {
+              _cachedPages[previousTab] = _buildSearchNavigator();
+            } else {
+              _cachedPages[previousTab] = _buildNavigator(previousTab);
+            }
           }
         });
       } else {
@@ -362,6 +388,11 @@ class _GlobalNavigationContainerState
     ref.read(navigationHistoryProvider.notifier).addTab(index);
   }
 
+  // 검색 탭용 특별한 네비게이터 구성
+  Widget _buildSearchNavigator() {
+    return const SafeArea(child: SearchScreen());
+  }
+
   // 네비게이터 위젯 생성
   Widget _buildNavigator(int index) {
     final navigatorKeys = ref.read(navigatorKeysProvider);
@@ -374,9 +405,8 @@ class _GlobalNavigationContainerState
         initialRoute: _getInitialRouteForTab(index),
         observers: [
           HeroController(),
-          // 1번과 3번 탭의 경우 추가 옵저버 등록
-          if (index == 1 || index == 3)
-            NavigatorObserver(), // 네비게이션 모니터링을 위한 옵저버 추가
+          // 3번 탭의 경우 추가 옵저버 등록 (1번 탭은 SearchScreen으로 처리되므로 제외)
+          if (index == 3) NavigatorObserver(), // 네비게이션 모니터링을 위한 옵저버 추가
         ],
       ),
     );
@@ -387,8 +417,7 @@ class _GlobalNavigationContainerState
     switch (index) {
       case 0:
         return AppRoutes.home;
-      case 1:
-        return AppRoutes.myPage;
+      // case 1은 SearchScreen을 직접 사용하므로 여기서는 처리하지 않음
       case 2:
         return '/'; // 음악 서랍 경로
       case 3:
