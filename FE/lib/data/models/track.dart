@@ -66,6 +66,21 @@ class Track extends HiveObject {
       trackLikeCount: track.trackLikeCount,
     );
   }
+
+  factory Track.fromJson(Map<String, dynamic> json) {
+    return Track(
+      id: json['trackId'],
+      trackTitle: json['trackTitle'],
+      artist: json['artist'],
+      composer: json['composer'] ?? '', // API 응답에 없는 필드는 기본값 사용
+      lyricist: json['lyricist'] ?? '', // API 응답에 없는 필드는 기본값 사용
+      albumId: json['albumId'] ?? 0, // API 응답에 없을 수 있음
+      trackFileUrl: json['trackFileUrl'] ?? '', // API 응답에 없을 수 있음
+      lyrics: json['lyrics'] ?? '', // API 응답에 없는 필드
+      coverUrl: json['coverImageUrl'], // API에서는 coverImageUrl
+      trackLikeCount: json['trackLikeCount'] ?? 0, // API 응답에 없는 필드
+    );
+  }
 }
 
 domain.Track mapDataTrackToDomain(model.Track dataTrack) {
