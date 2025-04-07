@@ -11,5 +11,5 @@ public interface SubscriptionCycleJpaRepository extends JpaRepository<Subscripti
 
     List<SubscriptionCycleEntity> findAllBySubscriptionId(Integer subscriptionId);
 
-    Optional<SubscriptionCycle> findBySubscriptionCycleId(Integer subscriptionCycleId);
+    Optional<SubscriptionCycleEntity> findBySubscriptionCycleId(Integer subscriptionCycleId);
 }

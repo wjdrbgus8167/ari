@@ -11,6 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.tx.gas.ContractGasProvider;
+import org.web3j.tx.gas.StaticGasProvider;
 
 import java.math.BigInteger;
 import java.time.Instant;
@@ -27,10 +30,12 @@ public class SettlementExecuteService {
     private final SubscriptionClient subscriptionClient;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    // 1 LINK = 10^18
+    private final BigInteger LINK_MULTIPLIER = BigInteger.TEN.pow(18);
     // 정기 구독의 결제 금액은 1LINK
-    private final BigInteger REGULAR_AMOUNT = BigInteger.ONE;
+    private final BigInteger REGULAR_AMOUNT = BigInteger.ONE.multiply(LINK_MULTIPLIER);
     // 아티스트 구독의 결제 금액은 1LINK
-    private final BigInteger ARTIST_AMOUNT = BigInteger.ONE;
+    private final BigInteger ARTIST_AMOUNT = BigInteger.ONE.multiply(LINK_MULTIPLIER);
 
     /**
      * 정기 구독 정산 요청 이벤트를 처리하는 메서드
@@ -81,15 +86,26 @@ public class SettlementExecuteService {
                 .toList();
 
         try {
-            subscriptionContract.settlePaymentsRegularByArtist(
+            // 가스 제공자 설정
+            ContractGasProvider gasProvider = new StaticGasProvider(
+                    BigInteger.valueOf(22_000_000_000L), // gasPrice
+                    BigInteger.valueOf(8_000_000)        // gasLimit
+            );
+
+            // 컨트랙트에 가스 제공자 설정
+            subscriptionContract.setGasProvider(gasProvider);
+
+            TransactionReceipt receipt = subscriptionContract.settlePaymentsRegularByArtist(
                     BigInteger.valueOf(event.getSubscriberId()),
                     BigInteger.valueOf(cycleId),
                     REGULAR_AMOUNT,
                     artistIds,
                     streamingCounts
             ).send();
-            logger.info("정기 구독 정산 컨트랙트 함수 호출 성공 - SubscriberId: {}, CycleId: {}",
-                    event.getSubscriberId(), cycleId);
+
+            logger.info("정기 구독 정산 컨트랙트 함수 호출 성공 - SubscriberId: {}, CycleId: {}, TransactionHash: {}",
+                    event.getSubscriberId(), cycleId, receipt.getTransactionHash());
+
         } catch (Exception e) {
             logger.error("정기 구독 정산 실행 함수 호출 중 문제가 발생했습니다 - SubscriberId: {}, CycleId: {}",
                     event.getSubscriberId(), cycleId, e);
@@ -129,12 +145,22 @@ public class SettlementExecuteService {
 
         // 3. 아티스트 구독 사이클 정산 컨트랙트 함수 실행
         try {
-            subscriptionContract.settlePaymentsArtist(
+            // 가스 제공자 설정
+            ContractGasProvider gasProvider = new StaticGasProvider(
+                    BigInteger.valueOf(22_000_000_000L), // gasPrice
+                    BigInteger.valueOf(8_000_000)        // gasLimit
+            );
+
+            // 컨트랙트에 가스 제공자 설정
+            subscriptionContract.setGasProvider(gasProvider);
+
+            TransactionReceipt receipt = subscriptionContract.settlePaymentsArtist(
                     BigInteger.valueOf(event.getSubscriberId()),
                     BigInteger.valueOf(event.getArtistId()),
                     BigInteger.valueOf(cycleId),
                     ARTIST_AMOUNT
             ).send();
+
             logger.info("아티스트 구독 정산 컨트랙트 함수 호출 성공 - SubscriberId: {}, artistId: {}, CycleId: {}",
                     event.getSubscriberId(), event.getArtistId(), cycleId);
         } catch (Exception e) {

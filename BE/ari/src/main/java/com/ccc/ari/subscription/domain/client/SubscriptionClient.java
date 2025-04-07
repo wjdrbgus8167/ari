@@ -1,6 +1,7 @@
 package com.ccc.ari.subscription.domain.client;
 
 import com.ccc.ari.subscription.domain.Subscription;
+import com.ccc.ari.subscription.domain.SubscriptionCycle;
 
 import java.time.LocalDateTime;
 import java.util.List;

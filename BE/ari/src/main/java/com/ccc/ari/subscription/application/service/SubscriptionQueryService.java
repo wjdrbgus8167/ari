@@ -105,10 +105,6 @@ public class SubscriptionQueryService {
     }
 
     public SubscriptionCycle getSubscriptionCycleById(Integer subscriptionCycleId) {
-        return subscriptionCycleRepository.getSubscriptionCycleById(new SubscriptionCycleId(subscriptionCycleId))
-                .orElseThrow(() -> {
-                    logger.warn("ID: {}의 구독 사이클이 존재하지 않습니다!!", subscriptionCycleId);
-                    return new EntityNotFoundException();
-                });
+        return subscriptionCycleRepository.getSubscriptionCycleById(subscriptionCycleId);
     }
 }

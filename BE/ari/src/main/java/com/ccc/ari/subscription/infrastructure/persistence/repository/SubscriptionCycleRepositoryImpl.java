@@ -56,7 +56,7 @@ public class SubscriptionCycleRepositoryImpl implements SubscriptionCycleReposit
     }
 
     @Override
-    public Optional<SubscriptionCycle> getSubscriptionCycleById(SubscriptionCycleId subscriptionCycleId) {
-        return subscriptionCycleJpaRepository.findBySubscriptionCycleId(subscriptionCycleId.getValue());
+    public SubscriptionCycle getSubscriptionCycleById(Integer subscriptionCycleId) {
+        return subscriptionCycleJpaRepository.findBySubscriptionCycleId(subscriptionCycleId).get().toModel();
     }
 }
