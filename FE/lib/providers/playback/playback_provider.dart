@@ -126,8 +126,8 @@ final playbackServiceProvider = Provider<PlaybackService>((ref) {
   );
 });
 
-// PlaybackNotifier를 전역상태로 제공
-final playbackNotifierProvider =
-    StateNotifierProvider<PlaybackNotifier, PlaybackState>(
-      (ref) => PlaybackNotifier(),
-    );
+// // PlaybackNotifier를 전역상태로 제공
+// final playbackNotifierProvider =
+//     StateNotifierProvider<PlaybackNotifier, PlaybackState>(
+//       (ref) => PlaybackNotifier(),
+//     );
