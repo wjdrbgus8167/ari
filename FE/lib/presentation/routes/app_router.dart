@@ -1,7 +1,7 @@
 import 'package:ari/data/models/subscription_history_model.dart';
 import 'package:ari/domain/entities/playlist.dart';
 import 'package:ari/presentation/pages/dashboard/artist_dashboard_screen.dart';
-import 'package:ari/presentation/pages/dashboard/my_album_stat_list.dart';
+import 'package:ari/presentation/pages/dashboard/my_track_stat_list.dart';
 import 'package:ari/presentation/pages/login/login_screen.dart';
 import 'package:ari/presentation/pages/playlist_detail/playlist_detail_screen.dart';
 import 'package:ari/presentation/pages/sign_up/sign_up_screen.dart';

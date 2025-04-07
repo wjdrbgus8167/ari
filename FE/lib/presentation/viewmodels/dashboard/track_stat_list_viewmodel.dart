@@ -1,103 +1,75 @@
-import 'package:flutter/material.dart';
+import 'package:ari/data/datasources/dashboard/dashboard_datasources.dart';
+import 'package:ari/data/models/dashboard/track_stats_model.dart';
+import 'package:ari/data/repositories/dashboard/dashboard_repository.dart';
+import 'package:ari/domain/repositories/dashboard/dashboard_repository.dart';
+import 'package:ari/domain/usecases/dashboard/my_track_list_usecase.dart';
+import 'package:ari/providers/global_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class TrackStat {
-  final int id;
-  final String title;
-  final String imageUrl;
-  final int monthlyPlayCount;
-  final int totalPlayCount;
-
-  TrackStat({
-    required this.id,
-    required this.title,
-    required this.imageUrl,
-    required this.monthlyPlayCount,
-    required this.totalPlayCount,
-  });
-}
-
-// 정렬 기준
 enum SortBy {
-  totalPlayCount,
-  monthlyPlayCount,
+  totalStreamingCount,
+  monthlyStreamingCount,
 }
 
-// ViewModel 상태 클래스
 class TrackListState {
-  final List<TrackStat> tracks;
+  final List<TrackStats> tracks;
   final SortBy sortBy;
   final bool isLoading;
+  final String? errorMessage;
 
   TrackListState({
     this.tracks = const [],
-    this.sortBy = SortBy.totalPlayCount,
+    this.sortBy = SortBy.totalStreamingCount,
     this.isLoading = false,
+    this.errorMessage,
   });
 
   TrackListState copyWith({
-    List<TrackStat>? tracks,
+    List<TrackStats>? tracks,
     SortBy? sortBy,
     bool? isLoading,
+    String? errorMessage,
   }) {
     return TrackListState(
       tracks: tracks ?? this.tracks,
       sortBy: sortBy ?? this.sortBy,
       isLoading: isLoading ?? this.isLoading,
+      errorMessage: errorMessage,
     );
   }
 }
 
-class TrackListNotifier extends StateNotifier<TrackListState> {
-  TrackListNotifier() : super(TrackListState()) {
-    _loadTracks();
+class TrackStatsListViewmodel extends StateNotifier<TrackListState> {
+  final GetTrackStatsUseCase useCase;
+
+  TrackStatsListViewmodel(this.useCase) : super(TrackListState()) {
+    loadTrackStats();
   }
 
-  Future<void> _loadTracks() async {
-    state = state.copyWith(isLoading: true);
+  Future<void> loadTrackStats() async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
     
-    // 데이터 로드 (실제로는 API 호출 등)
-    await Future.delayed(const Duration(milliseconds: 500)); // 임시 지연
+    final result = await useCase();
     
-    // 샘플 데이터
-    final tracks = [
-      TrackStat(
-        id: 1,
-        title: 'AFTER HOURS',
-        imageUrl: 'https://placehold.co/45x45',
-        monthlyPlayCount: 1234,
-        totalPlayCount: 123456,
+    result.fold(
+      (failure) => state = state.copyWith(
+        isLoading: false,
+        errorMessage: failure.message,
       ),
-      TrackStat(
-        id: 2,
-        title: 'AFTER HOURS',
-        imageUrl: 'https://placehold.co/45x45',
-        monthlyPlayCount: 5678,
-        totalPlayCount: 98765,
-      ),
-      TrackStat(
-        id: 3,
-        title: 'AFTER HOURS',
-        imageUrl: 'https://placehold.co/45x45',
-        monthlyPlayCount: 9012,
-        totalPlayCount: 78901,
-      ),
-    ];
-    
-    // 현재 정렬 기준에 따라 정렬
-    final sortedTracks = _sortTracks(tracks, state.sortBy);
-    
-    state = state.copyWith(
-      tracks: sortedTracks,
-      isLoading: false,
+      (trackStatsList) {
+        final sortedTracks = _sortTracks(trackStatsList.tracks, state.sortBy);
+        state = state.copyWith(
+          tracks: sortedTracks,
+          isLoading: false,
+        );
+      },
     );
   }
 
-  // 정렬 기준 변경
   void changeSortBy() {
-    final newSortBy = state.sortBy == SortBy.totalPlayCount 
-        ? SortBy.monthlyPlayCount 
-        : SortBy.totalPlayCount;
+    final newSortBy = state.sortBy == SortBy.totalStreamingCount 
+        ? SortBy.monthlyStreamingCount 
+        : SortBy.totalStreamingCount;
     
     final sortedTracks = _sortTracks(state.tracks, newSortBy);
     
@@ -107,20 +79,35 @@ class TrackListNotifier extends StateNotifier<TrackListState> {
     );
   }
 
-  // 트랙 정렬
-  List<TrackStat> _sortTracks(List<TrackStat> tracks, SortBy sortBy) {
-    final sortedTracks = List<TrackStat>.from(tracks);
+  List<TrackStats> _sortTracks(List<TrackStats> tracks, SortBy sortBy) {
+    final sortedTracks = List<TrackStats>.from(tracks);
     
-    if (sortBy == SortBy.totalPlayCount) {
-      sortedTracks.sort((a, b) => b.totalPlayCount.compareTo(a.totalPlayCount));
+    if (sortBy == SortBy.totalStreamingCount) {
+      sortedTracks.sort((a, b) => b.totalStreamingCount.compareTo(a.totalStreamingCount));
     } else {
-      sortedTracks.sort((a, b) => b.monthlyPlayCount.compareTo(a.monthlyPlayCount));
+      sortedTracks.sort((a, b) => b.monthlyStreamingCount.compareTo(a.monthlyStreamingCount));
     }
     
     return sortedTracks;
   }
 }
 
-final trackListProvider = StateNotifierProvider<TrackListNotifier, TrackListState>((ref) {
-  return TrackListNotifier();
+final trackStatsDataSourceProvider = Provider<DashboardRemoteDataSource>((ref) {
+  final apiClient = ref.watch(apiClientProvider);
+  return DashboardRemoteDataSourceImpl(apiClient: apiClient);
+});
+
+final trackStatsRepositoryProvider = Provider<DashboardRepository>((ref) {
+  final dataSource = ref.watch(trackStatsDataSourceProvider);
+  return DashboardRepositoryImpl(dataSource: dataSource);
+});
+
+final dashboardUseCaseProvider = Provider<GetTrackStatsUseCase>((ref) {
+  final repository = ref.watch(trackStatsRepositoryProvider);
+  return GetTrackStatsUseCase(repository);
+});
+
+final trackListProvider = StateNotifierProvider<TrackStatsListViewmodel, TrackListState>((ref) {
+  final useCase = ref.watch(dashboardUseCaseProvider);
+  return TrackStatsListViewmodel(useCase);
 });

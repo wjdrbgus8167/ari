@@ -3,7 +3,7 @@ import 'package:ari/presentation/widgets/common/header_widget.dart';
 import 'package:ari/presentation/widgets/dashboard/track_stat_item_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+// 10. 수정된 MyTrackStatListScreen
 class MyTrackStatListScreen extends ConsumerWidget {
   const MyTrackStatListScreen({Key? key}) : super(key: key);
 
@@ -50,6 +50,13 @@ class MyTrackStatListScreen extends ConsumerWidget {
                             color: Colors.white,
                           ),
                         )
+                      : state.errorMessage != null
+                          ? Center(
+                              child: Text(
+                                state.errorMessage!,
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            )
                       : state.tracks.isEmpty
                           ? const Center(
                               child: Text(
@@ -74,4 +81,4 @@ class MyTrackStatListScreen extends ConsumerWidget {
       ),
     );
   }
-}          
+}

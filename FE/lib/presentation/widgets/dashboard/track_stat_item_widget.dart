@@ -1,8 +1,9 @@
+import 'package:ari/data/models/dashboard/track_stats_model.dart';
 import 'package:ari/presentation/viewmodels/dashboard/track_stat_list_viewmodel.dart';
 import 'package:flutter/material.dart';
 
 class TrackStatItem extends StatelessWidget {
-  final TrackStat trackStat;
+  final TrackStats trackStat;
   final int index;
 
   const TrackStatItem({
@@ -41,7 +42,7 @@ class TrackStatItem extends StatelessWidget {
             height: 45,
             decoration: ShapeDecoration(
               image: DecorationImage(
-                image: NetworkImage(trackStat.imageUrl),
+                image: NetworkImage(trackStat.coverImageUrl),
                 fit: BoxFit.cover,
               ),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
@@ -57,7 +58,7 @@ class TrackStatItem extends StatelessWidget {
               children: [
                 // 트랙 제목
                 Text(
-                  trackStat.title,
+                  trackStat.trackTitle,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 10,
@@ -87,7 +88,7 @@ class TrackStatItem extends StatelessWidget {
                         ),
                         const SizedBox(width: 20),
                         Text(
-                          '${trackStat.monthlyPlayCount}',
+                          '${trackStat.monthlyStreamingCount}',
                           style: const TextStyle(
                             color: Color(0xFFD9D9D9),
                             fontSize: 8,
@@ -113,7 +114,7 @@ class TrackStatItem extends StatelessWidget {
                         ),
                         const SizedBox(width: 20),
                         Text(
-                          '${trackStat.totalPlayCount}',
+                          '${trackStat.totalStreamingCount}',
                           style: const TextStyle(
                             color: Color(0xFFD9D9D9),
                             fontSize: 8,
@@ -156,7 +157,7 @@ class SortButton extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            sortBy == SortBy.totalPlayCount ? '누적 재생 수' : '월간 재생 수',
+            sortBy == SortBy.totalStreamingCount ? '누적 재생 수' : '월간 재생 수',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 15,
