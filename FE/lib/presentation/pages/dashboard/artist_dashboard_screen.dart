@@ -1,11 +1,16 @@
 import 'package:ari/core/constants/app_colors.dart';
+import 'package:ari/core/constants/contract_constants.dart';
 import 'package:ari/presentation/viewmodels/dashboard/artist_dashboard_viewmodel.dart';
 import 'package:ari/presentation/widgets/common/header_widget.dart';
 import 'package:ari/presentation/widgets/dashboard/chart_widget.dart';
 import 'package:ari/presentation/widgets/dashboard/stats_card_widget.dart';
 import 'package:ari/presentation/widgets/dashboard/wallet_info_widget.dart';
+import 'package:ari/presentation/widgets/subscription/payment/wallet_widget.dart';
+import 'package:ari/providers/subscription/walletServiceProviders.dart';
+import 'package:ari/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:developer' as dev;
 
 class ArtistDashboardScreen extends ConsumerStatefulWidget {
   const ArtistDashboardScreen({super.key});
@@ -17,6 +22,12 @@ class ArtistDashboardScreen extends ConsumerStatefulWidget {
 class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
   bool _showWalletInput = false;
   final TextEditingController _walletController = TextEditingController();
+  bool isLoading = false; // Added for loading state
+  
+  // Helper method to safely set state when component is mounted
+  void safeSetState(VoidCallback fn) {
+    if (mounted) setState(fn);
+  }
 
   @override
   void dispose() {
@@ -26,10 +37,15 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
   
   @override
   Widget build(BuildContext context) {
+
+    
+    
+    // 지갑 서비스 가져오기
+    // 지갑 연결 상태 확인 - StateNotifier에서 가져옴
     final dashboardData = ref.watch(artistDashboardProvider);
     final hasWallet = dashboardData.walletAddress != null;
-    print("hasWallet: $hasWallet");
-    print("walletAddress: ${dashboardData.walletAddress}");
+
+    
     final hasTracks = dashboardData.hasTracks; // 트랙이 있는지 여부를 확인하는 getter가 있다고 가정
 
     return Scaffold(
@@ -126,139 +142,82 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                    // 정산 지갑 섹션
-                                Container(
-                                  width: double.infinity,
-                                  margin: const EdgeInsets.only(bottom: 30),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                    const Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          '정산 지갑',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 20,
-                                            fontFamily: 'Pretendard',
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                  // 결제 지갑 연동 섹션 (금액 자동 설정)
+                                    WalletWidget(),
+                                  // 버튼 하나추가 -> 함수 실행하는 버튼
                                     const SizedBox(height: 10),
                                     // 지갑 등록 버튼
-                                    GestureDetector(
-                                      onTap: () {
-                                        // 지갑 등록 로직 추가
-                                        //ref.read(artistDashboardProvider.notifier).connectWallet();
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(vertical: 5),
-                                        width: double.infinity,
-                                        alignment: Alignment.center,
-                                        child: const Text(
-                                          '지갑 등록하기',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12,
-                                            fontFamily: 'Pretendard',
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    
-                                    // 직접 입력 옵션
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          _showWalletInput = !_showWalletInput;
-                                        });
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.only(top: 8),
-                                        alignment: Alignment.center,
-                                        child: const Text(
-                                          '직접 입력하시겠습니까?',
-                                          style: TextStyle(
-                                            color: Colors.white70,
-                                            fontSize: 10,
-                                            fontFamily: 'Pretendard',
-                                            fontWeight: FontWeight.w400,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    
-                                    // 직접 입력 폼
-                                    if (_showWalletInput)
-                                      Container(
-                                        margin: const EdgeInsets.only(top: 8),
-                                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                                        child: Column(
-                                          children: [
-                                            TextField(
-                                              controller: _walletController,
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 12,
-                                              ),
-                                              decoration: InputDecoration(
-                                                hintText: '지갑 주소를 입력하세요',
-                                                hintStyle: TextStyle(
-                                                  color: Colors.white.withOpacity(0.5),
-                                                  fontSize: 12,
-                                                ),
-                                                filled: true,
-                                                fillColor: const Color(0xFF444444),
-                                                border: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(5),
-                                                  borderSide: BorderSide.none,
-                                                ),
-                                                contentPadding: const EdgeInsets.symmetric(
-                                                  horizontal: 10,
-                                                  vertical: 8,
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(height: 8),
-                                            GestureDetector(
-                                              onTap: () {
-                                                if (_walletController.text.isNotEmpty) {
-                                                  // 지갑 주소 등록 로직
-                                                  // ref.read(artistDashboardProvider.notifier)
-                                                  //     .setWalletAddress(_walletController.text);
-                                                  // setState(() {
-                                                  //   _showWalletInput = false;
-                                                  //   _walletController.clear();
-                                                  // });
+                                    // 지갑 등록 버튼
+                                      GestureDetector(
+                                        onTap: isLoading ? null : () async {
+                                          setState(() {
+                                            isLoading = true;
+                                          });
+                                          
+                                          try {
+                                            // 지갑 서비스 가져오기
+                                            final walletService = ref.read(walletServiceProvider);
+                                            final userId = ref.read(userIdProvider);
+                                            final String subscriptionContractAddress = walletService.getCurrentSubscriptionContractAddress();
+                                            
+                                            if (userId == null) {
+                                              dev.log("[구독] 사용자 ID가 없습니다.");
+                                              setState(() {
+                                                isLoading = false;
+                                              });
+                                              return;
+                                            }
+                                            
+                                            await walletService.registerArtist(
+                                              contractAddress: subscriptionContractAddress,
+                                              artistId: int.parse(userId),
+                                              contractAbi: SubscriptionConstants.subscriptionContractAbi,
+                                              onComplete: (regTxHash, regSuccess, regErrorMessage) {
+                                                dev.log("[구독] 사용자 등록 완료: 성공=$regSuccess, 해시=$regTxHash, 오류=$regErrorMessage");
+                                                
+                                                if (!mounted) return;
+                                                
+                                                if (regSuccess) {
+                                                  setState(() {
+                                                    isLoading = false;
+                                                  });
                                                 }
-                                              },
-                                              child: Container(
-                                                width: double.infinity,
-                                                padding: const EdgeInsets.symmetric(vertical: 8),
-                                                alignment: Alignment.center,
-                                                decoration: BoxDecoration(
-                                                  color: const Color(0xFF6C63FF),
-                                                  borderRadius: BorderRadius.circular(5),
+                                          });
+                                          } catch (e) {
+                                            dev.log("[구독] 사용자 등록 중 오류 발생: ${e.toString()}");
+                                            if (mounted) {
+                                              setState(() {
+                                                isLoading = false;
+                                              });
+                                            }
+                                          }
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(vertical: 5),
+                                          width: double.infinity,
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                            color: isLoading ? Colors.grey : const Color(0xFF6C63FF),
+                                            borderRadius: BorderRadius.circular(5),
+                                          ),
+                                          child: isLoading
+                                            ? const SizedBox(
+                                                width: 20,
+                                                height: 20,
+                                                child: CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                                 ),
-                                                child: const Text(
-                                                  '등록하기',
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
+                                              )
+                                            : const Text(
+                                                '지갑 등록하기',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 12,
+                                                  fontFamily: 'Pretendard',
+                                                  fontWeight: FontWeight.w700,
                                                 ),
                                               ),
-                                            ),
-                                          ],
                                         ),
                                       ),
                                   ],
@@ -621,15 +580,12 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                                 child: ChartWidget(
                                   chartType: ChartType.revenue,
                                   data: dashboardData.dailyRevenueData,
-                                ),
-                              ),
-                            ],
                           ),
                         ),
                       ],
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
