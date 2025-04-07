@@ -20,7 +20,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class SettlementService {
+public class SettlementExecuteService {
 
     private final SubscriptionContract subscriptionContract;
     private final StreamingCountClient streamingCountClient;
@@ -108,12 +108,12 @@ public class SettlementService {
                 event.getSubscriberId(), event.getArtistId(), event.getPeriodStart(), event.getPeriodEnd());
 
         // 1. BigInteger(UTC) -> LocalDateTime(KST)으로 시간 변환
-        LocalDateTime startTime = Instant.ofEpochMilli(event.getPeriodStart().longValue())
+        LocalDateTime startTime = Instant.ofEpochSecond(event.getPeriodStart().longValue())
                 .atZone(ZoneId.of("UTC"))
                 .withZoneSameInstant(ZoneId.of("Asia/Seoul"))
                 .toLocalDateTime();
 
-        LocalDateTime endTime = Instant.ofEpochMilli(event.getPeriodEnd().longValue())
+        LocalDateTime endTime = Instant.ofEpochSecond(event.getPeriodEnd().longValue())
                 .atZone(ZoneId.of("UTC"))
                 .withZoneSameInstant(ZoneId.of("Asia/Seoul"))
                 .toLocalDateTime();

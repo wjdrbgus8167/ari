@@ -13,7 +13,12 @@ import com.ccc.ari.subscription.domain.exception.RegularSubscriptionNotFoundExce
 import com.ccc.ari.subscription.domain.repository.SubscriptionCycleRepository;
 import com.ccc.ari.subscription.domain.repository.SubscriptionPlanRepository;
 import com.ccc.ari.subscription.domain.repository.SubscriptionRepository;
+import com.ccc.ari.subscription.domain.vo.SubscriptionCycleId;
+import com.ccc.ari.subscription.infrastructure.persistence.repository.SubscriptionCycleJpaRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +36,8 @@ public class SubscriptionQueryService {
     private final SubscriptionPlanRepository subscriptionPlanRepository;
     private final SubscriptionCycleRepository subscriptionCycleRepository;
     private final SubscriptionPlanCoordinationService subscriptionPlanCoordinationService;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Transactional(readOnly = true)
     public List<GetMyRegularCyclesResponse> getRegularCycles(GetMyRegularCyclesCommand command) {
@@ -95,5 +102,13 @@ public class SubscriptionQueryService {
         return subscriptionCycleRepository.getSubscriptionCycleByPeriod(artistSubscription.getSubscriptionId(),
                                                                         startTime, endTime)
                         .orElseThrow(() -> new CycleNotFoundException(startTime, endTime));
+    }
+
+    public SubscriptionCycle getSubscriptionCycleById(Integer subscriptionCycleId) {
+        return subscriptionCycleRepository.getSubscriptionCycleById(new SubscriptionCycleId(subscriptionCycleId))
+                .orElseThrow(() -> {
+                    logger.warn("ID: {}의 구독 사이클이 존재하지 않습니다!!", subscriptionCycleId);
+                    return new EntityNotFoundException();
+                });
     }
 }

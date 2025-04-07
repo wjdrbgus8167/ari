@@ -1,6 +1,7 @@
 package com.ccc.ari.subscription.domain.repository;
 
 import com.ccc.ari.subscription.domain.SubscriptionCycle;
+import com.ccc.ari.subscription.domain.vo.SubscriptionCycleId;
 import com.ccc.ari.subscription.domain.vo.SubscriptionId;
 
 import java.time.LocalDateTime;
@@ -26,4 +27,9 @@ public interface SubscriptionCycleRepository {
      */
     Optional<SubscriptionCycle> getSubscriptionCycleByPeriod(SubscriptionId subscriptionId,
                                                              LocalDateTime startTime, LocalDateTime endTime);
+
+    /**
+     * 사이클 ID로 특정 구독 사이클을 가져옵니다.
+     */
+    Optional<SubscriptionCycle> getSubscriptionCycleById(SubscriptionCycleId subscriptionCycleId);
 }

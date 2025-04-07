@@ -22,4 +22,8 @@ public class SubscriptionClient {
                                                                    LocalDateTime startTime, LocalDateTime endTime) {
         return subscriptionQueryService.getArtistSubscriptionCycleIdByPeriod(subscriberId, artistId, startTime, endTime);
     }
+
+    public SubscriptionCycle getSubscriptionCycleById(Integer subscriptionCycleId) {
+        return subscriptionQueryService.getSubscriptionCycleById(subscriptionCycleId);
+    }
 }
