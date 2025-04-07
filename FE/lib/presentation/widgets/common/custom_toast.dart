@@ -2,48 +2,44 @@ import 'package:flutter/material.dart';
 import 'package:ari/core/constants/app_colors.dart';
 
 class CustomToast {
-  /// [context] - 토스트 표시할 컨텍스트
-  /// [message] - 메시지
-  /// [type] - 토스트 종류 (성공 경고)
-  /// [duration] - 토스트가 표시되는 시간 (기본 2초)
   static void show({
     required BuildContext context,
     required String message,
     Duration duration = const Duration(seconds: 2),
   }) {
-    // 이전 토스트 제거
-    _removeToast();
+    // 프레임 이후 안전하게 실행되도록 변경
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!context.mounted) return;
 
-    // Overlay 위에 토스트 표시
-    final overlay = Overlay.of(context, rootOverlay: true);
-    final overlayEntry = OverlayEntry(
-      builder:
-          (context) => _ToastOverlay(message: message, onDismiss: _removeToast),
-    );
-
-    // 전역 변수에 현재 토스트 저장
-    _currentToast = overlayEntry;
-
-    // 토스트 표시
-    overlay.insert(overlayEntry);
-
-    // n분 후 토스트 자동 없어짐
-    Future.delayed(duration, () {
+      // 이전 토스트 제거
       _removeToast();
+
+      final overlay = Overlay.of(context, rootOverlay: true);
+      if (overlay == null) return;
+
+      final overlayEntry = OverlayEntry(
+        builder:
+            (context) =>
+                _ToastOverlay(message: message, onDismiss: _removeToast),
+      );
+
+      _currentToast = overlayEntry;
+      overlay.insert(overlayEntry);
+
+      Future.delayed(duration, () {
+        _removeToast();
+      });
     });
   }
 
-  /// 현재 토스트 제거
   static void _removeToast() {
     _currentToast?.remove();
     _currentToast = null;
   }
 
-  // 현재 토스트 저장용 변수
   static OverlayEntry? _currentToast;
 }
 
-/// 토스트 오버레이 위젯
 class _ToastOverlay extends StatefulWidget {
   final String message;
   final VoidCallback onDismiss;
@@ -58,7 +54,6 @@ class _ToastOverlayState extends State<_ToastOverlay>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-
   late double _bottomPadding;
   late double _screenWidth;
 
@@ -144,10 +139,7 @@ class _ToastOverlayState extends State<_ToastOverlay>
   }
 }
 
-// 확장 메서드(다이얼로그 쉽게 호출 가능)
-// 원본 클래스 수정하지 않아도 기능 확장 가능
 extension ToastExtension on BuildContext {
-  // 토스트 표시
   void showToast(
     String message, {
     Duration duration = const Duration(seconds: 2),

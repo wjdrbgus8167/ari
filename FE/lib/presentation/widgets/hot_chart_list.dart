@@ -182,19 +182,25 @@ class _ChartItem extends ConsumerWidget {
               onPressed: () async {
                 final audioService = ref.read(audioServiceProvider);
                 final domainTrack = track.toDomainTrack();
+                // 재생목록에 추가
+                try {
+                  await ref
+                      .read(listeningQueueProvider.notifier)
+                      .trackPlayed(track);
+                } catch (e, stack) {
+                  print('[ERROR] trackPlayed 중 오류: $e');
+                  print(stack);
+                }
+                //  재생
+                print('[DEBUG] playFromQueueSubset 시작');
 
-                // 바로 재생
                 await audioService.playFromQueueSubset(
                   context,
                   ref,
                   allTracks.map((e) => e.toDomainTrack()).toList(),
                   domainTrack,
                 );
-
-                // 재생목록에는 별도로 추가
-                await ref
-                    .read(listeningQueueProvider.notifier)
-                    .trackPlayed(track);
+                print('[DEBUG] playFromQueueSubset 완료');
               },
             ),
           ),

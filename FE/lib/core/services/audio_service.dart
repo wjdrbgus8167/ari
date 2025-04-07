@@ -226,9 +226,9 @@ class AudioService {
   }
 
   Future<void> _playAndSetState(WidgetRef ref, Track track) async {
-    await _playSingleTrack(ref, track);
     final uniqueId = "track_${track.trackId}";
 
+    // ✅ 1. 상태 먼저 업데이트
     ref
         .read(playbackProvider.notifier)
         .updateTrackInfo(
@@ -243,6 +243,9 @@ class AudioService {
           currentQueueItemId: uniqueId,
         );
     ref.read(playbackProvider.notifier).updatePlaybackState(true);
+
+    // ✅ 2. 오디오 재생 시작 (상태 업데이트 후!)
+    await _playSingleTrack(ref, track);
   }
 
   Future<Track> _fetchPlayableTrack(
@@ -313,25 +316,17 @@ class AudioService {
     final source = AudioSource.uri(Uri.parse(url));
     try {
       print('[DEBUG] 🎧 setAudioSource 시도 중... URL: $url');
+
+      // 1. 소스 설정
       final duration = await audioPlayer.setAudioSource(source);
       print('[DEBUG] ✅ AudioSource 세팅 완료, duration: $duration');
 
-      await audioPlayer.setVolume(1.0);
-      print('[DEBUG] 🎚 볼륨 설정 완료');
-
+      // 2. 재생 시작
       await audioPlayer.play();
       print('[DEBUG] 🔊 오디오 재생 시작됨');
 
-      // 플레이어 상태 실시간 확인
-      audioPlayer.playerStateStream.listen((state) {
-        print(
-          '[DEBUG] 📡 상태 업데이트: playing=${state.playing}, processingState=${state.processingState}',
-        );
-      });
-
-      audioPlayer.playbackEventStream.listen((event) {
-        print('[DEBUG] 🎵 PlaybackEvent: $event');
-      });
+      // ✅ 3. 상태 갱신 (여기서 직접 반영)
+      ref.read(playbackProvider.notifier).updatePlaybackState(true);
     } catch (e) {
       print('[ERROR] 오디오 재생 중 오류 발생: $e');
       throw Exception('오디오 재생 중 오류 발생: $e');
