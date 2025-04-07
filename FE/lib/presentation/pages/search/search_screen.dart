@@ -5,6 +5,7 @@ import 'package:ari/presentation/widgets/search/genre_card.dart';
 import 'package:ari/presentation/widgets/search/search_input.dart';
 import 'package:ari/presentation/viewmodels/search/search_viewmodel.dart';
 import 'package:ari/providers/search/search_providers.dart';
+import '../../routes/app_router.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
@@ -57,6 +58,20 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     ref.read(searchViewModelProvider.notifier).search(query);
                     setState(() {
                       _showResults = true;
+                    });
+                  }
+                },
+                onChanged: (query) {
+                  // 실시간 검색 추가
+                  if (query.isNotEmpty) {
+                    ref.read(searchViewModelProvider.notifier).search(query);
+                    setState(() {
+                      _showResults = true;
+                    });
+                  } else {
+                    ref.read(searchViewModelProvider.notifier).clearSearch();
+                    setState(() {
+                      _showResults = false;
                     });
                   }
                 },
@@ -205,7 +220,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       style: const TextStyle(color: Colors.white),
                     ),
                     onTap: () {
-                      // TODO: 아티스트 프로필 페이지로 이동
+                      // 아티스트 채널 페이지로 이동
+                      Navigator.of(context).pushNamed(
+                        AppRoutes.myChannel,
+                        arguments: {'memberId': artist.memberId.toString()},
+                      );
                     },
                   );
                 },
@@ -250,7 +269,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       style: const TextStyle(color: Colors.grey),
                     ),
                     onTap: () {
-                      // TODO: 트랙 상세 페이지로 이동
+                      // 트랙 상세 페이지로 이동
+                      Navigator.of(context).pushNamed(
+                        AppRoutes.track,
+                        arguments: {
+                          'trackId': track.trackId,
+                          'albumCoverUrl': track.coverImageUrl,
+                        },
+                      );
                     },
                   );
                 },

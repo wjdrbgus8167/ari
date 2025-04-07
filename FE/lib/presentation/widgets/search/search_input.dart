@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:ari/core/constants/app_colors.dart';
 
-/// 검색 입력 필드 위젯
-///
-/// 검색어 입력과 지우기 기능을 제공하는 커스텀 검색 입력 위젯
+/// 검색 입력 필드 위젯: 검색어 입력, 지우기
 class SearchInput extends StatelessWidget {
   final TextEditingController controller;
   final Function(String) onSubmitted;
+  final Function(String) onChanged;
   final VoidCallback onClear;
 
   const SearchInput({
     super.key,
     required this.controller,
     required this.onSubmitted,
+    required this.onChanged,
     required this.onClear,
   });
 
@@ -37,6 +37,7 @@ class SearchInput extends StatelessWidget {
                 contentPadding: EdgeInsets.symmetric(horizontal: 16),
               ),
               onSubmitted: onSubmitted,
+              onChanged: onChanged,
             ),
           ),
           IconButton(
