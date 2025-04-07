@@ -3,8 +3,10 @@ package com.ccc.ari.global.composition.controller.community;
 import com.ccc.ari.global.composition.response.community.FollowerListResponse;
 import com.ccc.ari.global.composition.response.community.FollowingListResponse;
 import com.ccc.ari.global.composition.service.community.FollowListService;
+import com.ccc.ari.global.security.MemberUserDetails;
 import com.ccc.ari.global.util.ApiUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,10 +20,13 @@ public class FollowCompositionController {
     private final FollowListService followListService;
 
     @GetMapping("/following/list")
-    public ApiUtils.ApiResponse<FollowingListResponse> getFollowingList(@PathVariable Integer memberId) {
+    public ApiUtils.ApiResponse<FollowingListResponse> getFollowingList(
+            @PathVariable Integer memberId,
+            @AuthenticationPrincipal MemberUserDetails userDetails
+    ) {
 
-        FollowingListResponse response = followListService.getFollowingList(memberId);
-
+        Integer currentMemberId = userDetails.getMemberId();
+        FollowingListResponse response = followListService.getFollowingList(memberId, currentMemberId);
         return ApiUtils.success(response);
     }
 

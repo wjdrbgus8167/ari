@@ -18,7 +18,8 @@ public class FollowingListResponse {
     private List<FollowingMember> followings;
     private int followingCount;
 
-    public static FollowingListResponse from(List<FollowingDto> followings, int followingCount, Map<Integer, Integer> followerCountMap, Map<Integer, MemberDto> memberInfoMap) {
+    public static FollowingListResponse from(List<FollowingDto> followings, Integer followingCount,
+                                             Map<Integer, Integer> followerCountMap, Map<Integer, MemberDto> memberInfoMap) {
         List<FollowingMember> followingMembers = followings.stream()
                 .map(following -> {
                         Integer followingId = following.getFollowingId();
@@ -40,12 +41,44 @@ public class FollowingListResponse {
                 .build();
     }
 
+    public static FollowingListResponse fromWithSubscription(List<FollowingDto> followings, Integer followingCount,
+                                                             Map<Integer, Integer> followerCountMap,
+                                                             Map<Integer, MemberDto> memberInfoMap,
+                                                             Map<Integer, Integer> subscriberCountMap,
+                                                             Map<Integer, Boolean> subscribedYnMap) {
+        List<FollowingMember> followingMembers = followings.stream()
+                .map(following -> {
+                    Integer followingId = following.getFollowingId();
+                    int followerCount = followerCountMap.getOrDefault(followingId, 0);
+                    MemberDto memberInfo = memberInfoMap.get(followingId);
+                    Integer subscriberCount = subscriberCountMap.getOrDefault(followingId, 0);
+                    Boolean subscribedYn = subscribedYnMap.getOrDefault(followingId, false);
+
+                    return FollowingMember.builder()
+                            .memberId(followingId)
+                            .memberName(memberInfo.getNickname())
+                            .profileImageUrl(memberInfo.getProfileImageUrl())
+                            .followerCount(followerCount)
+                            .subscriberCount(subscriberCount)
+                            .subscribedYn(subscribedYn)
+                            .build();
+                })
+                .toList();
+
+        return FollowingListResponse.builder()
+                .followings(followingMembers)
+                .followingCount(followingCount)
+                .build();
+    }
+
     @Getter
     @Builder
     public static class FollowingMember {
         private Integer memberId;
         private String memberName;
         private String profileImageUrl;
-        private int followerCount;
+        private Integer followerCount;
+        private Integer subscriberCount;
+        private Boolean subscribedYn;
     }
 }

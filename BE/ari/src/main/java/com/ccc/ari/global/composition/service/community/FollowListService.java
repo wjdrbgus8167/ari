@@ -7,12 +7,17 @@ import com.ccc.ari.global.composition.response.community.FollowerListResponse;
 import com.ccc.ari.global.composition.response.community.FollowingListResponse;
 import com.ccc.ari.member.domain.client.MemberClient;
 import com.ccc.ari.member.domain.member.MemberDto;
+import com.ccc.ari.subscription.domain.SubscriptionPlan;
+import com.ccc.ari.subscription.domain.client.SubscriptionClient;
+import com.ccc.ari.subscription.domain.client.SubscriptionPlanClient;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,8 +25,10 @@ public class FollowListService {
 
     private final FollowClient followClient;
     private final MemberClient memberClient;
+    private final SubscriptionPlanClient subscriptionPlanClient;
+    private final SubscriptionClient subscriptionClient;
 
-    public FollowingListResponse getFollowingList(Integer memberId) {
+    public FollowingListResponse getFollowingList(Integer memberId, Integer currentMemberId) {
         // 1. memberId가 팔로우 하는 팔로잉 목록을 조회합니다.
         List<FollowingDto> followings = followClient.getFollowingsByMemberId(memberId);
 
@@ -44,8 +51,35 @@ public class FollowListService {
             memberInfoMap.put(id, memberDto);
         }
 
+        // 6. 자신의 팔로잉 목록 조회인 경우에만 구독 정보를 추가합니다.
+        Map<Integer, Integer> subscriberCountMap = new HashMap<>();
+        Map<Integer, Boolean> subscribedYnMap = new HashMap<>();
+
+        if (memberId.equals(currentMemberId)) {
+            for (Integer followingId : followingMemberIds) {
+                Optional<SubscriptionPlan> artistPlan = subscriptionPlanClient.getSubscriptionPlanByArtistId(followingId);
+
+                if (artistPlan.isPresent()) {
+                    Integer planId = artistPlan.get().getSubscriptionPlanId().getValue();
+                    Integer count = subscriptionClient.countActiveSubscribersByPlanId(planId);
+                    subscriberCountMap.put(followingId, count);
+
+                    boolean isSubscribed = subscriptionClient.hasActiveSubscription(currentMemberId, planId);
+                    subscribedYnMap.put(followingId, isSubscribed);
+                } else {
+                    subscriberCountMap.put(followingId, 0);
+                    subscribedYnMap.put(followingId, false);
+                }
+            }
+        }
+
         // 6. 응답 객체를 구성합니다.
-        return FollowingListResponse.from(followings, followingCount, followerCountMap, memberInfoMap);
+        if (memberId.equals(currentMemberId)) {
+            return FollowingListResponse.fromWithSubscription(followings, followingCount, followerCountMap, memberInfoMap,
+                subscriberCountMap, subscribedYnMap);
+        } else {
+            return FollowingListResponse.from(followings, followingCount, followerCountMap, memberInfoMap);
+        }
     }
 
     public FollowerListResponse getFollowerList(Integer memberId) {
