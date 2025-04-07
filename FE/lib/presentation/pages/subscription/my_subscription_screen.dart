@@ -1,3 +1,4 @@
+import 'package:ari/presentation/viewmodels/subscription/my_subscription_viewmodel.dart';
 import 'package:ari/presentation/widgets/common/header_widget.dart';
 import 'package:ari/presentation/widgets/subscription/my_subscription/subscription_process_button.dart';
 import 'package:ari/presentation/widgets/subscription/my_subscription/subscription_section.dart';
@@ -19,13 +20,14 @@ class MySubscriptionScreenState extends ConsumerState<MySubscriptionScreen> {
     super.initState();
     // 화면이 로드될 때 구독 데이터 가져오기
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(subscriptionViewModelProvider.notifier).loadSubscriptions();
+      ref.read(mySubscriptionViewModelProvider.notifier).loadSubscriptions();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = ref.watch(subscriptionViewModelProvider);
+    final viewModel = ref.watch(mySubscriptionViewModelProvider);
+    print("구독 데이터: ${viewModel.getAllSubscriptionsAsModel()}");
     return Scaffold(
       backgroundColor: Colors.black,
       body: viewModel.isLoading
@@ -51,8 +53,7 @@ class MySubscriptionScreenState extends ConsumerState<MySubscriptionScreen> {
               // 구독 프로세스 버튼
               SubscriptionProcessButton(
                 onPressed: () {
-                  print('버튼 클릭됨');
-                  ref.read(subscriptionViewModelProvider.notifier).navigateToSubscriptionPage(context);
+                  ref.read(mySubscriptionViewModelProvider.notifier).navigateToSubscriptionPage(context);
                 },
               ),
               const SizedBox(height: 20),
@@ -67,16 +68,16 @@ class MySubscriptionScreenState extends ConsumerState<MySubscriptionScreen> {
                     children: [
                       // 정기 구독 섹션
                       RegularSubscriptionSection(
-                        subscriptions: viewModel.regularSubscriptions,
-                        onCancelPressed: (id) => ref.read(subscriptionViewModelProvider.notifier).cancelSubscription(id),
+                        subscriptions: viewModel.getMonthlySubscriptionsAsModel(),
+                        onCancelPressed: (id) => ref.read(mySubscriptionViewModelProvider.notifier).cancelMonthlySubscription(),
                       ),
                       
                       const SizedBox(height: 30),
                       
                       // 아티스트 구독 섹션
                       ArtistSubscriptionSection(
-                        subscriptions: viewModel.artistSubscriptions,
-                        onCancelPressed: (id) => ref.read(subscriptionViewModelProvider.notifier).cancelSubscription(id),
+                        subscriptions: viewModel.getArtistSubscriptionsAsModel(),
+                        onCancelPressed: (id) => ref.read(mySubscriptionViewModelProvider.notifier).cancelArtistSubscription('1'),
                       ),
                     ],
                   ),

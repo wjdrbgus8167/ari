@@ -1,4 +1,3 @@
-import 'package:ari/data/models/subscription_history_model.dart';
 import 'package:ari/domain/entities/playlist.dart';
 import 'package:ari/presentation/pages/dashboard/artist_dashboard_screen.dart';
 import 'package:ari/presentation/pages/dashboard/my_track_stat_list.dart';
