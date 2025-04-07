@@ -9,5 +9,7 @@ public interface SubscriptionEventRepository {
 
     boolean existsBySubscriptionEventIdAndEventTypeS(String subscriptionEventId);
 
+    boolean existsBySubscriptionEventIdAndEventType(String subscriptionEventId, EventType eventType);
+
     void save(String subscriptionEventId, EventType eventType, Integer subscriberId, PlanType planType);
 }

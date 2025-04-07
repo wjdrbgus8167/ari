@@ -41,12 +41,7 @@ public class SubscriptionPlanCoordinationService {
         return subscriptionPlanRepository.findSubscriptionPlanByArtistId(artistId)
                 .orElseGet(() -> {
                     logger.info("아티스트 구독 플랜이 존재하지 않아 새로 생성합니다. (artistId: {}, price: {})", artistId, price);
-                    subscriptionPlanPersistenceService.createArtistSubscriptionPlan(artistId, price);
-                    return subscriptionPlanRepository.findSubscriptionPlanByArtistId(artistId)
-                            .orElseThrow(() -> {
-                                logger.error("아티스트 구독 플랜 생성 실패 (artistId: {}, price: {})", artistId, price);
-                                return new RuntimeException("아티스트 구독 플랜 생성 실패");
-                            });
+                    return subscriptionPlanPersistenceService.createArtistSubscriptionPlan(artistId, price);
                 });
     }
 }

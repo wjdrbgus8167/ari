@@ -13,7 +13,7 @@ public interface SubscriptionPlanRepository {
      * @param subscriptionPlan 저장할 구독 플랜 도메인 객체
      * @throws IllegalArgumentException subscriptionPlanEntity가 null인 경우
      */
-    public void save(SubscriptionPlan subscriptionPlan);
+    public SubscriptionPlan save(SubscriptionPlan subscriptionPlan);
 
     /**
      * 구독 플랜 엔터티 타입으로 구독 플랜 엔터티를 조회합니다.
