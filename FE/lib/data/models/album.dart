@@ -21,6 +21,9 @@ class Album {
 
   // JSON 데이터를 Album 객체로 변환하는 factory constructor 추가
   factory Album.fromJson(Map<String, dynamic> json) {
+    print('[DEBUG] 앨범 JSON: $json'); // ✅ 추가
+    print('[DEBUG] json["tracks"]: ${json["tracks"]}'); // ✅ 추가
+
     return Album(
       id: json['albumId'],
       title: json['albumTitle'],
@@ -34,9 +37,13 @@ class Album {
               : DateTime.now(),
       tracks:
           json['tracks'] != null
-              ? (json['tracks'] as List)
-                  .map((e) => Track.fromJson(e, json['albumId']))
-                  .toList()
+              ? (json['tracks'] as List).map((e) {
+                print('[DEBUG] 🎵 트랙 JSON: $e');
+                return Track.fromJson(
+                  Map<String, dynamic>.from(e),
+                  json['albumId'],
+                );
+              }).toList()
               : [],
     );
   }
