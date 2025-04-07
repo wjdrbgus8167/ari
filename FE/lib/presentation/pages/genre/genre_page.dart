@@ -18,21 +18,101 @@ class GenrePage extends ConsumerWidget {
 
   const GenrePage({super.key, required this.genre});
 
+  // 장르에 따른 표시 이름 얻기
+  String _getDisplayGenreName(Genre genre) {
+    switch (genre) {
+      case Genre.hiphop:
+        return 'HipHop & Rap';
+      case Genre.band:
+        return 'Band';
+      case Genre.rnb:
+        return 'R&B';
+      case Genre.jazz:
+        return 'Jazz';
+      case Genre.acoustic:
+        return 'Acoustic';
+      default:
+        // 기본값으로 장르 enum 값을 문자열로 변환
+        return genre.toString().split('.').last;
+    }
+  }
+
+  // 장르에 따른 그라디언트 얻기
+  Gradient _getGenreGradient(Genre genre) {
+    switch (genre) {
+      case Genre.hiphop:
+        return AppColors.purpleGradient;
+      case Genre.band:
+        return AppColors.blueToMintGradient;
+      case Genre.rnb:
+        return AppColors.greenGradientHorizontal;
+      case Genre.jazz:
+        return AppColors.purpleGradientHorizontal;
+      case Genre.acoustic:
+        return const LinearGradient(
+          colors: [Color(0xFFE5BCFF), Color(0xFF7DDCFF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
+      default:
+        // 기본 그라디언트
+        return AppColors.purpleGradient;
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final genreState = ref.watch(genreViewModelProvider(genre));
     final genreViewModel = ref.read(genreViewModelProvider(genre).notifier);
+    final displayGenreName = _getDisplayGenreName(genre);
+    final genreGradient = _getGenreGradient(genre);
 
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
         child: Column(
           children: [
-            // 헤더
-            HeaderWidget(
-              type: HeaderType.backWithTitle,
-              title: genreState.genreName,
-              onBackPressed: () => Navigator.pop(context),
+            // 커스텀 헤더
+            Container(
+              height: 56,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: Colors.black,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  // 뒤로가기 버튼
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+
+                  const SizedBox(width: 16),
+
+                  // 그라디언트 적용된 장르 제목
+                  ShaderMask(
+                    shaderCallback:
+                        (bounds) => genreGradient.createShader(bounds),
+                    child: Text(
+                      displayGenreName,
+                      style: const TextStyle(
+                        fontSize: 35,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
 
             // 메인 콘텐츠
