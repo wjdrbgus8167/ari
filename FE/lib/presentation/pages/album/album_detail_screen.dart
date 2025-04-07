@@ -77,6 +77,7 @@ class _AlbumDetailScreenState extends ConsumerState<AlbumDetailScreen> {
                       AlbumDetailTitle(
                         title: albumDetailState.album!.albumTitle,
                         artist: albumDetailState.album!.artist,
+                        artistId: albumDetailState.album!.artistId,
                         viewCount: albumDetailState.album!.albumLikeCount,
                         commentCount: albumDetailState.album!.commentCount,
                         rating: albumDetailState.album!.rating,
@@ -85,7 +86,8 @@ class _AlbumDetailScreenState extends ConsumerState<AlbumDetailScreen> {
                       ),
                       AlbumDetailTrackList(
                         tracks: albumDetailState.album!.tracks,
-                        albumCoverUrl: albumDetailState.album?.coverImageUrl ?? '',
+                        albumCoverUrl:
+                            albumDetailState.album?.coverImageUrl ?? '',
                       ),
                       AlbumDetailDescription(
                         description: albumDetailState.album!.description,
@@ -97,22 +99,33 @@ class _AlbumDetailScreenState extends ConsumerState<AlbumDetailScreen> {
                       if (albumDetailState.album!.comments.isNotEmpty) ...[
                         // 댓글 작성
                         AlbumDetailComments(
-                          comment: albumDetailState.album!.comments.isNotEmpty 
-                              ? albumDetailState.album!.comments[0]  // 첫 번째 댓글 정보 전달 (또는 빈 댓글 객체)
-                              : AlbumComment(id: 0, memberId: 0, nickname: "", content: "", createdAt: "", userAvatar: ""),
-                          isCommentInput: true,  // 댓글 작성 위젯임을 명시
+                          comment:
+                              albumDetailState.album!.comments.isNotEmpty
+                                  ? albumDetailState
+                                      .album!
+                                      .comments[0] // 첫 번째 댓글 정보 전달 (또는 빈 댓글 객체)
+                                  : AlbumComment(
+                                    id: 0,
+                                    memberId: 0,
+                                    nickname: "",
+                                    content: "",
+                                    createdAt: "",
+                                    userAvatar: "",
+                                  ),
+                          isCommentInput: true, // 댓글 작성 위젯임을 명시
                         ),
 
                         // 그 다음 댓글 목록 표시
                         if (albumDetailState.album!.comments.isNotEmpty) ...[
-                          ...albumDetailState.album!.comments.map((comment) => 
-                            AlbumDetailComments(
+                          ...albumDetailState.album!.comments.map(
+                            (comment) => AlbumDetailComments(
                               comment: comment,
-                              isCommentInput: false,  // 명시적으로 일반 댓글 위젯임을 표시 (기본값이라 생략 가능)
-                            )
+                              isCommentInput:
+                                  false, // 명시적으로 일반 댓글 위젯임을 표시 (기본값이라 생략 가능)
+                            ),
                           ),
                         ],
-                      ]
+                      ],
                     ],
                   )
                   : const Center(

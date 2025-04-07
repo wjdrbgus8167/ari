@@ -11,6 +11,7 @@ class PlaylistTrackItem {
   final int trackNumber;
   final String trackTitle;
   final int albumId;
+  final int artistId;
 
   PlaylistTrackItem({
     required this.trackOrder,
@@ -25,6 +26,7 @@ class PlaylistTrackItem {
     required this.trackNumber,
     required this.trackTitle,
     required this.albumId,
+    this.artistId = 0,
   });
 
   factory PlaylistTrackItem.fromJson(Map<String, dynamic> json) {

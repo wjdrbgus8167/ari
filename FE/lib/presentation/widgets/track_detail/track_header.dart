@@ -1,6 +1,7 @@
 import 'package:ari/data/mappers/track_mapper.dart';
 import 'package:ari/data/models/track.dart' as data;
 import 'package:ari/core/services/audio_service.dart';
+import 'package:ari/presentation/routes/app_router.dart';
 import 'package:ari/providers/global_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,6 +20,7 @@ class TrackHeader extends ConsumerWidget {
   final String artistImageUrl;
   final int trackId;
   final String trackFileUrl;
+  final int artistId;
 
   const TrackHeader({
     super.key,
@@ -33,6 +35,7 @@ class TrackHeader extends ConsumerWidget {
     required this.artistImageUrl,
     required this.trackId,
     required this.trackFileUrl,
+    required this.artistId,
   });
 
   @override
@@ -102,6 +105,7 @@ class TrackHeader extends ConsumerWidget {
                           );
 
                           final currentTrack = data.Track(
+                            artistId: artistId,
                             id: trackId,
                             trackTitle: trackTitle,
                             artist: artistName,
@@ -158,19 +162,31 @@ class TrackHeader extends ConsumerWidget {
                       ),
                       const SizedBox(width: 5),
                       Expanded(
-                        child: Text(
-                          artistName,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              AppRoutes.myChannel,
+                              arguments: {
+                                'memberId': artistId.toString(), // 라우팅용 문자열로 변환
+                              },
+                            );
+                          },
+                          child: Text(
+                            artistName,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              decoration:
+                                  TextDecoration.underline, // 선택 사항: 링크 느낌
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 6),
 
                   // 좋아요/댓글/재생 횟수
                   Row(

@@ -1,8 +1,10 @@
+import 'package:ari/presentation/routes/app_router.dart';
 import 'package:flutter/material.dart';
 
 class AlbumDetailTitle extends StatelessWidget {
   final String title;
   final String artist;
+  final int artistId;
   final int viewCount;
   final int commentCount;
   final String rating;
@@ -13,6 +15,7 @@ class AlbumDetailTitle extends StatelessWidget {
     super.key,
     required this.title,
     required this.artist,
+    required this.artistId,
     required this.viewCount,
     required this.commentCount,
     required this.rating,
@@ -41,15 +44,28 @@ class AlbumDetailTitle extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          Text(
-            artist,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontFamily: 'Pretendard',
-              fontWeight: FontWeight.w700,
+          InkWell(
+            onTap: () {
+              print('[DEBUG] 아티스트 채널로 이동: artistId = $artistId');
+
+              Navigator.pushNamed(
+                context,
+                AppRoutes.myChannel,
+                arguments: {'memberId': artistId.toString()},
+              );
+            },
+            child: Text(
+              artist,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w700,
+                decoration: TextDecoration.underline, // 클릭 가능한 느낌 강조
+              ),
             ),
           ),
+
           const SizedBox(height: 10),
           Row(
             mainAxisSize: MainAxisSize.min,

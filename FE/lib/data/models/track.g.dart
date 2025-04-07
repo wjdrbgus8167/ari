@@ -25,8 +25,9 @@ class TrackAdapter extends TypeAdapter<Track> {
       albumId: fields[5] as int,
       trackFileUrl: fields[6] as String,
       lyrics: fields[7] as String,
-      coverUrl: fields[9] as String?,
       trackLikeCount: fields[8] as int,
+      coverUrl: fields[9] as String?,
+      artistId: fields[10] as int,
     );
   }
 
@@ -53,7 +54,9 @@ class TrackAdapter extends TypeAdapter<Track> {
       ..writeByte(8)
       ..write(obj.trackLikeCount)
       ..writeByte(9)
-      ..write(obj.coverUrl);
+      ..write(obj.coverUrl)
+      ..writeByte(10)
+      ..write(obj.artistId);
   }
 
   @override

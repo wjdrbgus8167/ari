@@ -38,6 +38,8 @@ class Track extends HiveObject {
   @HiveField(9)
   final String? coverUrl; // 🔹 앨범 커버 이미지 URL (nullable)
 
+  @HiveField(10)
+  final int artistId;
   Track({
     required this.id,
     required this.trackTitle,
@@ -47,6 +49,7 @@ class Track extends HiveObject {
     required this.albumId,
     required this.trackFileUrl,
     required this.lyrics,
+    required this.artistId,
     this.coverUrl,
     this.trackLikeCount = 0,
   });
@@ -64,6 +67,7 @@ class Track extends HiveObject {
       lyrics: lyrics,
       coverUrl: coverUrl,
       trackLikeCount: trackLikeCount,
+      artistId: artistId,
     );
   }
 
@@ -80,6 +84,7 @@ class Track extends HiveObject {
       lyrics: track.lyrics,
       coverUrl: album.coverUrl,
       trackLikeCount: track.trackLikeCount,
+      artistId: track.artistId,
     );
   }
 
@@ -95,6 +100,7 @@ class Track extends HiveObject {
       lyrics: json['lyrics'] ?? '', // API 응답에 없는 필드
       coverUrl: json['coverImageUrl'], // API에서는 coverImageUrl
       trackLikeCount: json['trackLikeCount'] ?? 0, // API 응답에 없는 필드
+      artistId: json['artistId'] ?? 0, // API 응답에 없는 필드
     );
   }
 }

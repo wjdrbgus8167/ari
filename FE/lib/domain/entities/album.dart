@@ -1,9 +1,11 @@
 import 'package:ari/domain/entities/track.dart';
 import 'package:ari/domain/entities/album_comment.dart';
+
 class Album {
   final int albumId;
   final String albumTitle;
   final String artist;
+  final int artistId;
   final String description;
   final int albumLikeCount;
   final String genre;
@@ -18,6 +20,7 @@ class Album {
     required this.albumId,
     required this.albumTitle,
     required this.artist,
+    required this.artistId,
     required this.description,
     required this.albumLikeCount,
     required this.genre,
