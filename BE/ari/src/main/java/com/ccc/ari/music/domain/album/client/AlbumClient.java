@@ -10,6 +10,7 @@ public interface AlbumClient {
     AlbumEntity savedAlbum(AlbumEntity albumEntity);
     List<AlbumDto> getAllAlbumsByMember(Integer memberId);
 
+    List<AlbumEntity> getAllAlbums(Integer memberId);
     // 최신 앨범 TOP10
     List<AlbumEntity> getTop10ByReleasedAt();
 

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+
 @Component
 @RequiredArgsConstructor
 public class SubscriptionPlanClientImpl implements SubscriptionPlanClient {

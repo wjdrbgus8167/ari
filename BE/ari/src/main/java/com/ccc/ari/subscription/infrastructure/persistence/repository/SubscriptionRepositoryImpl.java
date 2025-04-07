@@ -1,7 +1,5 @@
 package com.ccc.ari.subscription.infrastructure.persistence.repository;
 
-import com.ccc.ari.global.error.ApiException;
-import com.ccc.ari.global.error.ErrorCode;
 import com.ccc.ari.subscription.domain.Subscription;
 import com.ccc.ari.subscription.domain.repository.SubscriptionRepository;
 import com.ccc.ari.subscription.infrastructure.persistence.entity.SubscriptionEntity;
@@ -10,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -85,4 +84,24 @@ public class SubscriptionRepositoryImpl implements SubscriptionRepository {
     public Integer countBySubscriptionPlanIdAndActivateYnIsTrue(Integer subscriptionPlanId) {
         return subscriptionJpaRepository.countBySubscriptionPlanIdAndActivateYnIsTrue(subscriptionPlanId);
     }
+
+    @Override
+    public List<Subscription> findAllBySubscriptionPlanIdAndActivateYnTrue(Integer subscriptionPlanId) {
+        return subscriptionJpaRepository.findAllBySubscriptionPlanIdAndActivateYnTrue(subscriptionPlanId).stream()
+                .map(SubscriptionEntity::toModel)
+                .toList();
+    }
+
+    @Override
+    public List<Subscription> findAllBySubscriptionPlanIdAndSubscribedAtBetweenAndActivateYnTrue(Integer subscriptionId, LocalDateTime start, LocalDateTime end) {
+        return subscriptionJpaRepository.findAllBySubscriptionPlanIdAndSubscribedAtBetweenAndActivateYnTrue(subscriptionId,start,end).stream()
+                .map(SubscriptionEntity::toModel)
+                .toList();
+    }
+
+    @Override
+    public Optional<Subscription> findSubscription(Integer subscriptionId) {
+        return subscriptionJpaRepository.findById(subscriptionId).map(SubscriptionEntity::toModel);
+    }
+
 }
