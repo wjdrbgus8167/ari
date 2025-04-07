@@ -32,11 +32,31 @@ class _FantalkListScreenState extends ConsumerState<FantalkListScreen> {
     super.initState();
     // 화면 로드 시 팬톡 목록 불러오기
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(fantalkProvider.notifier).loadFanTalks(widget.fantalkChannelId);
+      _loadFantalks();
       // 현재 팬톡 채널 ID 설정
       ref.read(currentFantalkChannelIdProvider.notifier).state =
           widget.fantalkChannelId;
     });
+  }
+
+  // 팬톡 로딩 메서드 추가
+  Future<void> _loadFantalks() async {
+    try {
+      await ref
+          .read(fantalkProvider.notifier)
+          .loadFanTalks(widget.fantalkChannelId);
+    } catch (e) {
+      print('팬톡 로딩 오류: $e');
+      // 오류 발생 시 처리 (예: 스낵바 표시)
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('팬톡 로딩 중 오류가 발생했습니다: ${e.toString()}'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -47,6 +67,7 @@ class _FantalkListScreenState extends ConsumerState<FantalkListScreen> {
     final hasError = fantalkState.fanTalksStatus == FantalkStatus.error;
     final fanTalks = fantalkState.fanTalks?.fantalks ?? [];
     final fantalkCount = fantalkState.fanTalks?.fantalkCount ?? 0;
+    final errorMessage = fantalkState.error?.message;
 
     // 현재 로그인한 사용자 정보
     final userState = ref.watch(userProvider);
@@ -98,6 +119,7 @@ class _FantalkListScreenState extends ConsumerState<FantalkListScreen> {
           hasError: hasError,
           fanTalks: fanTalks,
           isSubscribed: widget.isSubscribed,
+          errorMessage: errorMessage,
         ),
       ),
     );
@@ -110,6 +132,7 @@ class _FantalkListScreenState extends ConsumerState<FantalkListScreen> {
     required bool hasError,
     required List<FanTalk> fanTalks,
     required bool isSubscribed,
+    String? errorMessage,
   }) {
     // 로딩 중
     if (isLoading && fanTalks.isEmpty) {
@@ -127,9 +150,21 @@ class _FantalkListScreenState extends ConsumerState<FantalkListScreen> {
             const Icon(Icons.error_outline, color: Colors.red, size: 48),
             const SizedBox(height: 16),
             Text(
-              '팬톡을 불러오는데 실패했습니다.\n아래로 당겨서 다시 시도해주세요.',
+              errorMessage ?? '팬톡을 불러오는데 실패했습니다.\n아래로 당겨서 다시 시도해주세요.',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.red[300]),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _loadFantalks,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+              ),
+              child: const Text('다시 시도', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),

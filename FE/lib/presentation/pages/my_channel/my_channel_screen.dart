@@ -108,9 +108,10 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
         // 상태를 로딩 상태로 직접 설정
         ref.read(myChannelProvider.notifier).setLoadingState();
         // 데이터 로드 시작
+        // 데이터 로드 시작
         ref
             .read(myChannelProvider.notifier)
-            .loadMyChannelData(_currentUserId, 'fantalk-channel-id');
+            .loadMyChannelData(_currentUserId, _currentUserId);
       });
     } else {
       print('사용자 ID가 설정되지 않았습니다. 채널 데이터를 로드할 수 없습니다.');
@@ -121,6 +122,9 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
   Widget build(BuildContext context) {
     // userIdProvider 변경 감지를 위한 watch
     final userId = ref.read(userIdProvider);
+
+    final channelState = ref.watch(myChannelProvider);
+    final fantalkChannelId = channelState.channelInfo?.fantalkChannelId;
 
     // 내 채널 모드에서 userId가 변경되면 데이터 다시 로드
     if (widget.memberId == null && userId != null && userId != _currentUserId) {
@@ -185,7 +189,11 @@ class _MyChannelScreenState extends ConsumerState<MyChannelScreen> {
 
               // 팬톡 (아티스트인 경우에만 표시)
               SliverToBoxAdapter(
-                child: FanTalkSection(memberId: _currentUserId),
+                child: FanTalkSection(
+                  memberId: _currentUserId,
+                  fantalkChannelId:
+                      fantalkChannelId?.toString(), // 채널 정보에서 가져온 팬톡 채널 ID
+                ),
               ),
 
               // 섹션 간 여백 (팬톡과 플레이리스트 사이)
