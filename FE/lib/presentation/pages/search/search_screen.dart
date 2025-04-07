@@ -126,7 +126,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         children: [
           // Hip Hop & Rap 장르 카드
           GenreCard(
-            title: 'Hip Hop & Rap',
+            title: 'HipHop & Rap',
             gradient: AppColors.purpleGradient,
             onTap: () {
               Navigator.of(
