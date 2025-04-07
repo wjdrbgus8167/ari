@@ -30,10 +30,12 @@ public class SettlementExecuteService {
     private final SubscriptionClient subscriptionClient;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    // 1 LINK = 10^18
+    private final BigInteger LINK_MULTIPLIER = BigInteger.TEN.pow(18);
     // 정기 구독의 결제 금액은 1LINK
-    private final BigInteger REGULAR_AMOUNT = BigInteger.ONE;
+    private final BigInteger REGULAR_AMOUNT = BigInteger.ONE.multiply(LINK_MULTIPLIER);
     // 아티스트 구독의 결제 금액은 1LINK
-    private final BigInteger ARTIST_AMOUNT = BigInteger.ONE;
+    private final BigInteger ARTIST_AMOUNT = BigInteger.ONE.multiply(LINK_MULTIPLIER);
 
     /**
      * 정기 구독 정산 요청 이벤트를 처리하는 메서드

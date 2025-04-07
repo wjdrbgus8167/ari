@@ -11,6 +11,6 @@ import java.util.List;
 @Builder
 public class GetSettlementResponse {
 
-    private final Integer regularSettlement;
-    private final Integer artistSettlement;
+    private final String regularSettlement;
+    private final String artistSettlement;
 }

@@ -31,5 +31,7 @@ public interface SubscriptionCycleRepository {
     /**
      * 사이클 ID로 특정 구독 사이클을 가져옵니다.
      */
-    Optional<SubscriptionCycle> getSubscriptionCycleById(SubscriptionCycleId subscriptionCycleId);
+    SubscriptionCycle getSubscriptionCycleById(Integer subscriptionCycleId);
+
+
 }
