@@ -6,6 +6,7 @@ import 'package:ari/presentation/widgets/search/search_input.dart';
 import 'package:ari/presentation/viewmodels/search/search_viewmodel.dart';
 import 'package:ari/providers/search/search_providers.dart';
 import '../../routes/app_router.dart';
+import 'package:ari/core/utils/genre_utils.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
@@ -128,7 +129,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             title: 'Hip Hop & Rap',
             gradient: AppColors.purpleGradient,
             onTap: () {
-              // TODO: Hip Hop & Rap 장르 페이지로 이동
+              Navigator.of(
+                context,
+              ).pushNamed(AppRoutes.genre, arguments: {'genre': Genre.hiphop});
             },
           ),
 
@@ -137,7 +140,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             title: 'Band',
             gradient: AppColors.blueToMintGradient,
             onTap: () {
-              // TODO: Band 장르 페이지로 이동
+              Navigator.of(
+                context,
+              ).pushNamed(AppRoutes.genre, arguments: {'genre': Genre.band});
             },
           ),
 
@@ -146,7 +151,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             title: 'R & B',
             gradient: AppColors.greenGradientHorizontal,
             onTap: () {
-              // TODO: R&B 장르 페이지로 이동
+              Navigator.of(
+                context,
+              ).pushNamed(AppRoutes.genre, arguments: {'genre': Genre.rnb});
             },
           ),
 
@@ -155,7 +162,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             title: 'Jazz',
             gradient: AppColors.purpleGradientHorizontal,
             onTap: () {
-              // TODO: Jazz 장르 페이지로 이동
+              Navigator.of(
+                context,
+              ).pushNamed(AppRoutes.genre, arguments: {'genre': Genre.jazz});
             },
           ),
 
@@ -168,7 +177,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               end: Alignment.bottomRight,
             ),
             onTap: () {
-              // TODO: Acoustic 장르 페이지로 이동
+              Navigator.of(context).pushNamed(
+                AppRoutes.genre,
+                arguments: {'genre': Genre.acoustic},
+              );
             },
           ),
         ],
