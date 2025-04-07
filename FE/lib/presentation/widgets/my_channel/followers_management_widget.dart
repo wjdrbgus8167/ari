@@ -109,13 +109,13 @@ class _FollowersManagementWidgetState
       }
 
       // 성공하면 로컬 상태 업데이트 (실패 시 viewModel에서 원래 상태로 복원)
-      if (success) {
+      if (success && mounted) {
         setState(() {
           _isFollowing = !_isFollowing;
         });
 
         // 팔로우 변경 후 콜백 호출
-        if (widget.onFollowChanged != null) {
+        if (mounted && widget.onFollowChanged != null) {
           widget.onFollowChanged!();
         }
       }
