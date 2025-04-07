@@ -55,10 +55,9 @@ public class GetMyArtistDashBoardService {
         List<AlbumEntity> albumDtoList = albumClient.getAllAlbums(memberId);
 
         // 현재 아티스트의 구독 플랜 조회
-        SubscriptionPlan subscriptionPlan = subscriptionPlanClient.getSubscriptionPlanByArtistId(memberId);
-        if(subscriptionPlan == null) {
-            throw  new ApiException(ErrorCode.SUBSCRIPTION_NOT_FOUND);
-        }
+        SubscriptionPlan subscriptionPlan = subscriptionPlanClient.getSubscriptionPlanByArtistId(memberId)
+                .orElseThrow(()-> new ApiException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
+
 
         log.info("구독Plan 아티스트ID:{}", subscriptionPlan.getArtistId());
 
