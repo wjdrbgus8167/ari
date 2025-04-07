@@ -11,7 +11,7 @@ domain.Playlist toEntity(data.Playlist model) {
     shareCount: model.shareCount,
     trackCount: model.trackCount,
     coverImageUrl: model.coverImageUrl,
-    tracks: [],
+    tracks: model.tracks.map(toEntityTrack).toList(),
   );
 }
 

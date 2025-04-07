@@ -1,3 +1,5 @@
+import 'package:ari/domain/entities/track.dart';
+
 class Album {
   final int id;
   final String title;
@@ -5,6 +7,7 @@ class Album {
   final String artist;
   final String coverUrl; // 앨범 커버 이미지 URL
   final DateTime releaseDate;
+  final List<Track> tracks;
 
   Album({
     required this.id,
@@ -13,6 +16,7 @@ class Album {
     required this.genre,
     this.coverUrl = '', // 기본값 빈 문자열 또는 기본 URL
     required this.releaseDate,
+    this.tracks = const [], // 기본값 빈 리스트
   });
 
   // JSON 데이터를 Album 객체로 변환하는 factory constructor 추가
@@ -28,6 +32,12 @@ class Album {
           json.containsKey('releaseDate') && json['releaseDate'] != null
               ? DateTime.parse(json['releaseDate'])
               : DateTime.now(),
+      tracks:
+          json['tracks'] != null
+              ? (json['tracks'] as List)
+                  .map((e) => Track.fromJson(e, json['albumId']))
+                  .toList()
+              : [],
     );
   }
 }

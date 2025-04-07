@@ -27,6 +27,63 @@ class AudioService {
     _initializePlayer();
   }
 
+  // 플레이리스트, 앨범 전체재생
+  Future<void> playFullTrackList({
+    required WidgetRef ref,
+    required BuildContext context,
+    required List<Track> tracks,
+  }) async {
+    if (tracks.isEmpty) {
+      context.showToast('재생할 트랙이 없습니다.');
+      return;
+    }
+
+    final permissionUsecase = ref.read(playbackPermissionUsecaseProvider);
+
+    // ✅ 권한이 있는 트랙만 필터링
+    final allowedTracks = <Track>[];
+
+    for (final track in tracks) {
+      final result = await permissionUsecase.check(
+        track.albumId,
+        track.trackId,
+      );
+      if (!result.isError) {
+        allowedTracks.add(track);
+      }
+    }
+
+    if (allowedTracks.isEmpty) {
+      context.showToast('⛔ 재생 가능한 트랙이 없습니다.');
+      return;
+    }
+
+    _playlistSource.clear();
+    for (final track in allowedTracks) {
+      _playlistSource.add(AudioSource.uri(Uri.parse(track.trackFileUrl ?? '')));
+    }
+
+    await audioPlayer.setAudioSource(_playlistSource, initialIndex: 0);
+    await audioPlayer.play();
+
+    final firstTrack = allowedTracks.first;
+    final uniqueId = "track_${firstTrack.trackId}";
+    ref
+        .read(playbackProvider.notifier)
+        .updateTrackInfo(
+          trackTitle: firstTrack.trackTitle,
+          artist: firstTrack.artistName,
+          coverImageUrl: firstTrack.coverUrl ?? '',
+          lyrics: firstTrack.lyric,
+          currentTrackId: firstTrack.trackId,
+          albumId: firstTrack.albumId,
+          trackUrl: firstTrack.trackFileUrl ?? '',
+          isLiked: false,
+          currentQueueItemId: uniqueId,
+        );
+    ref.read(playbackProvider.notifier).updatePlaybackState(true);
+  }
+
   Future<void> playSingleTrackWithPermission(WidgetRef ref, Track track) async {
     final permissionUsecase = ref.read(playbackPermissionUsecaseProvider);
     final permissionResult = await permissionUsecase.check(
@@ -80,22 +137,39 @@ class AudioService {
     List<Track> playlist,
     Track startTrack,
   ) async {
-    _playlistSource.clear();
+    final permissionUsecase = ref.read(playbackPermissionUsecaseProvider);
+
+    final allowedTracks = <Track>[];
 
     for (final track in playlist) {
+      final result = await permissionUsecase.check(
+        track.albumId,
+        track.trackId,
+      );
+      if (!result.isError) {
+        allowedTracks.add(track);
+      }
+    }
+
+    if (allowedTracks.isEmpty) return;
+
+    final initialIndex = allowedTracks.indexWhere(
+      (t) => t.trackId == startTrack.trackId,
+    );
+    if (initialIndex == -1) return;
+
+    _playlistSource.clear();
+    for (final track in allowedTracks) {
       _playlistSource.add(AudioSource.uri(Uri.parse(track.trackFileUrl ?? '')));
     }
 
-    final initialIndex = playlist.indexWhere(
-      (t) => t.trackId == startTrack.trackId,
-    );
     await audioPlayer.setAudioSource(
       _playlistSource,
       initialIndex: initialIndex,
     );
     await audioPlayer.play();
 
-    final uniqueId = "track_\${startTrack.trackId}";
+    final uniqueId = "track_${startTrack.trackId}";
     ref
         .read(playbackProvider.notifier)
         .updateTrackInfo(
@@ -114,32 +188,40 @@ class AudioService {
 
   // 선택된 트랙부터 큐 끝까지 재생 (차트, 플레이리스트 전용)
   Future<void> playFromQueueSubset(
-    BuildContext context, // ✅ context 인자 추가
+    BuildContext context,
     WidgetRef ref,
     List<Track> fullQueue,
     Track selectedTrack,
   ) async {
-    _playlistSource.clear();
-    if (selectedTrack.trackFileUrl == null ||
-        selectedTrack.trackFileUrl!.isEmpty) {
-      throw Exception('❌ 선택된 트랙에 유효한 URL이 없습니다.');
+    final permissionUsecase = ref.read(playbackPermissionUsecaseProvider);
+
+    final allowedTracks = <Track>[];
+    for (final track in fullQueue) {
+      final result = await permissionUsecase.check(
+        track.albumId,
+        track.trackId,
+      );
+      if (!result.isError) {
+        allowedTracks.add(track);
+      }
     }
-    if (fullQueue.isEmpty) {
-      // 사용자에게 토스트 또는 SnackBar로 안내
-      context.showToast('재생할 트랙이 없습니다.'); // 커스텀 토스트 함수 예시
+
+    if (allowedTracks.isEmpty) {
+      context.showToast('⛔ 재생 가능한 트랙이 없습니다.');
       return;
     }
 
-    for (final track in fullQueue) {
-      _playlistSource.add(AudioSource.uri(Uri.parse(track.trackFileUrl ?? '')));
-    }
-
-    final initialIndex = fullQueue.indexWhere(
+    final initialIndex = allowedTracks.indexWhere(
       (t) => t.trackId == selectedTrack.trackId,
     );
     if (initialIndex == -1) {
-      context.showToast('선택한 트랙이 재생목록에 없습니다.');
+      context.showToast('선택한 트랙은 재생할 수 없습니다.');
       return;
+    }
+
+    _playlistSource.clear();
+    for (final track in allowedTracks) {
+      _playlistSource.add(AudioSource.uri(Uri.parse(track.trackFileUrl ?? '')));
     }
 
     await audioPlayer.setAudioSource(

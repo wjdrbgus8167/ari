@@ -11,6 +11,7 @@ import 'package:ari/presentation/widgets/playback/expanded_playbackscreen.dart';
 import 'package:ari/presentation/routes/app_router.dart';
 import 'package:ari/core/services/playback_service.dart' as playbackServiceLib;
 import 'package:ari/core/services/audio_service.dart';
+import 'package:ari/core/utils/login_helper.dart';
 
 class PlaybackBar extends ConsumerWidget {
   const PlaybackBar({Key? key}) : super(key: key);
@@ -29,6 +30,11 @@ class PlaybackBar extends ConsumerWidget {
 
     return GestureDetector(
       onTap: () async {
+        final ok = await checkLoginAndNavigateIfNeeded(
+          context: context,
+          ref: ref,
+        );
+        if (!ok) return;
         try {
           // 프레임 딜레이를 줘서 build 중 상태 변화에 의한 재빌드와 충돌을 피함
           await Future.delayed(Duration.zero);
@@ -121,6 +127,11 @@ class PlaybackBar extends ConsumerWidget {
                       queueState.isLoading
                           ? null
                           : () async {
+                            final ok = await checkLoginAndNavigateIfNeeded(
+                              context: context,
+                              ref: ref,
+                            );
+                            if (!ok) return;
                             if (playbackState.isPlaying) {
                               await audioService.pause(ref);
                             } else {
@@ -188,7 +199,13 @@ class PlaybackBar extends ConsumerWidget {
                 ),
                 IconButton(
                   icon: const Icon(Icons.queue_music, color: Colors.white),
-                  onPressed: () {
+                  onPressed: () async {
+                    final ok = await checkLoginAndNavigateIfNeeded(
+                      context: context,
+                      ref: ref,
+                    );
+                    if (!ok) return;
+
                     Navigator.pushNamed(context, AppRoutes.listeningqueue);
                   },
                 ),

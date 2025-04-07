@@ -5,6 +5,7 @@ class MediaCard extends StatelessWidget {
   final String title;
   final String? subtitle; // 부제목이 필요한 경우 (예: 앨범의 아티스트)
   final VoidCallback? onTap;
+  final VoidCallback? onPlayPressed;
 
   const MediaCard({
     Key? key,
@@ -12,6 +13,7 @@ class MediaCard extends StatelessWidget {
     required this.title,
     this.subtitle,
     this.onTap,
+    this.onPlayPressed,
   }) : super(key: key);
 
   @override
@@ -44,23 +46,49 @@ class MediaCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 이미지 영역: 정사각형 (1:1 비율)
             AspectRatio(
               aspectRatio: 1,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: imageWidget,
+              child: Stack(
+                children: [
+                  // 앨범/플레이리스트 이미지
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: imageWidget,
+                  ),
+                  // ⏯ 오른쪽 아래에 작은 재생 버튼
+                  Positioned(
+                    bottom: 6,
+                    right: 6,
+                    child: GestureDetector(
+                      onTap: () {
+                        if (onPlayPressed != null) {
+                          onPlayPressed!();
+                        }
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.6),
+                          shape: BoxShape.circle,
+                        ),
+                        padding: const EdgeInsets.all(6),
+                        child: const Icon(
+                          Icons.play_arrow,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 8),
-            // 제목
             Text(
               title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(color: Colors.white),
             ),
-            // 부제목 (있다면)
             if (subtitle != null)
               Text(
                 subtitle!,

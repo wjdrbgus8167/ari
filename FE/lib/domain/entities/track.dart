@@ -38,7 +38,7 @@ class Track {
     required this.trackLikeCount,
   });
 
-  factory Track.fromJson(Map<String, dynamic> json) {
+  factory Track.fromJson(Map<String, dynamic> json, int albumId) {
     return Track(
       trackId:
           json['trackId'] is int
@@ -106,8 +106,8 @@ class Track {
   /// 데이터 모델(예: Hive 모델)에서 도메인 모델로 변환하는 팩토리 생성자
   factory Track.fromDataModel(data.Track dataModel) {
     return Track(
-      trackId: dataModel.id,
-      albumId: dataModel.albumId,
+      trackId: dataModel.id ?? 0,
+      albumId: dataModel.albumId ?? 0,
       trackTitle: dataModel.trackTitle,
       albumTitle: '',
       genreName: '',
@@ -122,7 +122,7 @@ class Track {
       createdAt: '', // 필요한 경우 별도의 값 할당
       coverUrl: dataModel.coverUrl,
       trackFileUrl: dataModel.trackFileUrl,
-      trackLikeCount: dataModel.trackLikeCount,
+      trackLikeCount: dataModel.trackLikeCount ?? 0,
     );
   }
 }
