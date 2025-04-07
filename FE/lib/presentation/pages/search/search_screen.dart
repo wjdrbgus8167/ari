@@ -77,7 +77,15 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             if (searchState.isLoading)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: Center(child: CircularProgressIndicator()),
+                child: Center(
+                  child: SizedBox(
+                    width: 24, // 크기 줄임
+                    height: 24, // 크기 줄임
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.0, // 선 두께 줄임
+                    ),
+                  ),
+                ),
               ),
 
             // 검색 결과 or 장르 카테고리 표시
