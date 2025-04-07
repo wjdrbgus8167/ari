@@ -16,8 +16,8 @@ class SearchScreen extends ConsumerStatefulWidget {
 
 class _SearchScreenState extends ConsumerState<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
-  bool _showResults = false;
 
+  // 검색어로 판단
   @override
   void dispose() {
     _searchController.dispose();
@@ -27,6 +27,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     final searchState = ref.watch(searchViewModelProvider);
+
+    // 검색어가 있는지 여부로 결과/카테고리 표시 결정
+    final bool shouldShowResults = searchState.query.isNotEmpty;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -56,40 +59,31 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 onSubmitted: (query) {
                   if (query.isNotEmpty) {
                     ref.read(searchViewModelProvider.notifier).search(query);
-                    setState(() {
-                      _showResults = true;
-                    });
                   }
                 },
                 onChanged: (query) {
-                  // 실시간 검색 추가
-                  if (query.isNotEmpty) {
-                    ref.read(searchViewModelProvider.notifier).search(query);
-                    setState(() {
-                      _showResults = true;
-                    });
-                  } else {
-                    ref.read(searchViewModelProvider.notifier).clearSearch();
-                    setState(() {
-                      _showResults = false;
-                    });
-                  }
+                  // 실시간 검색 - 즉시 검색 상태 업데이트
+                  ref.read(searchViewModelProvider.notifier).search(query);
                 },
                 onClear: () {
                   _searchController.clear();
                   ref.read(searchViewModelProvider.notifier).clearSearch();
-                  setState(() {
-                    _showResults = false;
-                  });
                 },
               ),
             ),
             const SizedBox(height: 20),
 
+            // 검색 중 로딩 인디케이터
+            if (searchState.isLoading)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+
             // 검색 결과 or 장르 카테고리 표시
             Expanded(
               child:
-                  _showResults && searchState.query.isNotEmpty
+                  shouldShowResults
                       ? _buildSearchResults(searchState)
                       : _buildGenreCategories(),
             ),
@@ -164,15 +158,31 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   /// 검색 결과 섹션 구성
   Widget _buildSearchResults(SearchState state) {
-    if (state.isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
     if (state.errorMessage != null) {
       return Center(
-        child: Text(
-          state.errorMessage!,
-          style: const TextStyle(color: Colors.white),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, color: Colors.red, size: 48),
+            const SizedBox(height: 16),
+            Text(
+              state.errorMessage!,
+              style: const TextStyle(color: Colors.white),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                // 검색 재시도
+                if (state.query.isNotEmpty) {
+                  ref
+                      .read(searchViewModelProvider.notifier)
+                      .search(state.query);
+                }
+              },
+              child: const Text('다시 시도'),
+            ),
+          ],
         ),
       );
     }
@@ -214,6 +224,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     leading: CircleAvatar(
                       backgroundImage: NetworkImage(artist.profileImageUrl),
                       radius: 24,
+                      // 이미지 로딩 에러 처리
+                      onBackgroundImageError: (_, __) {},
+                      backgroundColor: Colors.grey[800],
+                      child:
+                          artist.profileImageUrl.isEmpty
+                              ? const Icon(Icons.person, color: Colors.white)
+                              : null,
                     ),
                     title: Text(
                       artist.nickname,
@@ -253,12 +270,34 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     contentPadding: EdgeInsets.zero,
                     leading: ClipRRect(
                       borderRadius: BorderRadius.circular(4),
-                      child: Image.network(
-                        track.coverImageUrl,
-                        width: 48,
-                        height: 48,
-                        fit: BoxFit.cover,
-                      ),
+                      child:
+                          track.coverImageUrl.isEmpty
+                              ? Container(
+                                width: 48,
+                                height: 48,
+                                color: Colors.grey[800],
+                                child: const Icon(
+                                  Icons.music_note,
+                                  color: Colors.white,
+                                ),
+                              )
+                              : Image.network(
+                                track.coverImageUrl,
+                                width: 48,
+                                height: 48,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    width: 48,
+                                    height: 48,
+                                    color: Colors.grey[800],
+                                    child: const Icon(
+                                      Icons.music_note,
+                                      color: Colors.white,
+                                    ),
+                                  );
+                                },
+                              ),
                     ),
                     title: Text(
                       track.trackTitle,
