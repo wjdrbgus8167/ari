@@ -28,5 +28,6 @@ public class NewAlbumResponse {
     public static class TrackItem {
         private Integer trackId;
         private String trackTitle;
+        private String trackFileUrl;
     }
 }

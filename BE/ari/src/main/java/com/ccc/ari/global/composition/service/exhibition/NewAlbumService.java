@@ -57,6 +57,7 @@ public class NewAlbumService {
                 trackItems.add(NewAlbumResponse.TrackItem.builder()
                         .trackId(track.getTrackId())
                         .trackTitle(track.getTitle())
+                        .trackFileUrl(track.getTrackFileUrl())
                         .build());
             }
 

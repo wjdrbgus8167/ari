@@ -18,5 +18,6 @@ public class PopularTrackResponse {
         private String trackTitle;
         private String artist;
         private String coverImageUrl;
+        private String trackFileUrl;
     }
 }
