@@ -1,7 +1,6 @@
 package com.ccc.ari.global.composition.controller.community;
 
 import com.ccc.ari.global.composition.response.community.FollowerListResponse;
-import com.ccc.ari.global.composition.response.community.FollowingListResponse;
 import com.ccc.ari.global.composition.service.community.FollowListService;
 import com.ccc.ari.global.security.MemberUserDetails;
 import com.ccc.ari.global.util.ApiUtils;
@@ -20,13 +19,13 @@ public class FollowCompositionController {
     private final FollowListService followListService;
 
     @GetMapping("/following/list")
-    public ApiUtils.ApiResponse<FollowingListResponse> getFollowingList(
+    public ApiUtils.ApiResponse<?> getFollowingList(
             @PathVariable Integer memberId,
             @AuthenticationPrincipal MemberUserDetails userDetails
     ) {
 
         Integer currentMemberId = userDetails.getMemberId();
-        FollowingListResponse response = followListService.getFollowingList(memberId, currentMemberId);
+        Object response = followListService.getFollowingList(memberId, currentMemberId);
         return ApiUtils.success(response);
     }
 
