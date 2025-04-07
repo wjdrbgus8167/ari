@@ -44,7 +44,7 @@ class HeaderWidget extends ConsumerWidget {
       return Container();
     }
 
-     // SafeArea로 헤더 감싸기
+    // SafeArea로 헤더 감싸기
     return SafeArea(
       bottom: false, // 하단은 SafeArea 적용 안함
       child: _buildHeaderByType(context, ref),
@@ -150,7 +150,7 @@ class HeaderWidget extends ConsumerWidget {
         children: [
           // 뒤로가기 버튼
           IconButton(
-            icon: Image.asset('assets/images/prev_btn.png'),
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
             onPressed: onBackPressed,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
@@ -167,4 +167,3 @@ class HeaderWidget extends ConsumerWidget {
     );
   }
 }
-

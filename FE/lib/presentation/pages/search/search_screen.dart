@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/core/constants/app_colors.dart';
-import 'package:ari/presentation/widgets/search/genre_card.dart';
-import 'package:ari/presentation/widgets/search/search_input.dart';
 import 'package:ari/presentation/viewmodels/search/search_viewmodel.dart';
 import 'package:ari/providers/search/search_providers.dart';
 import '../../routes/app_router.dart';
+import 'package:ari/core/utils/genre_utils.dart';
+import 'package:ari/presentation/widgets/search/search_input.dart';
+
+// 향상된 색상 순환 효과 애니메이션 위젯 임포트
+import '../../widgets/search/enhanced_color_shift_genre_card.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
@@ -17,7 +20,6 @@ class SearchScreen extends ConsumerStatefulWidget {
 class _SearchScreenState extends ConsumerState<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
 
-  // 검색어로 판단
   @override
   void dispose() {
     _searchController.dispose();
@@ -27,8 +29,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     final searchState = ref.watch(searchViewModelProvider);
-
-    // 검색어가 있는지 여부로 결과/카테고리 표시 결정
     final bool shouldShowResults = searchState.query.isNotEmpty;
 
     return Scaffold(
@@ -38,7 +38,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
-            // 검색 페이지 제목
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
               child: Text(
@@ -51,7 +50,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            // 검색 입력 필드
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: SearchInput(
@@ -62,7 +60,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   }
                 },
                 onChanged: (query) {
-                  // 실시간 검색 - 즉시 검색 상태 업데이트
                   ref.read(searchViewModelProvider.notifier).search(query);
                 },
                 onClear: () {
@@ -73,34 +70,18 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             ),
             const SizedBox(height: 20),
 
-            // 검색 중 로딩 인디케이터
             if (searchState.isLoading)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Center(
                   child: SizedBox(
-                    width: 24, // 크기 줄임
-                    height: 24, // 크기 줄임
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.0, // 선 두께 줄임
-                    ),
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2.0),
                   ),
                 ),
               ),
-            // 검색 중 로딩 인디케이터
-            // if (searchState.isLoading)
-            //   Container(
-            //     margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-            //     height: 2, // 매우 얇은 인디케이터
-            //     child: const LinearProgressIndicator(
-            //       backgroundColor: Colors.transparent,
-            //       valueColor: AlwaysStoppedAnimation<Color>(
-            //         AppColors.lightPurple,
-            //       ),
-            //     ),
-            //   ),
 
-            // 검색 결과 or 장르 카테고리 표시
             Expanded(
               child:
                   shouldShowResults
@@ -113,70 +94,128 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     );
   }
 
-  /// 장르 카테고리 섹션 구성
+  /// 장르 카테고리 섹션 - 모든 카드에 향상된 색상 순환 효과 적용
   Widget _buildGenreCategories() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: GridView.count(
-        crossAxisCount: 2,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-        childAspectRatio: 1.0,
-        children: [
-          // Hip Hop & Rap 장르 카드
-          GenreCard(
-            title: 'Hip Hop & Rap',
-            gradient: AppColors.purpleGradient,
-            onTap: () {
-              // TODO: Hip Hop & Rap 장르 페이지로 이동
-            },
-          ),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final maxWidth = constraints.maxWidth;
+          final itemSpacing = 12.0;
 
-          // Band 장르 카드
-          GenreCard(
-            title: 'Band',
-            gradient: AppColors.blueToMintGradient,
-            onTap: () {
-              // TODO: Band 장르 페이지로 이동
-            },
-          ),
+          return SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Wrap(
+              spacing: itemSpacing,
+              runSpacing: itemSpacing,
+              children: [
+                // Hip Hop & Rap
+                EnhancedColorShiftGenreCard(
+                  title: 'HipHop & Rap',
+                  gradient: AppColors.purpleGradient,
+                  width: (maxWidth - itemSpacing) * 0.6, // 60% 너비
+                  height: 180,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(8),
+                    bottomLeft: Radius.circular(8),
+                    bottomRight: Radius.circular(20),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pushNamed(
+                      AppRoutes.genre,
+                      arguments: {'genre': Genre.hiphop},
+                    );
+                  },
+                ),
 
-          // R&B 장르 카드
-          GenreCard(
-            title: 'R & B',
-            gradient: AppColors.greenGradientHorizontal,
-            onTap: () {
-              // TODO: R&B 장르 페이지로 이동
-            },
-          ),
+                // Band
+                EnhancedColorShiftGenreCard(
+                  title: 'Band',
+                  gradient: AppColors.blueToMintGradient,
+                  width: (maxWidth - itemSpacing) * 0.4, // 40% 너비
+                  height: 180,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(8),
+                    topRight: Radius.circular(20),
+                    bottomLeft: Radius.circular(20),
+                    bottomRight: Radius.circular(8),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pushNamed(
+                      AppRoutes.genre,
+                      arguments: {'genre': Genre.band},
+                    );
+                  },
+                ),
 
-          // Jazz 장르 카드
-          GenreCard(
-            title: 'Jazz',
-            gradient: AppColors.purpleGradientHorizontal,
-            onTap: () {
-              // TODO: Jazz 장르 페이지로 이동
-            },
-          ),
+                // R&B
+                EnhancedColorShiftGenreCard(
+                  title: 'R&B',
+                  gradient: AppColors.greenGradientHorizontal,
+                  width: (maxWidth - itemSpacing) * 0.5, // 50% 너비
+                  height: 160,
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () {
+                    Navigator.of(context).pushNamed(
+                      AppRoutes.genre,
+                      arguments: {'genre': Genre.rnb},
+                    );
+                  },
+                ),
 
-          // Acoustic 장르 카드
-          GenreCard(
-            title: 'Acoustic',
-            gradient: const LinearGradient(
-              colors: [Color(0xFFE5BCFF), Color(0xFF7DDCFF)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+                // Jazz
+                EnhancedColorShiftGenreCard(
+                  title: 'Jazz',
+                  gradient: AppColors.purpleGradientHorizontal,
+                  width: (maxWidth - itemSpacing) * 0.5, // 50% 너비
+                  height: 160,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(24),
+                    topRight: Radius.circular(8),
+                    bottomLeft: Radius.circular(8),
+                    bottomRight: Radius.circular(24),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pushNamed(
+                      AppRoutes.genre,
+                      arguments: {'genre': Genre.jazz},
+                    );
+                  },
+                ),
+
+                // Acoustic
+                EnhancedColorShiftGenreCard(
+                  title: 'Acoustic',
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFE5BCFF), Color(0xFF7DDCFF)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  width: maxWidth,
+                  height: 140,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(32),
+                    topRight: Radius.circular(32),
+                    bottomLeft: Radius.circular(12),
+                    bottomRight: Radius.circular(12),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pushNamed(
+                      AppRoutes.genre,
+                      arguments: {'genre': Genre.acoustic},
+                    );
+                  },
+                ),
+              ],
             ),
-            onTap: () {
-              // TODO: Acoustic 장르 페이지로 이동
-            },
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 
-  /// 검색 결과 섹션 구성
+  /// 검색 결과 섹션 구성 (기존 코드 유지)
   Widget _buildSearchResults(SearchState state) {
     if (state.errorMessage != null) {
       return Center(
@@ -193,7 +232,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                // 검색 재시도
                 if (state.query.isNotEmpty) {
                   ref
                       .read(searchViewModelProvider.notifier)
@@ -244,7 +282,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     leading: CircleAvatar(
                       backgroundImage: NetworkImage(artist.profileImageUrl),
                       radius: 24,
-                      // 이미지 로딩 에러 처리
                       onBackgroundImageError: (_, __) {},
                       backgroundColor: Colors.grey[800],
                       child:
@@ -257,7 +294,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       style: const TextStyle(color: Colors.white),
                     ),
                     onTap: () {
-                      // 아티스트 채널 페이지로 이동
                       Navigator.of(context).pushNamed(
                         AppRoutes.myChannel,
                         arguments: {'memberId': artist.memberId.toString()},
@@ -328,7 +364,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       style: const TextStyle(color: Colors.grey),
                     ),
                     onTap: () {
-                      // 트랙 상세 페이지로 이동
                       Navigator.of(context).pushNamed(
                         AppRoutes.track,
                         arguments: {
