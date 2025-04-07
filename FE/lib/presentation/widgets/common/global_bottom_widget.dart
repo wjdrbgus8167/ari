@@ -1,17 +1,12 @@
-import 'package:ari/presentation/pages/home/home_screen.dart';
-import 'package:ari/presentation/pages/login/login_screen.dart';
 import 'package:ari/presentation/routes/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/core/utils/login_redirect_util.dart';
-import 'package:ari/providers/global_providers.dart';
 import 'package:ari/providers/navigation_history_provider.dart';
 import 'package:ari/presentation/widgets/common/bottom_nav.dart';
 import 'package:ari/presentation/widgets/common/playback_bar.dart';
-import 'package:ari/presentation/widgets/common/custom_toast.dart';
 import 'package:ari/presentation/pages/search/search_screen.dart';
-import '../../pages/my_channel/my_channel_screen.dart';
 
 // 네비게이션 상태를 관리하는 클래스
 class NavigationState {

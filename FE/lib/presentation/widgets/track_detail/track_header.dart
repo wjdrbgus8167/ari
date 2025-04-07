@@ -21,7 +21,7 @@ class TrackHeader extends ConsumerWidget {
   final String trackFileUrl;
 
   const TrackHeader({
-    Key? key,
+    super.key,
     required this.albumId,
     required this.albumName,
     required this.trackTitle,
@@ -33,7 +33,7 @@ class TrackHeader extends ConsumerWidget {
     required this.artistImageUrl,
     required this.trackId,
     required this.trackFileUrl,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

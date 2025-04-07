@@ -8,13 +8,13 @@ class MediaCard extends StatelessWidget {
   final VoidCallback? onPlayPressed;
 
   const MediaCard({
-    Key? key,
+    super.key,
     required this.imageUrl,
     required this.title,
     this.subtitle,
     this.onTap,
     this.onPlayPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

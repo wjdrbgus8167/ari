@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/providers/playback/playback_state_provider.dart';
 import 'package:ari/core/services/audio_service.dart';
@@ -22,6 +23,7 @@ class PlaybackService {
     required int albumId,
     required int trackId,
     required WidgetRef ref,
+    required BuildContext context,
   }) async {
     final permissionResult = await ref
         .read(playbackPermissionUsecaseProvider)
@@ -77,6 +79,7 @@ class PlaybackService {
             albumTitle: '',
             genreName: '',
           ),
+          context,
         );
 
         print('[DEBUG] playTrack: 재생 시작됨');

@@ -2,15 +2,12 @@ import 'package:flutter/material.dart';
 
 class AlbumDetailCover extends StatelessWidget {
   final String coverImage;
-  
-  const AlbumDetailCover({
-    super.key,
-    required this.coverImage,
-  });
+
+  const AlbumDetailCover({super.key, required this.coverImage});
   @override
   Widget build(BuildContext context) {
-    print(this.coverImage);
-    return Container(
+    print(coverImage);
+    return SizedBox(
       width: 360,
       height: 360,
       child: Stack(

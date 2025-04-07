@@ -6,10 +6,10 @@ class LikeButton extends ConsumerStatefulWidget {
   final Future<void> Function() toggleLike;
 
   const LikeButton({
-    Key? key,
+    super.key,
     required this.fetchLikeStatus,
     required this.toggleLike,
-  }) : super(key: key);
+  });
 
   @override
   _LikeButtonState createState() => _LikeButtonState();

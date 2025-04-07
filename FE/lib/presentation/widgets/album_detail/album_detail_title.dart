@@ -8,7 +8,7 @@ class AlbumDetailTitle extends StatelessWidget {
   final String rating;
   final String genre;
   final String releaseDate;
-  
+
   const AlbumDetailTitle({
     super.key,
     required this.title,
@@ -19,7 +19,7 @@ class AlbumDetailTitle extends StatelessWidget {
     required this.genre,
     required this.releaseDate,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -65,7 +65,7 @@ class AlbumDetailTitle extends StatelessWidget {
                 spacing: 3,
                 children: [
                   // 하트 아이콘 (뷰 카운트 부분에)
-                  Container(
+                  SizedBox(
                     width: 12.5,
                     height: 12.5,
                     child: Icon(
@@ -91,7 +91,7 @@ class AlbumDetailTitle extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // 댓글 카운트
-                  Container(
+                  SizedBox(
                     width: 15,
                     height: 15,
                     child: Icon(
@@ -113,7 +113,7 @@ class AlbumDetailTitle extends StatelessWidget {
                 ],
               ),
               const SizedBox(width: 7),
-              
+
               // 평점
               Row(
                 mainAxisSize: MainAxisSize.min,
@@ -122,15 +122,16 @@ class AlbumDetailTitle extends StatelessWidget {
                 children: [
                   Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: List.generate(5, (index) => 
-                      Padding(
+                    children: List.generate(
+                      5,
+                      (index) => Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 1),
                         child: Icon(
                           Icons.star,
                           color: Color(0xFF8A4FFF),
                           size: 12,
                         ),
-                      )
+                      ),
                     ),
                   ),
                   const SizedBox(width: 5),
@@ -148,7 +149,7 @@ class AlbumDetailTitle extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          
+
           // 장르 및 발매일
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -161,7 +162,10 @@ class AlbumDetailTitle extends StatelessWidget {
                 decoration: ShapeDecoration(
                   color: Colors.white.withOpacity(0),
                   shape: RoundedRectangleBorder(
-                    side: const BorderSide(width: 0.50, color: Color(0xFF989595)),
+                    side: const BorderSide(
+                      width: 0.50,
+                      color: Color(0xFF989595),
+                    ),
                     borderRadius: BorderRadius.circular(20),
                   ),
                 ),
@@ -182,7 +186,10 @@ class AlbumDetailTitle extends StatelessWidget {
                 decoration: ShapeDecoration(
                   color: Colors.white.withOpacity(0),
                   shape: RoundedRectangleBorder(
-                    side: const BorderSide(width: 0.50, color: Color(0xFF989595)),
+                    side: const BorderSide(
+                      width: 0.50,
+                      color: Color(0xFF989595),
+                    ),
                     borderRadius: BorderRadius.circular(20),
                   ),
                 ),

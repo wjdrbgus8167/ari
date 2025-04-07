@@ -11,14 +11,14 @@ class TrackListTile extends StatelessWidget {
   final bool isPausedIndicator;
 
   const TrackListTile({
-    Key? key,
+    super.key,
     required this.track,
     required this.isSelected,
     required this.onTap,
     required this.onToggleSelection,
     this.isPlayingIndicator = false,
     this.isPausedIndicator = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -101,11 +101,11 @@ class AudioWaveIndicator extends StatefulWidget {
   final double height;
 
   const AudioWaveIndicator({
-    Key? key,
+    super.key,
     required this.isPlaying,
     this.waveColor = Colors.blue,
     this.height = 20.0,
-  }) : super(key: key);
+  });
 
   @override
   _AudioWaveIndicatorState createState() => _AudioWaveIndicatorState();

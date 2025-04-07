@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 class CreatePlaylistModal extends StatefulWidget {
   final Function(String title, bool publicYn) onCreate;
 
-  const CreatePlaylistModal({Key? key, required this.onCreate})
-    : super(key: key);
+  const CreatePlaylistModal({super.key, required this.onCreate});
 
   @override
   _CreatePlaylistModalState createState() => _CreatePlaylistModalState();
@@ -27,7 +26,7 @@ class _CreatePlaylistModalState extends State<CreatePlaylistModal> {
           bottom: MediaQuery.of(context).viewInsets.bottom + 16,
         ),
         decoration: const BoxDecoration(
-          color: const Color(0xFF282828),
+          color: Color(0xFF282828),
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(

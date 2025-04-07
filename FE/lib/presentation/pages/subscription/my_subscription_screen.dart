@@ -5,7 +5,6 @@ import 'package:ari/providers/subscription/subscriptionProviders.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-
 class MySubscriptionScreen extends ConsumerStatefulWidget {
   const MySubscriptionScreen({super.key});
 
@@ -28,63 +27,76 @@ class MySubscriptionScreenState extends ConsumerState<MySubscriptionScreen> {
     final viewModel = ref.watch(subscriptionViewModelProvider);
     return Scaffold(
       backgroundColor: Colors.black,
-      body: viewModel.isLoading
-        ? const Center(child: CircularProgressIndicator())
-        : Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          clipBehavior: Clip.antiAlias,
-          decoration: const BoxDecoration(color: Colors.black),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // 헤더 섹션
-              HeaderWidget(
-                type: HeaderType.backWithTitle,
-                title: "나의 구독",
-                onBackPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-              const SizedBox(height: 20),
-              // 구독 프로세스 버튼
-              SubscriptionProcessButton(
-                onPressed: () {
-                  print('버튼 클릭됨');
-                  ref.read(subscriptionViewModelProvider.notifier).navigateToSubscriptionPage(context);
-                },
-              ),
-              const SizedBox(height: 20),
-              // 구독 목록 영역
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 정기 구독 섹션
-                      RegularSubscriptionSection(
-                        subscriptions: viewModel.regularSubscriptions,
-                        onCancelPressed: (id) => ref.read(subscriptionViewModelProvider.notifier).cancelSubscription(id),
+      body:
+          viewModel.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                clipBehavior: Clip.antiAlias,
+                decoration: const BoxDecoration(color: Colors.black),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // 헤더 섹션
+                    HeaderWidget(
+                      type: HeaderType.backWithTitle,
+                      title: "나의 구독",
+                      onBackPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    // 구독 프로세스 버튼
+                    SubscriptionProcessButton(
+                      onPressed: () {
+                        print('버튼 클릭됨');
+                        ref
+                            .read(subscriptionViewModelProvider.notifier)
+                            .navigateToSubscriptionPage(context);
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    // 구독 목록 영역
+                    Expanded(
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // 정기 구독 섹션
+                            RegularSubscriptionSection(
+                              subscriptions: viewModel.regularSubscriptions,
+                              onCancelPressed:
+                                  (id) => ref
+                                      .read(
+                                        subscriptionViewModelProvider.notifier,
+                                      )
+                                      .cancelSubscription(id),
+                            ),
+
+                            const SizedBox(height: 30),
+
+                            // 아티스트 구독 섹션
+                            ArtistSubscriptionSection(
+                              subscriptions: viewModel.artistSubscriptions,
+                              onCancelPressed:
+                                  (id) => ref
+                                      .read(
+                                        subscriptionViewModelProvider.notifier,
+                                      )
+                                      .cancelSubscription(id),
+                            ),
+                          ],
+                        ),
                       ),
-                      
-                      const SizedBox(height: 30),
-                      
-                      // 아티스트 구독 섹션
-                      ArtistSubscriptionSection(
-                        subscriptions: viewModel.artistSubscriptions,
-                        onCancelPressed: (id) => ref.read(subscriptionViewModelProvider.notifier).cancelSubscription(id),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
     );
   }
 }

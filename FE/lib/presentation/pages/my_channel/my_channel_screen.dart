@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/my_channel/my_channel_providers.dart';
 import '../../../providers/user_provider.dart';
 import '../../widgets/my_channel/profile_header.dart';
-import '../../widgets/my_channel/badge_list.dart';
 import '../../widgets/my_channel/artist_album_section.dart';
 import '../../widgets/my_channel/artist_notice_section.dart';
 import '../../widgets/my_channel/fantalk_section.dart';

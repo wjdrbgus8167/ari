@@ -114,7 +114,7 @@ class PlaylistRemoteDataSourceImpl implements IPlaylistRemoteDataSource {
                 )
                 .toList();
         print('getPlaylistDetail: Parsed tracks count = ${tracks.length}');
-        print('tracks${tracks}');
+        print('tracks$tracks');
         // 상세조회 API는 트랙 목록만 반환하므로, 기본 정보는 빈 값 또는 기본값으로 지정합니다.
         return Playlist(
           id: playlistId,

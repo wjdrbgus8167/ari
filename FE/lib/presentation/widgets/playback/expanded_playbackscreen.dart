@@ -14,7 +14,7 @@ import 'package:ari/data/datasources/like_remote_datasource.dart';
 import 'package:ari/providers/global_providers.dart' as gb;
 
 class ExpandedPlaybackScreen extends ConsumerStatefulWidget {
-  const ExpandedPlaybackScreen({Key? key}) : super(key: key);
+  const ExpandedPlaybackScreen({super.key});
 
   @override
   _ExpandedPlaybackScreenState createState() => _ExpandedPlaybackScreenState();
@@ -120,6 +120,7 @@ class _ExpandedPlaybackScreenState
                               albumId: albumId,
                               trackId: trackId,
                               ref: ref,
+                              context: context,
                             );
                             ref
                                 .read(playbackProvider.notifier)
@@ -137,7 +138,7 @@ class _ExpandedPlaybackScreenState
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    child: Container(
+                    child: SizedBox(
                       height: 80, // 여기서 높이를 늘림 (예: 250)
                       child: LyricsView(
                         albumCoverUrl:

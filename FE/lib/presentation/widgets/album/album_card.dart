@@ -9,7 +9,7 @@ import 'package:ari/presentation/widgets/common/custom_toast.dart';
 
 class AlbumCard extends ConsumerWidget {
   final Album album;
-  const AlbumCard({Key? key, required this.album}) : super(key: key);
+  const AlbumCard({super.key, required this.album});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -43,6 +43,7 @@ class AlbumCard extends ConsumerWidget {
           ref,
           album.tracks,
           album.tracks.first,
+          context,
         );
       },
     );

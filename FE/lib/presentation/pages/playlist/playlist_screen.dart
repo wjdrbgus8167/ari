@@ -9,7 +9,7 @@ import 'package:ari/presentation/widgets/common/global_bottom_widget.dart';
 import 'package:ari/presentation/widgets/common/search_bar.dart';
 
 class PlaylistScreen extends ConsumerStatefulWidget {
-  const PlaylistScreen({Key? key}) : super(key: key);
+  const PlaylistScreen({super.key});
 
   @override
   ConsumerState<PlaylistScreen> createState() => _PlaylistScreenState();
@@ -32,7 +32,6 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen> {
     final playlistState = ref.watch(playlistViewModelProvider);
     final playlistViewModel = ref.read(playlistViewModelProvider.notifier);
 
-    // 전체 선택 여부 판단
     bool allSelected = false;
     if (playlistState.selectedPlaylist != null &&
         playlistState.selectedPlaylist!.tracks.isNotEmpty) {
@@ -41,8 +40,9 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen> {
       );
     }
 
-    return Container(
-        color: Colors.black,
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: SafeArea(
         child: Column(
           children: [
             // 상단 앱바
@@ -87,6 +87,8 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen> {
             const Expanded(child: PlaylistTrackList()),
           ],
         ),
+      ),
+      // bottomNavigationBar: const GlobalBottomWidget(), // ✅ 재생바 포함된 공통 바
     );
   }
 }

@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 class WalletInfoWidget extends StatelessWidget {
   final String walletAddress;
 
-  const WalletInfoWidget({
-    super.key,
-    required this.walletAddress,
-  });
+  const WalletInfoWidget({super.key, required this.walletAddress});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +15,7 @@ class WalletInfoWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
+          SizedBox(
             width: double.infinity,
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -40,7 +37,10 @@ class WalletInfoWidget extends StatelessWidget {
                     // 지갑 변경 기능 구현
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 9,
+                      vertical: 2,
+                    ),
                     clipBehavior: Clip.antiAlias,
                     decoration: ShapeDecoration(
                       color: Colors.transparent,
@@ -80,7 +80,9 @@ class WalletInfoWidget extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             decoration: ShapeDecoration(
               color: const Color(0xFF373737),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5),
+              ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -91,7 +93,9 @@ class WalletInfoWidget extends StatelessWidget {
                   child: Container(
                     clipBehavior: Clip.antiAlias,
                     decoration: ShapeDecoration(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,

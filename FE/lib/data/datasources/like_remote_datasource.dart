@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:ari/providers/global_providers.dart';
 
 class LikeRemoteDatasource {
   final Dio dio;

@@ -38,7 +38,7 @@ class StatsCardWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 상단 row - 구독자 수, 총 스트리밍 횟수
-          Container(
+          SizedBox(
             width: double.infinity,
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -50,7 +50,9 @@ class StatsCardWidget extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     clipBehavior: Clip.antiAlias,
                     decoration: ShapeDecoration(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -85,7 +87,9 @@ class StatsCardWidget extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     clipBehavior: Clip.antiAlias,
                     decoration: ShapeDecoration(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -118,9 +122,9 @@ class StatsCardWidget extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // 하단 row - 금월 스트리밍, 금월 신규 구독자 수, 금월 정산액
-          Container(
+          SizedBox(
             width: double.infinity,
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -132,7 +136,9 @@ class StatsCardWidget extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     clipBehavior: Clip.antiAlias,
                     decoration: ShapeDecoration(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -165,7 +171,7 @@ class StatsCardWidget extends StatelessWidget {
                             ),
                             const SizedBox(width: 5),
                             Text(
-                              '+${monthlyStreamGrowth}',
+                              '+$monthlyStreamGrowth',
                               style: const TextStyle(
                                 color: Color(0xFFFF2D55),
                                 fontSize: 12,
@@ -184,7 +190,9 @@ class StatsCardWidget extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     clipBehavior: Clip.antiAlias,
                     decoration: ShapeDecoration(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -217,7 +225,7 @@ class StatsCardWidget extends StatelessWidget {
                             ),
                             const SizedBox(width: 5),
                             Text(
-                              '+${monthlySubscriberGrowth}',
+                              '+$monthlySubscriberGrowth',
                               style: const TextStyle(
                                 color: Color(0xFFFF2D55),
                                 fontSize: 12,
@@ -236,7 +244,9 @@ class StatsCardWidget extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     clipBehavior: Clip.antiAlias,
                     decoration: ShapeDecoration(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -269,7 +279,7 @@ class StatsCardWidget extends StatelessWidget {
                             ),
                             const SizedBox(width: 5),
                             Text(
-                              '+${monthlyRevenueGrowth}',
+                              '+$monthlyRevenueGrowth',
                               style: const TextStyle(
                                 color: Color(0xFFFF2D55),
                                 fontSize: 12,

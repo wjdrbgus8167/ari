@@ -6,11 +6,11 @@ class TrackLyrics extends StatefulWidget {
   final String showMoreText;
 
   const TrackLyrics({
-    Key? key,
+    super.key,
     required this.title,
     required this.lyrics,
     this.showMoreText = '더보기',
-  }) : super(key: key);
+  });
 
   @override
   State<TrackLyrics> createState() => _TrackLyricsState();
@@ -55,7 +55,8 @@ class _TrackLyricsState extends State<TrackLyrics> {
                 fontWeight: FontWeight.w400,
               ),
               maxLines: _expanded ? null : 6,
-              overflow: _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
+              overflow:
+                  _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
             ),
           ),
           const SizedBox(height: 19),

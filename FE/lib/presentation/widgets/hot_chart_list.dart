@@ -12,7 +12,7 @@ import 'package:ari/data/models/track.dart' as ari;
 
 class HotChartList extends StatefulWidget {
   final List<ari.Track> tracks;
-  const HotChartList({Key? key, required this.tracks}) : super(key: key);
+  const HotChartList({super.key, required this.tracks});
 
   @override
   _HotChartListState createState() => _HotChartListState();
@@ -65,7 +65,11 @@ class _HotChartListState extends State<HotChartList> {
                     final localIndex = entry.key;
                     final track = entry.value;
                     final globalIndex = startIndex + localIndex;
-                    return _ChartItem(rank: globalIndex + 1, track: track);
+                    return _ChartItem(
+                      rank: globalIndex + 1,
+                      track: track,
+                      allTracks: widget.tracks,
+                    );
                   }).toList(),
             ),
           ),
@@ -79,9 +83,14 @@ class _HotChartListState extends State<HotChartList> {
 class _ChartItem extends ConsumerWidget {
   final int rank;
   final ari.Track track;
+  final List<ari.Track> allTracks; // 👈 추가
 
-  const _ChartItem({Key? key, required this.rank, required this.track})
-    : super(key: key);
+  const _ChartItem({
+    super.key,
+    required this.rank,
+    required this.track,
+    required this.allTracks, // 👈 추가
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -106,7 +115,7 @@ class _ChartItem extends ConsumerWidget {
                   arguments: {'albumId': track.albumId},
                 );
               },
-              child: Container(
+              child: SizedBox(
                 width: 50,
                 height: 50,
                 child: ClipRRect(
@@ -164,7 +173,7 @@ class _ChartItem extends ConsumerWidget {
           ),
           const SizedBox(width: 8),
           // 재생 버튼 컨테이너
-          Container(
+          SizedBox(
             width: 40,
             child: IconButton(
               padding: EdgeInsets.zero,
@@ -172,26 +181,20 @@ class _ChartItem extends ConsumerWidget {
               icon: const Icon(Icons.play_arrow, color: Colors.white),
               onPressed: () async {
                 final audioService = ref.read(audioServiceProvider);
-                final queueNotifier = ref.read(listeningQueueProvider.notifier);
+                final domainTrack = track.toDomainTrack();
 
-                // 1. 재생목록 최상단에 트랙 추가
-                await queueNotifier.trackPlayed(track);
-
-                // 2. 전체 큐를 도메인 트랙으로 변환하여 가져오기
-                final fullQueue =
-                    ref
-                        .read(listeningQueueProvider)
-                        .playlist
-                        .map((e) => safeToDomainTrack(e.track))
-                        .toList();
-
-                // 3. 선택된 트랙도 변환하여 재생
+                // 바로 재생
                 await audioService.playFromQueueSubset(
                   context,
                   ref,
-                  fullQueue,
-                  track.toDomainTrack(),
+                  allTracks.map((e) => e.toDomainTrack()).toList(),
+                  domainTrack,
                 );
+
+                // 재생목록에는 별도로 추가
+                await ref
+                    .read(listeningQueueProvider.notifier)
+                    .trackPlayed(track);
               },
             ),
           ),

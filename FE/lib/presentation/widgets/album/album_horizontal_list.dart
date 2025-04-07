@@ -4,7 +4,7 @@ import 'album_card.dart';
 
 class AlbumHorizontalList extends StatelessWidget {
   final List<Album> albums;
-  const AlbumHorizontalList({Key? key, required this.albums}) : super(key: key);
+  const AlbumHorizontalList({super.key, required this.albums});
 
   @override
   Widget build(BuildContext context) {

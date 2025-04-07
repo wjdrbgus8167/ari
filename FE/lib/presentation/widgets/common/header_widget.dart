@@ -2,7 +2,6 @@ import 'package:ari/core/utils/login_redirect_util.dart';
 import 'package:ari/presentation/routes/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path/path.dart';
 
 enum HeaderType {
   // 메인페이지 헤더: 로고 + 마이페이지 아이콘
@@ -44,7 +43,7 @@ class HeaderWidget extends ConsumerWidget {
       return Container();
     }
 
-     // SafeArea로 헤더 감싸기
+    // SafeArea로 헤더 감싸기
     return SafeArea(
       bottom: false, // 하단은 SafeArea 적용 안함
       child: _buildHeaderByType(context, ref),
@@ -167,4 +166,3 @@ class HeaderWidget extends ConsumerWidget {
     );
   }
 }
-

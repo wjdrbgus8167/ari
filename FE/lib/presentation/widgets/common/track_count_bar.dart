@@ -9,12 +9,12 @@ class TrackCountBar extends StatelessWidget {
   final VoidCallback onAddToPlaylist;
 
   const TrackCountBar({
-    Key? key,
+    super.key,
     required this.trackCount,
     required this.selectedTracks,
     required this.onToggleSelectAll,
     required this.onAddToPlaylist,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -15,7 +15,7 @@ class CustomToast {
     _removeToast();
 
     // Overlay 위에 토스트 표시
-    final overlay = Overlay.of(context);
+    final overlay = Overlay.of(context, rootOverlay: true);
     final overlayEntry = OverlayEntry(
       builder:
           (context) => _ToastOverlay(message: message, onDismiss: _removeToast),
@@ -59,17 +59,26 @@ class _ToastOverlayState extends State<_ToastOverlay>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
+  late double _bottomPadding;
+  late double _screenWidth;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final mediaQuery = MediaQuery.of(context);
+    _bottomPadding = mediaQuery.viewPadding.bottom;
+    _screenWidth = mediaQuery.size.width;
+  }
+
   @override
   void initState() {
     super.initState();
 
-    // 애니메이션 컨트롤러 초기화
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
 
-    // fade 애니메이션
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
@@ -78,7 +87,6 @@ class _ToastOverlayState extends State<_ToastOverlay>
       ),
     );
 
-    // 애니메이션 시작
     _animationController.forward();
   }
 
@@ -91,9 +99,9 @@ class _ToastOverlayState extends State<_ToastOverlay>
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      bottom: MediaQuery.of(context).viewPadding.bottom + 70,
-      left: MediaQuery.of(context).size.width * 0.125, // 좌우 여백
-      right: MediaQuery.of(context).size.width * 0.125, // 좌우 여백
+      bottom: _bottomPadding + 70,
+      left: _screenWidth * 0.125,
+      right: _screenWidth * 0.125,
       child: GestureDetector(
         onTap: () {
           _animationController.reverse().then((_) {
@@ -105,18 +113,15 @@ class _ToastOverlayState extends State<_ToastOverlay>
           child: Material(
             color: Colors.transparent,
             child: Container(
-              width: MediaQuery.of(context).size.width * 0.75, // 가로 길이 증가
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: AppColors.lightPurple.withValues(
-                  alpha: 0.7,
-                ), // 투명한 검정색 적용
+                color: AppColors.lightPurple.withAlpha(180),
                 borderRadius: BorderRadius.circular(12),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     color: Colors.black26,
                     blurRadius: 6,
-                    offset: const Offset(0, 3),
+                    offset: Offset(0, 3),
                   ),
                 ],
               ),

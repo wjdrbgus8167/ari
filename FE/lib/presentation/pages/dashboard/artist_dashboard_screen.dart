@@ -11,7 +11,8 @@ class ArtistDashboardScreen extends ConsumerStatefulWidget {
   const ArtistDashboardScreen({super.key});
 
   @override
-  ConsumerState<ArtistDashboardScreen> createState() => _ArtistDashboardScreenState();
+  ConsumerState<ArtistDashboardScreen> createState() =>
+      _ArtistDashboardScreenState();
 }
 
 class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
@@ -23,14 +24,15 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
     _walletController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final dashboardData = ref.watch(artistDashboardProvider);
     final hasWallet = dashboardData.walletAddress != null;
     print("hasWallet: $hasWallet");
     print("walletAddress: ${dashboardData.walletAddress}");
-    final hasTracks = dashboardData.hasTracks; // 트랙이 있는지 여부를 확인하는 getter가 있다고 가정
+    final hasTracks =
+        dashboardData.hasTracks; // 트랙이 있는지 여부를 확인하는 getter가 있다고 가정
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -81,7 +83,8 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                             children: [
                               Row(
                                 mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text(
@@ -94,13 +97,18 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                                     ),
                                   ),
                                   GestureDetector(
-                                    onTap: () => ref.watch(artistDashboardProvider.notifier).navigateToAlbumStatList(context),
+                                    onTap:
+                                        () => ref
+                                            .watch(
+                                              artistDashboardProvider.notifier,
+                                            )
+                                            .navigateToAlbumStatList(context),
                                     child: Icon(
                                       Icons.keyboard_arrow_right_rounded,
                                       color: Color.fromARGB(255, 255, 255, 255),
                                       size: 20,
                                     ),
-                                  )
+                                  ),
                                 ],
                               ),
                               const SizedBox(height: 10),
@@ -108,37 +116,41 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                             ],
                           ),
                         ),
-                      
-                        // 지갑 주소가 있는 경우와 없는 경우 다른 UI 표시
-                        if (hasWallet)
-                          WalletInfoWidget(
-                            walletAddress: dashboardData.walletAddress ?? '',
-                          )
-                        else
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(20),
-                            clipBehavior: Clip.antiAlias,
-                            decoration: ShapeDecoration(
-                              color: const Color(0xFF373737),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+
+                      // 지갑 주소가 있는 경우와 없는 경우 다른 UI 표시
+                      if (hasWallet)
+                        WalletInfoWidget(
+                          walletAddress: dashboardData.walletAddress ?? '',
+                        )
+                      else
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(20),
+                          clipBehavior: Clip.antiAlias,
+                          decoration: ShapeDecoration(
+                            color: const Color(0xFF373737),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
                             ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                    // 정산 지갑 섹션
-                                Container(
-                                  width: double.infinity,
-                                  margin: const EdgeInsets.only(bottom: 30),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // 정산 지갑 섹션
+                              Container(
+                                width: double.infinity,
+                                margin: const EdgeInsets.only(bottom: 30),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
                                     const Row(
                                       mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
                                       children: [
                                         Text(
                                           '정산 지갑',
@@ -159,7 +171,9 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                                         //ref.read(artistDashboardProvider.notifier).connectWallet();
                                       },
                                       child: Container(
-                                        padding: const EdgeInsets.symmetric(vertical: 5),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 5,
+                                        ),
                                         width: double.infinity,
                                         alignment: Alignment.center,
                                         child: const Text(
@@ -173,7 +187,7 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                                         ),
                                       ),
                                     ),
-                                    
+
                                     // 직접 입력 옵션
                                     GestureDetector(
                                       onTap: () {
@@ -195,12 +209,14 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                                         ),
                                       ),
                                     ),
-                                    
+
                                     // 직접 입력 폼
                                     if (_showWalletInput)
                                       Container(
                                         margin: const EdgeInsets.only(top: 8),
-                                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                        ),
                                         child: Column(
                                           children: [
                                             TextField(
@@ -212,25 +228,32 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                                               decoration: InputDecoration(
                                                 hintText: '지갑 주소를 입력하세요',
                                                 hintStyle: TextStyle(
-                                                  color: Colors.white.withOpacity(0.5),
+                                                  color: Colors.white
+                                                      .withOpacity(0.5),
                                                   fontSize: 12,
                                                 ),
                                                 filled: true,
-                                                fillColor: const Color(0xFF444444),
+                                                fillColor: const Color(
+                                                  0xFF444444,
+                                                ),
                                                 border: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(5),
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
                                                   borderSide: BorderSide.none,
                                                 ),
-                                                contentPadding: const EdgeInsets.symmetric(
-                                                  horizontal: 10,
-                                                  vertical: 8,
-                                                ),
+                                                contentPadding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 8,
+                                                    ),
                                               ),
                                             ),
                                             const SizedBox(height: 8),
                                             GestureDetector(
                                               onTap: () {
-                                                if (_walletController.text.isNotEmpty) {
+                                                if (_walletController
+                                                    .text
+                                                    .isNotEmpty) {
                                                   // 지갑 주소 등록 로직
                                                   // ref.read(artistDashboardProvider.notifier)
                                                   //     .setWalletAddress(_walletController.text);
@@ -242,11 +265,17 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                                               },
                                               child: Container(
                                                 width: double.infinity,
-                                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      vertical: 8,
+                                                    ),
                                                 alignment: Alignment.center,
                                                 decoration: BoxDecoration(
-                                                  color: const Color(0xFF6C63FF),
-                                                  borderRadius: BorderRadius.circular(5),
+                                                  color: const Color(
+                                                    0xFF6C63FF,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
                                                 ),
                                                 child: const Text(
                                                   '등록하기',
@@ -264,10 +293,10 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                                   ],
                                 ),
                               ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      
+
                       // 기록 섹션
                       Container(
                         width: double.infinity,
@@ -287,17 +316,23 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                               ),
                             ),
                             const SizedBox(height: 10),
-                            if (hasTracks) 
+                            if (hasTracks)
                               // 트랙이 있는 경우 상세 통계 표시
                               StatsCardWidget(
                                 subscriberCount: dashboardData.subscriberCount,
-                                totalStreamCount: dashboardData.totalStreamCount,
-                                monthlyStreamCount: dashboardData.monthlyStreamCount,
-                                monthlyStreamGrowth: dashboardData.monthlyStreamGrowth,
-                                monthlyNewSubscribers: dashboardData.monthlyNewSubscribers,
-                                monthlySubscriberGrowth: dashboardData.monthlySubscriberGrowth,
+                                totalStreamCount:
+                                    dashboardData.totalStreamCount,
+                                monthlyStreamCount:
+                                    dashboardData.monthlyStreamCount,
+                                monthlyStreamGrowth:
+                                    dashboardData.monthlyStreamGrowth,
+                                monthlyNewSubscribers:
+                                    dashboardData.monthlyNewSubscribers,
+                                monthlySubscriberGrowth:
+                                    dashboardData.monthlySubscriberGrowth,
                                 monthlyRevenue: dashboardData.monthlyRevenue,
-                                monthlyRevenueGrowth: dashboardData.monthlyRevenueGrowth,
+                                monthlyRevenueGrowth:
+                                    dashboardData.monthlyRevenueGrowth,
                               )
                             else
                               // 트랙이 없는 경우 간단한 통계 표시
@@ -307,7 +342,9 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                                 clipBehavior: Clip.antiAlias,
                                 decoration: ShapeDecoration(
                                   color: const Color(0xFF373737),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
                                 ),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
@@ -315,24 +352,34 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     // 첫 번째 행: 구독자 수와 총 스트리밍 횟수
-                                    Container(
+                                    SizedBox(
                                       width: double.infinity,
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
                                         children: [
                                           Expanded(
                                             child: Container(
-                                              padding: const EdgeInsets.symmetric(vertical: 10),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 10,
+                                                  ),
                                               clipBehavior: Clip.antiAlias,
                                               decoration: ShapeDecoration(
-                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                ),
                                               ),
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.min,
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
                                                 children: [
                                                   const Text(
                                                     '구독자 수',
@@ -340,19 +387,25 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                                                       color: Colors.white,
                                                       fontSize: 12,
                                                       fontFamily: 'Pretendard',
-                                                      fontWeight: FontWeight.w700,
+                                                      fontWeight:
+                                                          FontWeight.w700,
                                                     ),
                                                   ),
                                                   const SizedBox(height: 10),
                                                   Text(
-                                                    dashboardData.subscriberCount > 0 
-                                                      ? dashboardData.subscriberCount.toString() 
-                                                      : '-',
+                                                    dashboardData
+                                                                .subscriberCount >
+                                                            0
+                                                        ? dashboardData
+                                                            .subscriberCount
+                                                            .toString()
+                                                        : '-',
                                                     style: const TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 12,
                                                       fontFamily: 'Pretendard',
-                                                      fontWeight: FontWeight.w400,
+                                                      fontWeight:
+                                                          FontWeight.w400,
                                                     ),
                                                   ),
                                                 ],
@@ -362,15 +415,23 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                                           const SizedBox(width: 10),
                                           Expanded(
                                             child: Container(
-                                              padding: const EdgeInsets.symmetric(vertical: 10),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 10,
+                                                  ),
                                               clipBehavior: Clip.antiAlias,
                                               decoration: ShapeDecoration(
-                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                ),
                                               ),
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.min,
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
                                                 children: [
                                                   const Text(
                                                     '총 스트리밍 횟수',
@@ -378,19 +439,25 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                                                       color: Colors.white,
                                                       fontSize: 12,
                                                       fontFamily: 'Pretendard',
-                                                      fontWeight: FontWeight.w700,
+                                                      fontWeight:
+                                                          FontWeight.w700,
                                                     ),
                                                   ),
                                                   const SizedBox(height: 10),
                                                   Text(
-                                                    dashboardData.totalStreamCount > 0 
-                                                      ? dashboardData.totalStreamCount.toString() 
-                                                      : '-',
+                                                    dashboardData
+                                                                .totalStreamCount >
+                                                            0
+                                                        ? dashboardData
+                                                            .totalStreamCount
+                                                            .toString()
+                                                        : '-',
                                                     style: const TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 12,
                                                       fontFamily: 'Pretendard',
-                                                      fontWeight: FontWeight.w400,
+                                                      fontWeight:
+                                                          FontWeight.w400,
                                                     ),
                                                   ),
                                                 ],
@@ -402,24 +469,34 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                                     ),
                                     const SizedBox(height: 5),
                                     // 두 번째 행: 금월 스트리밍, 금월 신규 구독자 수, 금월 정산액
-                                    Container(
+                                    SizedBox(
                                       width: double.infinity,
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
                                         children: [
                                           Expanded(
                                             child: Container(
-                                              padding: const EdgeInsets.symmetric(vertical: 10),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 10,
+                                                  ),
                                               clipBehavior: Clip.antiAlias,
                                               decoration: ShapeDecoration(
-                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                ),
                                               ),
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.min,
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
                                                 children: [
                                                   const Text(
                                                     '금월 스트리밍',
@@ -427,19 +504,25 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                                                       color: Colors.white,
                                                       fontSize: 12,
                                                       fontFamily: 'Pretendard',
-                                                      fontWeight: FontWeight.w700,
+                                                      fontWeight:
+                                                          FontWeight.w700,
                                                     ),
                                                   ),
                                                   const SizedBox(height: 10),
                                                   Text(
-                                                    dashboardData.monthlyStreamCount > 0 
-                                                      ? dashboardData.monthlyStreamCount.toString() 
-                                                      : '-',
+                                                    dashboardData
+                                                                .monthlyStreamCount >
+                                                            0
+                                                        ? dashboardData
+                                                            .monthlyStreamCount
+                                                            .toString()
+                                                        : '-',
                                                     style: const TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 12,
                                                       fontFamily: 'Pretendard',
-                                                      fontWeight: FontWeight.w400,
+                                                      fontWeight:
+                                                          FontWeight.w400,
                                                     ),
                                                   ),
                                                 ],
@@ -449,15 +532,23 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                                           const SizedBox(width: 10),
                                           Expanded(
                                             child: Container(
-                                              padding: const EdgeInsets.symmetric(vertical: 10),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 10,
+                                                  ),
                                               clipBehavior: Clip.antiAlias,
                                               decoration: ShapeDecoration(
-                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                ),
                                               ),
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.min,
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
                                                 children: [
                                                   const Text(
                                                     '금월 신규 구독자 수',
@@ -465,19 +556,25 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                                                       color: Colors.white,
                                                       fontSize: 12,
                                                       fontFamily: 'Pretendard',
-                                                      fontWeight: FontWeight.w700,
+                                                      fontWeight:
+                                                          FontWeight.w700,
                                                     ),
                                                   ),
                                                   const SizedBox(height: 10),
                                                   Text(
-                                                    dashboardData.monthlyNewSubscribers > 0 
-                                                      ? dashboardData.monthlyNewSubscribers.toString() 
-                                                      : '-',
+                                                    dashboardData
+                                                                .monthlyNewSubscribers >
+                                                            0
+                                                        ? dashboardData
+                                                            .monthlyNewSubscribers
+                                                            .toString()
+                                                        : '-',
                                                     style: const TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 12,
                                                       fontFamily: 'Pretendard',
-                                                      fontWeight: FontWeight.w400,
+                                                      fontWeight:
+                                                          FontWeight.w400,
                                                     ),
                                                   ),
                                                 ],
@@ -487,15 +584,23 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                                           const SizedBox(width: 10),
                                           Expanded(
                                             child: Container(
-                                              padding: const EdgeInsets.symmetric(vertical: 10),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 10,
+                                                  ),
                                               clipBehavior: Clip.antiAlias,
                                               decoration: ShapeDecoration(
-                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                ),
                                               ),
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.min,
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
                                                 children: [
                                                   const Text(
                                                     '금월 정산액',
@@ -503,19 +608,25 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                                                       color: Colors.white,
                                                       fontSize: 12,
                                                       fontFamily: 'Pretendard',
-                                                      fontWeight: FontWeight.w700,
+                                                      fontWeight:
+                                                          FontWeight.w700,
                                                     ),
                                                   ),
                                                   const SizedBox(height: 10),
                                                   Text(
-                                                    dashboardData.monthlyRevenue > 0 
-                                                      ? dashboardData.monthlyRevenue.toStringAsFixed(2) 
-                                                      : '-',
+                                                    dashboardData
+                                                                .monthlyRevenue >
+                                                            0
+                                                        ? dashboardData
+                                                            .monthlyRevenue
+                                                            .toStringAsFixed(2)
+                                                        : '-',
                                                     style: const TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 12,
                                                       fontFamily: 'Pretendard',
-                                                      fontWeight: FontWeight.w400,
+                                                      fontWeight:
+                                                          FontWeight.w400,
                                                     ),
                                                   ),
                                                 ],
@@ -531,7 +642,7 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                           ],
                         ),
                       ),
-                      
+
                       // 차트 섹션 (트랙이 있을 때만 표시)
                       if (hasTracks) ...[
                         // 월별 구독자 수 차트
@@ -564,7 +675,7 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                             ],
                           ),
                         ),
-                        
+
                         // 월별 스트리밍 횟수 차트
                         Container(
                           width: double.infinity,
@@ -595,7 +706,7 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                             ],
                           ),
                         ),
-                        
+
                         // 월별 정산금액 차트
                         Container(
                           width: double.infinity,

@@ -1,5 +1,3 @@
-import 'package:ari/data/models/subscription_history_model.dart';
-import 'package:ari/domain/entities/playlist.dart';
 import 'package:ari/presentation/pages/dashboard/artist_dashboard_screen.dart';
 import 'package:ari/presentation/pages/dashboard/my_album_stat_list.dart';
 import 'package:ari/presentation/pages/login/login_screen.dart';
@@ -122,13 +120,13 @@ class AppRouter {
         final trackId = args?['trackId'] as int? ?? 1;
         final albumCoverUrl = args?['albumCoverUrl'] as String?; // 추가된 부분
         return MaterialPageRoute(
-          builder: (_) => TrackDetailScreen(
-            albumId: albumId, 
-            trackId: trackId,
-            albumCoverUrl: albumCoverUrl, // 추가된 부분
-          ),
+          builder:
+              (_) => TrackDetailScreen(
+                albumId: albumId,
+                trackId: trackId,
+                albumCoverUrl: albumCoverUrl, // 추가된 부분
+              ),
         );
-
 
       case AppRoutes.playlist:
         return MaterialPageRoute(builder: (_) => const PlaylistScreen());
@@ -173,7 +171,9 @@ class AppRouter {
         );
 
       case AppRoutes.subscriptionHistory:
-        return MaterialPageRoute(builder: (_) => const SubscriptionHistoryScreen());
+        return MaterialPageRoute(
+          builder: (_) => const SubscriptionHistoryScreen(),
+        );
 
       case AppRoutes.artistSelection:
         return MaterialPageRoute(builder: (_) => const ArtistSelectionScreen());

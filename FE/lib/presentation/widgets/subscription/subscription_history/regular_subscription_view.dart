@@ -6,21 +6,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class RegularSubscriptionView extends ConsumerWidget {
-  const RegularSubscriptionView({Key? key}) : super(key: key);
+  const RegularSubscriptionView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(subscriptionHistoryViewModelProvider);
     final artists = state.artists;
-    
+
     if (state.isLoading) {
       return Center(child: CircularProgressIndicator(color: Colors.white));
     }
-    
+
     if (state.errorMessage != null) {
-      return Center(child: Text(state.errorMessage!, style: TextStyle(color: Colors.red)));
+      return Center(
+        child: Text(state.errorMessage!, style: TextStyle(color: Colors.red)),
+      );
     }
-    
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,7 +45,7 @@ class RegularSubscriptionView extends ConsumerWidget {
               ),
             ),
           ),
-          
+
           // 구독 정보 컨테이너
           Container(
             width: double.infinity,
@@ -51,10 +53,7 @@ class RegularSubscriptionView extends ConsumerWidget {
             decoration: ShapeDecoration(
               color: Colors.black,
               shape: RoundedRectangleBorder(
-                side: BorderSide(
-                  width: 1,
-                  color: const Color(0xFF989595),
-                ),
+                side: BorderSide(width: 1, color: const Color(0xFF989595)),
               ),
             ),
             child: Column(
@@ -95,7 +94,9 @@ class RegularSubscriptionView extends ConsumerWidget {
                             height: 20,
                             decoration: BoxDecoration(
                               image: DecorationImage(
-                                image: NetworkImage("https://placehold.co/20x20"),
+                                image: NetworkImage(
+                                  "https://placehold.co/20x20",
+                                ),
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -105,28 +106,34 @@ class RegularSubscriptionView extends ConsumerWidget {
                     ],
                   ),
                 ),
-                
+
                 SizedBox(height: 20),
-                
+
                 // 차트
                 SubscriptionChart(artists: artists),
-                
+
                 SizedBox(height: 20),
-                
+
                 // 아티스트 목록
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
-                    children: artists.map((artist) => _buildArtistItem(artist)).toList(),
+                    children:
+                        artists
+                            .map((artist) => _buildArtistItem(artist))
+                            .toList(),
                   ),
                 ),
-                
+
                 SizedBox(height: 20),
-                
+
                 // 더 보기 버튼
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 15,
+                    vertical: 8,
+                  ),
                   decoration: ShapeDecoration(
                     color: const Color(0xFF323232),
                     shape: RoundedRectangleBorder(
@@ -146,22 +153,20 @@ class RegularSubscriptionView extends ConsumerWidget {
               ],
             ),
           ),
-          
+
           // 아티스트별 스트리밍 정보
-          ...artists.map((artist) => _buildArtistStreamingInfo(artist)).toList(),
+          ...artists.map((artist) => _buildArtistStreamingInfo(artist)),
         ],
       ),
     );
   }
-  
+
   Widget _buildArtistItem(Artist artist) {
     return Container(
       width: double.infinity,
       margin: EdgeInsets.only(bottom: 8),
       decoration: ShapeDecoration(
-        shape: RoundedRectangleBorder(
-          side: BorderSide(color: Colors.white),
-        ),
+        shape: RoundedRectangleBorder(side: BorderSide(color: Colors.white)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -203,20 +208,23 @@ class RegularSubscriptionView extends ConsumerWidget {
       ),
     );
   }
-  
+
   Widget _buildArtistStreamingInfo(Artist artist) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: Column(
         children: [
-          Container(
+          SizedBox(
             width: double.infinity,
             height: 66,
             child: Column(
               children: [
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 18,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -279,7 +287,9 @@ class RegularSubscriptionView extends ConsumerWidget {
                             height: 15,
                             decoration: BoxDecoration(
                               image: DecorationImage(
-                                image: NetworkImage("https://placehold.co/15x15"),
+                                image: NetworkImage(
+                                  "https://placehold.co/15x15",
+                                ),
                                 fit: BoxFit.cover,
                               ),
                             ),

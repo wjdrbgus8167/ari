@@ -5,28 +5,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ArtistSubscriptionView extends ConsumerWidget {
-  const ArtistSubscriptionView({Key? key}) : super(key: key);
+  const ArtistSubscriptionView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(subscriptionHistoryViewModelProvider);
     final artists = state.artists;
     final selectedArtist = state.selectedArtist;
-    
+
     // 선택된 아티스트 찾기
     final artistData = artists.firstWhere(
       (artist) => artist.name == selectedArtist,
       orElse: () => artists.first,
     );
-    
+
     if (state.isLoading) {
       return Center(child: CircularProgressIndicator(color: Colors.white));
     }
-    
+
     if (state.errorMessage != null) {
-      return Center(child: Text(state.errorMessage!, style: TextStyle(color: Colors.red)));
+      return Center(
+        child: Text(state.errorMessage!, style: TextStyle(color: Colors.red)),
+      );
     }
-    
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,7 +62,7 @@ class ArtistSubscriptionView extends ConsumerWidget {
               ],
             ),
           ),
-          
+
           // 아티스트 구독 정보
           Padding(
             padding: const EdgeInsets.all(20),
@@ -83,7 +85,10 @@ class ArtistSubscriptionView extends ConsumerWidget {
                   // 구독 정보 헤더
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -118,7 +123,9 @@ class ArtistSubscriptionView extends ConsumerWidget {
                                   height: 20,
                                   decoration: BoxDecoration(
                                     image: DecorationImage(
-                                      image: NetworkImage("https://placehold.co/20x20"),
+                                      image: NetworkImage(
+                                        "https://placehold.co/20x20",
+                                      ),
                                       fit: BoxFit.cover,
                                     ),
                                   ),
@@ -139,7 +146,7 @@ class ArtistSubscriptionView extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  
+
                   // 구독 내역 목록
                   _buildSubscriptionDetails(state),
                 ],
@@ -150,17 +157,18 @@ class ArtistSubscriptionView extends ConsumerWidget {
       ),
     );
   }
-  
+
   Widget _buildSubscriptionDetails(SubscriptionHistoryState state) {
     return Column(
-      children: state.subscriptions
-          .map((subscription) => _buildSubscriptionDetailItem(subscription))
-          .toList(),
+      children:
+          state.subscriptions
+              .map((subscription) => _buildSubscriptionDetailItem(subscription))
+              .toList(),
     );
   }
-  
+
   Widget _buildSubscriptionDetailItem(SubscriptionHistory subscription) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: Container(
         width: double.infinity,
