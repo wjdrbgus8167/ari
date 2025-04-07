@@ -33,14 +33,28 @@ class _LyricsViewState extends State<LyricsView> {
   }
 
   Future<void> _extractDominantColor() async {
-    final PaletteGenerator paletteGenerator =
-        await PaletteGenerator.fromImageProvider(
-          NetworkImage(widget.albumCoverUrl),
-        );
+    try {
+      final ImageProvider imageProvider =
+          widget.albumCoverUrl.isNotEmpty &&
+                  Uri.tryParse(widget.albumCoverUrl)?.hasAbsolutePath == true
+              ? NetworkImage(widget.albumCoverUrl)
+              : const AssetImage('assets/images/default_album_cover.png');
 
-    setState(() {
-      _dominantColor = paletteGenerator.dominantColor?.color ?? Colors.black;
-    });
+      final PaletteGenerator paletteGenerator =
+          await PaletteGenerator.fromImageProvider(imageProvider);
+
+      if (mounted) {
+        setState(() {
+          _dominantColor =
+              paletteGenerator.dominantColor?.color ?? Colors.black;
+        });
+      }
+    } catch (e, stack) {
+      debugPrint('🎨 팔레트 추출 실패: $e');
+      setState(() {
+        _dominantColor = Colors.black;
+      });
+    }
   }
 
   @override

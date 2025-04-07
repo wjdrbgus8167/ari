@@ -10,7 +10,7 @@ import 'package:ari/domain/repositories/playlist_repository.dart';
 /// 데이터 모델인 data.Track을 도메인 엔티티 domain.Track으로 변환하는 매핑 함수
 domain.Track mapDataTrackToDomain(data.Track dataTrack) {
   return domain.Track(
-    trackId: dataTrack.id,
+    trackId: dataTrack.id ?? 0,
     trackTitle: dataTrack.trackTitle,
     artistName: dataTrack.artist,
     albumTitle: '',
@@ -18,11 +18,11 @@ domain.Track mapDataTrackToDomain(data.Track dataTrack) {
     // 단일 문자열을 리스트로 감싸서 전달 (필요시 로직 변경)
     composer: [dataTrack.composer],
     lyricist: [dataTrack.lyricist],
-    albumId: dataTrack.albumId,
+    albumId: dataTrack.albumId ?? 0,
     trackFileUrl: dataTrack.trackFileUrl,
     lyric: dataTrack.lyrics,
     coverUrl: dataTrack.coverUrl,
-    trackLikeCount: dataTrack.trackLikeCount,
+    trackLikeCount: dataTrack.trackLikeCount ?? 0,
     commentCount: 0, // 기본값 (필요에 따라 수정)
     comments: [], // 기본값 (필요에 따라 수정)
     trackNumber: 0, // 기본값 (필요에 따라 수정)
@@ -93,6 +93,10 @@ class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
         dataTracks.map((dataTrack) => mapDataTrackToDomain(dataTrack)).toList();
     final items =
         domainTracks.map((track) => ListeningQueueItem(track: track)).toList();
+
+    // ✅ dispose 되었는지 확인
+    if (!mounted) return;
+
     state = state.copyWith(
       playlist: items,
       filteredPlaylist: List.from(items),

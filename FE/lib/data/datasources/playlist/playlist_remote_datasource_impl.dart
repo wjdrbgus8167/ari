@@ -227,6 +227,8 @@ class PlaylistRemoteDataSourceImpl implements IPlaylistRemoteDataSource {
       url: '/api/v1/playlists/popular',
       method: 'GET',
       fromJson: (data) {
+        print('🌍 fetchPopularPlaylists - data: $data'); // ✅ 여기에 추가
+
         // data는 이미 API 응답의 data 필드를 전달받은 것으로 가정 (즉, data: { "playlists": [...] } )
         final dynamic playlistsData = data['playlists'];
         if (playlistsData is List) {

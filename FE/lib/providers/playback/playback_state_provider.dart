@@ -72,6 +72,9 @@ class PlaybackNotifier extends StateNotifier<PlaybackState> {
       state = state.copyWith(isPlaying: playerState.playing);
     });
   }
+  void reset() {
+    state = PlaybackState(); // 초기 상태로 되돌림
+  }
 
   @override
   void dispose() {

@@ -36,7 +36,7 @@ class PlaylistTrackItem {
       composer: json['composer'] as String? ?? '',
       lyricist: json['lyricist'] as String? ?? '',
       lyrics: json['lyrics'] as String? ?? '',
-      trackFileUrl: json['trackFileUrl'] as String? ?? '',
+      trackFileUrl: json['trackFileUrl'] ?? '',
       trackLikeCount: json['trackLikeCount'] as int? ?? 0,
       trackNumber: json['trackNumber'] as int? ?? 0,
       trackTitle: json['trackTitle'] as String? ?? '',

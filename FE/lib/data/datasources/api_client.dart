@@ -8,15 +8,28 @@ class ApiClient {
   ApiClient(this.dio);
 
   /// API 요청 처리, 결과를 반환하는 제네릭 메서드
-  /// 
+  ///
   /// [url]: API 엔드포인트 URL
   /// [method]: HTTP 메서드 (GET, POST, DELETE 등)
   /// [fromJson]: API 응답 데이터를 객체로 변환하는 함수
   /// [queryParameters]: URL 쿼리 파라미터
   /// [data]: 요청 본문 데이터
-  /// 
+  ///
   /// 반환값: 변환된 응답 데이터 객체
   /// 오류 발생 시 Failure 객체 throw
+  /// 간단한 GET 요청을 위한 헬퍼
+  Future<dynamic> get(
+    String url, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    return await request<dynamic>(
+      url: url,
+      method: 'GET',
+      fromJson: (json) => json,
+      queryParameters: queryParameters,
+    );
+  }
+
   Future<T> request<T>({
     required String url,
     required String method,
@@ -71,7 +84,6 @@ class ApiClient {
       }
       // 응답 데이터 반환
       return apiResponse.data as T;
-
     } on DioException catch (e) {
       throw Failure(
         message: e.response?.data?['message'] ?? e.message ?? 'Network error',
