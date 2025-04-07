@@ -24,47 +24,12 @@ import '../../domain/usecases/my_channel/artist_notice_usecases.dart' as notice;
 // viewmodel
 import '../../presentation/viewmodels/my_channel/my_channel_viewmodel.dart';
 
-/// 채널 기능용 Dio 인스턴스 - 인증 인터셉터 포함
-final channelDioProvider = Provider<Dio>((ref) {
-  final dio = Dio(
-    BaseOptions(
-      baseUrl: baseUrl,
-      contentType: 'application/json',
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
-    ),
-  );
-
-  // 인증 인터셉터 추가
-  final authInterceptor = AuthInterceptor(
-    refreshTokensUseCase: ref.watch(refreshTokensUseCaseProvider),
-    getAuthStatusUseCase: ref.watch(getAuthStatusUseCaseProvider),
-    getTokensUseCase: ref.watch(getTokensUseCaseProvider),
-    dio: dio,
-  );
-
-  dio.interceptors.add(authInterceptor);
-
-  // 로깅 인터셉터 (디버그 모드에서만)
-  dio.interceptors.add(
-    LogInterceptor(
-      request: true,
-      requestHeader: true,
-      requestBody: true,
-      responseHeader: true,
-      responseBody: true,
-      error: true,
-    ),
-  );
-
-  return dio;
-});
 
 /// 나의 채널 원격 데이터 소스 provider
 final myChannelRemoteDataSourceProvider = Provider<MyChannelRemoteDataSource>((
   ref,
 ) {
-  final dio = ref.watch(channelDioProvider);
+  final dio = ref.watch(dioProvider);
   return MyChannelRemoteDataSourceImpl(dio: dio);
 });
 
@@ -154,10 +119,9 @@ final createArtistNoticeUseCaseProvider =
 // 아티스트 공지사항 데이터소스 provider
 final artistNoticeRemoteDataSourceProvider =
     Provider<ArtistNoticeRemoteDataSource>((ref) {
-      final dio = ref.watch(channelDioProvider);
+      final dio = ref.watch(dioProvider);
       return ArtistNoticeRemoteDataSourceImpl(
         dio: dio,
-        getTokensUseCase: ref.watch(getTokensUseCaseProvider),
       );
     });
 

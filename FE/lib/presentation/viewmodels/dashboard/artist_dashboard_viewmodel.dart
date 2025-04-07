@@ -286,13 +286,12 @@ class ArtistDashboardViewmodel extends StateNotifier<ArtistDashboardData> {
   
 }
 
-// Provider 정의
 final artistDashboardProvider = StateNotifierProvider<ArtistDashboardViewmodel, ArtistDashboardData>((ref) {
-  // memberId는 인증 상태나 사용자 세션에서 가져와야 함
-  // 이 부분은 실제 인증 로직에 맞게 수정 필요
+  // memberId 초기화를 지연시키거나 조건부로 처리
+  final memberId = ref.read(userIdProvider);
   
   return ArtistDashboardViewmodel(
     getArtistAlbumsUseCase: ref.read(getArtistAlbumsUseCaseProvider),
-    memberId: ref.read(userIdProvider),
+    memberId: memberId, // null 체크 필요할 수 있음
   );
 });

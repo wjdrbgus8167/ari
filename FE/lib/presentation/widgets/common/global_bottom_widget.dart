@@ -1,3 +1,6 @@
+import 'package:ari/presentation/pages/home/home_screen.dart';
+import 'package:ari/presentation/pages/login/login_screen.dart';
+import 'package:ari/presentation/routes/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,133 +12,392 @@ import 'package:ari/presentation/widgets/common/playback_bar.dart';
 import 'package:ari/presentation/widgets/common/custom_toast.dart';
 import '../../pages/my_channel/my_channel_screen.dart';
 
-// 인덱스 0: 홈 화면 (전달된 child)
-// 인덱스 1: 검색 화면 (임시 텍스트 표시)
-// 인덱스 2: 음악 서랍 화면 (임시 텍스트 표시)
-// 인덱스 3: 나의 채널 화면 (MyChannelScreen)
+// 네비게이션 상태를 관리하는 클래스
+class NavigationState {
+  final int currentTab;
+  final List<int> history;
 
-/// 하단 내브바 위젯과 탭별 화면 관리
-/// 전체 앱의 공통 골격 제공, 하단 네비게이션 바와 재생 바를 포함
-class GlobalBottomWidget extends ConsumerWidget {
-  final Widget child; // 각 페이지 콘텐츠 영역
+  NavigationState({required this.currentTab, required this.history});
 
-  const GlobalBottomWidget({super.key, required this.child});
+  NavigationState copyWith({int? currentTab, List<int>? history}) {
+    return NavigationState(
+      currentTab: currentTab ?? this.currentTab,
+      history: history ?? this.history,
+    );
+  }
+}
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // 현재 선택된 탭 인덱스
-    final bottomIndex = ref.watch(bottomNavProvider);
+// 네비게이션 상태 노티파이어
+class NavigationStateNotifier extends StateNotifier<NavigationState> {
+  NavigationStateNotifier() : super(NavigationState(currentTab: 0, history: [0]));
 
-    // 탭 히스토리 변경 감지
-    ref.listen(navigationHistoryProvider, (previous, current) {
-      // 히스토리가 변경되면 UI도 함께 업데이트 해야하므로
-      // 선택된 탭 인덱스를 현재 히스토리의 마지막 항목으로 설정
-      if (current.isNotEmpty && current.last != bottomIndex) {
-        ref.read(bottomNavProvider.notifier).setIndex(current.last);
-      }
-    });
-
-    Widget currentScreen = child;
-
-    // 하단 탭 인덱스가 변경될 때 그 화면으로 변경
-    if (bottomIndex != 0) {
-      switch (bottomIndex) {
-        case 1:
-          // TODO: 검색 화면
-          currentScreen = const Center(
-            child: Text(
-              '검색 화면',
-              style: TextStyle(color: Colors.white, fontSize: 24),
-            ),
-          );
-          break;
-        case 2:
-          // TODO: 음악 서랍 화면
-          currentScreen = const Center(
-            child: Text(
-              '음악 서랍 화면',
-              style: TextStyle(color: Colors.white, fontSize: 24),
-            ),
-          );
-          break;
-        case 3:
-          // 나의 채널 화면
-          currentScreen = const MyChannelScreen();
-          break;
-        default:
-          // 기본값은 전달된 child (보통 HomeScreen)
-          currentScreen = child;
+  // 탭 변경
+  void changeTab(int tab) {
+    if (state.currentTab == tab) return;
+    
+    // 히스토리에 추가
+    final newHistory = [...state.history];
+    if (newHistory.isNotEmpty && newHistory.last != tab) {
+      newHistory.add(tab);
+    } else if (newHistory.isEmpty) {
+      newHistory.add(tab);
+    }
+    
+    // 히스토리가 10개를 넘으면 잘라내기
+    if (newHistory.length > 10) {
+      newHistory.removeAt(0);
+    }
+    
+    // 상태 업데이트
+    state = state.copyWith(currentTab: tab, history: newHistory);
+    print('탭 변경: ${state.currentTab}, 히스토리: ${state.history}');
+  }
+  
+  // 뒤로가기
+  bool goBack() {
+    final history = state.history;
+    
+    // 히스토리가 1개 이하면 뒤로 갈 수 없음
+    if (history.length <= 1) return false;
+    
+    // 히스토리에서 현재 탭 제거하고 이전 탭으로 이동
+    final newHistory = [...history];
+    newHistory.removeLast();
+    final previousTab = newHistory.last;
+    
+    // 상태 업데이트 전 로그
+    print('뒤로가기 전: ${state.currentTab}, 히스토리: ${state.history}');
+    
+    // 상태 업데이트
+    state = state.copyWith(currentTab: previousTab, history: newHistory);
+    
+    // 상태 업데이트 후 로그
+    print('뒤로가기 후: ${state.currentTab}, 히스토리: ${state.history}');
+    
+    return true;
+  }
+  
+  // 현재 탭의 히스토리 모두 제거하고 루트로 이동
+  void resetCurrentTab() {
+    final currentTab = state.currentTab;
+    final history = [...state.history];
+    
+    // 현재 탭이 여러 번 추가되었다면 마지막 하나만 남기고 제거
+    while (history.indexOf(currentTab) != history.lastIndexOf(currentTab)) {
+      final index = history.indexOf(currentTab);
+      if (index >= 0) {
+        history.removeAt(index);
       }
     }
+    
+    state = state.copyWith(history: history);
+  }
+}
 
-    // PopScope로 뒤로가기 이벤트 처리
-    return PopScope(
-      canPop: false, // 기본 뒤로가기 동작 비활성화
-      onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) return;
+// 통합된 네비게이션 상태 제공자
+final navigationStateProvider = StateNotifierProvider<NavigationStateNotifier, NavigationState>((ref) {
+  return NavigationStateNotifier();
+});
 
-        // 뒤로가기 처리를 위해 히스토리 확인
-        final historyNotifier = ref.read(navigationHistoryProvider.notifier);
-        final isAtHome = historyNotifier.goBack();
+// 네비게이션 키를 관리하는 프로바이더
+final navigatorKeysProvider = Provider<Map<int, GlobalKey<NavigatorState>>>((ref) {
+  return {
+    0: GlobalKey<NavigatorState>(),
+    1: GlobalKey<NavigatorState>(),
+    2: GlobalKey<NavigatorState>(),
+    3: GlobalKey<NavigatorState>(),
+  };
+});
 
-        // 홈화면인 경우 토스트 표시 또는 앱 종료
-        if (isAtHome) {
-          // 실제 뒤로가기 버튼을 눌렀는지 확인
-          if (historyNotifier.isHomeBackButtonPressed()) {
-            final isQuickSecondPress = historyNotifier.isQuickSecondBackPress();
+/// 전역 네비게이션 컨테이너 - 모든 탭과 내부 스택을 관리
+class GlobalNavigationContainer extends ConsumerStatefulWidget {
+  const GlobalNavigationContainer({super.key});
 
-            if (isQuickSecondPress) {
-              // 1초 이내에 뒤로가기를 두 번 누른 경우: 앱 종료
-              SystemNavigator.pop();
-            } else {
-              // 처음 뒤로가기 누른 경우: 토스트 메시지 표시
-              context.showToast('뒤로가기 버튼을 한 번 더 누르면 종료됩니다');
-            }
-          }
+  @override
+  ConsumerState<GlobalNavigationContainer> createState() => _GlobalNavigationContainerState();
+}
+
+class _GlobalNavigationContainerState extends ConsumerState<GlobalNavigationContainer> with WidgetsBindingObserver {
+  DateTime? _lastBackPressTime;
+  int _backPressCount = 0;
+  
+  // 캐시된 페이지들을 저장 (각 탭마다 새로 구성하지 않도록)
+  final Map<int, Widget> _cachedPages = {};
+  
+  // 백 버튼 이벤트 처리를 위한 잠금 메커니즘
+  bool _backLock = false;
+  final _lockDuration = const Duration(milliseconds: 200);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    
+    // 홈 탭(0)의 페이지를 캐시에 추가
+    _cachedPages[0] = _buildNavigator(0);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // 통합된 네비게이션 상태 사용
+    final navState = ref.watch(navigationStateProvider);
+    final selectedTab = navState.currentTab;
+    
+    // 선택된 탭의 페이지가 없으면 생성하여 캐시에 추가
+    if (!_cachedPages.containsKey(selectedTab)) {
+      _cachedPages[selectedTab] = _buildNavigator(selectedTab);
+    }
+
+    // 이중 방어를 위한 접근법
+    return WillPopScope(
+      onWillPop: () async {
+        // 홈 탭이면 항상 처리 허용 (앱 종료를 위한 더블 클릭 감지를 위해)
+        if (ref.read(navigationStateProvider).currentTab == 0) {
+          return true;
         }
+        
+        // 홈이 아닌 탭에서 잠겨있으면 처리 중지
+        if (_backLock) {
+          print('WillPopScope에서 백 이벤트 차단');
+          return false;
+        }
+        return true; // PopScope에서 처리하도록 허용
       },
-      child: Scaffold(
-        body: currentScreen,
-        bottomNavigationBar: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const PlaybackBar(),
-            CommonBottomNav(
-              currentIndex: bottomIndex,
-              onTap: (index) async {
-                // 로그인이 필요한 탭인지 확인 (음악 서랍, 나의 채널)
-                if (index == 2 || index == 3) {
-                  // 로그인 체크 및 필요시 다이얼로그 표시 후 로그인 화면으로 이동
-                  final isLoggedIn = await checkLoginAndRedirect(
-                    context,
-                    ref,
-                    onLoginSuccess: () {
-                      // 탭 변경 전에 조금 지연시켜 사용자 정보가 업데이트될 시간 확보
-                      Future.delayed(const Duration(milliseconds: 100), () {
-                        // 로그인 성공하면 선택한 탭으로 이동
-                        ref
-                            .read(navigationHistoryProvider.notifier)
-                            .addTab(index);
-                      });
-                    },
-                  );
-
-                  // 로그인 되지 않았거나 취소한 경우 탭 변경 중단
-                  if (!isLoggedIn) return;
-                } else {
-                  // 현재 인덱스와 선택한 인덱스가 같으면 해당 화면을 맨 위로 스크롤
-                  if (index == bottomIndex) {
-                    // TODO: 현재 화면 맨 위로 스크롤 처리
-                  } else {
-                    // 탭 변경 시 히스토리에 추가
-                    ref.read(navigationHistoryProvider.notifier).addTab(index);
-                  }
-                }
-              },
+      child: PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) {
+          // 이미 처리된 경우 무시
+          if (didPop) return;
+          
+          // 단일 진입점으로 모든 백 버튼 이벤트 처리
+          _handleBackNavigation();
+        },
+        child: Scaffold(
+          key: ValueKey<int>(navState.currentTab), // 탭이 변경될 때마다 새 키 부여
+          body: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+            child: KeyedSubtree(
+              key: ValueKey<String>('tab-${navState.currentTab}'),
+              child: _cachedPages[navState.currentTab]!,
             ),
-          ],
+          ),
+          bottomNavigationBar: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const PlaybackBar(),
+              CommonBottomNav(
+                currentIndex: navState.currentTab,
+                onTap: (index) async {
+                  if (index == navState.currentTab) {
+                    // 이미 루트 화면이면 아무 작업도 하지 않음
+                    return;
+                  }
+                  
+                  if (index == 2 || index == 3) {
+                    final isLoggedIn = await _checkLoginStatus(context, index);
+                    if (!isLoggedIn) return;
+                  }
+                  
+                  _navigateToTab(index);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+  
+  // 문제 1번 수정: _handleBackNavigation 메서드 수정
+  Future<void> _handleBackNavigation() async {
+    final navState = ref.read(navigationStateProvider);
+    final selectedTab = navState.currentTab;
+    final navigatorKeys = ref.read(navigatorKeysProvider);
+    final currentNavigatorKey = navigatorKeys[selectedTab];
+    final canPopInCurrentTab = currentNavigatorKey?.currentState?.canPop() ?? false;
+    
+    // 홈 탭(0)에서의 처리
+    if (selectedTab == 0) {
+      // 홈 탭 내에서 뒤로갈 수 있는 경우 (네비게이션 스택이 있음)
+      if (canPopInCurrentTab) {
+        print('홈 탭 내부 뒤로가기 실행');
+        await currentNavigatorKey?.currentState?.maybePop();
+        return;
+      }
+      
+      // 홈 탭의 루트에 있는 경우 (앱 종료)
+      _handleHomeTabBack();
+      return;
+    }
+    
+    // 여기서부터는 홈 탭이 아닌 경우의 처리
+    
+    // 잠금 상태 확인 - 중복 호출 방지
+    if (_backLock) {
+      print('백 이벤트 잠금 상태 - 무시됨');
+      return;
+    }
+    
+    // 즉시 잠금 활성화
+    _backLock = true;
+    
+    try {
+      final navNotifier = ref.read(navigationStateProvider.notifier);
+      
+      // 중요 수정: 탭 내 뒤로가기가 가능한 경우, 먼저 시도하고 실제로 뒤로 갔는지 확인
+      if (canPopInCurrentTab) {
+        final didPop = await currentNavigatorKey?.currentState?.maybePop() ?? false;
+        
+        // 탭 내에서 뒤로가기 성공한 경우 탭 전환하지 않고 종료
+        if (didPop && currentNavigatorKey?.currentState?.canPop() == true) {
+          print('탭 내부 뒤로가기 성공');
+          return;
+        }
+      }
+      
+      // 탭 내 뒤로가기가 불가능한 경우만 탭 전환 시도
+      print('탭 내부 뒤로가기 불가능, 다른 탭으로 이동');
+      
+      // 이전 탭 미리 계산
+      final previousTab = navState.history.length > 1 
+          ? navState.history[navState.history.length - 2] 
+          : 0;
+      
+      // 이전 탭으로 이동
+      final success = navNotifier.goBack();
+      
+      if (success) {
+        // UI 즉시 업데이트
+        setState(() {
+          // 이전 탭 UI 캐시 확인
+          if (!_cachedPages.containsKey(previousTab)) {
+            _cachedPages[previousTab] = _buildNavigator(previousTab);
+          }
+        });
+      } else {
+        // 이동할 곳이 없으면 홈으로
+        setState(() {
+          navNotifier.changeTab(0);
+        });
+      }
+    } finally {
+      // 잠금 해제는 지연시킴
+      Future.delayed(_lockDuration, () {
+        if (mounted) {
+          _backLock = false;
+          print('백 이벤트 잠금 해제됨');
+        }
+      });
+    }
+  }
+  
+  // 홈 탭에서의 뒤로가기 처리 (앱 종료)
+  void _handleHomeTabBack() {
+    final now = DateTime.now();
+    
+    // 2초 이내에 두 번째 뒤로가기가 발생했는지 확인
+    if (_lastBackPressTime == null || 
+        now.difference(_lastBackPressTime!) > const Duration(seconds: 2)) {
+      // 첫 번째 뒤로가기
+      _backPressCount = 1;
+      _lastBackPressTime = now;
+      
+      print('첫 번째 뒤로가기 감지 - 앱 종료 안내');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('뒤로가기 버튼을 한 번 더 누르면 종료됩니다'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } else {
+      // 2초 이내의 두 번째 뒤로가기
+      _backPressCount++;
+      print('두 번째 뒤로가기 감지 - 앱 종료 진행');
+      SystemNavigator.pop();
+    }
+  }
+  
+  // 현재 탭을 초기화 (스택을 루트로 복원)
+  void _resetCurrentTab() {
+    final selectedTab = ref.read(navigationStateProvider).currentTab;
+    final navigatorKeys = ref.read(navigatorKeysProvider);
+    
+    // 히스토리 리셋
+    ref.read(navigationStateProvider.notifier).resetCurrentTab();
+    
+    final canPop = navigatorKeys[selectedTab]?.currentState?.canPop() ?? false;
+    if (canPop) {
+      navigatorKeys[selectedTab]?.currentState?.popUntil((route) => route.isFirst);
+    }
+  }
+  
+  // 새 탭으로 이동
+  void _navigateToTab(int index) {
+    // 한 번에 탭과 히스토리 업데이트
+    ref.read(navigationStateProvider.notifier).changeTab(index);
+    
+    // 기존 탐색 이력에도 추가
+    ref.read(navigationHistoryProvider.notifier).addTab(index);
+  }
+
+  // 네비게이터 위젯 생성
+  Widget _buildNavigator(int index) {
+    final navigatorKeys = ref.read(navigatorKeysProvider);
+    
+    return HeroControllerScope(
+      controller: MaterialApp.createMaterialHeroController(),
+      child: Navigator(
+        key: navigatorKeys[index],
+        onGenerateRoute: (settings) => AppRouter.generateRoute(settings, ref),
+        initialRoute: _getInitialRouteForTab(index),
+        observers: [
+          HeroController(),
+          // 1번과 3번 탭의 경우 추가 옵저버 등록
+          if (index == 1 || index == 3) 
+            NavigatorObserver(), // 네비게이션 모니터링을 위한 옵저버 추가
+        ],
+      ),
+    );
+  }
+
+  // 각 탭의 초기 경로 반환
+  String _getInitialRouteForTab(int index) {
+    switch (index) {
+      case 0:
+        return AppRoutes.home;
+      case 1:
+        return AppRoutes.myPage;
+      case 2:
+        return '/'; // 음악 서랍 경로
+      case 3:
+        return AppRoutes.myChannel;
+      default:
+        return AppRoutes.home;
+    }
+  }
+
+  // 로그인 상태 확인 및 로그인 화면으로 리다이렉트
+  Future<bool> _checkLoginStatus(BuildContext context, int index) async {
+    final isLoggedIn = await checkLoginAndRedirect(
+      context,
+      ref,
+      onLoginSuccess: () {
+        // 로그인 성공 시 지연 후 탭 이동
+        Future.delayed(const Duration(milliseconds: 100), () {
+          _navigateToTab(index);
+        });
+      },
+    );
+
+    return isLoggedIn;
   }
 }

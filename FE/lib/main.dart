@@ -23,7 +23,7 @@ class MyApp extends ConsumerWidget {
     return MaterialApp(
       title: 'Ari',
       theme: ThemeData.dark(),
-      home: const GlobalBottomWidget(child: HomeScreen()),
+      home: const GlobalNavigationContainer(),
       onGenerateRoute: (settings) => AppRouter.generateRoute(settings, ref),
     );
   }
