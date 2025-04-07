@@ -235,7 +235,7 @@ class GenrePage extends ConsumerWidget {
         title,
         style: const TextStyle(
           color: Colors.white,
-          fontSize: 20,
+          fontSize: 30,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -261,43 +261,88 @@ class GenrePage extends ConsumerWidget {
                 '차트',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 20,
+                  fontSize: 30,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              // 주간/월간 필터 토글
-              SegmentedButton<ChartPeriodType>(
-                segments: const [
-                  ButtonSegment<ChartPeriodType>(
-                    value: ChartPeriodType.monthly,
-                    label: Text('월간', style: TextStyle(fontSize: 12)),
-                  ),
-                  ButtonSegment<ChartPeriodType>(
-                    value: ChartPeriodType.weekly,
-                    label: Text('주간', style: TextStyle(fontSize: 12)),
-                  ),
-                ],
-                selected: {state.selectedChartType},
-                onSelectionChanged: (Set<ChartPeriodType> selected) {
-                  viewModel.selectChartPeriodType(selected.first);
-                },
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.resolveWith<Color>((
-                    states,
-                  ) {
-                    if (states.contains(WidgetState.selected)) {
-                      return AppColors.mediumPurple;
-                    }
-                    return Colors.grey[800]!;
-                  }),
-                  foregroundColor: WidgetStateProperty.resolveWith<Color>((
-                    states,
-                  ) {
-                    if (states.contains(WidgetState.selected)) {
-                      return Colors.white;
-                    }
-                    return Colors.grey;
-                  }),
+              // 커스텀 토글 버튼
+              Container(
+                height: 32,
+                decoration: BoxDecoration(
+                  color: Colors.grey[800],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 월간 버튼
+                    GestureDetector(
+                      onTap:
+                          () => viewModel.selectChartPeriodType(
+                            ChartPeriodType.monthly,
+                          ),
+                      child: Container(
+                        width: 70,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color:
+                              state.selectedChartType == ChartPeriodType.monthly
+                                  ? AppColors.mediumPurple
+                                  : Colors.transparent,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(8),
+                            bottomLeft: Radius.circular(8),
+                          ),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: Text(
+                          '월간',
+                          style: TextStyle(
+                            color:
+                                state.selectedChartType ==
+                                        ChartPeriodType.monthly
+                                    ? Colors.white
+                                    : Colors.grey,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // 주간 버튼
+                    GestureDetector(
+                      onTap:
+                          () => viewModel.selectChartPeriodType(
+                            ChartPeriodType.weekly,
+                          ),
+                      child: Container(
+                        width: 70,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color:
+                              state.selectedChartType == ChartPeriodType.weekly
+                                  ? AppColors.mediumPurple
+                                  : Colors.transparent,
+                          borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(8),
+                            bottomRight: Radius.circular(8),
+                          ),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: Text(
+                          '주간',
+                          style: TextStyle(
+                            color:
+                                state.selectedChartType ==
+                                        ChartPeriodType.weekly
+                                    ? Colors.white
+                                    : Colors.grey,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -317,6 +362,9 @@ class GenrePage extends ConsumerWidget {
               ),
             ),
           ),
+
+        // 여백 추가
+        const SizedBox(height: 32),
       ],
     );
   }
@@ -325,21 +373,27 @@ class GenrePage extends ConsumerWidget {
   Widget _buildChartList(BuildContext context, GenreState state) {
     final items = state.currentChartItems;
 
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: items.length,
-      itemBuilder: (context, index) {
-        if (state.selectedChartType == ChartPeriodType.monthly) {
-          // 월간 차트 아이템 (ChartItem)
-          final chartItem = items[index] as ChartItem;
-          return _buildMonthlyChartItem(context, chartItem, index);
-        } else {
-          // 주간 차트 아이템 (Track)
-          final track = items[index] as Track;
-          return _buildWeeklyChartItem(context, track, index);
-        }
-      },
+    return Column(
+      children: [
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: items.length,
+          itemBuilder: (context, index) {
+            if (state.selectedChartType == ChartPeriodType.monthly) {
+              // 월간 차트 아이템 (ChartItem)
+              final chartItem = items[index] as ChartItem;
+              return _buildMonthlyChartItem(context, chartItem, index);
+            } else {
+              // 주간 차트 아이템 (Track)
+              final track = items[index] as Track;
+              return _buildWeeklyChartItem(context, track, index);
+            }
+          },
+        ),
+        // 차트 리스트 아래에 여백 추가
+        const SizedBox(height: 20),
+      ],
     );
   }
 
