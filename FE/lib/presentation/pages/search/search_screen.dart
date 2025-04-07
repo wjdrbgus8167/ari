@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/core/constants/app_colors.dart';
-import 'package:ari/presentation/widgets/search/genre_card.dart';
-import 'package:ari/presentation/widgets/search/search_input.dart';
 import 'package:ari/presentation/viewmodels/search/search_viewmodel.dart';
 import 'package:ari/providers/search/search_providers.dart';
 import '../../routes/app_router.dart';
 import 'package:ari/core/utils/genre_utils.dart';
+import 'package:ari/presentation/widgets/search/search_input.dart';
+
+// 향상된 색상 순환 효과 애니메이션 위젯 임포트
+import '../../widgets/search/enhanced_color_shift_genre_card.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
@@ -92,7 +94,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     );
   }
 
-  /// 장르 카테고리 섹션 - 감성적인 디자인으로 변경
+  /// 장르 카테고리 섹션 - 모든 카드에 향상된 색상 순환 효과 적용
   Widget _buildGenreCategories() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -107,8 +109,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               spacing: itemSpacing,
               runSpacing: itemSpacing,
               children: [
-                // Hip Hop & Rap - 큰 사이즈
-                _buildCustomGenreCard(
+                // Hip Hop & Rap
+                EnhancedColorShiftGenreCard(
                   title: 'HipHop & Rap',
                   gradient: AppColors.purpleGradient,
                   width: (maxWidth - itemSpacing) * 0.6, // 60% 너비
@@ -127,8 +129,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   },
                 ),
 
-                // Band - 작은 사이즈
-                _buildCustomGenreCard(
+                // Band
+                EnhancedColorShiftGenreCard(
                   title: 'Band',
                   gradient: AppColors.blueToMintGradient,
                   width: (maxWidth - itemSpacing) * 0.4, // 40% 너비
@@ -147,8 +149,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   },
                 ),
 
-                // R&B - 중간 사이즈
-                _buildCustomGenreCard(
+                // R&B
+                EnhancedColorShiftGenreCard(
                   title: 'R&B',
                   gradient: AppColors.greenGradientHorizontal,
                   width: (maxWidth - itemSpacing) * 0.5, // 50% 너비
@@ -162,8 +164,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   },
                 ),
 
-                // Jazz - 작은 사이즈
-                _buildCustomGenreCard(
+                // Jazz
+                EnhancedColorShiftGenreCard(
                   title: 'Jazz',
                   gradient: AppColors.purpleGradientHorizontal,
                   width: (maxWidth - itemSpacing) * 0.5, // 50% 너비
@@ -182,8 +184,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   },
                 ),
 
-                // Acoustic - 전체 너비 사이즈
-                _buildCustomGenreCard(
+                // Acoustic
+                EnhancedColorShiftGenreCard(
                   title: 'Acoustic',
                   gradient: const LinearGradient(
                     colors: [Color(0xFFE5BCFF), Color(0xFF7DDCFF)],
@@ -213,53 +215,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     );
   }
 
-  /// 커스텀 장르 카드 위젯
-  Widget _buildCustomGenreCard({
-    required String title,
-    required Gradient gradient,
-    required double width,
-    required double height,
-    required BorderRadius borderRadius,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: width,
-        height: height,
-        decoration: BoxDecoration(
-          gradient: gradient,
-          borderRadius: borderRadius,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 10,
-              spreadRadius: 1,
-            ),
-          ],
-        ),
-        child: Center(
-          child: Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              shadows: [
-                Shadow(
-                  blurRadius: 8.0,
-                  color: Colors.black38,
-                  offset: Offset(2.0, 2.0),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// 검색 결과 섹션 구성
+  /// 검색 결과 섹션 구성 (기존 코드 유지)
   Widget _buildSearchResults(SearchState state) {
     if (state.errorMessage != null) {
       return Center(
