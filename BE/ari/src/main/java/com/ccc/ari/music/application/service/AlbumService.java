@@ -88,4 +88,9 @@ public class AlbumService {
         return list;
     }
 
+    // 사용자의 앨범인지 확인
+    public boolean existsByIdAndMemberId(Integer albumId, Integer memberId) {
+
+        return jpaAlbumRepository.existsByAlbumIdAndMember_MemberId(albumId,memberId);
+    }
 }

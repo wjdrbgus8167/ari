@@ -57,51 +57,59 @@ public class TrackPlayService {
         AlbumDto album = albumClient.getAlbumById(trackPlayCommand.getAlbumId());
         GenreDto genre = genreClient.getGenre(album.getGenreName());
 
-        // 모든 구독 정보 조회
-        List<Subscription> subscriptions = subscriptionClient.getSubscriptionInfo(trackPlayCommand.getMemberId())
-                .orElseThrow(()-> new ApiException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
+        Integer memberId = trackPlayCommand.getMemberId();
+
 
         // 구독 조회 후 인가
         boolean isAuthorized = false;
 
-        // 현재 가지고 있는 구독권 조회
-        for (Subscription subscription : subscriptions) {
+        // 만약 지금 트랙이 나의 앨범이면 그냥 스트리밍 인가
+        if(!albumClient.isMyAlbum(trackPlayCommand.getAlbumId(),memberId)) {
+            // 모든 구독 정보 조회
+            List<Subscription> subscriptions = subscriptionClient.getSubscriptionInfo(trackPlayCommand.getMemberId())
+                    .orElseThrow(()-> new ApiException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
+            // 현재 가지고 있는 구독권 조회
+            for (Subscription subscription : subscriptions) {
 
-            // 구독권이 현재 활성화 상태이고 만료되지 않았다면
-            if (subscription.isActivateYn() && subscription.getExpiredAt() == null) {
-                log.info("현재 유효한 구독권입니다: subscriptionPlanId = {}", subscription.getSubscriptionPlanId());
-            } else {
-                log.info("비활성화된 구독권이거나 만료된 구독권입니다. ID = {}", subscription.getSubscriptionPlanId());
-                continue;
-            }
-
-            SubscriptionPlan plan;
-            try {
-                plan = subscriptionPlanClient.getSubscriptionPlan(subscription.getSubscriptionPlanId());
-                log.info("구독권 정보 조회 성공 → 타입: {}, planId: {}", plan.getPlanType(), plan.getSubscriptionPlanId());
-            } catch (ApiException e) {
-                log.warn("구독권 조회 실패 subscriptionPlanId: {}", subscription.getSubscriptionPlanId(), e);
-                continue; // 실패한 구독권은 skip
-            }
-
-            // 정기 구독일 경우 무조건 허용
-            if (plan.getPlanType() == PlanType.R) {
-                isAuthorized = true;
-                log.info("정기 구독으로 인가 허용됨.");
-                break;
-            }
-
-            // 아티스트 구독일 경우, 현재 트랙의 아티스트와 비교
-            if (plan.getPlanType() == PlanType.A) {
-                if (plan.getArtistId().equals(album.getMemberId())) {
-                    isAuthorized = true;
-                    log.info("아티스트 구독으로 인가 허용됨. 아티스트 ID: {}", plan.getArtistId());
-                    break;
+                // 구독권이 현재 활성화 상태이고 만료되지 않았다면
+                if (subscription.isActivateYn() && subscription.getExpiredAt() == null) {
+                    log.info("현재 유효한 구독권입니다: subscriptionPlanId = {}", subscription.getSubscriptionPlanId());
                 } else {
-                    log.info("아티스트 구독이지만 아티스트 ID 불일치. 구독 아티스트: {}, 트랙 아티스트: {}",
-                            plan.getArtistId(), album.getMemberId());
+                    log.info("비활성화된 구독권이거나 만료된 구독권입니다. ID = {}", subscription.getSubscriptionPlanId());
+                    continue;
+                }
+
+                SubscriptionPlan plan;
+                try {
+                    plan = subscriptionPlanClient.getSubscriptionPlan(subscription.getSubscriptionPlanId());
+                    log.info("구독권 정보 조회 성공 → 타입: {}, planId: {}", plan.getPlanType(), plan.getSubscriptionPlanId());
+                } catch (ApiException e) {
+                    log.warn("구독권 조회 실패 subscriptionPlanId: {}", subscription.getSubscriptionPlanId(), e);
+                    continue; // 실패한 구독권은 skip
+                }
+
+                // 정기 구독일 경우 무조건 허용
+                if (plan.getPlanType() == PlanType.R) {
+                    isAuthorized = true;
+                    log.info("정기 구독으로 인가 허용됨.");
+                    break;
+                }
+
+                // 아티스트 구독일 경우, 현재 트랙의 아티스트와 비교
+                if (plan.getPlanType() == PlanType.A) {
+                    if (plan.getArtistId().equals(album.getMemberId())) {
+                        isAuthorized = true;
+                        log.info("아티스트 구독으로 인가 허용됨. 아티스트 ID: {}", plan.getArtistId());
+                        break;
+                    } else {
+                        log.info("아티스트 구독이지만 아티스트 ID 불일치. 구독 아티스트: {}, 트랙 아티스트: {}",
+                                plan.getArtistId(), album.getMemberId());
+                    }
                 }
             }
+        }else{
+            log.info("나의 트랙은 인가");
+            isAuthorized = true;
         }
 
 

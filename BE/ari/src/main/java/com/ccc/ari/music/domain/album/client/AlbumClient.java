@@ -28,4 +28,5 @@ public interface AlbumClient {
     void increaseAlbumLikeCount(Integer albumId);
     void decreaseAlbumLikeCount(Integer albumId);
 
+    boolean isMyAlbum(Integer albumId,Integer memberId);
 }

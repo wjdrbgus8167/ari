@@ -23,4 +23,7 @@ public interface JpaAlbumRepository extends JpaRepository<AlbumEntity,Integer> {
     List<AlbumEntity> findTop10ByOrderByAlbumLikeCountDesc();
 
     Optional<List<AlbumEntity>> findListByMember_MemberId(Integer memberId);
+
+    // 사용자의 앨범인지 획인
+    boolean existsByAlbumIdAndMember_MemberId(Integer albumId, Integer memberId);
 }

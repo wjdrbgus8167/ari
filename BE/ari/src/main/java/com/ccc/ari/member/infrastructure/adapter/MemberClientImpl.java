@@ -49,4 +49,9 @@ public class MemberClientImpl implements MemberClient {
 
         return member.getProfileImageUrl();
     }
+
+    @Override
+    public MemberEntity getMemberEntityByMemberId(Integer memberId) {
+        return jpaMemberJpaRepository.findByMemberId(memberId).orElseThrow(() -> new ApiException(ErrorCode.MEMBER_NOT_FOUND));
+    }
 }
