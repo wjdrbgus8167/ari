@@ -7,4 +7,6 @@ public interface WalletRepository {
     WalletEntity save(WalletEntity walletEntity);
 
     WalletEntity getWalletByArtistId(Integer artistId);
+
+    Boolean existsWalletByArtistId(Integer artistId);
 }
