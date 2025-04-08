@@ -160,9 +160,8 @@ class _RegularSubscriptionViewState
                 SizedBox(height: 20),
 
                 // 차트
-                if (artistAllocations.isNotEmpty)
-                  SubscriptionChart(artistAllocations: artistAllocations),
-
+                artistAllocations.isNotEmpty ? SubscriptionChart(artistAllocations: artistAllocations) : Text("정산 내역이 없습니다."),
+                
                 SizedBox(height: 60),
 
                 // 아티스트 목록

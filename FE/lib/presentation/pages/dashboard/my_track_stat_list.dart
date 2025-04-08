@@ -3,7 +3,7 @@ import 'package:ari/presentation/widgets/common/header_widget.dart';
 import 'package:ari/presentation/widgets/dashboard/track_stat_item_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+// 10. 수정된 MyTrackStatListScreen
 class MyTrackStatListScreen extends ConsumerWidget {
   const MyTrackStatListScreen({super.key});
 
@@ -44,14 +44,20 @@ class MyTrackStatListScreen extends ConsumerWidget {
 
                 // 트랙 목록
                 Expanded(
-                  child:
-                      state.isLoading
-                          ? const Center(
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                            ),
-                          )
-                          : state.tracks.isEmpty
+                  child: state.isLoading
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
+                        )
+                      : state.errorMessage != null
+                          ? Center(
+                              child: Text(
+                                state.errorMessage!,
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            )
+                      : state.tracks.isEmpty
                           ? const Center(
                             child: Text(
                               '트랙이 없습니다.',

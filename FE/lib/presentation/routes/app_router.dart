@@ -1,11 +1,13 @@
 import 'package:ari/domain/entities/playlist.dart';
 import 'package:ari/presentation/pages/dashboard/artist_dashboard_screen.dart';
-import 'package:ari/presentation/pages/dashboard/my_album_stat_list.dart';
+import 'package:ari/presentation/pages/dashboard/my_track_stat_list.dart';
 import 'package:ari/presentation/pages/login/login_screen.dart';
+import 'package:ari/presentation/pages/mypage/edit_profile_screen.dart';
 import 'package:ari/presentation/pages/playlist_detail/playlist_detail_screen.dart';
 import 'package:ari/presentation/pages/sign_up/sign_up_screen.dart';
 import 'package:ari/presentation/pages/subscription/artist_selection_screen.dart';
 import 'package:ari/presentation/pages/subscription/my_subscription_screen.dart';
+import 'package:ari/presentation/pages/subscription/settlement_screen.dart';
 import 'package:ari/presentation/pages/subscription/subscription_history_screen.dart';
 import 'package:ari/presentation/pages/subscription/subscription_payment_screen.dart';
 import 'package:ari/presentation/pages/subscription/subscription_select_screen.dart';
@@ -52,6 +54,8 @@ class AppRoutes {
   static const String artistDashboard = '/artist-dashboard';
   static const String myAlbumStatList = '/artist-dashboard/my-album-stats';
   static const String genre = '/genre';
+  static const String editProfile = '/edit-profile';
+  static const String settlement = '/settlement';
 
   static final Set<String> _protectedRoutes = {
     myPage,
@@ -201,6 +205,18 @@ class AppRouter {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => GenrePage(genre: genre),
+        );
+
+      case AppRoutes.editProfile:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const ProfileEditScreen(),
+        );
+
+      case AppRoutes.settlement:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const SettlementScreen(),
         );
 
       default:

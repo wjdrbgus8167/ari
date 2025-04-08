@@ -1,8 +1,9 @@
+import 'package:ari/data/models/dashboard/track_stats_model.dart';
 import 'package:ari/presentation/viewmodels/dashboard/track_stat_list_viewmodel.dart';
 import 'package:flutter/material.dart';
 
 class TrackStatItem extends StatelessWidget {
-  final TrackStat trackStat;
+  final TrackStats trackStat;
   final int index;
 
   const TrackStatItem({
@@ -15,7 +16,7 @@ class TrackStatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(15),
+      padding: const EdgeInsets.fromLTRB(15, 10, 20, 10),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -28,7 +29,7 @@ class TrackStatItem extends StatelessWidget {
               '${index + 1}',
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 12,
+                fontSize: 16,
                 fontFamily: 'Pretendard',
                 fontWeight: FontWeight.w400,
               ),
@@ -37,11 +38,11 @@ class TrackStatItem extends StatelessWidget {
           const SizedBox(width: 10),
           // 트랙 이미지
           Container(
-            width: 45,
-            height: 45,
+            width: 70,
+            height: 70,
             decoration: ShapeDecoration(
               image: DecorationImage(
-                image: NetworkImage(trackStat.imageUrl),
+                image: NetworkImage(trackStat.coverImageUrl),
                 fit: BoxFit.cover,
               ),
               shape: RoundedRectangleBorder(
@@ -49,57 +50,57 @@ class TrackStatItem extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 16),
           // 트랙 정보
           Expanded(
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // 트랙 제목
                 Text(
-                  trackStat.title,
+                  trackStat.trackTitle,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 10,
+                    fontSize: 16,
                     fontFamily: 'Pretendard',
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 12),
                 // 재생 정보
                 Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // 월간 재생 수
                     Row(
-                      mainAxisSize: MainAxisSize.min,
+                      mainAxisSize: MainAxisSize.max,
                       children: [
                         const Text(
                           '월간 재생 수',
                           style: TextStyle(
                             color: Color(0xFFD9D9D9),
-                            fontSize: 8,
+                            fontSize: 12,
                             fontFamily: 'Pretendard',
                             fontWeight: FontWeight.w400,
                           ),
                         ),
-                        const SizedBox(width: 20),
+                        const SizedBox(width: 12),
                         Text(
-                          '${trackStat.monthlyPlayCount}',
+                          '${trackStat.monthlyStreamingCount}',
                           style: const TextStyle(
                             color: Color(0xFFD9D9D9),
-                            fontSize: 8,
+                            fontSize: 12,
                             fontFamily: 'Pretendard',
                             fontWeight: FontWeight.w400,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 4),
                     // 누적 재생 수
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -108,17 +109,17 @@ class TrackStatItem extends StatelessWidget {
                           '누적 재생 수',
                           style: TextStyle(
                             color: Color(0xFFD9D9D9),
-                            fontSize: 8,
+                            fontSize: 12,
                             fontFamily: 'Pretendard',
                             fontWeight: FontWeight.w400,
                           ),
                         ),
-                        const SizedBox(width: 20),
+                        const SizedBox(width: 12),
                         Text(
-                          '${trackStat.totalPlayCount}',
+                          '${trackStat.totalStreamingCount}',
                           style: const TextStyle(
                             color: Color(0xFFD9D9D9),
-                            fontSize: 8,
+                            fontSize: 12,
                             fontFamily: 'Pretendard',
                             fontWeight: FontWeight.w400,
                           ),
@@ -149,28 +150,28 @@ class SortButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.only(top: 10, left: 20, right: 20),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              sortBy == SortBy.totalPlayCount ? '누적 재생 수' : '월간 재생 수',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                fontFamily: 'Pretendard',
-                fontWeight: FontWeight.w500,
-              ),
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            sortBy == SortBy.totalStreamingCount ? '누적 재생 수' : '월간 재생 수',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.w500,
             ),
-            const SizedBox(width: 4), // 간격 추가
-            Transform.rotate(
-              angle: 1.57,
-              child: const Icon(
-                Icons.arrow_forward_ios,
-                color: Color(0xFFD9D9D9),
-                size: 16,
-              ),
+          ),
+          const SizedBox(width: 4), // 간격 추가
+          Transform.rotate(
+            angle: 1.57,
+            child: const Icon(
+              Icons.arrow_forward_ios,
+              color: Color(0xFFD9D9D9),
+              size: 18,
             ),
+          ),
           ],
         ),
       ),

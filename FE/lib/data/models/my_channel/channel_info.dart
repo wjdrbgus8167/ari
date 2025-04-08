@@ -35,7 +35,7 @@ class ChannelInfo {
       subscriberCount: json['subscriberCount'] ?? 0,
       followerCount: json['followerCount'] ?? 0,
       followingCount: json['followingCount'] ?? 0,
-      isArtist: json['isArtist'] ?? false,
+      isArtist: json['artistYn'] ?? false,
       isFollowed: json['followedYn'] ?? false,
       fantalkChannelId: json['fantalkChannelId'],
     );
@@ -49,7 +49,7 @@ class ChannelInfo {
       'introduction': introduction,
       'followerCount': followerCount,
       'followingCount': followingCount,
-      'isArtist': isArtist,
+      'artistYn': isArtist,
       'followedYn': isFollowed,
     };
 
