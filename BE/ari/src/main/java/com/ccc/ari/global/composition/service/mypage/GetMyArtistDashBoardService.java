@@ -1,5 +1,6 @@
 package com.ccc.ari.global.composition.service.mypage;
 
+import com.ccc.ari.aggregation.application.service.response.GetArtistStreamingResponse;
 import com.ccc.ari.aggregation.ui.client.StreamingCountClient;
 import com.ccc.ari.aggregation.ui.response.GetArtistTrackCountListResponse;
 import com.ccc.ari.aggregation.ui.response.TrackCountResult;
@@ -15,6 +16,7 @@ import com.ccc.ari.music.domain.album.AlbumEntity;
 import com.ccc.ari.music.domain.album.client.AlbumClient;
 import com.ccc.ari.music.domain.track.TrackDto;
 import com.ccc.ari.music.domain.track.client.TrackClient;
+import com.ccc.ari.settlement.application.response.GetArtistDailySettlementResponse;
 import com.ccc.ari.settlement.ui.client.SettlementClient;
 import com.ccc.ari.settlement.ui.client.WalletClient;
 import com.ccc.ari.subscription.domain.SubscriptionPlan;
@@ -61,9 +63,13 @@ public class GetMyArtistDashBoardService {
         Integer subscriptionPlanId = subscriptionPlan.getSubscriptionPlanId().getValue();
         log.info("구독Plan ID:{}", subscriptionPlanId);
 
+        // 아티스트 스트리밍 데이터 가져오기
+        GetArtistStreamingResponse getArtistStreamingResponse = streamingCountClient.getArtistAlbumStreamings(memberId);
+
+
         // 비동기 처리: 스트리밍 데이터 조회
-        CompletableFuture<GetArtistTrackCountListResponse> streamingFuture =
-                CompletableFuture.supplyAsync(() -> streamingCountClient.getArtistTrackCounts(memberId));
+//        CompletableFuture<GetArtistTrackCountListResponse> streamingFuture =
+//                CompletableFuture.supplyAsync(() -> streamingCountClient.getArtistTrackCounts(memberId));
 
         // 동기 처리: 구독자 수 조회
         Integer subscriberCount = subscriptionClient
@@ -95,48 +101,49 @@ public class GetMyArtistDashBoardService {
 
         log.info("아티스트 전달 스트리밍 수:{}", prevMonthStreamingCount);
 
-        // 비동기 결과 가져오기
-        GetArtistTrackCountListResponse streaming;
-        try {
-            streaming = streamingFuture.join();
-        } catch (Exception e) {
-            log.error("비동기 스트리밍 데이터 조회 중 오류 발생", e);
-            throw new ApiException(ErrorCode.SUBSCRIPTION_NOT_FOUND); // 예외 정의 필요
-        }
+//        // 비동기 결과 가져오기
+//        GetArtistTrackCountListResponse streaming;
+//        try {
+//            streaming = streamingFuture.join();
+//        } catch (Exception e) {
+//            log.error("비동기 스트리밍 데이터 조회 중 오류 발생", e);
+//            throw new ApiException(ErrorCode.STREAMING_NOT_FOUND); // 예외 정의 필요
+//        }
+//
+//        log.info("트랙 ID:{}",streaming.getTrackCountList().size());
+//        if(streaming.getTrackCountList().size() > 0){
+//
+//            for(int i=0;i<streaming.getTrackCountList().size();i++){
+//
+//                log.info("트랙 ID:{}",streaming.getTrackCountList().get(i).getTrackId());
+//                log.info("트랙 스트리밍 횟수:{}",streaming.getTrackCountList().get(i).getTotalCount());
+//
+//            }
+//        }
 
-        log.info("트랙 ID:{}",streaming.getTrackCountList().size());
-        if(streaming.getTrackCountList().size() > 0){
+//        // 이번 달 스트리밍 횟수
+//        int thisMonthStreamingCount = streaming.getTrackCountList().stream()
+//                .mapToInt(TrackCountResult::getMonthCount)
+//                .sum();
 
-            for(int i=0;i<streaming.getTrackCountList().size();i++){
 
-                log.info("트랙 ID:{}",streaming.getTrackCountList().get(i).getTrackId());
-                log.info("트랙 스트리밍 횟수:{}",streaming.getTrackCountList().get(i).getTotalCount());
+        int streamingDiff = getArtistStreamingResponse.getStreamingDiff();
 
-            }
-        }
-
-        // 이번 달 스트리밍 횟수
-        int thisMonthStreamingCount = streaming.getTrackCountList().stream()
-                .mapToInt(TrackCountResult::getMonthCount)
-                .sum();
-
-        // 이번 달 스트리밍 횟수 - 전 달 스트리밍 힛수
-        int streamingDiff = thisMonthStreamingCount - prevMonthStreamingCount;
 
         // 아티스트 앨범 목록 조회
         List<GetMyArtistDashBoardResponse.MyArtistAlbum> albums =
-                albumDtoList.stream().map(albumEntity -> {
+                getArtistStreamingResponse.getAlbumStreamings().stream().map(albumEntity -> {
+                    AlbumDto album = albumClient.getAlbumById(albumEntity.getAlbumId());
                     return GetMyArtistDashBoardResponse.MyArtistAlbum.builder()
-                            .albumTitle(albumEntity.getAlbumTitle())
-                            .coverImageUrl(albumEntity.getCoverImageUrl())
-                            .trackCount(trackClient.getTracksByAlbumId(albumEntity.getAlbumId()).size())
+                            .albumTitle(album.getTitle())
+                            .coverImageUrl(album.getCoverImageUrl())
+                            .totalStreaming(albumEntity.getTotalStreaming())
                             .build();
                 }).toList();
 
-        // 전체 스트리밍 횟수
-        int totalStreamingCount = streaming.getTrackCountList().stream()
-                .mapToInt(TrackCountResult::getTotalCount)
-                .sum();
+
+        int totalStreamingCount = getArtistStreamingResponse.getTotalStreamingCount();
+
 
         // 이전 달의 마지막 날 계산
         LocalDateTime endOfPreviousMonth = YearMonth.now().minusMonths(1)
@@ -196,30 +203,41 @@ public class GetMyArtistDashBoardService {
                     .build());
         }
 
-        // 오늘 스트리밍 횟수 계산
-        Integer todayStreamingCount = getTodayStreamingCountByArtist(memberId);
-        log.info("아티스트 오늘 스트리밍 수: {}", todayStreamingCount);
+
+        Integer todayStreamingCount = getArtistStreamingResponse.getTodayStreamingCount();
 
         // 지갑 주소
         String walletAddress = walletClient.getWalletByArtistId(memberId).getAddress();
 
 
         //월 정산
+        GetArtistDailySettlementResponse getArtistDailySettlementResponse
+                = settlementClient.getArtistDailySettlement(memberId);
+
+        // 일일 정산 내역
+        List<GetMyArtistDashBoardResponse.DailySettlement> dailySettlementList =
+                getArtistDailySettlementResponse.getDailySettlements().stream()
+                        .map(daily -> GetMyArtistDashBoardResponse.DailySettlement.builder()
+                                .date(daily.getDate())
+                                .settlement(daily.getSettlement())
+                                .build())
+                        .toList();
+
 
         return GetMyArtistDashBoardResponse.builder()
                 .subscriberCount(subscriberCount)
                 .totalStreamingCount(totalStreamingCount)
-                .thisMonthStreamingCount(thisMonthStreamingCount)
+                //.thisMonthStreamingCount(thisMonthStreamingCount)
                 // 이번 달 - 전 달
                 .streamingDiff(streamingDiff)
                 // 이번 달 구독자 수
                 .thisMonthNewSubscriberCount(thisMonthNewSubscriberCount)
                 .albums(albums)
-                .thisMonthSettlement(null)
-                .monthlySettlement(null)
+                .dailySettlement(dailySettlementList)
                 .walletAddress(walletAddress)
                 .newSubscriberDiff(newSubscriberDiff)
-                .settlementDiff(null)
+                .settlementDiff(getArtistDailySettlementResponse.getSettlementDiff())
+                .todaySettlement(getArtistDailySettlementResponse.getTodaySettlement())
                 .dailySubscriberCounts(dailySubscriberCounts)
                 .monthlySubscriberCounts(monthlySubscriberCounts)
                 .todayStreamingCount(todayStreamingCount)
