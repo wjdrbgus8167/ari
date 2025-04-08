@@ -26,17 +26,11 @@ class ArtistNoticeSection extends ConsumerWidget {
     final isLoading =
         channelState.artistNoticesStatus == MyChannelStatus.loading;
     final hasError = channelState.artistNoticesStatus == MyChannelStatus.error;
-    // TODO: final isArtist = channelState.isArtist; // 이거 주석 해제, 밑코드 주석: 아티스트 회원인지 여부 확인
     final isArtist = true;
 
     // 현재 로그인한 사용자 ID 가져오기 (내 채널 여부 확인용)
     final currentUserId = ref.read(userIdProvider);
     final isMyChannel = currentUserId != null && currentUserId == memberId;
-
-    // 아티스트가 아닌 경우 위젯을 표시x
-    if (!isArtist) {
-      return const SizedBox.shrink();
-    }
 
     // 채널 아티스트 이름 가져오기 (상세화면 타이틀용)
     final channelInfo = channelState.channelInfo;
@@ -78,18 +72,28 @@ class ArtistNoticeSection extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    // 공지사항 개수 표시
+                    // 공지사항 개수 표시 - 팬톡 스타일로 수정
                     if (noticeResponse != null &&
-                        noticeResponse.notices.isNotEmpty) ...[
-                      const SizedBox(width: 8),
-                      Text(
-                        '(${noticeResponse.noticeCount})',
-                        style: TextStyle(
-                          color: AppColors.mediumPurple,
-                          fontSize: 14,
+                        noticeResponse.notices.isNotEmpty)
+                      Container(
+                        margin: const EdgeInsets.only(left: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.mediumPurple.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          '${noticeResponse.noticeCount}',
+                          style: const TextStyle(
+                            color: AppColors.mediumPurple,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ],
                   ],
                 ),
 

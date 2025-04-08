@@ -54,7 +54,8 @@ class FanTalk {
       profileImageUrl: json['profileImageUrl'] ?? '',
       content: json['content'] ?? '',
       fantalkImageUrl: json['fantalkImageUrl'],
-      track: json['track'] != null ? FanTalkTrack.fromJson(json['track']) : null,
+      track:
+          json['track'] != null ? FanTalkTrack.fromJson(json['track']) : null,
       createdAt: json['createdAt'] ?? '',
     );
   }
@@ -64,21 +65,25 @@ class FanTalk {
 class FanTalkResponse {
   final List<FanTalk> fantalks;
   final int fantalkCount;
+  final bool subscribedYn;
 
   FanTalkResponse({
     required this.fantalks,
     required this.fantalkCount,
+    required this.subscribedYn,
   });
 
   /// [return] 생성된 FanTalkResponse 객체
   factory FanTalkResponse.fromJson(Map<String, dynamic> json) {
     final fantalksList = json['fantalks'] as List<dynamic>? ?? [];
-    
+
     return FanTalkResponse(
-      fantalks: fantalksList
-          .map((fantalkJson) => FanTalk.fromJson(fantalkJson))
-          .toList(),
+      fantalks:
+          fantalksList
+              .map((fantalkJson) => FanTalk.fromJson(fantalkJson))
+              .toList(),
       fantalkCount: json['fantalkCount'] ?? 0,
+      subscribedYn: json['subscribedYn'] ?? false,
     );
   }
 }
