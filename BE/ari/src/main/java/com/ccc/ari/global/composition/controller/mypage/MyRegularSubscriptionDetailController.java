@@ -19,16 +19,16 @@ public class MyRegularSubscriptionDetailController {
 
     private final MyRegularSubscriptionDetailService myRegularSubscriptionDetailService;
 
-    @GetMapping("/subscriptions/regular/detail/{subscriptionId}")
+    @GetMapping("/subscriptions/regular/detail/{cycleId}")
     public ApiUtils.ApiResponse<GetMyRegularSubscriptionDetailResponse> myRegularSubscriptionDetail(
-            @PathVariable Integer subscriptionId,
+            @PathVariable Integer cycleId,
             @AuthenticationPrincipal MemberUserDetails memberUserDetails
             ){
 
         Integer memberId = memberUserDetails.getMemberId();
 
         GetMyRegularSubscriptionDetailResponse response =
-                myRegularSubscriptionDetailService.getMyRegularSubscriptionDetail(subscriptionId,memberId);
+                myRegularSubscriptionDetailService.getMyRegularSubscriptionDetail(cycleId,memberId);
 
         return ApiUtils.success(response);
     }
