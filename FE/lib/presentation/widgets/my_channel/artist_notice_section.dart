@@ -26,17 +26,11 @@ class ArtistNoticeSection extends ConsumerWidget {
     final isLoading =
         channelState.artistNoticesStatus == MyChannelStatus.loading;
     final hasError = channelState.artistNoticesStatus == MyChannelStatus.error;
-    // TODO: final isArtist = channelState.isArtist; // 이거 주석 해제, 밑코드 주석: 아티스트 회원인지 여부 확인
     final isArtist = true;
 
     // 현재 로그인한 사용자 ID 가져오기 (내 채널 여부 확인용)
     final currentUserId = ref.read(userIdProvider);
     final isMyChannel = currentUserId != null && currentUserId == memberId;
-
-    // 아티스트가 아닌 경우 위젯을 표시x
-    if (!isArtist) {
-      return const SizedBox.shrink();
-    }
 
     // 채널 아티스트 이름 가져오기 (상세화면 타이틀용)
     final channelInfo = channelState.channelInfo;
