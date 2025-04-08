@@ -22,7 +22,6 @@ class ArtistDashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
-  bool _showWalletInput = false;
   final TextEditingController _walletController = TextEditingController();
   bool isLoading = false; // 로딩 상태
 
@@ -44,29 +43,225 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
     super.dispose();
   }
 
-  List<ChartData> _convertSubscriberDataToChartData(ArtistDashboardData data) {
-  return data.dailySubscriberCounts.map((item) {
-    // 날짜 형식에서 일(day) 추출 (예: "25.04.07" -> 7)
-    final day = int.tryParse(item.date.split('.').last) ?? 0;
-    return ChartData(day, item.subscriberCount.toDouble());
-  }).toList();
-}
+  // 현재 선택된 년월 상태 추가
+  int _selectedYear = 2025;
+  int _selectedMonth = 4; // 기본값은 4월
 
-List<ChartData> _convertSettlementDataToChartData(ArtistDashboardData data) {
-  return data.dailySettlement.map((item) {
-    final day = int.tryParse(item.date.split('.').last) ?? 0;
-    return ChartData(day, item.settlement);
-  }).toList();
-}
+  // 일간 구독자 데이터를 차트 데이터로 변환하고 누락된 날짜는 0으로 채우기
+  List<ChartData> _convertSubscriberDataToChartData(ArtistDashboardData data) {
+    // 1. 기존 데이터 변환
+    final Map<int, double> subscriberByDay = {};
+    
+    // 현재 선택된 년월에 해당하는 데이터만 필터링
+    final selectedYearMonthStr = "${_selectedYear.toString().substring(2)}.${_selectedMonth.toString().padLeft(2, '0')}";
+    
+    // 데이터 형식에 따라 다른 처리
+    for (var item in data.dailySubscriberCounts) {
+      // 날짜 형식에 따라 일자와 년월 추출 (YYYY-MM-DD 또는 YY.MM.DD)
+      int day;
+      String yearMonth;
+      
+      if (item.date.contains('-')) {
+        // YYYY-MM-DD 형식 (예: 2025-04-07)
+        final parts = item.date.split('-');
+        if (parts.length == 3) {
+          yearMonth = "${parts[0].substring(2)}.${parts[1]}"; // "25.04" 형식으로 변환
+          day = int.tryParse(parts[2]) ?? 0;
+        } else {
+          continue; // 잘못된 날짜 형식은 건너뜀
+        }
+      } else {
+        // YY.MM.DD 형식 (예: 25.04.07)
+        final parts = item.date.split('.');
+        if (parts.length == 3) {
+          yearMonth = "${parts[0]}.${parts[1]}"; // "25.04" 형식
+          day = int.tryParse(parts[2]) ?? 0;
+        } else {
+          continue; // 잘못된 날짜 형식은 건너뜀
+        }
+      }
+      
+      // 현재 선택된 년월에 해당하는 데이터만 사용
+      if (yearMonth == selectedYearMonthStr && day > 0) {
+        subscriberByDay[day] = item.subscriberCount.toDouble();
+      }
+    }
+    
+    // 2. 해당 월의 총 일수 계산
+    final daysInMonth = _getDaysInMonth(_selectedYear, _selectedMonth);
+    
+    // 3. 누락된 날짜를 0으로 채우기 (1 ~ 해당 월의 마지막 일)
+    for (int day = 1; day <= daysInMonth; day++) {
+      if (!subscriberByDay.containsKey(day)) {
+        subscriberByDay[day] = 0.0; // 없는 날짜는 0으로 설정
+      }
+    }
+    
+    // 4. 결과를 ChartData 리스트로 변환하고 정렬
+    final result = subscriberByDay.entries
+        .map((entry) => ChartData(entry.key, entry.value))
+        .toList();
+    
+    // 날짜순으로 정렬
+    result.sort((a, b) => a.x.compareTo(b.x));
+    
+    return result;
+  }
+
+  // 정산 데이터를 차트 데이터로 변환하고 누락된 날짜는 0으로 채우기
+  List<ChartData> _convertSettlementDataToChartData(ArtistDashboardData data) {
+    // 1. 기존 데이터 변환
+    final Map<int, double> settlementByDay = {};
+    
+    // 현재 선택된 년월에 해당하는 데이터만 필터링
+    final selectedYearMonthStr = "${_selectedYear.toString().substring(2)}.${_selectedMonth.toString().padLeft(2, '0')}";
+    
+    // 데이터 파싱
+    for (var item in data.dailySettlement) {
+      // YY.MM.DD 형식 (예: 25.04.07)
+      final parts = item.date.split('.');
+      if (parts.length == 3) {
+        final yearMonth = "${parts[0]}.${parts[1]}";
+        final day = int.tryParse(parts[2]) ?? 0;
+        
+        // 현재 선택된 년월에 해당하는 데이터만 사용
+        if (yearMonth == selectedYearMonthStr && day > 0) {
+          settlementByDay[day] = item.settlement;
+        }
+      }
+    }
+    
+    // 2. 해당 월의 총 일수 계산
+    final daysInMonth = _getDaysInMonth(_selectedYear, _selectedMonth);
+    
+    // 3. 누락된 날짜를 0으로 채우기 (1 ~ 해당 월의 마지막 일)
+    for (int day = 1; day <= daysInMonth; day++) {
+      if (!settlementByDay.containsKey(day)) {
+        settlementByDay[day] = 0.0; // 없는 날짜는 0으로 설정
+      }
+    }
+    
+    // 4. 결과를 ChartData 리스트로 변환하고 정렬
+    final result = settlementByDay.entries
+        .map((entry) => ChartData(entry.key, entry.value))
+        .toList();
+    
+    // 날짜순으로 정렬
+    result.sort((a, b) => a.x.compareTo(b.x));
+    
+    return result;
+  }
+
+  // 해당 년월의 일수 계산 함수
+  int _getDaysInMonth(int year, int month) {
+    return DateTime(year, month + 1, 0).day;
+  }
+
+  // 이전 월로 이동
+  void _goToPreviousMonth() {
+    setState(() {
+      if (_selectedMonth > 1) {
+        _selectedMonth--;
+      } else {
+        _selectedMonth = 12;
+        _selectedYear--;
+      }
+    });
+  }
+
+  // 다음 월로 이동
+  void _goToNextMonth() {
+    setState(() {
+      if (_selectedMonth < 12) {
+        _selectedMonth++;
+      } else {
+        _selectedMonth = 1;
+        _selectedYear++;
+      }
+    });
+  }
+
+  // 월 선택 UI 위젯
+  Widget _buildMonthSelector() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2), // 패딩 줄임
+      decoration: BoxDecoration(
+        color: const Color(0xFF333333),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back_ios, size: 10, color: Colors.white), // 아이콘 크기도 약간 줄임
+            padding: EdgeInsets.zero, // 패딩 제거
+            constraints: const BoxConstraints(), // 기본 제약 제거
+            visualDensity: VisualDensity.compact, // 더 작은 크기로 표시
+            onPressed: _goToPreviousMonth,
+          ),
+          Text(
+            "${_selectedYear}년 ${_selectedMonth}월",
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 11, // 폰트 크기 줄임
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.arrow_forward_ios, size: 10, color: Colors.white), // 아이콘 크기도 약간 줄임
+            padding: EdgeInsets.zero, // 패딩 제거
+            constraints: const BoxConstraints(), // 기본 제약 제거
+            visualDensity: VisualDensity.compact, // 더 작은 크기로 표시
+            onPressed: _goToNextMonth,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 차트 섹션 UI (월 선택기만 포함)
+  Widget _buildChartSection(String title, ChartType chartType, List<ChartData> data) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 제목과 월 선택기를 함께 표시
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              _buildMonthSelector(),
+            ],
+          ),
+          const SizedBox(height: 10),
+          // 수정된 간소화 차트 위젯 사용
+          SimpleChartWidget(
+            chartType: chartType,
+            data: data,
+          ),
+        ],
+      ),
+    );
+  }
   
   @override
   Widget build(BuildContext context) {
     // 대시보드 데이터 가져오기
     final dashboardData = ref.watch(artistDashboardProvider);
-    final hasWallet = false;
+    final hasWallet = dashboardData.walletAddress != null && dashboardData.walletAddress!.isNotEmpty;
     
     // 앨범/트랙 보유 여부 확인 (실제로는 API 호출 등으로 확인)
-    final hasTracks = true; // 트랙이 있는지 여부를 확인하는 getter가 있다고 가정
+    final hasTracks = true; // 앨범이 있으면 트랙이 있다고 가정
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -151,105 +346,89 @@ List<ChartData> _convertSettlementDataToChartData(ArtistDashboardData data) {
                             walletAddress: dashboardData.walletAddress ?? '',
                           )
                         else
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(16),
-                            clipBehavior: Clip.antiAlias,
-                            decoration: ShapeDecoration(
-                              color: const Color(0xFF373737),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                  // 결제 지갑 연동 섹션 (금액 자동 설정)
-                                    const WalletWidget(),
-                                  // 버튼 하나추가 -> 함수 실행하는 버튼
-                                    const SizedBox(height: 10),
-                                    // 지갑 등록 버튼
-                                    GestureDetector(
-                                      onTap: isLoading ? null : () async {
-                                        setState(() {
-                                          isLoading = true;
-                                        });
-                                        
-                                        try {
-                                          // 지갑 서비스 가져오기
-                                          final walletService = ref.read(walletServiceProvider);
-                                          final userId = ref.read(userIdProvider);
-                                          final String subscriptionContractAddress = walletService.getCurrentSubscriptionContractAddress();
-                                          
-                                          if (userId == null) {
-                                            dev.log("[구독] 사용자 ID가 없습니다.");
-                                            setState(() {
-                                              isLoading = false;
-                                            });
-                                            return;
-                                          }
-                                          
-                                          await walletService.registerArtist(
-                                            contractAddress: subscriptionContractAddress,
-                                            artistId: int.parse(userId),
-                                            contractAbi: SubscriptionConstants.subscriptionContractAbi,
-                                            onComplete: (regTxHash, regSuccess, regErrorMessage) {
-                                              dev.log("[구독] 사용자 등록 완료: 성공=$regSuccess, 해시=$regTxHash, 오류=$regErrorMessage");
-                                              
-                                              if (!mounted) return;
-                                              
-                                              if (regSuccess) {
-                                                setState(() {
-                                                  isLoading = false;
-                                                });
-                                              }
-                                          });
-                                        } catch (e) {
-                                          dev.log("[구독] 사용자 등록 중 오류 발생: ${e.toString()}");
-                                          if (mounted) {
-                                            setState(() {
-                                              isLoading = false;
-                                            });
-                                          }
-                                        }
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(vertical: 5),
-                                        width: double.infinity,
-                                        alignment: Alignment.center,
-                                        decoration: BoxDecoration(
-                                          color: isLoading ? Colors.grey : const Color(0xFF6C63FF),
-                                          borderRadius: BorderRadius.circular(5),
-                                        ),
-                                        child: isLoading
-                                          ? const SizedBox(
-                                              width: 20,
-                                              height: 20,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                              ),
-                                            )
-                                          : const Text(
-                                              '지갑 등록하기',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 12,
-                                                fontFamily: 'Pretendard',
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                            ),
-                                      ),
-                                    ),
-                                ],
+                          // 지갑 위젯
+                          const WalletWidget(),
+                          const SizedBox(height: 10),
+
+                          // 지갑 등록 버튼
+                          GestureDetector(
+                            onTap: isLoading ? null : () async {
+                              setState(() {
+                                isLoading = true;
+                              });
+                              
+                              try {
+                                // 지갑 서비스 가져오기
+                                final walletService = ref.read(walletServiceProvider);
+                                final userId = ref.read(userIdProvider);
+                                final String subscriptionContractAddress = walletService.getCurrentSubscriptionContractAddress();
+                                
+                                if (userId == null) {
+                                  dev.log("[구독] 사용자 ID가 없습니다.");
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                  return;
+                                }
+                                
+                                await walletService.registerArtist(
+                                  contractAddress: subscriptionContractAddress,
+                                  artistId: int.parse(userId),
+                                  contractAbi: SubscriptionConstants.subscriptionContractAbi,
+                                  onComplete: (regTxHash, regSuccess, regErrorMessage) {
+                                    dev.log("[구독] 사용자 등록 완료: 성공=$regSuccess, 해시=$regTxHash, 오류=$regErrorMessage");
+                                    
+                                    if (!mounted) return;
+                                    
+                                    if (regSuccess) {
+                                      setState(() {
+                                        isLoading = false;
+                                      });
+                                    }
+                                  }
+                                );
+                              } catch (e) {
+                                dev.log("[구독] 사용자 등록 중 오류 발생: ${e.toString()}");
+                                if (mounted) {
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                }
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: isLoading ? Colors.grey : const Color(0xFF6C63FF),
+                                borderRadius: BorderRadius.circular(5),
                               ),
+                              child: isLoading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    ),
+                                  )
+                                : const Text(
+                                    '지갑 등록하기',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontFamily: 'Pretendard',
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
                             ),
-                        ],
-                      ),
-                    ),
+                          ),
                     
                     // 기록 섹션
+                    const SizedBox(height: 20),
                     Container(
                       width: double.infinity,
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), // 좌우 마진 추가
+                      margin: const EdgeInsets.symmetric(vertical: 16), // 좌우 마진 추가
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -276,254 +455,40 @@ List<ChartData> _convertSettlementDataToChartData(ArtistDashboardData data) {
                     ),
                     
                     // 차트 섹션 (트랙이 있을 때만 표시)
+                    const SizedBox(height: 20),
                     if (hasTracks) ...[
                       // 구독자 수 차트
-                      Container(
-                        width: double.infinity,
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 마진 추가
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
+                     
+                      // 전체 월의 데이터를 보이도록 변환
+                            _buildChartSection(
                               '구독자 수 추이',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontFamily: 'Pretendard',
-                                fontWeight: FontWeight.w600,
-                              ),
+                              ChartType.subscribers,
+                              _convertSubscriberDataToChartData(dashboardData),
                             ),
                             const SizedBox(height: 10),
-                            // 4월 전체 데이터를 표시하기 위해 _generateFullMonthData 사용
-                            ChartWidget(
-                              chartType: ChartType.subscribers,
-                              data:  _convertSubscriberDataToChartData(dashboardData),
-                            ),
-                          ],
-                        ),
-                      ),
-                      
-                      // 스트리밍 횟수 차트
-                      Container(
-                        width: double.infinity,
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 마진 추가
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              '스트리밍 횟수 추이',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontFamily: 'Pretendard',
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            ChartWidget(
-                              chartType: ChartType.streams,
-                              data:  _convertSettlementDataToChartData(dashboardData),
-                            ),
-                          ],
-                        ),
-                      ),
-                      
-                      // 정산금액 차트
-                      Container(
-                        width: double.infinity,
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // 마진 추가
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
+                            // 정산금액 차트
+                            _buildChartSection(
                               '정산금액 추이',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontFamily: 'Pretendard',
-                                fontWeight: FontWeight.w600,
-                              ),
+                              ChartType.revenue,
+                              _convertSettlementDataToChartData(dashboardData),
                             ),
-                            const SizedBox(height: 10),
-                            ChartWidget(
-                              chartType: ChartType.revenue,
-                              data:  _convertSettlementDataToChartData(dashboardData),
-                            ),
-                          ],
-                        ),
-                      ),
+                    
                     ],
                   ],
                 ),
               ),
+              ]
             ),
           ),
-        );
-    }
-    
-    // 4월 전체 구독자 데이터 생성 (1일~30일)
-    List<ChartData> _generateFullMonthSubscriberData(ArtistDashboardData data) {
-      // 구독자 수 증가 추세 생성 (예측 데이터)
-      final Map<int, int> subscriberByDay = {};
-      
-      // 1. 먼저 API에서 가져온 실제 데이터 채우기
-      for (var item in data.dailySubscriberCounts) {
-        // 날짜에서 일(day) 추출 (예: "25.04.07" -> 7)
-        final parts = item.date.split('.');
-        if (parts.length == 3) {
-          final day = int.tryParse(parts[2]) ?? 0;
-          if (day > 0) {
-            subscriberByDay[day] = item.subscriberCount;
-          }
-        }
-      }
-      
-      // 2. 기존 데이터에서 마지막 일자와 첫 일자 찾기
-      final existingDays = subscriberByDay.keys.toList()..sort();
-      int firstDay = existingDays.isNotEmpty ? existingDays.first : 1;
-      int lastDay = existingDays.isNotEmpty ? existingDays.last : 8;
-      
-      // 첫 일자의 구독자 수
-      final firstDayCount = subscriberByDay[firstDay] ?? 600;
-      
-      // 마지막 일자의 구독자 수
-      final lastDayCount = subscriberByDay[lastDay] ?? 650;
-      
-      // 3. 나머지 일자(9일-30일) 데이터 채우기 - 증가 추세로 예측
-      final remainingDays = 30 - lastDay;
-      final averageGrowth = remainingDays > 0 ? (lastDayCount - firstDayCount) / (lastDay - firstDay) : 0;
-      
-      // 9일부터 30일까지 데이터 생성
-      final random = math.Random(42); // 시드값 고정해서 일관된 랜덤 생성
-      for (int day = lastDay + 1; day <= 30; day++) {
-        // 기본 증가 추세에 약간의 랜덤성 추가
-        final trend = averageGrowth * (day - lastDay);
-        final randomVariation = (random.nextDouble() * 10) - 5; // -5 ~ +5 사이 랜덤값
-        
-        // 새 구독자 수 = 마지막 일자 + 증가 추세 + 랜덤 변동
-        final newCount = (lastDayCount + trend + randomVariation).round();
-        subscriberByDay[day] = newCount;
-      }
-      
-      // 4. 첫 일자 이전(1일-firstDay-1)의 데이터 생성 - 필요한 경우
-      if (firstDay > 1) {
-        for (int day = 1; day < firstDay; day++) {
-          // 첫 일자로 가면서 감소하는 추세
-          final daysBeforeFirst = firstDay - day;
-          final trend = -averageGrowth * daysBeforeFirst;
-          final randomVariation = (random.nextDouble() * 8) - 4; // -4 ~ +4 사이 랜덤값
-          
-          // 새 구독자 수 = 첫 일자 + 감소 추세 + 랜덤 변동
-          final newCount = (firstDayCount + trend + randomVariation).round();
-          subscriberByDay[day] = math.max(580, newCount); // 최소값 설정
-        }
-      }
-      
-      // 5. 결과를 ChartData 리스트로 변환
-      final result = <ChartData>[];
-      for (int day = 1; day <= 30; day++) {
-        final count = subscriberByDay[day] ?? 0;
-        result.add(ChartData(day, count.toDouble()));
-      }
-      
-      return result;
-    }
-    
-    // 4월 전체 스트리밍 데이터 생성 (1일~30일)
-    List<ChartData> _generateFullMonthStreamingData(ArtistDashboardData data) {
-      // 구독자 데이터를 기반으로 스트리밍 데이터 생성
-      final subscriberData = _generateFullMonthSubscriberData(data);
-      final random = math.Random(12345); // 시드값 고정
-      
-      return subscriberData.map((item) {
-        // 구독자 수의 약 20~25배를 스트리밍 수로 설정
-        final multiplier = 20.0 + random.nextDouble() * 5.0;
-        // 주말(6, 7, 13, 14, 20, 21, 27, 28)에는 더 높은 스트리밍 (1.2배)
-        final isWeekend = item.x % 7 == 6 || item.x % 7 == 0;
-        final weekendMultiplier = isWeekend ? 1.2 : 1.0;
-        // 변동성 추가
-        final variation = (random.nextDouble() * 2 - 1) * 50; // -50 ~ +50
-        
-        final streams = item.y * multiplier * weekendMultiplier + variation;
-        return ChartData(item.x, streams);
-      }).toList();
-    }
-    
-    // 4월 전체 정산 데이터 생성 (1일~30일)
-    List<ChartData> _generateFullMonthSettlementData(ArtistDashboardData data) {
-      // 1. 기존 정산 데이터 맵으로 변환
-      final Map<int, double> settlementByDay = {};
-      
-      // 기존 API 데이터 채우기
-      for (var item in data.dailySettlement) {
-        final parts = item.date.split('.');
-        if (parts.length == 3) {
-          final day = int.tryParse(parts[2]) ?? 0;
-          if (day > 0) {
-            settlementByDay[day] = item.settlement;
-          }
-        }
-      }
-      
-      // 2. 데이터가 있는 일자 범위 확인
-      final existingDays = settlementByDay.keys.toList()..sort();
-      int firstDay = existingDays.isNotEmpty ? existingDays.first : 1;
-      int lastDay = existingDays.isNotEmpty ? existingDays.last : 8;
-      
-      // 첫 일자와 마지막 일자의 정산액
-      final firstDayAmount = settlementByDay[firstDay] ?? 15.0;
-      final lastDayAmount = settlementByDay[lastDay] ?? 20.0;
-      
-      // 3. 추세 계산
-      final averageGrowth = (lastDayAmount - firstDayAmount) / (lastDay - firstDay);
-      
-      // 4. 나머지 일자 채우기
-      final random = math.Random(54321); // 시드값 고정
-      
-      // 9일부터 30일까지 데이터 생성
-      for (int day = lastDay + 1; day <= 30; day++) {
-        // 기본 증가 추세에 약간의 랜덤성 추가
-        final trend = averageGrowth * (day - lastDay);
-        final randomVariation = (random.nextDouble() * 2) - 1; // -1 ~ +1 사이 랜덤값
-        
-        // 주말에는 수익이 약간 더 높음
-        final isWeekend = day % 7 == 6 || day % 7 == 0;
-        final weekendBonus = isWeekend ? 2.0 : 0.0;
-        
-        // 새 정산액 = 마지막 일자 + 증가 추세 + 랜덤 변동 + 주말 보너스
-        final newAmount = lastDayAmount + trend + randomVariation + weekendBonus;
-        settlementByDay[day] = double.parse(newAmount.toStringAsFixed(1)); // 소수점 첫째 자리까지
-      }
-      
-      // 1일부터 첫 데이터 이전까지 채우기 (필요한 경우)
-      if (firstDay > 1) {
-        for (int day = 1; day < firstDay; day++) {
-          final daysBeforeFirst = firstDay - day;
-          final trend = -averageGrowth * daysBeforeFirst;
-          final randomVariation = (random.nextDouble() * 1.5) - 0.75;
-          
-          final isWeekend = day % 7 == 6 || day % 7 == 0;
-          final weekendBonus = isWeekend ? 1.5 : 0.0;
-          
-          final newAmount = firstDayAmount + trend + randomVariation + weekendBonus;
-          settlementByDay[day] = double.parse(math.max(10.0, newAmount).toStringAsFixed(1));
-        }
-      }
-      
-      // 5. 결과를 ChartData 리스트로 변환
-      final result = <ChartData>[];
-      for (int day = 1; day <= 30; day++) {
-        final amount = settlementByDay[day] ?? 0.0;
-        result.add(ChartData(day, amount));
-      }
-      
-      return result;
+        ),
+      ),
+    );
     }
     
     // 트랙이 있는 경우 상세 통계 위젯
     Widget _buildDetailedStats(ArtistDashboardData data) {
       return Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(10),
         clipBehavior: Clip.antiAlias,
         decoration: ShapeDecoration(
           color: const Color(0xFF373737),
@@ -550,17 +515,17 @@ List<ChartData> _convertSettlementDataToChartData(ArtistDashboardData data) {
             // 두 번째 행: 오늘 스트리밍, 오늘 신규 구독자, 오늘 정산액
             _buildStatsRow([
               _buildStatItem(
-                label: '오늘 스트리밍',
+                label: '당일 스트리밍',
                 value: data.todayStreamingCount.toString(),
                 growth: data.streamingDiff,
               ),
               _buildStatItem(
-                label: '오늘 신규 구독자',
+                label: '당일 신규 구독',
                 value: data.todayNewSubscriberCount.toString(),
                 growth: data.newSubscriberDiff,
               ),
               _buildStatItem(
-                label: '오늘 정산액',
+                label: '당일 정산액',
                 value: data.todaySettlement.toStringAsFixed(1),
                 growth: data.settlementDiff.toInt(),
                 isRevenue: true,
@@ -609,9 +574,9 @@ List<ChartData> _convertSettlementDataToChartData(ArtistDashboardData data) {
                             '구독자 수',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 12,
+                              fontSize: 13,
                               fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -647,9 +612,9 @@ List<ChartData> _convertSettlementDataToChartData(ArtistDashboardData data) {
                             '총 스트리밍 횟수',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 12,
+                              fontSize: 13,
                               fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -693,12 +658,12 @@ List<ChartData> _convertSettlementDataToChartData(ArtistDashboardData data) {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           const Text(
-                            '오늘 스트리밍',
+                            '당일 스트리밍',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 12,
+                              fontSize: 13,
                               fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -731,12 +696,12 @@ List<ChartData> _convertSettlementDataToChartData(ArtistDashboardData data) {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           const Text(
-                            '오늘 신규 구독자',
+                            '당일 신규 구독',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 12,
+                              fontSize: 13,
                               fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -749,7 +714,7 @@ List<ChartData> _convertSettlementDataToChartData(ArtistDashboardData data) {
                               fontSize: 12,
                               fontFamily: 'Pretendard',
                               fontWeight: FontWeight.w400,
-                            ),
+                              ),
                           ),
                         ],
                       ),
@@ -769,12 +734,12 @@ List<ChartData> _convertSettlementDataToChartData(ArtistDashboardData data) {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           const Text(
-                            '오늘 정산액',
+                            '당일 정산액',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 12,
+                              fontSize: 13,
                               fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -835,9 +800,9 @@ List<ChartData> _convertSettlementDataToChartData(ArtistDashboardData data) {
               label,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 12,
+                fontSize: 13,
                 fontFamily: 'Pretendard',
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w500,
               ),
               textAlign: TextAlign.center,
             ),
@@ -847,7 +812,7 @@ List<ChartData> _convertSettlementDataToChartData(ArtistDashboardData data) {
               text: TextSpan(
                 children: [
                   TextSpan(
-                    text: isRevenue ? '\$' : '',
+                    text: isRevenue ? '' : '',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,

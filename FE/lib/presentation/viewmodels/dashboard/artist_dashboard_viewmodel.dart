@@ -27,76 +27,23 @@ class ArtistDashboardViewmodel extends StateNotifier<ArtistDashboardData> {
   // 초기 데이터
   static ArtistDashboardData _initialData() {
     return ArtistDashboardData(
-      walletAddress: "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
-      subscriberCount: 623,
-      totalStreamingCount: 13072,
-      todayStreamingCount: 518,
-      streamingDiff: -10,
-      todayNewSubscriberCount: 10,
-      newSubscriberDiff: 5,
-      todaySettlement: 19.7,
-      settlementDiff: 0.8,
-      todayNewSubscribeCount: 15,
-      albums: [
-        Album(
-          albumTitle: "Midnight Blues",
-          coverImageUrl: "https://example.com/covers/midnight_blues.jpg",
-          trackCount: 10
-        ),
-        Album(
-          albumTitle: "Dawn Chorus",
-          coverImageUrl: "https://example.com/covers/dawn_chorus.jpg",
-          trackCount: 8
-        ),
-      ],
-      dailySubscriberCounts: _generateDailySubscriberData(),
-      dailySettlement: _generateDailySettlementData(),
+      walletAddress: '',
+      subscriberCount: 0,
+      totalStreamingCount: 0,
+      todayStreamingCount: 0,
+      streamingDiff: 0,
+      todayNewSubscriberCount: 0,
+      newSubscriberDiff: 0,
+      todaySettlement: 0,
+      settlementDiff: 0,
+      todayNewSubscribeCount: 0,
+      albums: [],
+      dailySubscriberCounts: [],
+      dailySettlement: [],
+      monthlySubscriberCounts: [],
     );
   }
   
-  // 일간 구독자 데이터 생성 (테스트용)
-  static List<DailySubscriberCount> _generateDailySubscriberData() {
-    final List<DailySubscriberCount> result = [];
-    int baseCount = 600;
-    
-    for (int i = 1; i <= 8; i++) {
-      // 날짜 형식: YY.MM.DD
-      String date = "25.04.${i < 10 ? '0$i' : i}";
-      
-      // 약간의 증가세를 보이는 구독자 수
-      baseCount += Random().nextInt(10) + 3;
-      
-      result.add(DailySubscriberCount(
-        date: date,
-        subscriberCount: baseCount,
-      ));
-    }
-    
-    return result;
-  }
-
-  // 일간 정산 데이터 생성 (테스트용)
-  static List<DailySettlement> _generateDailySettlementData() {
-    final List<DailySettlement> result = [];
-    double baseSettlement = 15.0;
-    
-    for (int i = 1; i <= 8; i++) {
-      // 날짜 형식: YY.MM.DD
-      String date = "25.04.${i < 10 ? '0$i' : i}";
-      
-      // 변동성 있는 정산 금액
-      baseSettlement += (Random().nextDouble() * 2) - 0.5;
-      baseSettlement = baseSettlement.clamp(10.0, 30.0);
-      
-      result.add(DailySettlement(
-        date: date,
-        settlement: double.parse(baseSettlement.toStringAsFixed(1)), // 소수점 한 자리로 반올림
-      ));
-    }
-    
-    return result;
-  }
-
   // 아티스트의 앨범 리스트 화면으로 이동
   Future<void> navigateToAlbumStatList(BuildContext context) async {
     Navigator.pushNamed(context, AppRoutes.myAlbumStatList);
@@ -107,9 +54,6 @@ class ArtistDashboardViewmodel extends StateNotifier<ArtistDashboardData> {
     try {
       // 로딩 상태로 변경 (로딩 상태를 표시하기 위한 상태 복사본 필요)
       // 현재 ArtistDashboardData에는 isLoading 필드가 없으므로 UI에서 별도 처리 필요
-      
-      // 아티스트 앨범 확인
-      await checkArtistHasAlbums();
       
       // 대시보드 데이터 가져오기
       final result = await getDashboardDataUseCase();
@@ -193,6 +137,7 @@ class ArtistDashboardViewmodel extends StateNotifier<ArtistDashboardData> {
         albums: state.albums,
         dailySubscriberCounts: state.dailySubscriberCounts,
         dailySettlement: state.dailySettlement,
+        monthlySubscriberCounts: state.monthlySubscriberCounts,
       );
       
       return true;
@@ -208,15 +153,6 @@ class ArtistDashboardViewmodel extends StateNotifier<ArtistDashboardData> {
     return regex.hasMatch(address);
   }
   
-  // ArtistDashboardData를 서버 응답 데이터로부터 생성
-  ArtistDashboardData createFromResponse(Map<String, dynamic> responseData) {
-    try {
-      return ArtistDashboardData.fromJson(responseData);
-    } catch (e) {
-      // 파싱 오류 시 기본 데이터 반환
-      return _initialData();
-    }
-  }
 }
 
 // Riverpod Provider 정의
