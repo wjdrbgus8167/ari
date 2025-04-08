@@ -2,20 +2,12 @@ package com.ccc.ari.global.composition.service.mypage;
 
 import com.ccc.ari.aggregation.application.service.response.GetArtistStreamingResponse;
 import com.ccc.ari.aggregation.ui.client.StreamingCountClient;
-import com.ccc.ari.aggregation.ui.response.GetArtistTrackCountListResponse;
-import com.ccc.ari.aggregation.ui.response.TrackCountResult;
-import com.ccc.ari.chart.application.repository.ChartRepository;
-import com.ccc.ari.chart.domain.entity.StreamingWindow;
-import com.ccc.ari.chart.domain.vo.HourlyStreamCount;
-import com.ccc.ari.chart.infrastructure.repository.RedisWindowRepository;
 import com.ccc.ari.global.composition.response.mypage.GetMyArtistDashBoardResponse;
 import com.ccc.ari.global.error.ApiException;
 import com.ccc.ari.global.error.ErrorCode;
 import com.ccc.ari.music.domain.album.AlbumDto;
 import com.ccc.ari.music.domain.album.AlbumEntity;
 import com.ccc.ari.music.domain.album.client.AlbumClient;
-import com.ccc.ari.music.domain.track.TrackDto;
-import com.ccc.ari.music.domain.track.client.TrackClient;
 import com.ccc.ari.settlement.application.response.GetArtistDailySettlementResponse;
 import com.ccc.ari.settlement.ui.client.SettlementClient;
 import com.ccc.ari.settlement.ui.client.WalletClient;
@@ -31,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -43,19 +36,42 @@ public class GetMyArtistDashBoardService {
     private final SubscriptionPlanClient  subscriptionPlanClient;
     private final AlbumClient albumClient;
     private final StreamingCountClient streamingCountClient;
-    private final TrackClient trackClient;
-    private final RedisWindowRepository redisWindowRepository;
     private final WalletClient walletClient;
     private final SettlementClient settlementClient;
 
+    // 아티스트 대시보드 조회
     public GetMyArtistDashBoardResponse getMyArtistDashBoard(Integer memberId) {
 
-        // 아티스트 앨범 리스트 조회
-        List<AlbumEntity> albumDtoList = albumClient.getAllAlbums(memberId);
-
-        // 현재 아티스트의 구독 플랜 조회
+        /**
+          * 현재 아티스트의 플랜을 조회 , 플랜이 존재한다면 구독한 사용자가 있다는 의미
+         * 대시보드에 들어오기 전에 지갑 검사로 아티스트임을 판별
+         */
         SubscriptionPlan subscriptionPlan = subscriptionPlanClient.getSubscriptionPlanByArtistId(memberId)
-                .orElseThrow(()-> new ApiException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
+                .orElse(null);
+        // 지갑 주소
+        String walletAddress = walletClient.getWalletByArtistId(memberId).getAddress();
+
+        if (subscriptionPlan==null) {
+            return GetMyArtistDashBoardResponse.builder()
+                    .subscriberCount(0)
+                    .totalStreamingCount(0)
+                    .streamingDiff(0)
+                    .thisMonthNewSubscriberCount(0)
+                    .albums(new ArrayList<>())
+                    .dailySettlement(new ArrayList<>())
+                    .walletAddress(walletAddress) // 혹은 null
+                    .newSubscriberDiff(0)
+                    .settlementDiff(0.0)
+                    .todaySettlement(0.0)
+                    .dailySubscriberCounts(new ArrayList<>())
+                    .monthlySubscriberCounts(new ArrayList<>())
+                    .todayStreamingCount(0)
+                    .todayNewSubscribeCount(0)
+                    .build();
+        }
+        // 아티스트 앨범 리스트 조회
+        List<AlbumEntity> albumDtoList = albumClient.getAllAlbums(memberId)
+                .orElse(null);
 
         log.info("구독Plan 아티스트ID:{}", subscriptionPlan.getArtistId());
 
@@ -66,15 +82,10 @@ public class GetMyArtistDashBoardService {
         // 아티스트 스트리밍 데이터 가져오기
         GetArtistStreamingResponse getArtistStreamingResponse = streamingCountClient.getArtistAlbumStreamings(memberId);
 
-
-        // 비동기 처리: 스트리밍 데이터 조회
-//        CompletableFuture<GetArtistTrackCountListResponse> streamingFuture =
-//                CompletableFuture.supplyAsync(() -> streamingCountClient.getArtistTrackCounts(memberId));
-
-        // 동기 처리: 구독자 수 조회
+        // 현재 구독자 수 조회 - 활성화 되어 있는 구독자만 가져옴
         Integer subscriberCount = subscriptionClient
                 .getSubscriptionBySubscriptionPlanId(subscriptionPlanId).size();
-
+        log.info("현재 구독자 수:{}", subscriberCount);
 
         // 이번 달 구독 시작 시간/끝 시간 계산
         LocalDateTime startOfMonth = YearMonth.now().atDay(1).atStartOfDay();
@@ -82,7 +93,12 @@ public class GetMyArtistDashBoardService {
         log.info("이번 달 구독 시작 시간:{}",startOfMonth);
         log.info("이번 달 구독 종료 시간:{}",endOfMonth);
 
-        // 오늘 하루 구독자 수
+        // 이번 달 신규 구독자 수
+        Integer thisMonthNewSubscriberCount = subscriptionClient
+                .getRegularSubscription(subscriptionPlanId, startOfMonth, endOfMonth).size();
+
+
+        // 오늘 하루 구독자 날짜
         LocalDateTime startOfToday = LocalDate.now().atStartOfDay();
         LocalDateTime endOfToday = LocalDate.now().atTime(23, 59, 59, 999_999_999);
 
@@ -90,50 +106,18 @@ public class GetMyArtistDashBoardService {
         Integer todayNewSubscribeCount =
                 subscriptionClient.getRegularSubscription(subscriptionPlanId,startOfToday,endOfToday).size();
 
-        // 이번 달 신규 구독자 수
-        Integer thisMonthNewSubscriberCount = subscriptionClient
-                .getRegularSubscription(subscriptionPlanId, startOfMonth, endOfMonth).size();
-
         log.info("이번달 신규 구독자 수 :{}", thisMonthNewSubscriberCount);
+        log.info("오늘 하루 신규 구독자:{}", todayNewSubscribeCount);
 
-        // 아티스트 전달 스트리밍 수
-        Integer prevMonthStreamingCount = getPreviousMonthStreamingCountByArtist(memberId);
-
-        log.info("아티스트 전달 스트리밍 수:{}", prevMonthStreamingCount);
-
-//        // 비동기 결과 가져오기
-//        GetArtistTrackCountListResponse streaming;
-//        try {
-//            streaming = streamingFuture.join();
-//        } catch (Exception e) {
-//            log.error("비동기 스트리밍 데이터 조회 중 오류 발생", e);
-//            throw new ApiException(ErrorCode.STREAMING_NOT_FOUND); // 예외 정의 필요
-//        }
-//
-//        log.info("트랙 ID:{}",streaming.getTrackCountList().size());
-//        if(streaming.getTrackCountList().size() > 0){
-//
-//            for(int i=0;i<streaming.getTrackCountList().size();i++){
-//
-//                log.info("트랙 ID:{}",streaming.getTrackCountList().get(i).getTrackId());
-//                log.info("트랙 스트리밍 횟수:{}",streaming.getTrackCountList().get(i).getTotalCount());
-//
-//            }
-//        }
-
-//        // 이번 달 스트리밍 횟수
-//        int thisMonthStreamingCount = streaming.getTrackCountList().stream()
-//                .mapToInt(TrackCountResult::getMonthCount)
-//                .sum();
-
-
+        // 스트리밍 횟수 차, 이번 달 - 전달
         int streamingDiff = getArtistStreamingResponse.getStreamingDiff();
-
 
         // 아티스트 앨범 목록 조회
         List<GetMyArtistDashBoardResponse.MyArtistAlbum> albums =
                 getArtistStreamingResponse.getAlbumStreamings().stream().map(albumEntity -> {
+
                     AlbumDto album = albumClient.getAlbumById(albumEntity.getAlbumId());
+
                     return GetMyArtistDashBoardResponse.MyArtistAlbum.builder()
                             .albumTitle(album.getTitle())
                             .coverImageUrl(album.getCoverImageUrl())
@@ -141,13 +125,15 @@ public class GetMyArtistDashBoardService {
                             .build();
                 }).toList();
 
-
-        int totalStreamingCount = getArtistStreamingResponse.getTotalStreamingCount();
-
+        // 아티스트 전체 스트리밍 횟수
+        Integer totalStreamingCount = getArtistStreamingResponse.getTotalStreamingCount();
+        // 오늘 스트리밍 횟수
+        Integer todayStreamingCount = getArtistStreamingResponse.getTodayStreamingCount();
 
         // 이전 달의 마지막 날 계산
         LocalDateTime endOfPreviousMonth = YearMonth.now().minusMonths(1)
                 .atEndOfMonth().atTime(23, 59, 59, 999_999_999);
+        // 3월달부터 플랫폼을 운행했다는 가정하에 3월부터 이전 달까지 구독자의 수 가져오기 위한 시간
         LocalDateTime startofTime =YearMonth.of(2025, 3).atDay(1).atStartOfDay();;
 
         // 이전 달 말까지의 구독자 수 가져오기
@@ -157,6 +143,7 @@ public class GetMyArtistDashBoardService {
 
         // 현재 구독자 수와 이전 달까지의 구독자 수 차이 계산
         Integer newSubscriberDiff = subscriberCount - subscribersUntilPreviousMonth;
+
         /**
          * 월별 구독자 수와 일별 구독자 수 계산 로직
          */
@@ -204,12 +191,6 @@ public class GetMyArtistDashBoardService {
         }
 
 
-        Integer todayStreamingCount = getArtistStreamingResponse.getTodayStreamingCount();
-
-        // 지갑 주소
-        String walletAddress = walletClient.getWalletByArtistId(memberId).getAddress();
-
-
         //월 정산
         GetArtistDailySettlementResponse getArtistDailySettlementResponse
                 = settlementClient.getArtistDailySettlement(memberId);
@@ -227,10 +208,7 @@ public class GetMyArtistDashBoardService {
         return GetMyArtistDashBoardResponse.builder()
                 .subscriberCount(subscriberCount)
                 .totalStreamingCount(totalStreamingCount)
-                //.thisMonthStreamingCount(thisMonthStreamingCount)
-                // 이번 달 - 전 달
                 .streamingDiff(streamingDiff)
-                // 이번 달 구독자 수
                 .thisMonthNewSubscriberCount(thisMonthNewSubscriberCount)
                 .albums(albums)
                 .dailySettlement(dailySettlementList)
@@ -245,225 +223,4 @@ public class GetMyArtistDashBoardService {
                 .build();
     }
 
-    // 전월 아티스트 스트리밍 횟수 가져오는 로직
-    public Integer getPreviousMonthStreamingCountByArtist(Integer memberId) {
-        // 아티스트의 앨범과 트랙 가져오기
-        List<AlbumDto> albumDtoList = albumClient.getAllAlbumsByMember(memberId);
-
-        log.info("앨범 리스트 조회: {}", albumDtoList.size());
-
-        if (albumDtoList.isEmpty()) {
-            log.warn("앨범이 없는 아티스트입니다. memberId: {}", memberId);
-            return 0;
-        }
-
-        List<Integer> trackIds = new ArrayList<>();
-        for (AlbumDto album : albumDtoList) {
-            List<TrackDto> tracks = trackClient.getTracksByAlbumId(album.getAlbumId());
-            if (tracks != null && !tracks.isEmpty()) {
-                trackIds.addAll(tracks.stream()
-                        .map(TrackDto::getTrackId)
-                        .collect(Collectors.toList()));
-            }
-        }
-
-        log.info("트랙 리스트 조회: {}", trackIds.size());
-
-        if (trackIds.isEmpty()) {
-            log.warn("트랙이 없는 아티스트입니다. memberId: {}", memberId);
-            return 0;
-        }
-
-        // Redis에서 모든 트랙 윈도우 가져오기
-        Map<Integer, StreamingWindow> allTrackWindows = redisWindowRepository.getAllTracksWindows();
-
-        // 전달 계산 (현재 달에서 1을 빼서 계산)
-        YearMonth previousMonth = YearMonth.now().minusMonths(1);
-        int prevYear = previousMonth.getYear();
-        int prevMonthValue = previousMonth.getMonthValue();
-
-        log.info("검색할 전달: {}-{}", prevYear, prevMonthValue);
-
-        // 전체 카운트를 저장할 변수
-        int totalCount = 0;
-
-        // 각 트랙별로 처리
-        for (Integer trackId : trackIds) {
-            StreamingWindow window = allTrackWindows.get(trackId);
-            if (window == null) {
-                log.warn("트랙 ID {}에 대한 StreamingWindow가 없습니다.", trackId);
-                continue;
-            }
-
-            // 해당 트랙의 이번 달 스트리밍 카운트 계산
-            int trackCount = 0;
-            List<HourlyStreamCount> hourlyCounts = window.getHourlyCounts();
-
-            if (hourlyCounts != null) {
-                for (HourlyStreamCount count : hourlyCounts) {
-                    if (count != null && count.getTimestamp() != null) {
-                        // Object 타입 확인
-                        Object timestamp = count.getTimestamp();
-                        log.debug("타임스탬프 클래스: {}", timestamp.getClass().getName());
-
-                        // 타임스탬프 타입에 따라 다르게 처리
-                        int year = 0;
-                        int month = 0;
-
-                        if (timestamp instanceof LocalDateTime) {
-                            LocalDateTime dateTime = (LocalDateTime) timestamp;
-                            year = dateTime.getYear();
-                            month = dateTime.getMonthValue();
-                        } else if (timestamp instanceof Instant) {
-                            Instant instant = (Instant) timestamp;
-                            LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
-                            year = dateTime.getYear();
-                            month = dateTime.getMonthValue();
-                        } else if (timestamp instanceof Long) {
-                            // Epoch 밀리초로 가정
-                            Instant instant = Instant.ofEpochMilli((Long) timestamp);
-                            LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
-                            year = dateTime.getYear();
-                            month = dateTime.getMonthValue();
-                        } else if (timestamp instanceof String) {
-                            // ISO 형식의 문자열로 가정
-                            try {
-                                LocalDateTime dateTime = LocalDateTime.parse((String) timestamp);
-                                year = dateTime.getYear();
-                                month = dateTime.getMonthValue();
-                            } catch (Exception e) {
-                                log.warn("타임스탬프 파싱 실패: {}", timestamp);
-                                continue;
-                            }
-                        } else {
-                            log.warn("지원하지 않는 타임스탬프 형식: {}", timestamp.getClass().getName());
-                            continue;
-                        }
-
-                        log.debug("파싱된 날짜: {}-{}, 필터링 날짜: {}-{}",
-                                year, month, prevYear, prevMonthValue);
-
-                        // 연도와 월이 전달과 일치하는지 확인
-                        if (year == prevYear && month == prevMonthValue) {
-                            trackCount += count.getCount();
-                            log.debug("카운트 추가: {}", count.getCount());
-                        }
-                    }
-                }
-            }
-
-            log.info("트랙 ID: {}, 트랙 스트리밍 횟수: {}", trackId, trackCount);
-            totalCount += trackCount;
-        }
-
-        log.info("아티스트 ID {}, 전달({}) 총 스트리밍 횟수: {}",
-                memberId, previousMonth, totalCount);
-
-        return totalCount;
-    }
-
-    // 아티스트의 오늘 스트리밍 횟수를 계산하는 메서드
-    public Integer getTodayStreamingCountByArtist(Integer memberId) {
-        // 1. 아티스트의 앨범과 트랙을 가져옵니다.
-        List<AlbumDto> albumDtoList = albumClient.getAllAlbumsByMember(memberId);
-
-        if (albumDtoList.isEmpty()) {
-            log.warn("앨범이 없는 아티스트입니다. memberId: {}", memberId);
-            return 0;
-        }
-
-        List<Integer> trackIds = new ArrayList<>();
-        for (AlbumDto album : albumDtoList) {
-            List<TrackDto> tracks = trackClient.getTracksByAlbumId(album.getAlbumId());
-            if (tracks != null && !tracks.isEmpty()) {
-                trackIds.addAll(tracks.stream()
-                        .map(TrackDto::getTrackId)
-                        .toList());
-            }
-        }
-
-        Map<Integer, StreamingWindow> allTrackWindows = redisWindowRepository.getAllTracksWindows();
-
-        LocalDate today = LocalDate.now();
-        int todayYear = today.getYear();
-        int todayMonth = today.getMonthValue();
-        int todayDay = today.getDayOfMonth();
-
-        log.info("검색할 오늘: {}-{}-{}", todayYear, todayMonth, todayDay);
-
-        int totalCount = 0;
-
-        for (Integer trackId : trackIds) {
-            StreamingWindow window = allTrackWindows.get(trackId);
-            if (window == null) {
-                log.warn("트랙 ID {}에 대한 StreamingWindow가 없습니다.", trackId);
-                continue;
-            }
-
-            int trackCount = 0;
-
-            List<HourlyStreamCount> hourlyCounts = window.getHourlyCounts();
-
-            if (hourlyCounts != null) {
-                for (HourlyStreamCount count : hourlyCounts) {
-                    if (count != null && count.getTimestamp() != null) {
-                        // Object 타입 확인
-                        Object timestamp = count.getTimestamp();
-
-                        // 타임스탬프 타입에 따라 다르게 처리
-                        int year = 0;
-                        int month = 0;
-                        int day = 0;
-
-                        if (timestamp instanceof LocalDateTime) {
-                            LocalDateTime dateTime = (LocalDateTime) timestamp;
-                            year = dateTime.getYear();
-                            month = dateTime.getMonthValue();
-                            day = dateTime.getDayOfMonth();
-                        } else if (timestamp instanceof Instant) {
-                            Instant instant = (Instant) timestamp;
-                            LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
-                            year = dateTime.getYear();
-                            month = dateTime.getMonthValue();
-                            day = dateTime.getDayOfMonth();
-                        } else if (timestamp instanceof Long) {
-                            // Epoch 밀리초로 가정
-                            Instant instant = Instant.ofEpochMilli((Long) timestamp);
-                            LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
-                            year = dateTime.getYear();
-                            month = dateTime.getMonthValue();
-                            day = dateTime.getDayOfMonth();
-                        } else if (timestamp instanceof String) {
-                            // ISO 형식의 문자열로 가정
-                            try {
-                                LocalDateTime dateTime = LocalDateTime.parse((String) timestamp);
-                                year = dateTime.getYear();
-                                month = dateTime.getMonthValue();
-                                day = dateTime.getDayOfMonth();
-                            } catch (Exception e) {
-                                log.warn("타임스탬프 파싱 실패: {}", timestamp);
-                                continue;
-                            }
-                        } else {
-                            log.warn("지원하지 않는 타임스탬프 형식: {}", timestamp.getClass().getName());
-                            continue;
-                        }
-
-                        // 연도, 월, 일이 오늘과 일치하는지 확인
-                        if (year == todayYear && month == todayMonth && day == todayDay) {
-                            trackCount += count.getCount();
-                            log.debug("오늘 카운트 추가: {}", count.getCount());
-                        }
-                    }
-                }
-            }
-
-            log.info("트랙 ID: {}, 오늘 트랙 스트리밍 횟수: {}", trackId, trackCount);
-            totalCount += trackCount;
-        }
-
-        log.info("아티스트 ID {}, 오늘({}) 총 스트리밍 횟수: {}", memberId, today, totalCount);
-
-        return totalCount;
-    }
 }

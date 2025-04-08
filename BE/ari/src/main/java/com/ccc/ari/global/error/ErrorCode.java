@@ -82,7 +82,11 @@ public enum ErrorCode {
     // 검색 관련
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "Q001", "검색어를 입력해주세요."),
     // 스트리밍 조회 관련
-    STREAMING_NOT_FOUND(HttpStatus.NOT_FOUND,"ST001","스트리밍 내역을 조회하는데 실패했습니다.");
+    STREAMING_NOT_FOUND(HttpStatus.NOT_FOUND,"ST001","스트리밍 내역을 조회하는데 실패했습니다."),
+
+    //아티스트 구독 관련
+    SUBSCRIPTION_ARTIST_NOT_REGISTER(HttpStatus.NOT_FOUND,"AS001","아티스트 구독 플랜이 등록되지 않은 상태입니다.");
+
     private final HttpStatus status;
     private final String code;
     private final String message;
