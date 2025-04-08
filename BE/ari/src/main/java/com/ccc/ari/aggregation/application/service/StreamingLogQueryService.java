@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -82,7 +81,7 @@ public class StreamingLogQueryService {
         logger.info("findStreamingLogByArtistId 메서드 호출 - artistId: {}", artistId);
 
         List<StreamingAggregationContract.RawArtistTracksUpdatedEventResponse> events =
-                streamingAggregationContractEventListener.getAllRawArtistTracksUpdatedEvents();
+                streamingAggregationContractEventListener.getRawArtistTracksUpdatedEventsByArtistId(artistId);
         logger.info("블록체인으로부터 {}개의 이벤트가 조회되었습니다.", events.size());
         logger.info("IPFS에서 데이터를 조회하고 처리 중입니다.");
 

@@ -1,6 +1,8 @@
 package com.ccc.ari.aggregation.ui.client;
 
+import com.ccc.ari.aggregation.application.service.StreamingCountQueryService;
 import com.ccc.ari.aggregation.application.service.StreamingLogQueryService;
+import com.ccc.ari.aggregation.application.service.response.GetArtistStreamingResponse;
 import com.ccc.ari.aggregation.domain.vo.StreamingLog;
 import com.ccc.ari.aggregation.ui.response.ArtistCountResult;
 import com.ccc.ari.aggregation.ui.response.GetArtistTrackCountListResponse;
@@ -22,8 +24,8 @@ import java.util.stream.Collectors;
 public class StreamingCountClient {
 
     private final StreamingLogQueryService streamingLogQueryService;
+    private final StreamingCountQueryService streamingCountQueryService;
 
-    
     /**
      * 주어진 아티스트 ID로 스트리밍 로그를 조회하여 누적 및 월별 트랙별 스트리밍 횟수를 계산합니다.
      *
@@ -96,5 +98,12 @@ public class StreamingCountClient {
         return GetListenerAggregationResponse.builder()
                 .artistCountList(artistCountResults)
                 .build();
+    }
+
+    /**
+     * 특정 아티스트의 대시보드 구성을 위한 스트리밍 데이터를 조회합니다.
+     */
+    public GetArtistStreamingResponse getArtistAlbumStreamings(Integer artistId) {
+        return streamingCountQueryService.getArtistAlbumStreamings(artistId);
     }
 }
