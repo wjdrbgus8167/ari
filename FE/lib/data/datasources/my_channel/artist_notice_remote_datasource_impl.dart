@@ -2,7 +2,6 @@
 
 import 'package:dio/dio.dart';
 import '../../../core/exceptions/failure.dart';
-import '../../../domain/usecases/auth/auth_usecase.dart';
 import '../../models/api_response.dart';
 import '../../models/my_channel/artist_notice.dart';
 import 'artist_notice_remote_datasource.dart';
@@ -116,7 +115,6 @@ class ArtistNoticeRemoteDataSourceImpl implements ArtistNoticeRemoteDataSource {
       print('📝 이미지 첨부 여부: ${noticeImage != null}');
 
       // 토큰 직접 가져오기 (인터셉터와 별개로)
-
 
       // FormData 준비
       final formData = FormData();

@@ -4,21 +4,21 @@ import 'package:flutter/material.dart';
 class AlbumDetailComments extends StatelessWidget {
   final AlbumComment comment;
   final bool isCommentInput; // 댓글 작성용 위젯인지 여부
-  
+
   const AlbumDetailComments({
     super.key,
     required this.comment,
     this.isCommentInput = false, // 기본값은 일반 댓글 표시
   });
-  
+
   @override
   Widget build(BuildContext context) {
     // 댓글 작성 위젯과 일반 댓글 위젯 구분
-    return isCommentInput 
-      ? _buildCommentInputWidget() 
-      : _buildRegularCommentWidget();
+    return isCommentInput
+        ? _buildCommentInputWidget()
+        : _buildRegularCommentWidget();
   }
-  
+
   // 댓글 작성 위젯
   Widget _buildCommentInputWidget() {
     return Container(
@@ -63,7 +63,7 @@ class AlbumDetailComments extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          Container(
+          SizedBox(
             width: double.infinity,
             height: 35,
             child: Row(
@@ -83,7 +83,10 @@ class AlbumDetailComments extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  transform: Matrix4.identity()..translate(0.0, 0.0)..rotateZ(1.57),
+                  transform:
+                      Matrix4.identity()
+                        ..translate(0.0, 0.0)
+                        ..rotateZ(1.57),
                   width: 35,
                   height: 35,
                   decoration: const BoxDecoration(
@@ -112,7 +115,7 @@ class AlbumDetailComments extends StatelessWidget {
       ),
     );
   }
-  
+
   // 일반 댓글 표시 위젯
   Widget _buildRegularCommentWidget() {
     return Container(

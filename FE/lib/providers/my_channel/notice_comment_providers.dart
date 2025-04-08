@@ -1,13 +1,11 @@
 // lib/providers/my_channel/notice_comment_providers.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dio/dio.dart';
 
 import '../../data/datasources/my_channel/notice_comment_remote_datasource.dart';
 import '../../data/datasources/my_channel/notice_comment_remote_datasource_impl.dart';
 import '../../data/repositories/my_channel/notice_comment_repository_impl.dart';
 import '../../domain/repositories/my_channel/notice_comment_repository.dart';
-import '../../domain/usecases/auth/auth_usecase.dart';
 import '../../domain/usecases/my_channel/notice_comment_usecases.dart';
 import '../global_providers.dart';
 import '../../providers/auth/auth_providers.dart';

@@ -9,12 +9,12 @@ class ListeningQueueAppBar extends StatelessWidget {
   final ValueChanged<ListeningTab> onTabChanged;
 
   const ListeningQueueAppBar({
-    Key? key,
+    super.key,
     required this.onBack,
     required this.onSearch,
     required this.selectedTab,
     required this.onTabChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

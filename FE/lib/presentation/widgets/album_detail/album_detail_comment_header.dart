@@ -2,12 +2,9 @@ import 'package:flutter/material.dart';
 
 class AlbumDetailCommentHeader extends StatelessWidget {
   final int commentCount;
-  
-  const AlbumDetailCommentHeader({
-    super.key,
-    required this.commentCount,
-  });
-  
+
+  const AlbumDetailCommentHeader({super.key, required this.commentCount});
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -20,7 +17,7 @@ class AlbumDetailCommentHeader extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
+          SizedBox(
             width: double.infinity,
             child: Row(
               mainAxisSize: MainAxisSize.min,

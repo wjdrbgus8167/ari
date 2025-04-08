@@ -3,7 +3,6 @@ import 'package:ari/providers/subscription/walletServiceProviders.dart';
 import 'package:flutter/material.dart';
 import 'package:reown_appkit/reown_appkit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'dart:async';
 
 class WalletWidget extends ConsumerStatefulWidget {
   // 외부에서 트랜잭션 완료 후 호출될 콜백
@@ -17,45 +16,45 @@ class WalletWidget extends ConsumerStatefulWidget {
     this.onTransactionComplete,
     this.defaultAmount,
   });
-  
+
   @override
   ConsumerState<WalletWidget> createState() => _WalletWidgetState();
 }
- 
+
 class _WalletWidgetState extends ConsumerState<WalletWidget> {
   // Provider에서 지갑 서비스 가져오기
   WalletService get _walletService => ref.read(walletServiceProvider);
-  
+
   // 송금 금액 컨트롤러
   final TextEditingController amountController = TextEditingController();
-  
+
   // 초기화 여부
   bool _isInitialized = false;
-  
+
   @override
   void initState() {
     super.initState();
-    
+
     // 이후에 빌드 후 초기화하도록 스케줄링
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeWalletService();
     });
-    
+
     // 기본 금액이 있으면 설정
     if (widget.defaultAmount != null) {
       amountController.text = widget.defaultAmount!;
     }
   }
-  
+
   // 지갑 서비스 초기화
   void _initializeWalletService() {
     try {
       // 지갑 서비스 초기화
       _walletService.initialize(context);
-      
+
       // 이벤트 리스너 설정
       _setupEventListeners();
-      
+
       setState(() {
         _isInitialized = true;
       });
@@ -63,7 +62,7 @@ class _WalletWidgetState extends ConsumerState<WalletWidget> {
       debugPrint('지갑 서비스 초기화 오류: $e');
     }
   }
-  
+
   // 이벤트 리스너 설정
   void _setupEventListeners() {
     _walletService.onConnect = (_) => setState(() {});
@@ -83,7 +82,7 @@ class _WalletWidgetState extends ConsumerState<WalletWidget> {
     // Provider를 통해 상태 변경 감지
     final isConnected = ref.watch(walletConnectedProvider);
     final isTransferring = ref.watch(walletTransferringProvider);
-    
+
     // 초기화 전이면 로딩 표시
     if (!_isInitialized) {
       return Container(
@@ -98,16 +97,13 @@ class _WalletWidgetState extends ConsumerState<WalletWidget> {
             children: [
               CircularProgressIndicator(),
               SizedBox(height: 20),
-              Text(
-                '지갑 서비스 초기화 중...',
-                style: TextStyle(color: Colors.white),
-              ),
+              Text('지갑 서비스 초기화 중...', style: TextStyle(color: Colors.white)),
             ],
           ),
         ),
       );
     }
-    
+
     // 내부 컨텐츠 위젯
     Widget content = Container(
       padding: const EdgeInsets.all(20),
@@ -121,13 +117,13 @@ class _WalletWidgetState extends ConsumerState<WalletWidget> {
           const Text(
             '네트워크 선택 및 지갑 연결',
             style: TextStyle(
-              fontWeight: FontWeight.bold, 
+              fontWeight: FontWeight.bold,
               fontSize: 16,
               color: Colors.white,
             ),
           ),
           const SizedBox(height: 20),
-          
+
           // 네트워크 선택 및 연결 버튼 행
           Row(
             children: [
@@ -144,20 +140,20 @@ class _WalletWidgetState extends ConsumerState<WalletWidget> {
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.5),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.white.withOpacity(0.2), width: 1.5),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.2),
+                          width: 1.5,
+                        ),
                       ),
                       child: Center(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.language,
-                              color: Colors.white,
-                              size: 20,
-                            ),
+                            Icon(Icons.language, color: Colors.white, size: 20),
                             const SizedBox(width: 10),
                             Text(
-                              _walletService.appKitModal.selectedChain?.name ?? '네트워크 선택',
+                              _walletService.appKitModal.selectedChain?.name ??
+                                  '네트워크 선택',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontFamily: 'Pretendard',
@@ -208,8 +204,8 @@ class _WalletWidgetState extends ConsumerState<WalletWidget> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              _walletService.appKitModal.isConnected 
-                                  ? Icons.account_balance_wallet 
+                              _walletService.appKitModal.isConnected
+                                  ? Icons.account_balance_wallet
                                   : Icons.link,
                               color: Colors.white,
                               size: 20,
@@ -217,10 +213,7 @@ class _WalletWidgetState extends ConsumerState<WalletWidget> {
                             const SizedBox(width: 8),
                             Text(
                               _walletService.appKitModal.isConnected
-                                  ? '${_walletService.appKitModal.session!
-                                        .getAddress(ReownAppKitModalNetworks
-                                          .getNamespaceForChainId(_walletService.appKitModal.session!.chainId))
-                                        ?.substring(0, 6)}...'
+                                  ? '${_walletService.appKitModal.session!.getAddress(ReownAppKitModalNetworks.getNamespaceForChainId(_walletService.appKitModal.session!.chainId))?.substring(0, 6)}...'
                                   : '지갑 연결',
                               style: const TextStyle(
                                 color: Colors.white,
@@ -237,7 +230,7 @@ class _WalletWidgetState extends ConsumerState<WalletWidget> {
                 ),
               ),
             ],
-          ),        
+          ),
           // 로딩 인디케이터 (전송 중일 때)
           if (isTransferring) ...[
             const SizedBox(height: 16),
@@ -248,10 +241,7 @@ class _WalletWidgetState extends ConsumerState<WalletWidget> {
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.purple),
                   ),
                   SizedBox(height: 8),
-                  Text(
-                    '트랜잭션 처리 중...',
-                    style: TextStyle(color: Colors.white),
-                  ),
+                  Text('트랜잭션 처리 중...', style: TextStyle(color: Colors.white)),
                 ],
               ),
             ),
@@ -259,7 +249,7 @@ class _WalletWidgetState extends ConsumerState<WalletWidget> {
         ],
       ),
     );
-    
+
     // 상위 컴포넌트에서 Scaffold 사용 여부에 따라 반환
     if (widget.useScaffold) {
       return Scaffold(
@@ -270,10 +260,7 @@ class _WalletWidgetState extends ConsumerState<WalletWidget> {
           foregroundColor: Colors.white,
         ),
         body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: content,
-          ),
+          child: Padding(padding: const EdgeInsets.all(16), child: content),
         ),
       );
     } else {

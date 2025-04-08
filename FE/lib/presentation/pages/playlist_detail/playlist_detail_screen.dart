@@ -12,8 +12,7 @@ import 'package:ari/presentation/widgets/listening_queue/create_playlist_modal.d
 class PlaylistDetailScreen extends ConsumerStatefulWidget {
   final int playlistId;
 
-  const PlaylistDetailScreen({Key? key, required this.playlistId})
-    : super(key: key);
+  const PlaylistDetailScreen({super.key, required this.playlistId});
 
   @override
   ConsumerState<PlaylistDetailScreen> createState() =>
@@ -55,121 +54,121 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
     final playlist = playlistState.selectedPlaylist;
 
     return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
         backgroundColor: Colors.black,
-        appBar: AppBar(
-          backgroundColor: Colors.black,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
-          ),
-          title: Text(
-            (playlist != null && playlist.title.isNotEmpty)
-                ? playlist.title
-                : '플레이리스트',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.ios_share_outlined, color: Colors.white),
-              onPressed: () async {
-                final playlist =
-                    ref.read(playlistViewModelProvider).selectedPlaylist;
-                if (playlist == null) return;
-
-                try {
-                  await ref
-                      .read(playlistRepositoryProvider)
-                      .sharePlaylist(playlist.id);
-
-                  // 복사 완료 후 사용자에게 알림
-                  if (!mounted) return;
-                  context.showToast('🎉 플레이리스트가 내 플레이리스트로 복사되었어요!');
-                } catch (e) {
-                  if (!mounted) return;
-                  context.showToast('😢 퍼가기에 실패했어요. 다시 시도해 주세요.');
-                }
-              },
-            ),
-          ],
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
         ),
-        body:
-            playlist == null || playlist.tracks.isEmpty
-                ? const Center(child: CircularProgressIndicator())
-                : Column(
-                  children: [
-                    TrackCountBar(
-                      trackCount: playlist.tracks.length,
-                      selectedTracks: playlistState.selectedTracks,
-                      onToggleSelectAll: () {
-                        ref
-                            .read(playlistViewModelProvider.notifier)
-                            .toggleSelectAll();
-                      },
-                      onAddToPlaylist: () {
-                        final selectedTracks =
-                            playlistState.selectedTracks.toList();
-                        if (selectedTracks.isEmpty) return;
+        title: Text(
+          (playlist != null && playlist.title.isNotEmpty)
+              ? playlist.title
+              : '플레이리스트',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.ios_share_outlined, color: Colors.white),
+            onPressed: () async {
+              final playlist =
+                  ref.read(playlistViewModelProvider).selectedPlaylist;
+              if (playlist == null) return;
 
-                        showModalBottomSheet(
-                          context: context,
-                          backgroundColor: Colors.transparent,
-                          builder:
-                              (_) => PlaylistSelectionBottomSheet(
-                                playlists:
-                                    ref.read(listeningQueueProvider).playlists,
-                                onPlaylistSelected: (selectedPlaylist) {
-                                  for (var item in selectedTracks) {
-                                    ref
-                                        .read(playlistRepositoryProvider)
-                                        .addTrack(
-                                          selectedPlaylist.id,
-                                          item.trackId,
-                                        );
-                                  }
+              try {
+                await ref
+                    .read(playlistRepositoryProvider)
+                    .sharePlaylist(playlist.id);
+
+                // 복사 완료 후 사용자에게 알림
+                if (!mounted) return;
+                context.showToast('🎉 플레이리스트가 내 플레이리스트로 복사되었어요!');
+              } catch (e) {
+                if (!mounted) return;
+                context.showToast('😢 퍼가기에 실패했어요. 다시 시도해 주세요.');
+              }
+            },
+          ),
+        ],
+      ),
+      body:
+          playlist == null || playlist.tracks.isEmpty
+              ? const Center(child: CircularProgressIndicator())
+              : Column(
+                children: [
+                  TrackCountBar(
+                    trackCount: playlist.tracks.length,
+                    selectedTracks: playlistState.selectedTracks,
+                    onToggleSelectAll: () {
+                      ref
+                          .read(playlistViewModelProvider.notifier)
+                          .toggleSelectAll();
+                    },
+                    onAddToPlaylist: () {
+                      final selectedTracks =
+                          playlistState.selectedTracks.toList();
+                      if (selectedTracks.isEmpty) return;
+
+                      showModalBottomSheet(
+                        context: context,
+                        backgroundColor: Colors.transparent,
+                        builder:
+                            (_) => PlaylistSelectionBottomSheet(
+                              playlists:
+                                  ref.read(listeningQueueProvider).playlists,
+                              onPlaylistSelected: (selectedPlaylist) {
+                                for (var item in selectedTracks) {
                                   ref
-                                      .read(playlistViewModelProvider.notifier)
-                                      .deselectAllTracks();
-                                },
-                                onCreatePlaylist: () {
-                                  Navigator.pop(context); // 이전 BottomSheet 닫기
-                                  showModalBottomSheet(
-                                    context: context,
-                                    isScrollControlled: true,
-                                    shape: const RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.vertical(
-                                        top: Radius.circular(20),
-                                      ),
+                                      .read(playlistRepositoryProvider)
+                                      .addTrack(
+                                        selectedPlaylist.id,
+                                        item.trackId,
+                                      );
+                                }
+                                ref
+                                    .read(playlistViewModelProvider.notifier)
+                                    .deselectAllTracks();
+                              },
+                              onCreatePlaylist: () {
+                                Navigator.pop(context); // 이전 BottomSheet 닫기
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(20),
                                     ),
-                                    builder:
-                                        (_) => CreatePlaylistModal(
-                                          onCreate: (title, publicYn) {
-                                            ref
-                                                .read(
-                                                  playlistViewModelProvider
-                                                      .notifier,
-                                                )
-                                                .createPlaylistAndAddTracks(
-                                                  title,
-                                                  publicYn,
-                                                  selectedTracks,
-                                                );
-                                          },
-                                        ),
-                                  );
-                                },
-                              ),
-                        );
-                      },
-                    ),
-                    const Expanded(child: PlaylistTrackList()),
-                  ],
-                ),
+                                  ),
+                                  builder:
+                                      (_) => CreatePlaylistModal(
+                                        onCreate: (title, publicYn) {
+                                          ref
+                                              .read(
+                                                playlistViewModelProvider
+                                                    .notifier,
+                                              )
+                                              .createPlaylistAndAddTracks(
+                                                title,
+                                                publicYn,
+                                                selectedTracks,
+                                              );
+                                        },
+                                      ),
+                                );
+                              },
+                            ),
+                      );
+                    },
+                  ),
+                  const Expanded(child: PlaylistTrackList()),
+                ],
+              ),
     );
   }
 }

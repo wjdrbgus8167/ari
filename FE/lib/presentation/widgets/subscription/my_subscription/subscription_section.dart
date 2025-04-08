@@ -15,7 +15,7 @@ class RegularSubscriptionSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -39,21 +39,20 @@ class RegularSubscriptionSection extends StatelessWidget {
               child: Center(
                 child: Text(
                   '정기 구독 내역이 없습니다',
-                  style: TextStyle(
-                    color: Colors.white60,
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.white60, fontSize: 14),
                 ),
               ),
             )
           else
-            ...subscriptions.map((subscription) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: SubscriptionCard(
-                subscriptionModel: subscription,
-                onCancelPressed: () => onCancelPressed(subscription.id),
+            ...subscriptions.map(
+              (subscription) => Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: SubscriptionCard(
+                  subscriptionModel: subscription,
+                  onCancelPressed: () => onCancelPressed(subscription.id),
+                ),
               ),
-            )).toList(),
+            ),
         ],
       ),
     );
@@ -73,7 +72,7 @@ class ArtistSubscriptionSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -97,21 +96,20 @@ class ArtistSubscriptionSection extends StatelessWidget {
               child: Center(
                 child: Text(
                   '아티스트 구독 내역이 없습니다',
-                  style: TextStyle(
-                    color: Colors.white60,
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.white60, fontSize: 14),
                 ),
               ),
             )
           else
-            ...subscriptions.map((subscription) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: SubscriptionCard(
-                subscriptionModel: subscription,
-                onCancelPressed: () => onCancelPressed(subscription.id),
+            ...subscriptions.map(
+              (subscription) => Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: SubscriptionCard(
+                  subscriptionModel: subscription,
+                  onCancelPressed: () => onCancelPressed(subscription.id),
+                ),
               ),
-            )).toList(),
+            ),
         ],
       ),
     );

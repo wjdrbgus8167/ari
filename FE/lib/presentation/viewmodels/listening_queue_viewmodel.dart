@@ -80,12 +80,12 @@ class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
            playlists: [],
          ),
        ) {
-    _loadQueue();
+    loadQueue();
     _loadPlaylists();
   }
 
   /// 로컬 저장소에서 재생목록을 불러옵니다.
-  Future<void> _loadQueue() async {
+  Future<void> loadQueue() async {
     // data 모델 타입의 트랙을 불러옴
     final dataTracks = await loadListeningQueue(userId); // List<data.Track>
     // data 모델을 도메인 엔티티로 변환
@@ -119,7 +119,7 @@ class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
   /// 특정 트랙이 재생될 때 자동으로 재생목록에 추가합니다.
   Future<void> trackPlayed(data.Track track) async {
     await addTrackToListeningQueue(userId, track);
-    await _loadQueue();
+    await loadQueue();
   }
 
   /// 검색어에 따라 재생목록을 필터링합니다.
@@ -173,13 +173,13 @@ class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
     final tracksOrder = updatedList.map((i) => i.track.toDataModel()).toList();
     await updateListeningQueueOrder(userId, tracksOrder);
     state = state.copyWith(filteredPlaylist: updatedList);
-    await _loadQueue();
+    await loadQueue();
   }
 
   /// 재생목록에서 특정 항목을 삭제하고, 상태를 업데이트합니다.
   Future<void> removeTrack(ListeningQueueItem item) async {
     await removeTrackFromListeningQueue(userId, item.track.trackId);
-    await _loadQueue();
+    await loadQueue();
     final newSelected = Set<ListeningQueueItem>.from(state.selectedTracks)
       ..remove(item);
     state = state.copyWith(selectedTracks: newSelected);

@@ -7,10 +7,10 @@ class TrackStatItem extends StatelessWidget {
   final int index;
 
   const TrackStatItem({
-    Key? key,
+    super.key,
     required this.trackStat,
     required this.index,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +45,9 @@ class TrackStatItem extends StatelessWidget {
                 image: NetworkImage(trackStat.coverImageUrl),
                 fit: BoxFit.cover,
               ),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5),
+              ),
             ),
           ),
           const SizedBox(width: 16),
@@ -139,11 +141,7 @@ class SortButton extends StatelessWidget {
   final SortBy sortBy;
   final VoidCallback onPressed;
 
-  const SortButton({
-    Key? key,
-    required this.sortBy,
-    required this.onPressed,
-  }) : super(key: key);
+  const SortButton({super.key, required this.sortBy, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {

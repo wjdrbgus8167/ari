@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:intl/intl.dart';
 import 'dart:math' as math;
 
-enum ChartType {
-  subscribers,
-  streams,
-  revenue,
-}
+enum ChartType { subscribers, streams, revenue }
 
 enum ChartPeriod {
   daily,
@@ -67,7 +62,7 @@ class _ChartWidgetState extends State<ChartWidget> {
             blurRadius: 4,
             offset: Offset(0, 2),
             spreadRadius: 0,
-          )
+          ),
         ],
       ),
       child: Column(
@@ -92,10 +87,7 @@ class _ChartWidgetState extends State<ChartWidget> {
                   }
                 },
                 items: const [
-                  DropdownMenuItem(
-                    value: ChartPeriod.daily,
-                    child: Text('일간'),
-                  ),
+                  DropdownMenuItem(value: ChartPeriod.daily, child: Text('일간')),
                   DropdownMenuItem(
                     value: ChartPeriod.monthly,
                     child: Text('월간'),
@@ -165,7 +157,7 @@ class _ChartWidgetState extends State<ChartWidget> {
                   final chartWidth = constraints.maxWidth;
                   // y축 너비를 제외한 실제 바 차트 영역의 너비
                   final barChartWidth = chartWidth - yAxisWidth;
-                  
+
                   return Row(
                     children: [
                       // Y축 영역
@@ -183,7 +175,12 @@ class _ChartWidgetState extends State<ChartWidget> {
                               touchTooltipData: BarTouchTooltipData(
                                 tooltipPadding: const EdgeInsets.all(8),
                                 tooltipMargin: 8,
-                                getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                                getTooltipItem: (
+                                  group,
+                                  groupIndex,
+                                  rod,
+                                  rodIndex,
+                                ) {
                                   final dataIndex = group.x.toInt();
                                   if (dataIndex >= 0 && dataIndex < currentData.length) {
                                     final value = currentData[dataIndex].y;
@@ -258,9 +255,13 @@ class _ChartWidgetState extends State<ChartWidget> {
                                   showTitles: true,
                                   getTitlesWidget: (value, meta) {
                                     // Y축에 3개의 선만 표시 (0, 중간값, 최대값)
-                                    if (value == 0 || value == maxY / 2 || value == maxY) {
+                                    if (value == 0 ||
+                                        value == maxY / 2 ||
+                                        value == maxY) {
                                       return Padding(
-                                        padding: const EdgeInsets.only(right: 4),
+                                        padding: const EdgeInsets.only(
+                                          right: 4,
+                                        ),
                                         child: Text(
                                           _formatYAxisValue(value),
                                           style: const TextStyle(
@@ -287,9 +288,13 @@ class _ChartWidgetState extends State<ChartWidget> {
                               drawVerticalLine: false,
                               horizontalInterval: maxY / 2,
                               getDrawingHorizontalLine: (value) {
-                                if (value == 0 || value == maxY / 2 || value == maxY) {
+                                if (value == 0 ||
+                                    value == maxY / 2 ||
+                                    value == maxY) {
                                   return FlLine(
-                                    color: const Color(0xFFF2F2F2).withOpacity(0.3),
+                                    color: const Color(
+                                      0xFFF2F2F2,
+                                    ).withOpacity(0.3),
                                     strokeWidth: 0.5,
                                   );
                                 }

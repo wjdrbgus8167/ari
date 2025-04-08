@@ -4,6 +4,7 @@ import 'package:ari/domain/entities/playlist_trackitem.dart' as domain;
 
 domain.PlaylistTrackItem toEntityTrack(data.PlaylistTrackItem model) {
   return domain.PlaylistTrackItem(
+    artistId: model.artistId,
     trackOrder: model.trackOrder,
     trackId: model.trackId,
     artist: model.artist,

@@ -7,7 +7,7 @@ import 'package:just_audio/just_audio.dart';
 
 class PlaybackControls extends ConsumerStatefulWidget {
   final VoidCallback onToggle;
-  const PlaybackControls({Key? key, required this.onToggle}) : super(key: key);
+  const PlaybackControls({super.key, required this.onToggle});
 
   @override
   _PlaybackControlsState createState() => _PlaybackControlsState();
@@ -27,7 +27,7 @@ class _PlaybackControlsState extends ConsumerState<PlaybackControls> {
 
   Future<void> _initLoopAndShuffle() async {
     final player = ref.read(audioServiceProvider).audioPlayer;
-    final shuffle = await player.shuffleModeEnabled;
+    final shuffle = player.shuffleModeEnabled;
     final loop = player.loopMode;
     setState(() {
       _isShuffleEnabled = shuffle;
@@ -121,7 +121,7 @@ class _PlaybackControlsState extends ConsumerState<PlaybackControls> {
                 onPressed: () async {
                   await ref.read(audioServiceProvider).toggleShuffle();
                   final enabled =
-                      await ref
+                      ref
                           .read(audioServiceProvider)
                           .audioPlayer
                           .shuffleModeEnabled;

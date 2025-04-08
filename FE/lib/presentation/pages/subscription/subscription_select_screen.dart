@@ -8,12 +8,14 @@ class SubscriptionSelectScreen extends ConsumerStatefulWidget {
   const SubscriptionSelectScreen({super.key});
 
   @override
-  SubscriptionSelectScreenState createState() => SubscriptionSelectScreenState();
+  SubscriptionSelectScreenState createState() =>
+      SubscriptionSelectScreenState();
 }
 
-class SubscriptionSelectScreenState extends ConsumerState<SubscriptionSelectScreen> {
+class SubscriptionSelectScreenState
+    extends ConsumerState<SubscriptionSelectScreen> {
   bool isLoading = false;
-  
+
   @override
   Widget build(BuildContext context) {
     // ViewModel에서 구독 플랜 목록 가져오기
@@ -47,16 +49,23 @@ class SubscriptionSelectScreenState extends ConsumerState<SubscriptionSelectScre
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 20),
-                      
+
                       // 구독 플랜 카드들
-                      ...subscriptionPlans.map((plan) => Padding(
-                        padding: const EdgeInsets.only(bottom: 20),
-                        child: SubscriptionPlanCard(
-                          plan: plan,
-                          isLoading: isLoading,
-                          onTap: (type) => viewModel.navigateToSubscriptionScreen(context, type),
+                      ...subscriptionPlans.map(
+                        (plan) => Padding(
+                          padding: const EdgeInsets.only(bottom: 20),
+                          child: SubscriptionPlanCard(
+                            plan: plan,
+                            isLoading: isLoading,
+                            onTap:
+                                (type) =>
+                                    viewModel.navigateToSubscriptionScreen(
+                                      context,
+                                      type,
+                                    ),
+                          ),
                         ),
-                      )).toList(),
+                      ),
                     ],
                   ),
                 ),

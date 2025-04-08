@@ -72,6 +72,7 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
               if (track != null) ...[
                 // 트랙 정보가 있는 경우에만 위젯 표시
                 TrackHeader(
+                  artistId: track.artistId ?? 0,
                   albumId: track.albumId,
                   trackId: track.trackId,
                   albumName: track.albumTitle,

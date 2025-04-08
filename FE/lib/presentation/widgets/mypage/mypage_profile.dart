@@ -11,7 +11,7 @@ class MypageProfile extends StatelessWidget {
   final VoidCallback onEditPressed;
 
   const MypageProfile({
-    Key? key,
+    super.key,
     required this.name,
     required this.instagramId,
     required this.bio,
@@ -20,7 +20,7 @@ class MypageProfile extends StatelessWidget {
     this.profileImage = "https://placehold.co/100x100",
     this.secondaryImage = "https://placehold.co/100x100",
     required this.onEditPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +36,7 @@ class MypageProfile extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             border: Border(
-              bottom: BorderSide(
-                width: 0.50,
-                color: Color(0xFF838282),
-              ),
+              bottom: BorderSide(width: 0.50, color: Color(0xFF838282)),
             ),
           ),
 
@@ -80,7 +77,7 @@ class MypageProfile extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    
+
                     // Name and instagram ID
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -108,7 +105,7 @@ class MypageProfile extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 20),
-                  
+
                     // Bio
                     ...(bio != null && bio!.isNotEmpty
                         ? [
@@ -151,7 +148,7 @@ class MypageProfile extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // Edit profile button
               GestureDetector(
                 onTap: onEditPressed,

@@ -4,21 +4,18 @@ import 'package:flutter/material.dart';
 class CardHeader extends StatelessWidget {
   final SubscriptionModel subscriptionModel;
 
-  const CardHeader({
-    super.key,
-    required this.subscriptionModel,
-  });
+  const CardHeader({super.key, required this.subscriptionModel});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
+          SizedBox(
             width: double.infinity,
             child: Row(
               mainAxisSize: MainAxisSize.min,

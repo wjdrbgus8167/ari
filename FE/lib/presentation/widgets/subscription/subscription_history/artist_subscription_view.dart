@@ -11,31 +11,40 @@ class ArtistSubscriptionView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(artistSubscriptionViewModelProvider);
-    
+
     // 데이터 로드 (필요 시)
     if (state.artists.isEmpty && !state.isLoading) {
-      Future.microtask(() => ref.read(artistSubscriptionViewModelProvider.notifier).loadArtistList());
+      Future.microtask(
+        () =>
+            ref
+                .read(artistSubscriptionViewModelProvider.notifier)
+                .loadArtistList(),
+      );
     }
-    
+
     if (state.isLoading) {
       return Center(child: CircularProgressIndicator(color: Colors.white));
     }
-    
+
     if (state.errorMessage != null) {
-      return Center(child: Text(state.errorMessage!, style: TextStyle(color: Colors.red)));
+      return Center(
+        child: Text(state.errorMessage!, style: TextStyle(color: Colors.red)),
+      );
     }
-    
+
     if (state.artists.isEmpty) {
-      return Center(child: Text('구독한 아티스트가 없습니다.', style: TextStyle(color: Colors.white)));
+      return Center(
+        child: Text('구독한 아티스트가 없습니다.', style: TextStyle(color: Colors.white)),
+      );
     }
-    
+
     final selectedArtist = state.selectedArtist;
     final artistDetail = state.artistDetail;
-    
+
     if (selectedArtist == null || artistDetail == null) {
       return Center(child: CircularProgressIndicator(color: Colors.white));
     }
-    
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,18 +70,21 @@ class ArtistSubscriptionView extends ConsumerWidget {
               underline: Container(), // 밑줄 제거
               onChanged: (newValue) {
                 if (newValue != null) {
-                  ref.read(artistSubscriptionViewModelProvider.notifier).selectArtist(newValue);
+                  ref
+                      .read(artistSubscriptionViewModelProvider.notifier)
+                      .selectArtist(newValue);
                 }
               },
-              items: state.artists.map<DropdownMenuItem<Artist>>((artist) {
-                return DropdownMenuItem<Artist>(
-                  value: artist,
-                  child: Text(artist.artistNickname),
-                );
-              }).toList(),
+              items:
+                  state.artists.map<DropdownMenuItem<Artist>>((artist) {
+                    return DropdownMenuItem<Artist>(
+                      value: artist,
+                      child: Text(artist.artistNickname),
+                    );
+                  }).toList(),
             ),
           ),
-          
+
           // 아티스트 구독 정보
           Padding(
             padding: const EdgeInsets.all(20),
@@ -95,7 +107,10 @@ class ArtistSubscriptionView extends ConsumerWidget {
                   // 구독 정보 헤더
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -130,7 +145,9 @@ class ArtistSubscriptionView extends ConsumerWidget {
                                   height: 20,
                                   decoration: BoxDecoration(
                                     image: DecorationImage(
-                                      image: NetworkImage("https://placehold.co/20x20"),
+                                      image: NetworkImage(
+                                        "https://placehold.co/20x20",
+                                      ),
                                       fit: BoxFit.cover,
                                     ),
                                   ),
@@ -151,7 +168,7 @@ class ArtistSubscriptionView extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  
+
                   // 구독 내역 목록
                   _buildSubscriptionDetails(artistDetail),
                 ],
@@ -162,16 +179,23 @@ class ArtistSubscriptionView extends ConsumerWidget {
       ),
     );
   }
-  
+
   Widget _buildSubscriptionDetails(ArtistDetail artistDetail) {
     return Column(
-      children: artistDetail.subscriptions
-          .map((subscription) => _buildSubscriptionDetailItem(artistDetail, subscription))
-          .toList(),
+      children:
+          artistDetail.subscriptions
+              .map(
+                (subscription) =>
+                    _buildSubscriptionDetailItem(artistDetail, subscription),
+              )
+              .toList(),
     );
   }
-  
-  Widget _buildSubscriptionDetailItem(ArtistDetail artistDetail, ArtistSubscriptionDetail subscription) {
+
+  Widget _buildSubscriptionDetailItem(
+    ArtistDetail artistDetail,
+    ArtistSubscriptionDetail subscription,
+  ) {
     return Container(
       width: double.infinity,
       child: Container(

@@ -8,11 +8,11 @@ class PlaylistSelectionBottomSheet extends StatelessWidget {
   final VoidCallback onCreatePlaylist;
 
   const PlaylistSelectionBottomSheet({
-    Key? key,
+    super.key,
     required this.playlists,
     required this.onPlaylistSelected,
     required this.onCreatePlaylist,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +67,7 @@ class PlaylistSelectionBottomSheet extends StatelessWidget {
                             onPlaylistSelected(playlist);
                             Navigator.pop(context);
                           },
-                          child: Container(
+                          child: SizedBox(
                             height: 60,
                             child: Row(
                               children: [

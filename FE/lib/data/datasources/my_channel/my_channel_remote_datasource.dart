@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import '../../models/my_channel/channel_info.dart';
 import '../../models/my_channel/artist_album.dart';
 import '../../models/my_channel/artist_notice.dart';

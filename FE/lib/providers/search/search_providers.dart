@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dio/dio.dart';
 import 'package:ari/data/datasources/search_remote_datasource.dart';
 import 'package:ari/data/repositories/search_repository_impl.dart';
 import 'package:ari/domain/repositories/search_repository.dart';

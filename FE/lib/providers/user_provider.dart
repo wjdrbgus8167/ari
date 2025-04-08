@@ -6,7 +6,6 @@
 // 인증 상태가 변경될 때 사용자 정보도 자동으로 업데이트/삭제
 
 import 'dart:convert';
-import 'package:ari/data/datasources/api_client.dart';
 import 'package:ari/data/datasources/user/profile_remote_data_source.dart';
 import 'package:ari/data/repositories/user_repository.dart';
 import 'package:ari/domain/entities/profile.dart';
@@ -190,20 +189,19 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
       print('사용자 정보 삭제 오류: $e');
     }
   }
-  
+
   /// 사용자 정보 수동 새로고침
   Future<void> refreshUserInfo() async {
     // mounted 체크 (비동기 작업 시작 전)
     if (!mounted) return;
 
     try {
-
       final userProfileUseCase = ref.read(getUserProfileUseCaseProvider);
       final profileResult = await userProfileUseCase();
       User? user = await extractUserFromToken();
       // mounted 체크 (비동기 작업 이후)
       if (!mounted) return;
-      
+
       profileResult.fold(
         (failure) {
           // 프로필 정보 가져오기 실패 시 로그와 스낵바 표시
@@ -212,11 +210,10 @@ class UserNotifier extends StateNotifier<AsyncValue<User?>> {
         (profile) {
           saveUserFromProfile(profile, user?.email ?? '');
           dev.log('사용자 프로필 정보 갱싱싱 성공');
-        }
+        },
       );
     } catch (e) {
       dev.log('사용자 정보 새로고침 중 오류 발생: $e');
-
     }
   }
 }
@@ -297,7 +294,13 @@ final authUserIdProvider = Provider<String>((ref) {
   );
 });
 
-
-final userRemoteDataSourceProvider = Provider<UserRemoteDataSource>((ref) => UserRemoteDataSourceImpl(apiClient: ref.read(apiClientProvider)));
-final userRepositoryProvider = Provider<UserRepository>((ref) => UserRepositoryImpl(dataSource: ref.read(userRemoteDataSourceProvider)));
-final getUserProfileUseCaseProvider = Provider((ref) => GetUserProfileUseCase(ref.read(userRepositoryProvider)));
+final userRemoteDataSourceProvider = Provider<UserRemoteDataSource>(
+  (ref) => UserRemoteDataSourceImpl(apiClient: ref.read(apiClientProvider)),
+);
+final userRepositoryProvider = Provider<UserRepository>(
+  (ref) =>
+      UserRepositoryImpl(dataSource: ref.read(userRemoteDataSourceProvider)),
+);
+final getUserProfileUseCaseProvider = Provider(
+  (ref) => GetUserProfileUseCase(ref.read(userRepositoryProvider)),
+);

@@ -6,8 +6,7 @@ import 'package:ari/providers/global_providers.dart';
 
 class PlaylistSelectbar extends ConsumerStatefulWidget {
   final ValueChanged<Playlist> onPlaylistSelected;
-  const PlaylistSelectbar({Key? key, required this.onPlaylistSelected})
-    : super(key: key);
+  const PlaylistSelectbar({super.key, required this.onPlaylistSelected});
 
   @override
   _PlaylistSelectbarState createState() => _PlaylistSelectbarState();
@@ -31,6 +30,8 @@ class _PlaylistSelectbarState extends ConsumerState<PlaylistSelectbar> {
     final repository = ref.read(playlistRepositoryProvider);
     try {
       final result = await repository.fetchPlaylists();
+      if (!mounted) return;
+
       setState(() {
         playlists = result;
         if (playlists.isNotEmpty) {
@@ -114,9 +115,8 @@ class _PlaylistSelectbarState extends ConsumerState<PlaylistSelectbar> {
                               final playlist = playlists[index];
                               final hasTracks = playlist.tracks.isNotEmpty;
                               final coverImage =
-                                  (playlist.coverImageUrl != null &&
-                                          playlist.coverImageUrl!.isNotEmpty)
-                                      ? NetworkImage(playlist.coverImageUrl!)
+                                  (playlist.coverImageUrl.isNotEmpty)
+                                      ? NetworkImage(playlist.coverImageUrl)
                                       : const AssetImage(
                                         "assets/images/default_album_cover.png",
                                       );
@@ -142,7 +142,7 @@ class _PlaylistSelectbarState extends ConsumerState<PlaylistSelectbar> {
                                   widget.onPlaylistSelected(playlist);
                                   Navigator.pop(context);
                                 },
-                                child: Container(
+                                child: SizedBox(
                                   width: double.infinity,
                                   height: 60,
                                   child: Row(
@@ -215,6 +215,8 @@ class _PlaylistSelectbarState extends ConsumerState<PlaylistSelectbar> {
           );
         },
       ).whenComplete(() {
+        if (!mounted) return;
+
         setState(() {
           isModalOpen = false;
         });

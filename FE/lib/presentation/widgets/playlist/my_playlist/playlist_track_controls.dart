@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class PlaylistTrackControls extends ConsumerWidget {
-  const PlaylistTrackControls({Key? key}) : super(key: key);
+  const PlaylistTrackControls({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

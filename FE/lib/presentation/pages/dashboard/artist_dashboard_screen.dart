@@ -17,7 +17,8 @@ class ArtistDashboardScreen extends ConsumerStatefulWidget {
   const ArtistDashboardScreen({super.key});
 
   @override
-  ConsumerState<ArtistDashboardScreen> createState() => _ArtistDashboardScreenState();
+  ConsumerState<ArtistDashboardScreen> createState() =>
+      _ArtistDashboardScreenState();
 }
 
 class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
@@ -135,7 +136,7 @@ List<ChartData> _convertSettlementDataToChartData(ArtistDashboardData data) {
                                       color: Color.fromARGB(255, 255, 255, 255),
                                       size: 20,
                                     ),
-                                  )
+                                  ),
                                 ],
                               ),
                               const SizedBox(height: 10),

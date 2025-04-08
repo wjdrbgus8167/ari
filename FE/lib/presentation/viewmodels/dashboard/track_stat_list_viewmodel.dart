@@ -72,11 +72,8 @@ class TrackStatsListViewmodel extends StateNotifier<TrackListState> {
         : SortBy.totalStreamingCount;
     
     final sortedTracks = _sortTracks(state.tracks, newSortBy);
-    
-    state = state.copyWith(
-      sortBy: newSortBy,
-      tracks: sortedTracks,
-    );
+
+    state = state.copyWith(sortBy: newSortBy, tracks: sortedTracks);
   }
 
   List<TrackStats> _sortTracks(List<TrackStats> tracks, SortBy sortBy) {
@@ -87,7 +84,7 @@ class TrackStatsListViewmodel extends StateNotifier<TrackListState> {
     } else {
       sortedTracks.sort((a, b) => b.monthlyStreamingCount.compareTo(a.monthlyStreamingCount));
     }
-    
+
     return sortedTracks;
   }
 }

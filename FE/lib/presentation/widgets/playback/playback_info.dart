@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 class PlaybackInfo extends StatelessWidget {
   final String trackTitle;
   final String artist;
-  const PlaybackInfo({Key? key, required this.trackTitle, required this.artist})
-    : super(key: key);
+  const PlaybackInfo({
+    super.key,
+    required this.trackTitle,
+    required this.artist,
+  });
 
   @override
   Widget build(BuildContext context) {

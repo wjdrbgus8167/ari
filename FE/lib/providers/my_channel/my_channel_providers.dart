@@ -1,8 +1,5 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/utils/auth_interceptor.dart';
-import '../../core/constants/app_constants.dart';
-import '../auth/auth_providers.dart'; // 인증 관련 provider
+// 인증 관련 provider
 import '../global_providers.dart'; // dioProvider 등 전역 provider 참조용
 
 // datasource
@@ -23,7 +20,6 @@ import '../../domain/usecases/my_channel/artist_notice_usecases.dart' as notice;
 
 // viewmodel
 import '../../presentation/viewmodels/my_channel/my_channel_viewmodel.dart';
-
 
 /// 나의 채널 원격 데이터 소스 provider
 final myChannelRemoteDataSourceProvider = Provider<MyChannelRemoteDataSource>((
@@ -120,9 +116,7 @@ final createArtistNoticeUseCaseProvider =
 final artistNoticeRemoteDataSourceProvider =
     Provider<ArtistNoticeRemoteDataSource>((ref) {
       final dio = ref.watch(dioProvider);
-      return ArtistNoticeRemoteDataSourceImpl(
-        dio: dio,
-      );
+      return ArtistNoticeRemoteDataSourceImpl(dio: dio);
     });
 
 // 아티스트 공지사항 repository provider

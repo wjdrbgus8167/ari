@@ -1,6 +1,8 @@
+import 'package:ari/core/utils/login_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MediaCard extends StatelessWidget {
+class MediaCard extends ConsumerWidget {
   final String imageUrl;
   final String title;
   final String? subtitle; // 부제목이 필요한 경우 (예: 앨범의 아티스트)
@@ -8,16 +10,16 @@ class MediaCard extends StatelessWidget {
   final VoidCallback? onPlayPressed;
 
   const MediaCard({
-    Key? key,
+    super.key,
     required this.imageUrl,
     required this.title,
     this.subtitle,
     this.onTap,
     this.onPlayPressed,
-  }) : super(key: key);
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // imageUrl이 비어있지 않으면 네트워크 이미지, 아니면 기본 에셋 이미지를 사용
     Widget imageWidget;
     if (imageUrl.isNotEmpty) {
@@ -60,7 +62,13 @@ class MediaCard extends StatelessWidget {
                     bottom: 6,
                     right: 6,
                     child: GestureDetector(
-                      onTap: () {
+                      onTap: () async {
+                        // 재생 버튼 누를 때 로그인 체크 후 onPlayPressed 실행
+                        final ok = await checkLoginAndNavigateIfNeeded(
+                          context: context,
+                          ref: ref,
+                        );
+                        if (!ok) return;
                         if (onPlayPressed != null) {
                           onPlayPressed!();
                         }
