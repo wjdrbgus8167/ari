@@ -211,6 +211,9 @@ class AudioService {
         context,
       );
       await _playAndSetState(ref, track);
+
+      // 🔥 핵심 추가
+      allowedTracks[0] = track;
     } catch (e) {
       context.showToast(e.toString());
       return;

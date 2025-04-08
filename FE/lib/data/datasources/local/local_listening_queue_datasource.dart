@@ -7,8 +7,8 @@ Future<Box<Track>> openListeningQueueBox(String userId) async {
 
   // // ❗ 기존 박스를 삭제(개발용 코드)
   // if (await Hive.boxExists(boxName)) {
-  //   print('[DEBUG] 기존 박스 삭제: $boxName');
   //   await Hive.deleteBoxFromDisk(boxName);
+  //   print('[DEBUG] 기존 박스 삭제 완료료: $boxName');
   // }
 
   // // Hive 전체 초기화 (개발용 코드)
