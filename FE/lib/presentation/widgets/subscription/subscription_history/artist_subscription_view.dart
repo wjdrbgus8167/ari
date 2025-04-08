@@ -210,7 +210,7 @@ class ArtistSubscriptionView extends ConsumerWidget {
                   height: 30,
                   decoration: ShapeDecoration(
                     image: DecorationImage(
-                      image: NetworkImage(artistDetail.profileImageUrl),
+                      image: NetworkImage(artistDetail.profileImageUrl ?? ''),
                       fit: BoxFit.cover,
                     ),
                     shape: RoundedRectangleBorder(

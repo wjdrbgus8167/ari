@@ -1,22 +1,22 @@
 // 아티스트 기본 정보 모델
 class Artist {
-  final int artistId;
+  final int? artistId; // null 허용으로 변경
   final String artistNickname;
 
   Artist({
-    required this.artistId,
+    this.artistId, // required 제거
     required this.artistNickname,
   });
 
   factory Artist.fromJson(Map<String, dynamic> json) {
     return Artist(
-      artistId: json['artistId'],
-      artistNickname: json['artistNickName'],
+      artistId: json['artistId'], // 존재하지 않으면 null 처리
+      artistNickname: json['artistNickName'], // 'N'이 대문자
     );
   }
 }
 
-// 구독 항목 모델
+// 구독 항목 모델 (수정 필요 없음)
 class ArtistSubscriptionDetail {
   final String planType;
   final String startedAt;
@@ -45,14 +45,14 @@ class ArtistSubscriptionDetail {
 // 아티스트 상세 정보 모델
 class ArtistDetail {
   final String artistNickname;
-  final String profileImageUrl;
+  final String? profileImageUrl; // null 허용으로 변경
   final double totalSettlement;
   final int totalStreamingCount;
   final List<ArtistSubscriptionDetail> subscriptions;
 
   ArtistDetail({
     required this.artistNickname,
-    required this.profileImageUrl,
+    this.profileImageUrl, // required 제거
     required this.totalSettlement,
     required this.totalStreamingCount,
     required this.subscriptions,
@@ -60,7 +60,7 @@ class ArtistDetail {
 
   factory ArtistDetail.fromJson(Map<String, dynamic> json) {
     return ArtistDetail(
-      artistNickname: json['artistNickname'],
+      artistNickname: json['artistNickName'], // 'N'이 대문자
       profileImageUrl: json['profileImageUrl'],
       totalSettlement: json['totalSettlement'] is int 
           ? (json['totalSettlement'] as int).toDouble() 
@@ -73,7 +73,7 @@ class ArtistDetail {
   }
 }
 
-// 아티스트 목록 응답 모델
+// 아티스트 목록 응답 모델 (수정 필요 없음)
 class ArtistsResponse {
   final List<Artist> artists;
 
