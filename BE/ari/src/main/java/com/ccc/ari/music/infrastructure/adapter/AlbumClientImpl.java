@@ -72,4 +72,9 @@ public class AlbumClientImpl implements AlbumClient {
         albumService.decreaseAlbumLikeCount(albumId);
     }
 
+    @Override
+    public boolean isMyAlbum(Integer albumId,Integer memberId) {
+        return albumService.existsByIdAndMemberId(albumId,memberId);
+    }
+
 }
