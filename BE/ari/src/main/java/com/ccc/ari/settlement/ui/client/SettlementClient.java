@@ -31,4 +31,9 @@ public class SettlementClient {
     public GetArtistDailySettlementResponse getArtistDailySettlement(Integer artistId) {
         return settlementQueryService.getArtistDailySettlement(artistId);
     }
+
+    /**
+     * 특정 사용자의 특정 아티스트에 대한 각 구독 사이클의 정산 금액을 조회합니다.
+     */
+
 }
