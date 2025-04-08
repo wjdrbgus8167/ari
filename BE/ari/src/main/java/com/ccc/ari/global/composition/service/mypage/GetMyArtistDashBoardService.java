@@ -15,6 +15,8 @@ import com.ccc.ari.music.domain.album.AlbumEntity;
 import com.ccc.ari.music.domain.album.client.AlbumClient;
 import com.ccc.ari.music.domain.track.TrackDto;
 import com.ccc.ari.music.domain.track.client.TrackClient;
+import com.ccc.ari.settlement.ui.client.SettlementClient;
+import com.ccc.ari.settlement.ui.client.WalletClient;
 import com.ccc.ari.subscription.domain.SubscriptionPlan;
 import com.ccc.ari.subscription.domain.client.SubscriptionClient;
 import com.ccc.ari.subscription.domain.client.SubscriptionPlanClient;
@@ -41,6 +43,8 @@ public class GetMyArtistDashBoardService {
     private final StreamingCountClient streamingCountClient;
     private final TrackClient trackClient;
     private final RedisWindowRepository redisWindowRepository;
+    private final WalletClient walletClient;
+    private final SettlementClient settlementClient;
 
     public GetMyArtistDashBoardResponse getMyArtistDashBoard(Integer memberId) {
 
@@ -196,6 +200,12 @@ public class GetMyArtistDashBoardService {
         Integer todayStreamingCount = getTodayStreamingCountByArtist(memberId);
         log.info("아티스트 오늘 스트리밍 수: {}", todayStreamingCount);
 
+        // 지갑 주소
+        String walletAddress = walletClient.getWalletByArtistId(memberId).getAddress();
+
+
+        //월 정산
+
         return GetMyArtistDashBoardResponse.builder()
                 .subscriberCount(subscriberCount)
                 .totalStreamingCount(totalStreamingCount)
@@ -205,8 +215,9 @@ public class GetMyArtistDashBoardService {
                 // 이번 달 구독자 수
                 .thisMonthNewSubscriberCount(thisMonthNewSubscriberCount)
                 .albums(albums)
+                .thisMonthSettlement(null)
                 .monthlySettlement(null)
-                .walletAddress(null)
+                .walletAddress(walletAddress)
                 .newSubscriberDiff(newSubscriberDiff)
                 .settlementDiff(null)
                 .dailySubscriberCounts(dailySubscriberCounts)
