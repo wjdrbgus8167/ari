@@ -72,18 +72,28 @@ class ArtistNoticeSection extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    // 공지사항 개수 표시
+                    // 공지사항 개수 표시 - 팬톡 스타일로 수정
                     if (noticeResponse != null &&
-                        noticeResponse.notices.isNotEmpty) ...[
-                      const SizedBox(width: 8),
-                      Text(
-                        '(${noticeResponse.noticeCount})',
-                        style: TextStyle(
-                          color: AppColors.mediumPurple,
-                          fontSize: 14,
+                        noticeResponse.notices.isNotEmpty)
+                      Container(
+                        margin: const EdgeInsets.only(left: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.mediumPurple.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          '${noticeResponse.noticeCount}',
+                          style: const TextStyle(
+                            color: AppColors.mediumPurple,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ],
                   ],
                 ),
 
