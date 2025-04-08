@@ -8,12 +8,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class ArtistSubscriptionView extends ConsumerWidget {
   const ArtistSubscriptionView({Key? key}) : super(key: key);
 
+  final bool _didLoad = false;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(artistSubscriptionViewModelProvider);
+    final state = ref.read(artistSubscriptionViewModelProvider);
 
     // 데이터 로드 (필요 시)
-    if (state.artists.isEmpty && !state.isLoading) {
+    if (!_didLoad && state.artists.isEmpty && !state.isLoading) {
       Future.microtask(
         () =>
             ref
