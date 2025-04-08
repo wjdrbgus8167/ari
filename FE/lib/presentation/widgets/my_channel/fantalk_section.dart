@@ -161,7 +161,7 @@ class FanTalkSection extends ConsumerWidget {
                 print('구독 페이지로 이동');
               },
               child: _buildMessageBox(
-                '아티스트와 구독자를 위한 팬톡입니다. \n 참여하려면 아티스트를 구독하세요!',
+                '아티스트와 구독자를 위한 공간입니다. \n 참여하려면 아티스트를 구독하세요!',
                 icon: Icons.lock,
               ),
             )
