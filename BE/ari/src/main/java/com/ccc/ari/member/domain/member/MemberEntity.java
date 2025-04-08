@@ -64,5 +64,10 @@ public class MemberEntity {
     this.provider = provider;
     this.registeredAt = registeredAt;
   }
-
+  public void updateProfile(String nickname, String bio, String profileImageUrl,String instagramId) {
+    this.nickname = nickname;
+    this.bio = bio;
+    this.profileImageUrl = profileImageUrl;
+    this.instagramId = instagramId;
+  }
 }

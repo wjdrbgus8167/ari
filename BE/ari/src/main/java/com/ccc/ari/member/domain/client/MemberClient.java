@@ -1,6 +1,7 @@
 package com.ccc.ari.member.domain.client;
 
 import com.ccc.ari.member.domain.member.MemberDto;
+import com.ccc.ari.member.domain.member.MemberEntity;
 
 import java.util.List;
 
@@ -14,4 +15,6 @@ public interface MemberClient {
 
     // 프로필 이미지 가져오기
     String getProfileImageUrlByMemberId(Integer memberId);
+
+    MemberEntity getMemberEntityByMemberId(Integer memberId);
 }
