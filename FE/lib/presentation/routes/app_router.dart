@@ -26,6 +26,7 @@ import 'package:ari/presentation/pages/playlist/playlist_screen.dart';
 // 나의 채널
 import 'package:ari/presentation/pages/my_channel/my_channel_screen.dart';
 import 'package:ari/presentation/pages/my_channel/fantalk_list_screen.dart';
+import 'package:ari/presentation/pages/my_channel/create_fantalk_screen.dart';
 // 음원 업로드
 import 'package:ari/presentation/pages/mypage/album_upload_screen.dart';
 import 'package:ari/presentation/pages/mypage/track_upload_screen.dart';
@@ -58,6 +59,7 @@ class AppRoutes {
   static const String genre = '/genre';
   static const String editProfile = '/edit-profile';
   static const String settlement = '/settlement';
+  static const String createFantalk = '/create-fantalk';
 
   static final Set<String> _protectedRoutes = {
     myPage,
@@ -209,6 +211,15 @@ class AppRouter {
           builder: (_) => GenrePage(genre: genre),
         );
 
+      // generateRoute 메서드에 추가
+      case AppRoutes.createFantalk:
+        final fantalkChannelId = args?['fantalkChannelId'] as String;
+        return MaterialPageRoute(
+          settings: settings,
+          builder:
+              (_) => CreateFantalkScreen(fantalkChannelId: fantalkChannelId),
+        );
+
       case AppRoutes.fantalkList:
         final memberId = args?['memberId'] as String;
         final fantalkChannelId = args?['fantalkChannelId'] as String;
@@ -220,7 +231,7 @@ class AppRouter {
                 memberId: memberId,
                 fantalkChannelId: fantalkChannelId,
                 isSubscribed: isSubscribed,
-              )
+              ),
         );
       case AppRoutes.editProfile:
         return MaterialPageRoute(
