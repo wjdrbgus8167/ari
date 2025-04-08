@@ -28,16 +28,16 @@ class FanTalkSection extends ConsumerWidget {
     final channelState = ref.watch(myChannelProvider);
     final channelInfo = channelState.channelInfo;
     final subscriberCount = channelInfo?.subscriberCount ?? 0;
-    final isArtist = channelState.isArtist; // 아티스트인지 여부 확인
+    // final isArtist = channelState.isArtist; // 아티스트인지 여부 확인
 
     // 아티스트 이름 가져오기
     final artistName = channelInfo?.memberName ?? '아티스트';
     final displayArtistName = artistName.isNotEmpty ? artistName : '아티스트';
 
     // 아티스트가 아닌 경우 위젯 표시하지 않음
-    if (!isArtist) {
-      return const SizedBox.shrink();
-    }
+    // if (!isArtist) {
+    //   return const SizedBox.shrink();
+    // }
 
     // 구독자가 없는 경우 팬톡 섹션 표시하지 않음
     if (subscriberCount <= 0) {
@@ -55,124 +55,108 @@ class FanTalkSection extends ConsumerWidget {
     // 팬톡 개수
     final fantalkCount = fanTalkResponse?.fantalkCount ?? 0;
 
-    return Container(
-      color: Colors.black,
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 섹션 헤더: 제목과 더보기 버튼
-          Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // 타이틀 (아티스트 이름 + 팬톡)
-                Row(
-                  children: [
-                    Text(
-                      displayArtistName,
-                      style: const TextStyle(
-                        color:
-                            AppColors
-                                .mediumPurple, // 또는 AppColors.mediumPurple 등 원하는 색상
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const Text(
-                      "님의 팬톡",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    if (fantalkCount > 0)
-                      Container(
-                        margin: const EdgeInsets.only(left: 8),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.mediumPurple.withValues(alpha: .2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          '$fantalkCount',
-                          style: const TextStyle(
-                            color: AppColors.mediumPurple,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                // 더보기 버튼 (팬톡이 있을 경우에만 표시하고 구독자 또는 아티스트만 접근 가능)
-                if (fantalkCount > 0 && isSubscribed)
-                  GestureDetector(
-                    onTap: () {
-                      // 팬톡 전체 목록 페이지로 이동
-                      if (fantalkChannelId != null) {
-                        Navigator.of(context).pushNamed(
-                          '/fantalk-list',
-                          arguments: {
-                            'memberId': memberId,
-                            'fantalkChannelId': fantalkChannelId,
-                            'isSubscribed': isSubscribed,
-                          },
-                        );
-                      }
-                    },
-                    child: Text(
-                      '전체보기',
-                      style: TextStyle(
-                        color: AppColors.mediumPurple,
-                        fontSize: 14,
-                      ),
+    return GestureDetector(
+      onTap: () {
+        // 구독자인 경우에만 전체 목록 페이지로 이동
+        if (isSubscribed) {
+          Navigator.of(context).pushNamed(
+            '/fantalk-list',
+            arguments: {
+              'memberId': memberId,
+              'fantalkChannelId': fantalkChannelId,
+              'isSubscribed': isSubscribed,
+            },
+          );
+        }
+      },
+      child: Container(
+        color: Colors.black,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 섹션 헤더
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
+              child: Row(
+                children: [
+                  Text(
+                    displayArtistName,
+                    style: const TextStyle(
+                      color: AppColors.mediumPurple,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-              ],
+                  const Text(
+                    "님의 팬톡",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (fantalkCount > 0)
+                    Container(
+                      margin: const EdgeInsets.only(left: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.mediumPurple.withValues(alpha: .2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '$fantalkCount',
+                        style: const TextStyle(
+                          color: AppColors.mediumPurple,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
 
-          // 나머지 부분은 동일하게 유지
-          // 로딩 중 표시
-          if (isLoading)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 24),
-                child: CircularProgressIndicator(color: AppColors.mediumPurple),
-              ),
-            )
-          // 에러 표시
-          else if (hasError)
-            _buildMessageBox(
-              '팬톡을 불러오는데 실패했습니다.\n다시 시도해주세요.',
-              textColor: Colors.red[300]!,
-            )
-          // 구독자가 아닌 경우 구독 안내 메시지
-          else if (!isSubscribed)
-            GestureDetector(
-              onTap: () {
-                // TODO: 구독 페이지로 라우팅
-                print('구독 페이지로 이동');
-              },
-              child: _buildMessageBox(
-                '아티스트와 구독자를 위한 공간입니다. \n 참여하려면 아티스트를 구독하세요!',
-                icon: Icons.lock,
-              ),
-            )
-          // 팬톡이 없는 경우 메시지 표시 (구독자에게만)
-          else if (isSubscribed &&
-              (fanTalkResponse == null || fanTalkResponse.fantalks.isEmpty))
-            _buildMessageBox('아티스트 팬톡이 없습니다. 첫 팬톡을 작성해보세요!')
-          // 팬톡 목록 표시 (최대 1개만, 구독자에게만)
-          else if (isSubscribed && fanTalkResponse!.fantalks.isNotEmpty)
-            _buildFanTalkItem(context, fanTalkResponse.fantalks.first),
-        ],
+            // 로딩 중 표시
+            if (isLoading)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: CircularProgressIndicator(
+                    color: AppColors.mediumPurple,
+                  ),
+                ),
+              )
+            // 에러 표시
+            else if (hasError)
+              _buildMessageBox(
+                '팬톡을 불러오는데 실패했습니다.\n다시 시도해주세요.',
+                textColor: Colors.red[300]!,
+              )
+            // 구독자가 아닌 경우 구독 안내 메시지
+            else if (!isSubscribed)
+              GestureDetector(
+                onTap: () {
+                  // TODO: 구독 페이지로 라우팅
+                  print('구독 페이지로 이동');
+                },
+                child: _buildMessageBox(
+                  '아티스트와 구독자를 위한 공간입니다. \n 참여하려면 아티스트를 구독하세요!',
+                  icon: Icons.lock,
+                ),
+              )
+            // 팬톡이 없는 경우 메시지 표시 (구독자에게만)
+            else if (isSubscribed &&
+                (fanTalkResponse == null || fanTalkResponse.fantalks.isEmpty))
+              _buildMessageBox('아티스트 팬톡이 없습니다. 첫 팬톡을 작성해보세요!')
+            // 팬톡 목록 표시 (최대 1개만, 구독자에게만)
+            else if (isSubscribed && fanTalkResponse!.fantalks.isNotEmpty)
+              _buildFanTalkItem(context, fanTalkResponse.fantalks.first),
+          ],
+        ),
       ),
     );
   }
@@ -188,9 +172,9 @@ class FanTalkSection extends ConsumerWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.1),
+        color: Colors.grey.withValues(alpha: .1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.withOpacity(0.3), width: 1),
+        border: Border.all(color: Colors.grey.withValues(alpha: .3), width: 1),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -306,7 +290,7 @@ class FanTalkSection extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.3),
+        color: Colors.black.withValues(alpha: .3),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: AppColors.mediumPurple.withValues(alpha: .3),
