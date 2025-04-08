@@ -211,7 +211,6 @@ class AppRouter {
           builder: (_) => GenrePage(genre: genre),
         );
 
-      // generateRoute 메서드에 추가
       case AppRoutes.createFantalk:
         final fantalkChannelId = args?['fantalkChannelId'] as String;
         return MaterialPageRoute(
