@@ -1,56 +1,28 @@
+// presentation/widgets/profile/profile_text_field.dart
 import 'package:flutter/material.dart';
 
-class ProfileInputField extends StatefulWidget {
+class ProfileTextField extends StatelessWidget {
   final String label;
-  final String? initialValue;
-  final Function(String) onChanged;
+  final TextEditingController controller;
   final int maxLines;
+  final Function(String)? onChanged;
 
-  const ProfileInputField({
+  const ProfileTextField({
     Key? key,
     required this.label,
-    required this.initialValue,
-    required this.onChanged,
+    required this.controller,
     this.maxLines = 1,
+    this.onChanged,
   }) : super(key: key);
-
-  @override
-  State<ProfileInputField> createState() => _ProfileInputFieldState();
-}
-
-class _ProfileInputFieldState extends State<ProfileInputField> {
-  late TextEditingController _controller;
-  
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: widget.initialValue ?? '');
-  }
-  
-  @override
-  void didUpdateWidget(ProfileInputField oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    
-    // 초기값이 변경된 경우 컨트롤러 업데이트
-    if (widget.initialValue != oldWidget.initialValue && 
-        widget.initialValue != _controller.text) {
-      _controller.text = widget.initialValue ?? '';
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // 라벨
         Text(
-          widget.label,
+          label,
           style: const TextStyle(
             color: Colors.white,
             fontSize: 20,
@@ -59,23 +31,30 @@ class _ProfileInputFieldState extends State<ProfileInputField> {
           ),
         ),
         const SizedBox(height: 10),
-        TextField(
-          controller: _controller,
-          onChanged: widget.onChanged,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 12,
-            fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w400,
-          ),
-          maxLines: widget.maxLines,
-          decoration: const InputDecoration(
-            contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFF989595)),
+        
+        // 텍스트 필드
+        Container(
+          decoration: ShapeDecoration(
+            shape: RoundedRectangleBorder(
+              side: BorderSide(
+                width: 1,
+                color: const Color(0xFF989595),
+              ),
             ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.white),
+          ),
+          child: TextField(
+            controller: controller,
+            onChanged: onChanged,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.w400,
+            ),
+            maxLines: maxLines,
+            decoration: const InputDecoration(
+              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              border: InputBorder.none,
             ),
           ),
         ),

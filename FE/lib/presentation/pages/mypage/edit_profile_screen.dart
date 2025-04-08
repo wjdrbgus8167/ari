@@ -1,10 +1,10 @@
+// presentation/pages/mypage/edit_profile_screen.dart
+import 'package:ari/presentation/viewmodels/mypage/edit_profile_viewmodel.dart';
+import 'package:ari/presentation/widgets/mypage/profile_image_widget.dart';
 import 'package:ari/presentation/widgets/mypage/profile_input_field.dart';
+import 'package:ari/providers/profile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// 실제 프로젝트에 맞게 import 경로 수정 필요
-
-// ViewModel import 경로는 실제 프로젝트 구조에 맞게 수정 필요
-import 'package:ari/presentation/viewmodels/mypage/edit_profile_viewmodel.dart';
 
 class ProfileEditScreen extends ConsumerStatefulWidget {
   const ProfileEditScreen({Key? key}) : super(key: key);
@@ -14,182 +14,184 @@ class ProfileEditScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
+  late final ProfileEditViewModel viewModel;
+  bool _hasUnsavedChanges = false;
+
   @override
   void initState() {
     super.initState();
-    // 화면이 로드된 후 프로필 다시 로드
+    viewModel = ref.read(profileEditViewModelProvider);
+    
+    // 데이터 로드 (첫 로드 시에만 필요하다면)
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(profileEditProvider.notifier).loadUserProfile();
+      // 필요시 데이터 로드 로직
+      // ref.read(profileProvider.notifier).loadProfile();
+    });
+  }
+
+  @override
+  void dispose() {
+    viewModel.dispose();
+    super.dispose();
+  }
+
+  // 사용자가 뒤로 가려고 할 때 변경사항이 있다면 확인 다이얼로그 표시
+  Future<bool> _onWillPop() async {
+    if (!_hasUnsavedChanges) return true;
+    
+    return await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('변경사항 저장'),
+        content: const Text('변경사항이 있습니다. 저장하지 않고 나가시겠습니까?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('나가기'),
+          ),
+        ],
+      ),
+    ) ?? false;
+  }
+  
+  // 변경사항 감지 함수
+  void _checkChanges() {
+    final profile = ref.read(profileProvider);
+    bool hasChanges = false;
+    
+    // 텍스트 필드 변경 확인
+    if (viewModel.nameController.text != profile.name ||
+        viewModel.introductionController.text != profile.introduction ||
+        viewModel.instagramIdController.text != profile.instagramId) {
+      hasChanges = true;
+    }
+    
+    // 이미지 변경 확인
+    if (profile.profileImageFile != null) {
+      hasChanges = true;
+    }
+    
+    setState(() {
+      _hasUnsavedChanges = hasChanges;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(profileEditProvider);
-    final notifier = ref.read(profileEditProvider.notifier);
+    final isEditing = ref.watch(profileEditingProvider);
     
-    // 에러 메시지 표시
-    ref.listen<ProfileEditState>(profileEditProvider, (previous, current) {
-      // 에러 메시지 처리
-      if (previous?.errorMessage != current.errorMessage && 
-          current.errorMessage != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(current.errorMessage!)),
-        );
-      }
-      
-      // 성공 시 처리
-      if (previous?.isSuccess != current.isSuccess && current.isSuccess) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('프로필이 성공적으로 업데이트되었습니다.')),
-        );
-        Future.delayed(const Duration(milliseconds: 1500), () {
-          if (mounted) Navigator.pop(context);
-        });
-      }
-    });
-
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
+    // WillPopScope 위젯으로 뒤로가기 이벤트 처리
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
         backgroundColor: Colors.black,
-        title: const Text(
-          '내 정보 수정',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        centerTitle: true,
-        elevation: 0,
-      ),
-      body: state.isLoading 
-        ? const Center(child: CircularProgressIndicator(color: Colors.white))
-        : SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 프로필 이미지 섹션
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  child: Center(
-                    child: Stack(
-                      children: [
-                        // // 프로필 이미지
-                        // Container(
-                        //   width: 100,
-                        //   height: 100,
-                        //   decoration: BoxDecoration(
-                        //     color: const Color(0xFF282828),
-                        //     shape: BoxShape.circle,
-                        //     image: state.profile?.profileImageFile != null
-                        //         ? DecorationImage(
-                        //             image: FileImage(state.profile?.profileImageFile!),
-                        //             fit: BoxFit.cover,
-                        //           )
-                        //         : state.profile?.profileImageUrl != null
-                        //             ? DecorationImage(
-                        //                 image: NetworkImage(state.profile?.profileImageUrl!),
-                        //                 fit: BoxFit.cover,
-                        //               )
-                        //             : null,
-                        //   ),
-                        //   child: state.profile?.profileImageUrl == null && state.profile == null
-                        //       ? const Icon(Icons.person, color: Colors.white, size: 50)
-                        //       : null,
-                        // ),
-                        // 이미지 선택 버튼
-                        Positioned(
-                          right: 0,
-                          bottom: 0,
-                          child: GestureDetector(
-                            onTap: () => notifier.pickProfileImage(),
-                            child: Container(
-                              width: 30,
-                              height: 30,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF424242),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.camera_alt,
-                                color: Colors.white,
-                                size: 15,
-                              ),
+        body: isEditing
+            ? const Center(
+                child: CircularProgressIndicator(color: Colors.white),
+              )
+            : NestedScrollView(
+                headerSliverBuilder: (context, innerBoxIsScrolled) {
+                  return [
+                    SliverAppBar(
+                      pinned: true,
+                      floating: false,
+                      backgroundColor: Colors.black,
+                      title: const Text(
+                        '내 정보 수정',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      centerTitle: true,
+                      leading: IconButton(
+                        icon: const Icon(Icons.arrow_back, color: Colors.white),
+                        onPressed: () async {
+                          final canPop = await _onWillPop();
+                          if (canPop && context.mounted) {
+                            Navigator.of(context).pop();
+                          }
+                        },
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () async {
+                            final success = await viewModel.saveProfile();
+                            
+                            if (success) {
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('프로필이 저장되었습니다.')),
+                              );
+                              Navigator.of(context).pop(true); // 결과 전달 (true = 업데이트 성공)
+                            } else {
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('저장 중 오류가 발생했습니다.')),
+                              );
+                            }
+                          },
+                          child: const Text(
+                            '저장',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ),
-                
-                // // 이름 입력 필드
-                // ProfileInputField(
-                //   label: '이름',
-                //   initialValue: state.profile.nickname,
-                //   onChanged: (value) => notifier.updateNickname(value),
-                // ),
-                // const SizedBox(height: 20),
-                
-                // // 소개글 입력 필드
-                // ProfileInputField(
-                //   label: '소개글',
-                //   initialValue: state.profile.bio,
-                //   onChanged: (value) => notifier.updateBio(value),
-                //   maxLines: 3,
-                // ),
-                // const SizedBox(height: 20),
-                
-                // // 인스타그램 ID 입력 필드
-                // ProfileInputField(
-                //   label: '인스타그램 ID',
-                //   initialValue: state.profile.instagramId,
-                //   onChanged: (value) => notifier.updateInstagramId(value),
-                // ),
-                // const SizedBox(height: 40),
-                
-                // 저장 버튼
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: state.isUpdating 
-                      ? null // 업데이트 중이면 버튼 비활성화
-                      : () => notifier.updateProfile(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                      disabledBackgroundColor: Colors.grey,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                  ];
+                },
+                // 본문 내용
+                body: SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 프로필 이미지
+                      const ProfileImageWidget(),
+                      const SizedBox(height: 20),
+                      
+                      // 이름 필드
+                      ProfileTextField(
+                        label: '이름',
+                        controller: viewModel.nameController,
+                        onChanged: (_) => _checkChanges(),
                       ),
-                    ),
-                    child: state.isUpdating
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.black,
-                          ),
-                        )
-                      : const Text(
-                          '저장하기',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontFamily: 'Pretendard',
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                      const SizedBox(height: 20),
+                      
+                      // 소개글 필드
+                      ProfileTextField(
+                        label: '소개글',
+                        controller: viewModel.introductionController,
+                        maxLines: 3,
+                        onChanged: (_) => _checkChanges(),
+                      ),
+                      const SizedBox(height: 20),
+                      
+                      // 인스타그램 ID 필드
+                      ProfileTextField(
+                        label: '인스타그램 ID',
+                        controller: viewModel.instagramIdController,
+                        onChanged: (_) => _checkChanges(),
+                      ),
+                      
+                      // 키보드가 올라왔을 때를 위한 여유 공간
+                      const SizedBox(height: 100),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          ),
+              ),
+      ),
     );
   }
 }
