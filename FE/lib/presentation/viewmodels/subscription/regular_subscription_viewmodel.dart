@@ -141,7 +141,7 @@ class RegularSubscriptionViewModel extends StateNotifier<RegularSubscriptionStat
           );
           
           // 선택된 주기에 대한 상세 정보 로드
-          //loadSubscriptionDetail(cycles.first.cycleId);
+          loadSubscriptionDetail(cycles.first.cycleId);
         } else {
           state = state.copyWith(
             isLoading: false,

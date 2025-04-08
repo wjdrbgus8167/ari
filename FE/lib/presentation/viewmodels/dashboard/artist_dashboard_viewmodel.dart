@@ -1,168 +1,97 @@
 import 'dart:math';
 
+import 'package:ari/data/models/dashboard/dashboard_model.dart';
+import 'package:ari/data/repositories/dashboard/dashboard_repository.dart';
+import 'package:ari/domain/repositories/dashboard/dashboard_repository.dart';
+import 'package:ari/domain/usecases/dashboard/get_dashboard_data_usecase.dart';
 import 'package:ari/domain/usecases/my_channel/my_channel_usecases.dart';
 import 'package:ari/presentation/routes/app_router.dart';
-import 'package:ari/presentation/widgets/dashboard/chart_widget.dart';
+import 'package:ari/presentation/viewmodels/dashboard/track_stat_list_viewmodel.dart';
 import 'package:ari/providers/my_channel/my_channel_providers.dart';
 import 'package:ari/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// 아티스트 대시보드 데이터 모델 (hasTracks 추가)
-class ArtistDashboardData {
-  final String? walletAddress;
-  final int subscriberCount;
-  final int totalStreamCount;
-  final int monthlyStreamCount;
-  final int monthlyStreamGrowth;
-  final int monthlyNewSubscribers;
-  final int monthlySubscriberGrowth;
-  final double monthlyRevenue;
-  final int monthlyRevenueGrowth;
-  final List<ChartData> subscribersChartData;
-  final List<ChartData> streamsChartData;
-  final List<ChartData> revenueChartData;
-  // 일간 차트 데이터 추가
-  final List<ChartData> dailySubscribersData;
-  final List<ChartData> dailyStreamsData;
-  final List<ChartData> dailyRevenueData;
-  final bool isLoading; // 데이터 로딩 상태
-  final bool hasTracks; // 아티스트가 트랙을 가지고 있는지 여부
-  final String? errorMessage; // 오류 메시지
-
-  ArtistDashboardData({
-    required this.walletAddress,
-    required this.subscriberCount,
-    required this.totalStreamCount,
-    required this.monthlyStreamCount,
-    required this.monthlyStreamGrowth,
-    required this.monthlyNewSubscribers,
-    required this.monthlySubscriberGrowth,
-    required this.monthlyRevenue,
-    required this.monthlyRevenueGrowth,
-    required this.subscribersChartData,
-    required this.streamsChartData,
-    required this.revenueChartData,
-    required this.dailySubscribersData,
-    required this.dailyStreamsData,
-    required this.dailyRevenueData,
-    this.isLoading = false,
-    this.hasTracks = false,
-    this.errorMessage,
-  });
-
-  // 복사 메서드 추가
-  ArtistDashboardData copyWith({
-    String? walletAddress,
-    int? subscriberCount,
-    int? totalStreamCount,
-    int? monthlyStreamCount,
-    int? monthlyStreamGrowth,
-    int? monthlyNewSubscribers,
-    int? monthlySubscriberGrowth,
-    double? monthlyRevenue,
-    int? monthlyRevenueGrowth,
-    List<ChartData>? subscribersChartData,
-    List<ChartData>? streamsChartData,
-    List<ChartData>? revenueChartData,
-    List<ChartData>? dailySubscribersData,
-    List<ChartData>? dailyStreamsData,
-    List<ChartData>? dailyRevenueData,
-    bool? isLoading,
-    bool? hasTracks,
-    String? errorMessage,
-  }) {
-    return ArtistDashboardData(
-      walletAddress: walletAddress ?? this.walletAddress,
-      subscriberCount: subscriberCount ?? this.subscriberCount,
-      totalStreamCount: totalStreamCount ?? this.totalStreamCount,
-      monthlyStreamCount: monthlyStreamCount ?? this.monthlyStreamCount,
-      monthlyStreamGrowth: monthlyStreamGrowth ?? this.monthlyStreamGrowth,
-      monthlyNewSubscribers: monthlyNewSubscribers ?? this.monthlyNewSubscribers,
-      monthlySubscriberGrowth: monthlySubscriberGrowth ?? this.monthlySubscriberGrowth,
-      monthlyRevenue: monthlyRevenue ?? this.monthlyRevenue,
-      monthlyRevenueGrowth: monthlyRevenueGrowth ?? this.monthlyRevenueGrowth,
-      subscribersChartData: subscribersChartData ?? this.subscribersChartData,
-      streamsChartData: streamsChartData ?? this.streamsChartData,
-      revenueChartData: revenueChartData ?? this.revenueChartData,
-      dailySubscribersData: dailySubscribersData ?? this.dailySubscribersData,
-      dailyStreamsData: dailyStreamsData ?? this.dailyStreamsData,
-      dailyRevenueData: dailyRevenueData ?? this.dailyRevenueData,
-      isLoading: isLoading ?? this.isLoading,
-      hasTracks: hasTracks ?? this.hasTracks,
-      errorMessage: errorMessage,
-    );
-  }
-}
-
 // 아티스트 대시보드 상태 관리 Notifier
 class ArtistDashboardViewmodel extends StateNotifier<ArtistDashboardData> {
   final GetArtistAlbumsUseCase getArtistAlbumsUseCase;
+  final GetDashboardDataUseCase getDashboardDataUseCase;
   final String? memberId; // 현재 로그인한 멤버 ID
   
   ArtistDashboardViewmodel({
     required this.getArtistAlbumsUseCase,
+    required this.getDashboardDataUseCase,
     required this.memberId,
   }) : super(_initialData());
   
-  // 초기 데이터 (실제로는 API 호출 등으로 가져올 것임)
+  // 초기 데이터
   static ArtistDashboardData _initialData() {
-    const daysInApril = 30;
     return ArtistDashboardData(
-      walletAddress: null,
+      walletAddress: "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
       subscriberCount: 623,
-      totalStreamCount: 103000,
-      monthlyStreamCount: 51812,
-      monthlyStreamGrowth: 100,
-      monthlyNewSubscribers: 100,
-      monthlySubscriberGrowth: 10,
-      monthlyRevenue: 0.5,
-      monthlyRevenueGrowth: 10,
-      subscribersChartData: _generateMonthlyData(12, 700, 100),
-      streamsChartData: _generateMonthlyData(12, 60000, 10000),
-      revenueChartData: _generateMonthlyData(12, 0.8, 0.1),
-      dailySubscribersData: _generateDailyData(daysInApril, 300, 20, daysInApril), 
-      dailyStreamsData: _generateDailyData(daysInApril, 2000, 200, daysInApril),
-      dailyRevenueData: _generateDailyData(daysInApril, 0.05, 0.01, daysInApril),
+      totalStreamingCount: 13072,
+      todayStreamingCount: 518,
+      streamingDiff: -10,
+      todayNewSubscriberCount: 10,
+      newSubscriberDiff: 5,
+      todaySettlement: 19.7,
+      settlementDiff: 0.8,
+      todayNewSubscribeCount: 15,
+      albums: [
+        Album(
+          albumTitle: "Midnight Blues",
+          coverImageUrl: "https://example.com/covers/midnight_blues.jpg",
+          trackCount: 10
+        ),
+        Album(
+          albumTitle: "Dawn Chorus",
+          coverImageUrl: "https://example.com/covers/dawn_chorus.jpg",
+          trackCount: 8
+        ),
+      ],
+      dailySubscriberCounts: _generateDailySubscriberData(),
+      dailySettlement: _generateDailySettlementData(),
     );
   }
   
-  // 월별 데이터 생성 (테스트용)
-  static List<ChartData> _generateMonthlyData(int months, double maxValue, double variance) {
-    final List<ChartData> result = [];
-    double lastValue = maxValue / 2;
+  // 일간 구독자 데이터 생성 (테스트용)
+  static List<DailySubscriberCount> _generateDailySubscriberData() {
+    final List<DailySubscriberCount> result = [];
+    int baseCount = 600;
     
-    for (int i = 1; i <= months; i++) {
-      // 난수 생성으로 자연스러운 변동 추가
-      final random = (Random().nextDouble() * 2 - 1) * variance;
-      lastValue = (lastValue + random).clamp(0, maxValue);
-      result.add(ChartData(i, lastValue));
+    for (int i = 1; i <= 8; i++) {
+      // 날짜 형식: YY.MM.DD
+      String date = "25.04.${i < 10 ? '0$i' : i}";
+      
+      // 약간의 증가세를 보이는 구독자 수
+      baseCount += Random().nextInt(10) + 3;
+      
+      result.add(DailySubscriberCount(
+        date: date,
+        subscriberCount: baseCount,
+      ));
     }
     
     return result;
   }
 
-  static List<ChartData> _generateDailyData(int days, double maxValue, double variance, int maxDay) {
-    final List<ChartData> result = [];
-    double lastValue = maxValue * 0.8; // 시작값을 최대값의 80%로 설정
+  // 일간 정산 데이터 생성 (테스트용)
+  static List<DailySettlement> _generateDailySettlementData() {
+    final List<DailySettlement> result = [];
+    double baseSettlement = 15.0;
     
-    for (int i = 1; i <= days; i++) {
-      // 특정 패턴 생성 (초기 높고 점차 감소하는 추세)
-      double trendFactor = 1.0 - (i / days) * 0.3; // 시간이 지남에 따라 감소하는 요소
+    for (int i = 1; i <= 8; i++) {
+      // 날짜 형식: YY.MM.DD
+      String date = "25.04.${i < 10 ? '0$i' : i}";
       
-      // 난수 생성으로 자연스러운 변동 추가 (일별 변동성)
-      double dayVariation = (Random().nextDouble() * 2 - 1) * variance;
+      // 변동성 있는 정산 금액
+      baseSettlement += (Random().nextDouble() * 2) - 0.5;
+      baseSettlement = baseSettlement.clamp(10.0, 30.0);
       
-      // 요일별 패턴 (주말에는 살짝 감소)
-      int dayOfWeek = (i % 7);
-      double weekdayFactor = (dayOfWeek == 0 || dayOfWeek == 6) ? 0.9 : 1.0;
-      
-      // 최종 값 계산 (이전 값 기반 + 추세 + 변동)
-      lastValue = (lastValue * 0.7 + maxValue * trendFactor * weekdayFactor * 0.3) + dayVariation;
-      lastValue = lastValue.clamp(maxValue * 0.1, maxValue); // 값의 범위 제한
-      
-      // 실제 날짜가 아닌 월의 일 (1~30/31)로 저장
-      result.add(ChartData(i <= maxDay ? i : maxDay, lastValue));
+      result.add(DailySettlement(
+        date: date,
+        settlement: double.parse(baseSettlement.toStringAsFixed(1)), // 소수점 한 자리로 반올림
+      ));
     }
     
     return result;
@@ -173,35 +102,48 @@ class ArtistDashboardViewmodel extends StateNotifier<ArtistDashboardData> {
     Navigator.pushNamed(context, AppRoutes.myAlbumStatList);
   }
   
-  // 데이터 새로고침 (API 호출 등으로 구현)
-  Future<void> refreshData() async {
-    // 로딩 상태로 변경
-    state = state.copyWith(isLoading: true, errorMessage: null);
-    
-    // 아티스트 앨범 확인
-    await checkArtistHasAlbums();
-    
-    // API 호출 로직 구현 예정
-    // 현재는 임의 데이터로 갱신
-    state = _initialData().copyWith(
-      isLoading: false,
-      hasTracks: state.hasTracks, // checkArtistHasAlbums에서 설정한 값 유지
-    );
+  // 데이터 로드 (UseCase 호출)
+  Future<void> loadDashboardData() async {
+    try {
+      // 로딩 상태로 변경 (로딩 상태를 표시하기 위한 상태 복사본 필요)
+      // 현재 ArtistDashboardData에는 isLoading 필드가 없으므로 UI에서 별도 처리 필요
+      
+      // 아티스트 앨범 확인
+      await checkArtistHasAlbums();
+      
+      // 대시보드 데이터 가져오기
+      final result = await getDashboardDataUseCase();
+      
+      // Either 결과 처리
+      result.fold(
+        // 실패 케이스 (Left)
+        (failure) {
+          // 오류 처리 (오류 메시지 표시 등)
+          // 현재 ArtistDashboardData에는 errorMessage 필드가 없으므로 UI에서 별도 처리 필요
+        },
+        // 성공 케이스 (Right)
+        (dashboardData) {
+          // 데이터 업데이트
+          state = dashboardData;
+          print("Dashboard data loaded successfully: $dashboardData");
+        },
+      );
+    } catch (e) {
+      // 예외 처리
+      // UI에서 에러 표시 필요
+    }
   }
-
+  
+  // 데이터 새로고침
+  Future<void> refreshData() async {
+    await loadDashboardData();
+  }
+  
   // 아티스트가 앨범을 가지고 있는지 확인하는 메서드
   Future<bool> checkArtistHasAlbums() async {
     try {
-      // 로딩 상태로 변경
-      state = state.copyWith(isLoading: true, errorMessage: null);
-      
       // UseCase 호출
       if (memberId == null) {
-        state = state.copyWith(
-          isLoading: false, 
-          hasTracks: false,
-          errorMessage: 'Member ID is null',
-        );
         return false;
       }
 
@@ -211,31 +153,14 @@ class ArtistDashboardViewmodel extends StateNotifier<ArtistDashboardData> {
       return result.fold(
         // 실패 케이스 (Left)
         (failure) {
-          state = state.copyWith(
-            isLoading: false, 
-            hasTracks: false,
-            errorMessage: failure.message,
-          );
           return false;
         },
         // 성공 케이스 (Right)
         (albums) {
-          final hasAlbums = albums.isNotEmpty;
-          state = state.copyWith(
-            isLoading: false, 
-            hasTracks: hasAlbums,
-            errorMessage: null,
-          );
-          return hasAlbums;
+          return albums.isNotEmpty;
         },
       );
     } catch (e) {
-      // 예외 처리
-      state = state.copyWith(
-        isLoading: false, 
-        hasTracks: false,
-        errorMessage: e.toString(),
-      );
       return false;
     }
   }
@@ -243,36 +168,35 @@ class ArtistDashboardViewmodel extends StateNotifier<ArtistDashboardData> {
   // 지갑 주소 설정 메서드
   Future<bool> setWalletAddress(String walletAddress) async {
     try {
-      // 지갑 주소 유효성 검사 (필요한 경우)
+      // 지갑 주소 유효성 검사
       if (walletAddress.isEmpty) {
-        state = state.copyWith(
-          errorMessage: '지갑 주소를 입력해주세요.'
-        );
         return false;
       }
       
-      // 지갑 주소 형식 검사 (예: 이더리움 주소 형식 0x로 시작하는지 등)
+      // 지갑 주소 형식 검사
       if (!_isValidWalletAddress(walletAddress)) {
-        state = state.copyWith(
-          errorMessage: '유효하지 않은 지갑 주소입니다.'
-        );
         return false;
       }
       
-      // TODO: 서버에 지갑 주소 저장 API 호출 (실제 구현 필요)
-      // 예: final result = await walletRepository.saveWalletAddress(memberId, walletAddress);
-      
-      // 임시로 성공한 것으로 처리 (실제로는 API 응답에 따라 처리)
-      state = state.copyWith(
+      // 지갑 주소 업데이트
+      state = ArtistDashboardData(
         walletAddress: walletAddress,
-        errorMessage: null,
+        subscriberCount: state.subscriberCount,
+        totalStreamingCount: state.totalStreamingCount,
+        todayStreamingCount: state.todayStreamingCount,
+        streamingDiff: state.streamingDiff,
+        todayNewSubscriberCount: state.todayNewSubscriberCount,
+        newSubscriberDiff: state.newSubscriberDiff,
+        todaySettlement: state.todaySettlement,
+        settlementDiff: state.settlementDiff,
+        todayNewSubscribeCount: state.todayNewSubscribeCount,
+        albums: state.albums,
+        dailySubscriberCounts: state.dailySubscriberCounts,
+        dailySettlement: state.dailySettlement,
       );
       
       return true;
     } catch (e) {
-      state = state.copyWith(
-        errorMessage: '지갑 주소 등록 중 오류가 발생했습니다: ${e.toString()}'
-      );
       return false;
     }
   }
@@ -284,14 +208,37 @@ class ArtistDashboardViewmodel extends StateNotifier<ArtistDashboardData> {
     return regex.hasMatch(address);
   }
   
+  // ArtistDashboardData를 서버 응답 데이터로부터 생성
+  ArtistDashboardData createFromResponse(Map<String, dynamic> responseData) {
+    try {
+      return ArtistDashboardData.fromJson(responseData);
+    } catch (e) {
+      // 파싱 오류 시 기본 데이터 반환
+      return _initialData();
+    }
+  }
 }
 
+// Riverpod Provider 정의
 final artistDashboardProvider = StateNotifierProvider<ArtistDashboardViewmodel, ArtistDashboardData>((ref) {
-  // memberId 초기화를 지연시키거나 조건부로 처리
+  // memberId 초기화
   final memberId = ref.read(userIdProvider);
   
   return ArtistDashboardViewmodel(
     getArtistAlbumsUseCase: ref.read(getArtistAlbumsUseCaseProvider),
-    memberId: memberId, // null 체크 필요할 수 있음
+    getDashboardDataUseCase: ref.read(getDashboardDataUseCaseProvider),
+    memberId: memberId,
   );
+});
+
+// GetDashboardDataUseCase Provider 정의
+final getDashboardDataUseCaseProvider = Provider<GetDashboardDataUseCase>((ref) {
+  final repository = ref.read(dashboardRepositoryProvider);
+  return GetDashboardDataUseCase(repository);
+});
+
+// DashboardRepository Provider 정의 (실제 구현 필요)
+final dashboardRepositoryProvider = Provider<DashboardRepository>((ref) {
+  // 실제 구현체 반환
+  return DashboardRepositoryImpl(dataSource: ref.read(dashboardDataSourceProvider));
 });

@@ -92,18 +92,18 @@ class TrackStatsListViewmodel extends StateNotifier<TrackListState> {
   }
 }
 
-final trackStatsDataSourceProvider = Provider<DashboardRemoteDataSource>((ref) {
+final dashboardDataSourceProvider = Provider<DashboardRemoteDataSource>((ref) {
   final apiClient = ref.watch(apiClientProvider);
   return DashboardRemoteDataSourceImpl(apiClient: apiClient);
 });
 
-final trackStatsRepositoryProvider = Provider<DashboardRepository>((ref) {
-  final dataSource = ref.watch(trackStatsDataSourceProvider);
+final dashboardRepositoryProvider = Provider<DashboardRepository>((ref) {
+  final dataSource = ref.watch(dashboardDataSourceProvider);
   return DashboardRepositoryImpl(dataSource: dataSource);
 });
 
 final dashboardUseCaseProvider = Provider<GetTrackStatsUseCase>((ref) {
-  final repository = ref.watch(trackStatsRepositoryProvider);
+  final repository = ref.watch(dashboardRepositoryProvider);
   return GetTrackStatsUseCase(repository);
 });
 

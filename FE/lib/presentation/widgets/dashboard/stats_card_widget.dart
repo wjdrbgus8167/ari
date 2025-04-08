@@ -140,7 +140,7 @@ class StatsCardWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const Text(
-                          '금월 스트리밍',
+                          '금일 스트리밍',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 12,
@@ -192,7 +192,7 @@ class StatsCardWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const Text(
-                          '금월 신규 구독자 수',
+                          '금일 신규 구독자',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 12,
@@ -244,7 +244,7 @@ class StatsCardWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const Text(
-                          '금월 정산액',
+                          '금일 정산액',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 12,
