@@ -63,7 +63,7 @@ List<ChartData> _convertSettlementDataToChartData(ArtistDashboardData data) {
   Widget build(BuildContext context) {
     // 대시보드 데이터 가져오기
     final dashboardData = ref.watch(artistDashboardProvider);
-    final hasWallet = dashboardData.walletAddress != null;
+    final hasWallet = false;
     
     // 앨범/트랙 보유 여부 확인 (실제로는 API 호출 등으로 확인)
     final hasTracks = true; // 트랙이 있는지 여부를 확인하는 getter가 있다고 가정
