@@ -35,6 +35,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // 장르별 페이지
 import 'package:ari/core/utils/genre_utils.dart';
 import 'package:ari/presentation/pages/genre/genre_page.dart';
+// 음악 서랍
+import 'package:ari/presentation/pages/music_drawer/music_drawer_screen.dart';
 
 class AppRoutes {
   static const String home = '/';
@@ -62,6 +64,7 @@ class AppRoutes {
   static const String settlement = '/settlement';
   static const String createFantalk = '/create-fantalk';
   static const String trackSelection = '/track-selection';
+  static const String musicDrawer = '/music-drawer';
 
   static final Set<String> _protectedRoutes = {
     myPage,
@@ -250,6 +253,12 @@ class AppRouter {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const SettlementScreen(),
+        );
+
+      case AppRoutes.musicDrawer:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const MusicDrawerScreen(),
         );
 
       default:
