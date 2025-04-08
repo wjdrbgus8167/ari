@@ -609,4 +609,14 @@ contract SubscriptionContract is Ownable, AutomationCompatibleInterface {
 
         return (subscriberIds, artistIds);
     }
+
+    // ERC-20 토큰을 인출하는 함수
+    function withdrawToken(address tokenAddress) public onlyOwner {
+        IERC20 token = IERC20(tokenAddress);
+        uint256 balance = token.balanceOf(address(this));
+        require(balance > 0, "No tokens to withdraw");
+
+        // 안전한 방식으로 오너에게 송금
+        token.safeTransfer(owner(), balance);
+    }
 }

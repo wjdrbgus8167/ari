@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -116,8 +117,8 @@ public class StreamingLogQueryService {
      * 특정 사용자의 특정 기간에 해당하는 스트리밍 로그를 조회합니다.
      *
      * @param listenerId 사용자 ID
-     * @param startTime 검색 시작 시간
-     * @param endTime 검색 종료 시간
+     * @param startTime  검색 시작 시간
+     * @param endTime    검색 종료 시간
      * @return 특정 사용자의 주어진 기간 내에 해당하는 스트리밍 로그 목록
      */
     public List<StreamingLog> findStreamingLogByUserIdAndPeriod(Integer listenerId,
@@ -125,8 +126,11 @@ public class StreamingLogQueryService {
         logger.info("findStreamingLogByUserIdAndPeriod 메서드 호출 - listenerId: {}, startTime: {}, endTime: {}",
                 listenerId, startTime, endTime);
 
+        Instant utcStartTime = startTime.atZone(java.time.ZoneId.of("Asia/Seoul")).toInstant();
+        Instant utcEndTime = endTime.atZone(java.time.ZoneId.of("Asia/Seoul")).toInstant();
+
         List<StreamingAggregationContract.RawListenerTracksUpdatedEventResponse> events =
-                streamingAggregationContractEventListener.getAllRawListenerTracksUpdatedEvents(startTime, endTime);
+                streamingAggregationContractEventListener.getRawListenerTracksUpdatedEventsByListenerId(listenerId);
         logger.info("블록체인으로부터 {}개의 이벤트가 조회되었습니다.", events.size());
         logger.info("IPFS에서 데이터를 조회하고 처리 중입니다.");
 
@@ -146,8 +150,12 @@ public class StreamingLogQueryService {
                 .map(CompletableFuture::join)
                 .flatMap(List::stream)
                 .peek(log -> logger.debug("streamingLog 확인: {}", log))
-                // listenerId 기준으로만 필터링
+                // listenerId 기준으로 필터링 및 타임스탬프 기간 비교
                 .filter(log -> log.getMemberId().equals(listenerId))
+                .filter(log -> {
+                    Instant logTimestamp = log.getTimestamp();
+                    return !logTimestamp.isBefore(utcStartTime) && !logTimestamp.isAfter(utcEndTime);
+                })
                 // 타임스탬프 기준 정렬
                 .sorted(Comparator.comparing(StreamingLog::getTimestamp))
                 .collect(Collectors.toList());
