@@ -91,7 +91,7 @@ contract SubscriptionContract is Ownable, AutomationCompatibleInterface {
     // 정산 관련 이벤트
     event SettlementRequestedRegular(uint256 indexed userId, uint256 periodStart, uint256 periodEnd, uint256 amount);
     event SettlementRequestedArtist(uint256 indexed subscriberId, uint256 artistId, uint256 periodStart, uint256 periodEnd, uint256 amount);
-    event SettlementExecutedRegular(uint256 indexed userId, uint256 indexed artistId, uint256 indexed cycleId, uint256 amount);
+    event SettlementExecutedRegular(uint256 indexed userId, uint256 indexed artistId, uint256 indexed cycleId, uint256 amount, uint256 streamingCount);
     event SettlementExecutedArtist(uint256 indexed userId, uint256 indexed artistId, uint256 indexed cycleId, uint256 amount);
 
     constructor(
@@ -401,7 +401,7 @@ contract SubscriptionContract is Ownable, AutomationCompatibleInterface {
             // 각 아티스트에게 지급할 금액 = distributable * (해당 아티스트 스트리밍 횟수) / (전체 스트리밍 횟수)
             uint256 payout = (distributable * streamingCounts[i]) / totalStreaming;
             IERC20(defaultTokenAddress).safeTransfer(artistAddr, payout);
-            _emitSettlementExecutedRegular(subscriberId, cycleId, artistIds[i], payout);
+            _emitSettlementExecutedRegular(subscriberId, cycleId, artistIds[i], payout, streamingCounts[i]);
         }
 
         // 플랫폼 몫을 소유자(플랫폼)에게 송금
@@ -517,9 +517,10 @@ contract SubscriptionContract is Ownable, AutomationCompatibleInterface {
         uint256 subscriberId,
         uint256 artistId,
         uint256 cycleId,
-        uint256 payout
+        uint256 payout,
+        uint256 streamingCount
     ) internal {
-        emit SettlementExecutedRegular(subscriberId, artistId, cycleId, payout);
+        emit SettlementExecutedRegular(subscriberId, artistId, cycleId, payout, streamingCount);
     }
 
     // 헬퍼 함수: SettlementExecutedArtist 이벤트를 emit (Stack too deep 완화)

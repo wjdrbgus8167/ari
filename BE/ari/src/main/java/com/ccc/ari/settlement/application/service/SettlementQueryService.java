@@ -1,8 +1,11 @@
 package com.ccc.ari.settlement.application.service;
 
 import com.ccc.ari.global.contract.SubscriptionContract;
+import com.ccc.ari.settlement.application.command.GetMyRegularSettlementDetailCommand;
 import com.ccc.ari.settlement.application.command.GetMySettlementsForDateCommand;
 import com.ccc.ari.settlement.application.response.GetSettlementResponse;
+import com.ccc.ari.settlement.application.response.RegularSettlementDetailResponse;
+import com.ccc.ari.settlement.application.response.StreamingSettlementResult;
 import com.ccc.ari.settlement.infrastructure.blockchain.adapter.SettlementExecutedEventListener;
 import com.ccc.ari.subscription.ui.client.SubscriptionClient;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +20,8 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -97,5 +102,40 @@ public class SettlementQueryService {
                 .regularSettlement(String.format("%.18f", regularSettlement))
                 .artistSettlement(String.format("%.18f", artistSettlement))
                 .build();
+    }
+
+    @Transactional
+    public RegularSettlementDetailResponse getMyRegularSettlementDetail(GetMyRegularSettlementDetailCommand command) {
+        logger.info("정기 구독 정산 상세 내역 조회 시작. 구독자 ID: {}, 사이클 ID: {}",
+                command.getSubscriberId(), command.getCycleId());
+
+        try {
+            // 1. 모든 정기 구독 정산 이벤트 조회
+            List<SubscriptionContract.SettlementExecutedRegularEventResponse> regularSettlements =
+                    settlementExecutedEventListener.getAllSettlementExecutedEventsByCycle(
+                            BigInteger.valueOf(command.getCycleId()));
+
+            logger.info("정기 정산 이벤트 수: {}", regularSettlements.size());
+
+            // 2. StreamingSettlementResult 리스트로 변환
+            List<StreamingSettlementResult> streamingResults = regularSettlements.stream()
+                    .map(event -> StreamingSettlementResult.builder()
+                            .artistId(event.artistId.intValue())
+                            .streaming(event.streamingCount.intValue())
+                            .amount(event.amount.doubleValue())
+                            .build())
+                    .collect(Collectors.toList());
+
+            // 3. 최종 응답 반환
+            return RegularSettlementDetailResponse.builder()
+                    .streamingSettlements(streamingResults)
+                    .build();
+
+        } catch (Exception e) {
+            logger.error("정산 상세 내역 조회 중 오류 발생", e);
+            return RegularSettlementDetailResponse.builder()
+                    .streamingSettlements(List.of())
+                    .build();
+        }
     }
 }
