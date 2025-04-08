@@ -145,20 +145,25 @@ class _WalletWidgetState extends ConsumerState<WalletWidget> {
                           width: 1.5,
                         ),
                       ),
-                      child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.language, color: Colors.white, size: 20),
+                            const Icon(Icons.language, color: Colors.white, size: 20),
                             const SizedBox(width: 10),
-                            Text(
-                              _walletService.appKitModal.selectedChain?.name ??
-                                  '네트워크 선택',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontFamily: 'Pretendard',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
+                            Flexible(
+                              child: Text(
+                                _walletService.appKitModal.selectedChain?.name ??
+                                    '네트워크 선택',
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: 'Pretendard',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                           ],
@@ -199,7 +204,8 @@ class _WalletWidgetState extends ConsumerState<WalletWidget> {
                           ),
                         ],
                       ),
-                      child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -211,15 +217,19 @@ class _WalletWidgetState extends ConsumerState<WalletWidget> {
                               size: 20,
                             ),
                             const SizedBox(width: 8),
-                            Text(
-                              _walletService.appKitModal.isConnected
-                                  ? '${_walletService.appKitModal.session!.getAddress(ReownAppKitModalNetworks.getNamespaceForChainId(_walletService.appKitModal.session!.chainId))?.substring(0, 6)}...'
-                                  : '지갑 연결',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontFamily: 'Pretendard',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
+                            Flexible(
+                              child: Text(
+                                _walletService.appKitModal.isConnected
+                                    ? '${_walletService.appKitModal.session!.getAddress(ReownAppKitModalNetworks.getNamespaceForChainId(_walletService.appKitModal.session!.chainId))?.substring(0, 6)}...'
+                                    : '지갑 연결',
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: 'Pretendard',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                           ],
@@ -231,25 +241,9 @@ class _WalletWidgetState extends ConsumerState<WalletWidget> {
               ),
             ],
           ),
-          // 로딩 인디케이터 (전송 중일 때)
-          if (isTransferring) ...[
-            const SizedBox(height: 16),
-            const Center(
-              child: Column(
-                children: [
-                  CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.purple),
-                  ),
-                  SizedBox(height: 8),
-                  Text('트랜잭션 처리 중...', style: TextStyle(color: Colors.white)),
-                ],
-              ),
-            ),
-          ],
-        ],
+        ]
       ),
     );
-
     // 상위 컴포넌트에서 Scaffold 사용 여부에 따라 반환
     if (widget.useScaffold) {
       return Scaffold(

@@ -110,7 +110,9 @@ class ArtistSubscriptionViewModel extends StateNotifier<ArtistSubscriptionState>
   // 아티스트 변경 처리
   void selectArtist(Artist artist) {
     if (state.selectedArtist?.artistId != artist.artistId) {
-      loadArtistDetail(artist.artistId);
+      if (artist.artistId != null) {
+        loadArtistDetail(artist.artistId!);  
+      }
     }
   }
 }
