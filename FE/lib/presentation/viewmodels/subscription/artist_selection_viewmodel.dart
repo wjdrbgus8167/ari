@@ -17,6 +17,7 @@ class ArtistInfo {
   final bool isSubscribed;
   final String? imageUrl;
   final bool isChecked;
+  final bool isArtist;
 
   ArtistInfo({
     required this.id,
@@ -26,6 +27,7 @@ class ArtistInfo {
     required this.isSubscribed,
     required this.isChecked,
     this.imageUrl,
+    this.isArtist = false,
   });
 
   // 포맷된 팔로워 수 문자열 반환
@@ -54,6 +56,7 @@ class ArtistInfo {
     bool? isSubscribed,
     bool? isChecked,
     String? imageUrl,
+    bool? isArtist,
   }) {
     return ArtistInfo(
       id: id ?? this.id,
@@ -63,6 +66,7 @@ class ArtistInfo {
       isSubscribed: isSubscribed ?? this.isSubscribed,
       isChecked: isChecked ?? this.isChecked,
       imageUrl: imageUrl ?? this.imageUrl,
+      isArtist: isArtist ?? this.isArtist,
     );
   }
 
@@ -76,6 +80,7 @@ class ArtistInfo {
       isSubscribed: neighbor.subscribeYn,
       isChecked: false, // 초기에는 모두 선택 안 됨
       imageUrl: neighbor.profileImageUrl,
+      isArtist: neighbor.isArtist ?? false, // 아티스트 여부
     );
   }
 }
@@ -205,9 +210,10 @@ class ArtistInfoNotifier extends StateNotifier<ArtistInfoState> {
         (followingResponse) {
           // FollowingResponse 객체에서 필요한 정보 추출
           final List<ArtistInfo> artistInfos = followingResponse.followings
+              .where((neighbor) => neighbor.isArtist == true)
               .map((neighbor) => ArtistInfo.fromNeighbor(neighbor))
               .toList();
-          
+          print(artistInfos.length);
           state = state.copyWith(
             artistInfos: artistInfos,
             followingCount: followingResponse.followingCount,

@@ -85,6 +85,7 @@ class ArtistSelectionListItem extends StatelessWidget {
 
   Widget _buildSubscriptionWidget() {
     // 1. 구독 중인 경우 - 텍스트 표시 (클릭 비활성화)
+    print("구독중임: ${artistInfo.name} ${artistInfo.isSubscribed}");
     if (artistInfo.isSubscribed) {
       return const Text(
         '구독 중',

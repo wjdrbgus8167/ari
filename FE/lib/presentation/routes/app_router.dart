@@ -7,6 +7,7 @@ import 'package:ari/presentation/pages/playlist_detail/playlist_detail_screen.da
 import 'package:ari/presentation/pages/sign_up/sign_up_screen.dart';
 import 'package:ari/presentation/pages/subscription/artist_selection_screen.dart';
 import 'package:ari/presentation/pages/subscription/my_subscription_screen.dart';
+import 'package:ari/presentation/pages/subscription/settlement_screen.dart';
 import 'package:ari/presentation/pages/subscription/subscription_history_screen.dart';
 import 'package:ari/presentation/pages/subscription/subscription_payment_screen.dart';
 import 'package:ari/presentation/pages/subscription/subscription_select_screen.dart';
@@ -53,6 +54,7 @@ class AppRoutes {
   static const String myAlbumStatList = '/artist-dashboard/my-album-stats';
   static const String genre = '/genre';
   static const String editProfile = '/edit-profile';
+  static const String settlement = '/settlement';
 
   static final Set<String> _protectedRoutes = {
     myPage,
@@ -202,6 +204,12 @@ class AppRouter {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const ProfileEditScreen(),
+        );
+
+      case AppRoutes.settlement:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const SettlementScreen(),
         );
 
       default:

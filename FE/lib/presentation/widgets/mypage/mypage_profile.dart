@@ -110,17 +110,20 @@ class MypageProfile extends StatelessWidget {
                     const SizedBox(height: 20),
                   
                     // Bio
-                    Text(
-                      bio ?? "",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                  
+                    ...(bio != null && bio!.isNotEmpty
+                        ? [
+                            Text(
+                              bio ?? "",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                          ]
+                        : [const SizedBox(height: 0)]),
                     // Followers and Following
                     Row(
                       children: [

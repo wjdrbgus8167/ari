@@ -6,6 +6,7 @@ class Neighbor {
   final int followerCount;
   final int subscriberCount;
   final bool subscribeYn;
+  final bool? isArtist; // 아티스트 여부
 
   Neighbor({
     required this.memberId,
@@ -14,6 +15,7 @@ class Neighbor {
     required this.followerCount,
     this.subscriberCount = 0,
     this.subscribeYn = false,
+    this.isArtist,
   });
 
   factory Neighbor.fromJson(Map<String, dynamic> json) {
@@ -23,7 +25,8 @@ class Neighbor {
       profileImageUrl: json['profileImageUrl'] ?? '',
       followerCount: json['followerCount'] ?? 0,
       subscriberCount: json['subscriberCount'] ?? 0,
-      subscribeYn: json['subscribeYn'] ?? false,
+      subscribeYn: json['subscribedYn'] ?? false,
+      isArtist: json['artistYn'] ?? false, // 아티스트 여부
     );
   }
 }
