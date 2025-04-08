@@ -2,16 +2,12 @@ package com.ccc.ari.global.composition.service.mypage;
 
 import com.ccc.ari.aggregation.ui.client.StreamingCountClient;
 import com.ccc.ari.aggregation.ui.response.GetArtistTrackCountListResponse;
-import com.ccc.ari.aggregation.ui.response.GetListenerAggregationResponse;
 import com.ccc.ari.aggregation.ui.response.TrackCountResult;
 import com.ccc.ari.chart.application.repository.ChartRepository;
-import com.ccc.ari.chart.domain.entity.Chart;
 import com.ccc.ari.chart.domain.entity.StreamingWindow;
-import com.ccc.ari.chart.domain.vo.ChartEntry;
 import com.ccc.ari.chart.domain.vo.HourlyStreamCount;
 import com.ccc.ari.chart.infrastructure.repository.RedisWindowRepository;
 import com.ccc.ari.global.composition.response.mypage.GetMyArtistDashBoardResponse;
-import com.ccc.ari.global.composition.response.mypage.GetMyTrackListResponse;
 import com.ccc.ari.global.error.ApiException;
 import com.ccc.ari.global.error.ErrorCode;
 import com.ccc.ari.music.domain.album.AlbumDto;
@@ -19,13 +15,11 @@ import com.ccc.ari.music.domain.album.AlbumEntity;
 import com.ccc.ari.music.domain.album.client.AlbumClient;
 import com.ccc.ari.music.domain.track.TrackDto;
 import com.ccc.ari.music.domain.track.client.TrackClient;
-import com.ccc.ari.subscription.domain.Subscription;
 import com.ccc.ari.subscription.domain.SubscriptionPlan;
 import com.ccc.ari.subscription.domain.client.SubscriptionClient;
 import com.ccc.ari.subscription.domain.client.SubscriptionPlanClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
@@ -46,7 +40,6 @@ public class GetMyArtistDashBoardService {
     private final AlbumClient albumClient;
     private final StreamingCountClient streamingCountClient;
     private final TrackClient trackClient;
-    private final ChartRepository chartRepository;
     private final RedisWindowRepository redisWindowRepository;
 
     public GetMyArtistDashBoardResponse getMyArtistDashBoard(Integer memberId) {
@@ -57,7 +50,6 @@ public class GetMyArtistDashBoardService {
         // 현재 아티스트의 구독 플랜 조회
         SubscriptionPlan subscriptionPlan = subscriptionPlanClient.getSubscriptionPlanByArtistId(memberId)
                 .orElseThrow(()-> new ApiException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
-
 
         log.info("구독Plan 아티스트ID:{}", subscriptionPlan.getArtistId());
 
@@ -200,6 +192,10 @@ public class GetMyArtistDashBoardService {
                     .build());
         }
 
+        // 오늘 스트리밍 횟수 계산
+        Integer todayStreamingCount = getTodayStreamingCountByArtist(memberId);
+        log.info("아티스트 오늘 스트리밍 수: {}", todayStreamingCount);
+
         return GetMyArtistDashBoardResponse.builder()
                 .subscriberCount(subscriberCount)
                 .totalStreamingCount(totalStreamingCount)
@@ -215,7 +211,7 @@ public class GetMyArtistDashBoardService {
                 .settlementDiff(null)
                 .dailySubscriberCounts(dailySubscriberCounts)
                 .monthlySubscriberCounts(monthlySubscriberCounts)
-                .todayStreamingCount(null)
+                .todayStreamingCount(todayStreamingCount)
                 .todayNewSubscribeCount(todayNewSubscribeCount)
                 .build();
     }
@@ -333,6 +329,111 @@ public class GetMyArtistDashBoardService {
 
         log.info("아티스트 ID {}, 전달({}) 총 스트리밍 횟수: {}",
                 memberId, previousMonth, totalCount);
+
+        return totalCount;
+    }
+
+    // 아티스트의 오늘 스트리밍 횟수를 계산하는 메서드
+    public Integer getTodayStreamingCountByArtist(Integer memberId) {
+        // 1. 아티스트의 앨범과 트랙을 가져옵니다.
+        List<AlbumDto> albumDtoList = albumClient.getAllAlbumsByMember(memberId);
+
+        if (albumDtoList.isEmpty()) {
+            log.warn("앨범이 없는 아티스트입니다. memberId: {}", memberId);
+            return 0;
+        }
+
+        List<Integer> trackIds = new ArrayList<>();
+        for (AlbumDto album : albumDtoList) {
+            List<TrackDto> tracks = trackClient.getTracksByAlbumId(album.getAlbumId());
+            if (tracks != null && !tracks.isEmpty()) {
+                trackIds.addAll(tracks.stream()
+                        .map(TrackDto::getTrackId)
+                        .toList());
+            }
+        }
+
+        Map<Integer, StreamingWindow> allTrackWindows = redisWindowRepository.getAllTracksWindows();
+
+        LocalDate today = LocalDate.now();
+        int todayYear = today.getYear();
+        int todayMonth = today.getMonthValue();
+        int todayDay = today.getDayOfMonth();
+
+        log.info("검색할 오늘: {}-{}-{}", todayYear, todayMonth, todayDay);
+
+        int totalCount = 0;
+
+        for (Integer trackId : trackIds) {
+            StreamingWindow window = allTrackWindows.get(trackId);
+            if (window == null) {
+                log.warn("트랙 ID {}에 대한 StreamingWindow가 없습니다.", trackId);
+                continue;
+            }
+
+            int trackCount = 0;
+
+            List<HourlyStreamCount> hourlyCounts = window.getHourlyCounts();
+
+            if (hourlyCounts != null) {
+                for (HourlyStreamCount count : hourlyCounts) {
+                    if (count != null && count.getTimestamp() != null) {
+                        // Object 타입 확인
+                        Object timestamp = count.getTimestamp();
+
+                        // 타임스탬프 타입에 따라 다르게 처리
+                        int year = 0;
+                        int month = 0;
+                        int day = 0;
+
+                        if (timestamp instanceof LocalDateTime) {
+                            LocalDateTime dateTime = (LocalDateTime) timestamp;
+                            year = dateTime.getYear();
+                            month = dateTime.getMonthValue();
+                            day = dateTime.getDayOfMonth();
+                        } else if (timestamp instanceof Instant) {
+                            Instant instant = (Instant) timestamp;
+                            LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+                            year = dateTime.getYear();
+                            month = dateTime.getMonthValue();
+                            day = dateTime.getDayOfMonth();
+                        } else if (timestamp instanceof Long) {
+                            // Epoch 밀리초로 가정
+                            Instant instant = Instant.ofEpochMilli((Long) timestamp);
+                            LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+                            year = dateTime.getYear();
+                            month = dateTime.getMonthValue();
+                            day = dateTime.getDayOfMonth();
+                        } else if (timestamp instanceof String) {
+                            // ISO 형식의 문자열로 가정
+                            try {
+                                LocalDateTime dateTime = LocalDateTime.parse((String) timestamp);
+                                year = dateTime.getYear();
+                                month = dateTime.getMonthValue();
+                                day = dateTime.getDayOfMonth();
+                            } catch (Exception e) {
+                                log.warn("타임스탬프 파싱 실패: {}", timestamp);
+                                continue;
+                            }
+                        } else {
+                            log.warn("지원하지 않는 타임스탬프 형식: {}", timestamp.getClass().getName());
+                            continue;
+                        }
+
+                        // 연도, 월, 일이 오늘과 일치하는지 확인
+                        if (year == todayYear && month == todayMonth && day == todayDay) {
+                            trackCount += count.getCount();
+                            log.debug("오늘 카운트 추가: {}", count.getCount());
+                        }
+                    }
+                }
+            }
+
+            log.info("트랙 ID: {}, 오늘 트랙 스트리밍 횟수: {}", trackId, trackCount);
+            totalCount += trackCount;
+        }
+
+        log.info("아티스트 ID {}, 오늘({}) 총 스트리밍 횟수: {}", memberId, today, totalCount);
 
         return totalCount;
     }
