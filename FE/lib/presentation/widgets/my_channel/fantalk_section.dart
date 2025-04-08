@@ -7,6 +7,9 @@ import '../../../providers/my_channel/fantalk_providers.dart';
 import '../../../data/models/my_channel/fantalk.dart';
 import '../../viewmodels/my_channel/my_channel_viewmodel.dart';
 import '../../../presentation/routes/app_router.dart';
+// 구독 관련
+import '../../../presentation/viewmodels/subscription/my_subscription_viewmodel.dart';
+import '../../../presentation/viewmodels/subscription/artist_selection_viewmodel.dart';
 
 /// 아티스트 채널의 팬톡 표시 (최신 1개만 표시)
 /// 팬톡 전체보기 버튼 포함
@@ -34,11 +37,6 @@ class FanTalkSection extends ConsumerWidget {
     final artistName = channelInfo?.memberName ?? '아티스트';
     final displayArtistName = artistName.isNotEmpty ? artistName : '아티스트';
 
-    // 아티스트가 아닌 경우 위젯 표시하지 않음
-    // if (!isArtist) {
-    //   return const SizedBox.shrink();
-    // }
-
     // 구독자가 없는 경우 팬톡 섹션 표시하지 않음
     if (subscriberCount <= 0) {
       return const SizedBox.shrink();
@@ -58,7 +56,7 @@ class FanTalkSection extends ConsumerWidget {
     return GestureDetector(
       onTap: () {
         // 구독자인 경우에만 전체 목록 페이지로 이동
-        if (isSubscribed) {
+        if (isSubscribed && fantalkChannelId != null) {
           Navigator.of(context).pushNamed(
             '/fantalk-list',
             arguments: {
@@ -140,8 +138,29 @@ class FanTalkSection extends ConsumerWidget {
             else if (!isSubscribed)
               GestureDetector(
                 onTap: () {
-                  // TODO: 구독 페이지로 라우팅
-                  print('구독 페이지로 이동');
+                  // 아티스트 구독 페이지로 이동
+                  // ArtistInfo 객체 생성
+                  final artistInfo = ArtistInfo(
+                    id: int.tryParse(memberId) ?? 0, // memberId를 int로 변환
+                    name: displayArtistName,
+                    followerCount: 0, // 기본값 설정
+                    subscriberCount: subscriberCount,
+                    isSubscribed: false, // 구독되지 않음
+                    imageUrl: channelInfo?.profileImageUrl, // 프로필 이미지
+                    isChecked: true, // 기본 선택됨
+                    isArtist: true, // 아티스트로 간주
+                  );
+
+                  // 구독 결제 페이지로 이동
+                  AppRouter.navigateTo(
+                    context,
+                    ref,
+                    AppRoutes.subscriptionPayment,
+                    {
+                      'subscriptionType': SubscriptionType.artist,
+                      'artistInfo': artistInfo,
+                    },
+                  );
                 },
                 child: _buildMessageBox(
                   '아티스트와 구독자를 위한 공간입니다. \n 참여하려면 아티스트를 구독하세요!',
