@@ -209,7 +209,6 @@ class AppRouter {
           builder: (_) => GenrePage(genre: genre),
         );
 
-<<<<<<< HEAD
       case AppRoutes.fantalkList:
         final memberId = args?['memberId'] as String;
         final fantalkChannelId = args?['fantalkChannelId'] as String;
@@ -221,8 +220,8 @@ class AppRouter {
                 memberId: memberId,
                 fantalkChannelId: fantalkChannelId,
                 isSubscribed: isSubscribed,
-              ),
-=======
+              )
+        );
       case AppRoutes.editProfile:
         return MaterialPageRoute(
           settings: settings,
@@ -233,7 +232,6 @@ class AppRouter {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const SettlementScreen(),
->>>>>>> ae527a79621c606c33e3b798e7db1e4c41aab21f
         );
 
       default:
