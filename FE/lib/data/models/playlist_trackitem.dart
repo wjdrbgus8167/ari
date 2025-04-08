@@ -11,6 +11,7 @@ class PlaylistTrackItem {
   final int trackNumber;
   final String trackTitle;
   final int albumId;
+  final int artistId;
 
   PlaylistTrackItem({
     required this.trackOrder,
@@ -25,14 +26,16 @@ class PlaylistTrackItem {
     required this.trackNumber,
     required this.trackTitle,
     required this.albumId,
+    this.artistId = 0,
   });
 
   factory PlaylistTrackItem.fromJson(Map<String, dynamic> json) {
     return PlaylistTrackItem(
       trackOrder: json['trackOrder'] as int? ?? 0,
       trackId: json['trackId'] as int? ?? 0,
-      artist: json['artist'] as String? ?? '',
-      coverImageUrl: json['coverImageUrl'] as String? ?? '',
+      artist: json['artist'] as String? ?? '', // ✅ 수정!
+      coverImageUrl: json['coverImageUrl'] as String? ?? '', // ✅ 수정!
+
       composer: json['composer'] as String? ?? '',
       lyricist: json['lyricist'] as String? ?? '',
       lyrics: json['lyrics'] as String? ?? '',

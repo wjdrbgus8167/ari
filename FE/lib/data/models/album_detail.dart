@@ -8,6 +8,7 @@ class AlbumDetailModel extends Album {
     required super.albumId,
     required super.albumTitle,
     required super.artist,
+    required super.artistId,
     required super.description,
     required super.albumLikeCount,
     required super.genre,
@@ -25,6 +26,7 @@ class AlbumDetailModel extends Album {
         albumId: json['albumId'],
         albumTitle: json['albumTitle'],
         artist: json['artist'],
+        artistId: json['artistId'] ?? 0,
         description: json['description'] ?? '',
         albumLikeCount: json['albumLikeCount'] ?? 0,
         genre: json['genreName'] ?? '',
@@ -50,16 +52,20 @@ class AlbumDetailModel extends Album {
                 : [],
       );
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 }
 
 class AlbumCommentModel extends AlbumComment {
+  @override
   final int memberId;
   final int commentId;
+  @override
   final String nickname;
+  @override
   final String content;
+  @override
   final String createdAt;
 
   AlbumCommentModel({
@@ -90,40 +96,23 @@ class AlbumCommentModel extends AlbumComment {
 
 class TrackModel extends Track {
   TrackModel({
-    required int trackId,
-    required int albumId,
-    required String albumTitle,
-    required String genreName,
-    required String trackTitle,
-    required String artistName,
-    required String lyric,
-    required int trackNumber,
-    required int commentCount,
-    required List<String> lyricist,
-    required List<String> composer,
-    required List<TrackComment> comments,
-    required String createdAt,
-    required String? trackFileUrl,
-    required String? coverUrl,
-    required int trackLikeCount,
-  }) : super(
-         trackId: trackId,
-         albumId: albumId,
-         albumTitle: albumTitle,
-         genreName: genreName,
-         trackTitle: trackTitle,
-         artistName: artistName,
-         lyric: lyric,
-         trackNumber: trackNumber,
-         commentCount: commentCount,
-         lyricist: lyricist,
-         composer: composer,
-         comments: comments,
-         createdAt: createdAt,
-         trackFileUrl: trackFileUrl,
-         coverUrl: coverUrl,
-         trackLikeCount: trackLikeCount,
-       );
+    required super.trackId,
+    required super.albumId,
+    required super.albumTitle,
+    required super.genreName,
+    required super.trackTitle,
+    required super.artistName,
+    required super.lyric,
+    required super.trackNumber,
+    required super.commentCount,
+    required super.lyricist,
+    required super.composer,
+    required super.comments,
+    required super.createdAt,
+    required super.trackFileUrl,
+    required super.coverUrl,
+    required super.trackLikeCount,
+  });
 
   factory TrackModel.fromJson(Map<String, dynamic> json, int albumId) {
     return TrackModel(

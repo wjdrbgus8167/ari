@@ -7,11 +7,11 @@ class AudioWaveIndicator extends StatefulWidget {
   final double height;
 
   const AudioWaveIndicator({
-    Key? key,
+    super.key,
     required this.isPlaying,
     this.waveColor = Colors.blue,
     this.height = 20.0,
-  }) : super(key: key);
+  });
 
   @override
   _AudioWaveIndicatorState createState() => _AudioWaveIndicatorState();

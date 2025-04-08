@@ -6,6 +6,7 @@ class TrackDetailModel {
   final String albumTitle;
   final String trackTitle;
   final String artist;
+  final int artistId;
   final String composer;
   final String lyricist;
   final int trackLikeCount;
@@ -21,6 +22,7 @@ class TrackDetailModel {
     required this.albumTitle,
     required this.trackTitle,
     required this.artist,
+    required this.artistId,
     required this.composer,
     required this.lyricist,
     required this.trackLikeCount,
@@ -57,6 +59,7 @@ class TrackDetailModel {
       lyric: json['lyric'] ?? '',
       trackFileUrl: json['trackFileUrl'] ?? '',
       trackComments: commentsList,
+      artistId: json['artistId'] ?? 0,
     );
   }
 
@@ -107,6 +110,7 @@ class TrackDetailModel {
       coverUrl: null,
       trackFileUrl: trackFileUrl,
       trackLikeCount: trackLikeCount,
+      artistId: artistId,
     );
   }
 }

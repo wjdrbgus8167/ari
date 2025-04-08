@@ -1,6 +1,3 @@
-import 'package:ari/data/models/api_response.dart';
-import 'package:dio/dio.dart';
-
 class Failure {
   final String message;
   final String? code;

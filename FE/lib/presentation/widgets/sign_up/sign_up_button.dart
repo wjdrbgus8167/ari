@@ -4,14 +4,14 @@ class SignUpButton extends StatelessWidget {
   final String text;
   final VoidCallback onTap;
   final bool isLoading;
-  
+
   const SignUpButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.onTap,
     this.isLoading = false,
-  }) : super(key: key);
-  
+  });
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -25,27 +25,28 @@ class SignUpButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(30),
           ),
         ),
-        child: isLoading
-            ? const Center(
-                child: SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+        child:
+            isLoading
+                ? const Center(
+                  child: SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                    ),
+                  ),
+                )
+                : Text(
+                  text,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 15.93,
+                    fontFamily: 'Pretendard',
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              )
-            : Text(
-                text,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 15.93,
-                  fontFamily: 'Pretendard',
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
       ),
     );
   }

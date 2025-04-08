@@ -1,11 +1,13 @@
 import 'package:ari/core/services/audio_service.dart';
+import 'package:ari/presentation/widgets/common/bottom_nav.dart';
 import 'package:ari/presentation/widgets/common/custom_toast.dart';
+import 'package:ari/presentation/widgets/common/listeningqueue_container.dart';
+import 'package:ari/presentation/widgets/common/playback_bar.dart';
 import 'package:ari/providers/global_providers.dart';
 import 'package:ari/presentation/widgets/common/listening_queue_appbar.dart';
 import 'package:ari/presentation/widgets/common/track_count_bar.dart';
 import 'package:ari/presentation/widgets/listening_queue/track_list_tile.dart';
 import 'package:ari/presentation/widgets/listening_queue/bottom_sheet_options.dart';
-import 'package:ari/presentation/widgets/common/global_bottom_widget.dart';
 import 'package:ari/presentation/widgets/common/search_bar.dart';
 import 'package:ari/presentation/widgets/listening_queue/playlist_selection_bottom_sheet.dart';
 import 'package:ari/presentation/widgets/listening_queue/create_playlist_modal.dart';
@@ -14,7 +16,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ListeningQueueScreen extends ConsumerStatefulWidget {
-  const ListeningQueueScreen({Key? key}) : super(key: key);
+  final ValueChanged<ListeningSubTab>? onTabChanged;
+
+  const ListeningQueueScreen({super.key, this.onTabChanged});
 
   @override
   ConsumerState<ListeningQueueScreen> createState() =>
@@ -27,20 +31,13 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // listeningQueueProvider의 상태
     final state = ref.watch(listeningQueueProvider);
     final viewModel = ref.read(listeningQueueProvider.notifier);
-    // playbackProvider의 상태를 받아 현재 재생 중인 트랙 정보 확인
     final playbackState = ref.watch(playbackProvider);
 
-    // 디버깅: 현재 전역 재생 상태 출력
-    print(
-      '[DEBUG] Global PlaybackState: isPlaying=${playbackState.isPlaying}, '
-      'currentQueueItemId=${playbackState.currentQueueItemId}',
-    );
-
-    return Container(
-        color: Colors.black,
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: SafeArea(
         child: Column(
           children: [
             ListeningQueueAppBar(
@@ -52,8 +49,8 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
               },
               selectedTab: ListeningTab.listeningQueue,
               onTabChanged: (tab) {
-                if (tab != ListeningTab.listeningQueue) {
-                  Navigator.pushReplacementNamed(context, '/playlist');
+                if (tab == ListeningTab.playlist) {
+                  widget.onTabChanged?.call(ListeningSubTab.playlist);
                 }
               },
             ),
@@ -71,7 +68,6 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                   state.selectedTracks.map((item) => item.track).toSet(),
               onToggleSelectAll: viewModel.toggleSelectAll,
               onAddToPlaylist: () {
-                // "플레이리스트에 추가" 버튼 클릭 시 PlaylistSelectionBottomSheet 표시
                 showModalBottomSheet(
                   context: context,
                   backgroundColor: Colors.transparent,
@@ -79,14 +75,13 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                       (context) => PlaylistSelectionBottomSheet(
                         playlists: state.playlists,
                         onPlaylistSelected: (selectedPlaylist) {
-                          // 선택한 플레이리스트에 선택된 트랙들을 추가하는 로직 실행
                           viewModel.addSelectedTracksToPlaylist(
                             selectedPlaylist,
                             state.selectedTracks.toList(),
                           );
                         },
                         onCreatePlaylist: () {
-                          Navigator.pop(context); // 기존 BottomSheet 닫기
+                          Navigator.pop(context);
                           showModalBottomSheet(
                             context: context,
                             isScrollControlled: true,
@@ -98,9 +93,6 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                             builder: (context) {
                               return CreatePlaylistModal(
                                 onCreate: (title, publicYn) {
-                                  debugPrint(
-                                    "플레이리스트 생성: $title / 공개여부: $publicYn",
-                                  );
                                   viewModel.createPlaylistAndAddTracks(
                                     title,
                                     publicYn,
@@ -129,24 +121,9 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                         itemCount: state.filteredPlaylist.length,
                         itemBuilder: (context, index) {
                           final item = state.filteredPlaylist[index];
-                          final isSelected = state.selectedTracks.contains(
-                            item,
-                          );
-                          // 디버깅: 각 항목의 uniqueId와 전역 PlaybackState의 currentQueueItemId 출력
-                          print(
-                            '[DEBUG] ListTile[$index]: item.uniqueId = ${item.uniqueId}',
-                          );
-                          print(
-                            '[DEBUG] Global PlaybackState: currentQueueItemId = ${playbackState.currentQueueItemId}, isPlaying = ${playbackState.isPlaying}',
-                          );
-
-                          // 재생 표시: 전역 PlaybackState의 currentQueueItemId와 비교
                           final isPlayingIndicator =
                               playbackState.isPlaying &&
                               playbackState.currentQueueItemId == item.uniqueId;
-                          print(
-                            '[DEBUG] ListTile[$index]: isPlayingIndicator = $isPlayingIndicator',
-                          );
 
                           return Dismissible(
                             key: ValueKey(item.uniqueId),
@@ -166,40 +143,25 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
                               viewModel.removeTrack(item);
                               context.showToast("${item.track.trackTitle} 삭제됨");
                             },
-                            child: GestureDetector(
-                              onLongPress: () {
-                                showModalBottomSheet(
-                                  context: context,
-                                  backgroundColor: Colors.transparent,
-                                  builder:
-                                      (context) =>
-                                          BottomSheetOptions(track: item.track),
-                                );
+                            child: TrackListTile(
+                              key: ValueKey(item.uniqueId),
+                              track: item.track,
+                              isSelected: state.selectedTracks.contains(item),
+                              isPlayingIndicator: isPlayingIndicator,
+                              onTap: () {
+                                ref
+                                    .read(audioServiceProvider)
+                                    .playFromQueueSubset(
+                                      context,
+                                      ref,
+                                      state.filteredPlaylist
+                                          .map((e) => e.track)
+                                          .toList(),
+                                      item.track,
+                                    );
                               },
-                              child: TrackListTile(
-                                key: ValueKey(item.uniqueId),
-                                track: item.track,
-                                isSelected: isSelected,
-                                isPlayingIndicator: isPlayingIndicator,
-                                onTap: () {
-                                  // 디버깅: onTap에서 고유 식별자 출력
-                                  print(
-                                    '[DEBUG] onTap: uniqueId = ${item.uniqueId}',
-                                  );
-                                  ref
-                                      .read(audioServiceProvider)
-                                      .playFromQueueSubset(
-                                        context,
-                                        ref,
-                                        state.filteredPlaylist
-                                            .map((e) => e.track)
-                                            .toList(), // 전체 재생목록
-                                        item.track, // 클릭한 트랙
-                                      );
-                                },
-                                onToggleSelection:
-                                    () => viewModel.toggleTrackSelection(item),
-                              ),
+                              onToggleSelection:
+                                  () => viewModel.toggleTrackSelection(item),
                             ),
                           );
                         },
@@ -207,6 +169,27 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const PlaybackBar(),
+          CommonBottomNav(
+            currentIndex: 2,
+            onTap: (index) {
+              if (index == 0) {
+                Navigator.pushReplacementNamed(context, '/');
+              } else if (index == 1) {
+                Navigator.pushReplacementNamed(context, '/search');
+              } else if (index == 2) {
+                // 현재 탭
+              } else if (index == 3) {
+                Navigator.pushReplacementNamed(context, '/mychannel');
+              }
+            },
+          ),
+        ],
+      ),
     );
   }
 }

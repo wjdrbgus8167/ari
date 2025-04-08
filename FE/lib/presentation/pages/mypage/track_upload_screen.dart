@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:ari/core/constants/app_colors.dart';
-import 'package:ari/presentation/viewmodels/mypage/album_upload_viewmodel.dart';
 import 'package:ari/presentation/widgets/common/header_widget.dart';
 import 'package:ari/presentation/widgets/common/custom_toast.dart';
 import 'package:ari/providers/album/album_upload_providers.dart';

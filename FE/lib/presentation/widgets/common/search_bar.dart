@@ -8,12 +8,12 @@ class SearchBarWidget extends StatelessWidget {
   final Function(String)? onSubmitted;
 
   const SearchBarWidget({
-    Key? key,
+    super.key,
     required this.controller,
     this.hintText = "검색어를 입력하세요",
     this.onChanged,
     this.onSubmitted,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

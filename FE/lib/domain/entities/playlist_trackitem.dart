@@ -6,6 +6,7 @@ class PlaylistTrackItem {
   final int trackId;
   final String composer;
   final String artist;
+  final int artistId;
   final String coverImageUrl;
   final String lyricist;
   final String lyrics;
@@ -19,6 +20,7 @@ class PlaylistTrackItem {
     required this.trackOrder,
     required this.trackId,
     required this.artist,
+    required this.artistId,
     required this.coverImageUrl,
     required this.composer,
     required this.lyricist,
@@ -35,8 +37,12 @@ class PlaylistTrackItem {
       trackOrder: json['trackOrder'] as int,
       trackId: json['trackId'] as int,
       composer: json['composer'] as String,
-      artist: json['artist'] as String,
-      coverImageUrl: json['coverImageUrl'] as String,
+      artist: json['artistName'] as String? ?? '',
+      artistId:
+          json['artistId'] is int
+              ? json['artistId']
+              : int.tryParse(json['artistId']?.toString() ?? '') ?? 0,
+      coverImageUrl: json['trackCoverImageUrl'] as String? ?? '',
       lyricist: json['lyricist'] as String,
       lyrics: json['lyrics'] as String,
       trackFileUrl: json['trackFileUrl'] as String,
@@ -67,6 +73,7 @@ class PlaylistTrackItem {
   // data.Track으로 변환하는 메서드 추가
   data.Track toDataTrack() {
     return data.Track(
+      artistId: artistId,
       id: trackId,
       trackTitle: trackTitle,
       artist: artist,

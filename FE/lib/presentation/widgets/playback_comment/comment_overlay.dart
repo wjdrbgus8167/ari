@@ -24,7 +24,7 @@ class CommentOverlay extends ConsumerStatefulWidget {
   final int albumId;
 
   const CommentOverlay({
-    Key? key,
+    super.key,
     required this.timestamp,
     required this.onClose,
     required this.trackTitle,
@@ -32,7 +32,7 @@ class CommentOverlay extends ConsumerStatefulWidget {
     required this.coverImageUrl,
     required this.trackId,
     required this.albumId,
-  }) : super(key: key);
+  });
 
   @override
   _CommentOverlayState createState() => _CommentOverlayState();
@@ -291,8 +291,7 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
 
 class _CommentOverlayHeader extends StatelessWidget {
   final VoidCallback onClose;
-  const _CommentOverlayHeader({Key? key, required this.onClose})
-    : super(key: key);
+  const _CommentOverlayHeader({super.key, required this.onClose});
 
   @override
   Widget build(BuildContext context) {
@@ -324,11 +323,11 @@ class _TrackInfoWidget extends StatelessWidget {
   final String artist;
   final String coverImageUrl;
   const _TrackInfoWidget({
-    Key? key,
+    super.key,
     required this.trackTitle,
     required this.artist,
     required this.coverImageUrl,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

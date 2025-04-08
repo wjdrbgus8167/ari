@@ -5,7 +5,6 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../../core/constants/app_colors.dart';
 import '../../../providers/my_channel/my_channel_providers.dart';
-import '../../viewmodels/my_channel/my_channel_viewmodel.dart';
 import '../../widgets/common/custom_toast.dart';
 
 /// 아티스트 공지사항 작성 화면

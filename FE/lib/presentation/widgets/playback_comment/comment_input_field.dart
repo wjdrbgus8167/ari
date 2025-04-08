@@ -10,13 +10,13 @@ class CommentInputField extends StatefulWidget {
   final VoidCallback onCommentSent;
 
   const CommentInputField({
-    Key? key,
+    super.key,
     required this.timestamp,
     required this.trackId,
     required this.albumId,
     required this.commentDatasource,
     required this.onCommentSent,
-  }) : super(key: key);
+  });
 
   @override
   _CommentInputFieldState createState() => _CommentInputFieldState();

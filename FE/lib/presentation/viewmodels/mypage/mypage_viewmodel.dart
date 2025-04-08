@@ -99,7 +99,7 @@ class MyPageViewModel extends StateNotifier<MyPageState> {
   // 프로필 편집 페이지로 이동
   void navigateToEditProfile(BuildContext context) {
     debugPrint('프로필 수정 버튼 클릭');
-    // 예: Navigator.pushNamed(context, AppRoutes.editProfile);
+    Navigator.pushNamed(context, AppRoutes.editProfile);
   }
   
   // 로그아웃 처리

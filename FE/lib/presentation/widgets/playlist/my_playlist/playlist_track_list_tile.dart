@@ -11,14 +11,14 @@ class PlaylistTrackListTile extends ConsumerWidget {
   final VoidCallback onDelete;
 
   const PlaylistTrackListTile({
-    Key? key,
+    super.key,
     required this.item,
     required this.isSelected,
     required this.selectionMode,
     required this.onTap,
     required this.onToggleSelection,
     required this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

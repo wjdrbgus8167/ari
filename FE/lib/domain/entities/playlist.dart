@@ -43,6 +43,7 @@ class Playlist {
   data.Playlist toDataModel() {
     return data.Playlist(
       id: id,
+      artist: '',
       coverImageUrl: coverImageUrl,
       trackCount: trackCount,
       shareCount: shareCount,

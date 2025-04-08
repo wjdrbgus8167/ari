@@ -1,38 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:intl/intl.dart';
 import 'dart:math' as math;
 
-enum ChartType {
-  subscribers,
-  streams,
-  revenue,
-}
+import 'package:intl/intl.dart';
+
+enum ChartType { subscribers, streams, revenue }
 
 enum ChartPeriod {
   daily,
   monthly,
-  yearly,
 }
 
 class ChartData {
-  final int day; // 일간 데이터의 경우 1-31, 월간 데이터의 경우 1-12
-  final double value;
+  final int x; // x축 값 (일간 데이터의 경우 1-31, 월간 데이터의 경우 1-12)
+  final double y; // y축 값
 
-  ChartData(this.day, this.value);
+  ChartData(this.x, this.y);
 }
 
 class ChartWidget extends StatefulWidget {
   final ChartType chartType;
   final List<ChartData> data;
-  final List<ChartData>? monthlyData; // 월간 데이터 추가
   final String? title;
 
   const ChartWidget({
     super.key,
     required this.chartType,
     required this.data,
-    this.monthlyData,
     this.title,
   });
 
@@ -43,65 +37,16 @@ class ChartWidget extends StatefulWidget {
 class _ChartWidgetState extends State<ChartWidget> {
   ChartPeriod _currentPeriod = ChartPeriod.daily;
   int _selectedYear = 2025;
-  int _selectedMonth = 4;
+  int _selectedMonth = 4; // 기본값은 4월 (0-베이스가 아닌 1-베이스)
 
   @override
   Widget build(BuildContext context) {
-    // 현재 기간에 따른 적절한 데이터 선택
-    List<ChartData> currentData;
+    // 데이터 준비
+    List<ChartData> currentData = widget.data;
     
-    if (_currentPeriod == ChartPeriod.monthly) {
-      // 월간 모드: 1~12월 데이터
-      if (widget.monthlyData != null) {
-        // 이미 준비된 월간 데이터가 있다면 사용
-        currentData = widget.monthlyData!;
-      } else {
-        // 기존 일간 데이터로부터 월간 데이터 생성 (같은 월의 데이터는 합산)
-        // 예: 1월의 모든 일간 데이터를 더해서 1월 데이터 생성
-        Map<int, double> monthlyValues = {};
-        
-        for (var item in widget.data) {
-          // 일간 데이터에서 월 정보 추출 (1~31일 데이터에서의 '월' 정보는 항상 1로 가정)
-          int month = 1;
-          
-          // 각 월별로 데이터 합산
-          if (monthlyValues.containsKey(month)) {
-            monthlyValues[month] = monthlyValues[month]! + item.value;
-          } else {
-            monthlyValues[month] = item.value;
-          }
-        }
-        
-        // 월간 데이터로 변환
-        currentData = monthlyValues.entries
-            .map((entry) => ChartData(entry.key, entry.value))
-            .toList();
-        
-        // 월 번호순으로 정렬
-        currentData.sort((a, b) => a.day.compareTo(b.day));
-        
-        // 1~12월 데이터가 모두 있는지 확인하고 없는 월은 0으로 채우기
-        List<ChartData> completeMonthlyData = [];
-        for (int month = 1; month <= 12; month++) {
-          final monthData = currentData.firstWhere(
-            (item) => item.day == month, 
-            orElse: () => ChartData(month, 0)
-          );
-          completeMonthlyData.add(monthData);
-        }
-        
-        currentData = completeMonthlyData;
-      }
-    } else if (_currentPeriod == ChartPeriod.yearly) {
-      // 연간 모드 로직 (필요시 구현)
-      // 일단은 모든 일간 데이터를 표시
-      currentData = widget.data;
-    } else {
-      // 일간 모드: 선택된 년/월에 해당하는 일간 데이터만 필터링
-      final lastDayOfMonth = DateTime(_selectedYear, _selectedMonth + 1, 0).day;
-      currentData = widget.data.where((item) => item.day <= lastDayOfMonth).toList();
-    }
-
+    // 날짜 포맷터
+    final monthFormat = DateFormat('M월');
+    
     // Y축 최대값에 따라 좌측 여백 계산
     final maxY = _getMaxY(currentData);
     final yAxisWidth = _calculateYAxisWidth(maxY);
@@ -119,7 +64,7 @@ class _ChartWidgetState extends State<ChartWidget> {
             blurRadius: 4,
             offset: Offset(0, 2),
             spreadRadius: 0,
-          )
+          ),
         ],
       ),
       child: Column(
@@ -144,68 +89,59 @@ class _ChartWidgetState extends State<ChartWidget> {
                   }
                 },
                 items: const [
-                  DropdownMenuItem(
-                    value: ChartPeriod.daily,
-                    child: Text('일간'),
-                  ),
+                  DropdownMenuItem(value: ChartPeriod.daily, child: Text('일간')),
                   DropdownMenuItem(
                     value: ChartPeriod.monthly,
                     child: Text('월간'),
                   ),
-                  DropdownMenuItem(
-                    value: ChartPeriod.yearly,
-                    child: Text('연간'),
-                  ),
                 ],
               ),
               
-              // 오른쪽: 년도 및 월 선택 드롭다운
+              // 오른쪽: 년도 및 월 선택 컨트롤
               Row(
                 children: [
-                  // 년도 선택 드롭다운
-                  DropdownButton<int>(
-                    value: _selectedYear,
-                    dropdownColor: const Color(0xFF373737),
-                    style: const TextStyle(color: Colors.white),
-                    icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                    underline: Container(),
-                    onChanged: (newValue) {
-                      if (newValue != null) {
-                        setState(() {
-                          _selectedYear = newValue;
-                        });
-                      }
-                    },
-                    items: List<DropdownMenuItem<int>>.generate(
-                      5,
-                      (index) => DropdownMenuItem(
-                        value: 2025 - index,
-                        child: Text('${2025 - index}년'),
-                      ),
-                    ),
+                  // 년도 선택
+                  Text(
+                    '$_selectedYear년',
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
                   ),
-                  const SizedBox(width: 12),
-                  // 월 선택 드롭다운 (일간 모드일 때만 표시)
+                  const SizedBox(width: 8),
+                  
+                  // 월 선택 네비게이션 (일간 모드일 때만 표시)
                   if (_currentPeriod == ChartPeriod.daily)
-                    DropdownButton<int>(
-                      value: _selectedMonth,
-                      dropdownColor: const Color(0xFF373737),
-                      style: const TextStyle(color: Colors.white),
-                      icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                      underline: Container(),
-                      onChanged: (newValue) {
-                        if (newValue != null) {
-                          setState(() {
-                            _selectedMonth = newValue;
-                          });
-                        }
-                      },
-                      items: List<DropdownMenuItem<int>>.generate(
-                        12,
-                        (index) => DropdownMenuItem(
-                          value: index + 1,
-                          child: Text('${index + 1}월'),
-                        ),
+                    Container(
+                      decoration: BoxDecoration(
+                      ),
+                      child: Row(
+                        children: [
+                          // 이전 월 버튼
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back_ios, size: 12, color: Colors.white),
+                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                            constraints: const BoxConstraints(),
+                            onPressed: _selectedMonth > 1 
+                              ? () => setState(() => _selectedMonth--) 
+                              : null,
+                          ),
+                          // 현재 선택된 월
+                          Text(
+                            '$_selectedMonth월',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          // 다음 월 버튼
+                          IconButton(
+                            icon: const Icon(Icons.arrow_forward_ios, size: 12, color: Colors.white),
+                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                            constraints: const BoxConstraints(),
+                            onPressed: _selectedMonth < 12 
+                              ? () => setState(() => _selectedMonth++) 
+                              : null,
+                          ),
+                        ],
                       ),
                     ),
                 ],
@@ -223,7 +159,7 @@ class _ChartWidgetState extends State<ChartWidget> {
                   final chartWidth = constraints.maxWidth;
                   // y축 너비를 제외한 실제 바 차트 영역의 너비
                   final barChartWidth = chartWidth - yAxisWidth;
-                  
+
                   return Row(
                     children: [
                       // Y축 영역
@@ -241,13 +177,30 @@ class _ChartWidgetState extends State<ChartWidget> {
                               touchTooltipData: BarTouchTooltipData(
                                 tooltipPadding: const EdgeInsets.all(8),
                                 tooltipMargin: 8,
-                                getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                                getTooltipItem: (
+                                  group,
+                                  groupIndex,
+                                  rod,
+                                  rodIndex,
+                                ) {
                                   final dataIndex = group.x.toInt();
                                   if (dataIndex >= 0 && dataIndex < currentData.length) {
-                                    final value = currentData[dataIndex].value;
+                                    final value = currentData[dataIndex].y;
+                                    final dayOrMonth = currentData[dataIndex].x;
+                                    
+                                    // 차트 유형에 따라 접미사 조정
+                                    String suffix = '';
+                                    if (widget.chartType == ChartType.revenue) {
+                                      suffix = ' USD';
+                                    } else if (widget.chartType == ChartType.subscribers) {
+                                      suffix = '명';
+                                    } else if (widget.chartType == ChartType.streams) {
+                                      suffix = '회';
+                                    }
+                                    
                                     final label = _currentPeriod == ChartPeriod.monthly 
-                                        ? '${currentData[dataIndex].day}월: ${value.toStringAsFixed(0)}'
-                                        : '${currentData[dataIndex].day}일: ${value.toStringAsFixed(0)}';
+                                        ? '$dayOrMonth월: ${value.toStringAsFixed(0)}$suffix'
+                                        : '$dayOrMonth일: ${value.toStringAsFixed(0)}$suffix';
                                     return BarTooltipItem(
                                       label,
                                       const TextStyle(
@@ -268,17 +221,19 @@ class _ChartWidgetState extends State<ChartWidget> {
                                   getTitlesWidget: (value, meta) {
                                     final index = value.toInt();
                                     if (index >= 0 && index < currentData.length) {
-                                      final unit = currentData[index].day;
+                                      final unit = currentData[index].x;
                                       // 월간/일간 모드에 따라 라벨 조정
                                       if (_currentPeriod == ChartPeriod.monthly) {
-                                        // 월간 모드는 모든 월 표시 (1~12월)
-                                        return Text(
-                                          '$unit',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 10,
-                                          ),
-                                        );
+                                        // 월간 모드는 격월 표시 (1월, 3월, 5월 등)
+                                        if (unit % 2 == 1) {
+                                          return Text(
+                                            '$unit',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                            ),
+                                          );
+                                        }
                                       } else {
                                         // 일간 모드는 5일 간격 + 첫날
                                         if (unit % 5 == 0 || unit == 1) {
@@ -302,9 +257,13 @@ class _ChartWidgetState extends State<ChartWidget> {
                                   showTitles: true,
                                   getTitlesWidget: (value, meta) {
                                     // Y축에 3개의 선만 표시 (0, 중간값, 최대값)
-                                    if (value == 0 || value == maxY / 2 || value == maxY) {
+                                    if (value == 0 ||
+                                        value == maxY / 2 ||
+                                        value == maxY) {
                                       return Padding(
-                                        padding: const EdgeInsets.only(right: 4),
+                                        padding: const EdgeInsets.only(
+                                          right: 4,
+                                        ),
                                         child: Text(
                                           _formatYAxisValue(value),
                                           style: const TextStyle(
@@ -331,9 +290,13 @@ class _ChartWidgetState extends State<ChartWidget> {
                               drawVerticalLine: false,
                               horizontalInterval: maxY / 2,
                               getDrawingHorizontalLine: (value) {
-                                if (value == 0 || value == maxY / 2 || value == maxY) {
+                                if (value == 0 ||
+                                    value == maxY / 2 ||
+                                    value == maxY) {
                                   return FlLine(
-                                    color: const Color(0xFFF2F2F2).withOpacity(0.3),
+                                    color: const Color(
+                                      0xFFF2F2F2,
+                                    ).withOpacity(0.3),
                                     strokeWidth: 0.5,
                                   );
                                 }
@@ -354,6 +317,17 @@ class _ChartWidgetState extends State<ChartWidget> {
               ),
             ),
           ),
+          // 데이터가 없는 경우 메시지 표시
+          if (currentData.isEmpty)
+            const Center(
+              child: Text(
+                '해당 월의 데이터가 없습니다',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -380,7 +354,7 @@ class _ChartWidgetState extends State<ChartWidget> {
   double _getMaxY(List<ChartData> data) {
     if (data.isEmpty) return 300;
     
-    final maxValue = data.map((e) => e.value).reduce((a, b) => a > b ? a : b);
+    final maxValue = data.map((e) => e.y).reduce((a, b) => a > b ? a : b);
     
     // 적절한 스케일로 반올림
     if (maxValue <= 10) return 10;
@@ -404,7 +378,7 @@ class _ChartWidgetState extends State<ChartWidget> {
           x: index,
           barRods: [
             BarChartRodData(
-              toY: item.value,
+              toY: item.y,
               color: _getBarColor(),
               width: barWidth,
               borderRadius: const BorderRadius.only(

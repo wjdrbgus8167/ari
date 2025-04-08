@@ -101,7 +101,7 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
                     ),
                     MypageMenuItem(
                       title: '구독 내역',
-                      routeName: AppRoutes.subscription,
+                      routeName: AppRoutes.subscriptionHistory,
                       onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.subscriptionHistory),
                     ),
                     MypageMenuItem(
@@ -116,8 +116,8 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
                     ),
                     MypageMenuItem(
                       title: '정산 내역',
-                      routeName: AppRoutes.subscription,
-                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.subscription),
+                      routeName: AppRoutes.settlement,
+                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.settlement),
                     ),
                     MypageMenuItem(
                       title: '로그아웃',

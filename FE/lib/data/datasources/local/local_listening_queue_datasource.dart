@@ -11,6 +11,11 @@ Future<Box<Track>> openListeningQueueBox(String userId) async {
   //   await Hive.deleteBoxFromDisk(boxName);
   // }
 
+  // // Hive 전체 초기화 (개발용 코드)
+  // await Hive.close();
+  // await Hive.deleteBoxFromDisk('listening_queue_$userId');
+  // await Hive.openBox<Track>('listening_queue_$userId');
+
   // ✅ 새로운 박스 열기
   return await Hive.openBox<Track>(boxName);
 }

@@ -9,7 +9,6 @@ import 'package:ari/data/datasources/auth/auth_remote_data_source.dart';
 import 'package:ari/data/repositories/auth_repository_impl.dart';
 import 'package:ari/domain/repositories/auth_repository.dart';
 import 'package:ari/domain/usecases/auth/auth_usecase.dart';
-import 'package:ari/domain/usecases/user/user_usecase.dart';
 import 'package:ari/presentation/viewmodels/auth/login_viewmodel.dart';
 import 'package:ari/presentation/viewmodels/auth/sign_up_viewmodel.dart';
 import 'package:ari/providers/global_providers.dart';

@@ -16,7 +16,7 @@ class ArtistSelectionListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: 60,
       child: Row(
@@ -75,7 +75,7 @@ class ArtistSelectionListItem extends StatelessWidget {
               ),
             ],
           ),
-          
+
           // 구독 상태에 따른 3가지 표시 방식
           _buildSubscriptionWidget(),
         ],
@@ -85,6 +85,7 @@ class ArtistSelectionListItem extends StatelessWidget {
 
   Widget _buildSubscriptionWidget() {
     // 1. 구독 중인 경우 - 텍스트 표시 (클릭 비활성화)
+    print("구독중임: ${artistInfo.name} ${artistInfo.isSubscribed}");
     if (artistInfo.isSubscribed) {
       return const Text(
         '구독 중',
@@ -95,11 +96,11 @@ class ArtistSelectionListItem extends StatelessWidget {
           fontWeight: FontWeight.w600,
         ),
       );
-    } 
+    }
     // 2. 구독 안 된 경우 - 체크박스 표시
     else {
       return GestureDetector(
-        onTap: onToggleSubscription,  // 체크 상태 변경
+        onTap: onToggleSubscription, // 체크 상태 변경
         child: Container(
           width: 37,
           height: double.infinity,
@@ -115,8 +116,8 @@ class ArtistSelectionListItem extends StatelessWidget {
                 width: 29,
                 height: 29,
                 child: Checkbox(
-                  value: artistInfo.isChecked,  // 체크 상태 표시
-                  onChanged: (_) => onToggleSubscription(),  // 체크박스 클릭 시 상태 변경
+                  value: artistInfo.isChecked, // 체크 상태 표시
+                  onChanged: (_) => onToggleSubscription(), // 체크박스 클릭 시 상태 변경
                   activeColor: Color(0xFFDE85FC),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(4),

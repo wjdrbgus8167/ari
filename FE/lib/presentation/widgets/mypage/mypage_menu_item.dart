@@ -6,11 +6,11 @@ class MypageMenuItem extends StatelessWidget {
   final VoidCallback? onTap;
 
   const MypageMenuItem({
-    Key? key,
+    super.key,
     required this.title,
     required this.routeName,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

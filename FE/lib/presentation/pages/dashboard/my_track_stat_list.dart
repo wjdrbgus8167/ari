@@ -3,9 +3,9 @@ import 'package:ari/presentation/widgets/common/header_widget.dart';
 import 'package:ari/presentation/widgets/dashboard/track_stat_item_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+// 10. 수정된 MyTrackStatListScreen
 class MyTrackStatListScreen extends ConsumerWidget {
-  const MyTrackStatListScreen({Key? key}) : super(key: key);
+  const MyTrackStatListScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -50,22 +50,29 @@ class MyTrackStatListScreen extends ConsumerWidget {
                             color: Colors.white,
                           ),
                         )
-                      : state.tracks.isEmpty
-                          ? const Center(
+                      : state.errorMessage != null
+                          ? Center(
                               child: Text(
-                                '트랙이 없습니다.',
-                                style: TextStyle(color: Colors.white),
+                                state.errorMessage!,
+                                style: const TextStyle(color: Colors.white),
                               ),
                             )
-                          : ListView.builder(
-                              itemCount: state.tracks.length,
-                              itemBuilder: (context, index) {
-                                return TrackStatItem(
-                                  trackStat: state.tracks[index],
-                                  index: index,
-                                );
-                              },
+                      : state.tracks.isEmpty
+                          ? const Center(
+                            child: Text(
+                              '트랙이 없습니다.',
+                              style: TextStyle(color: Colors.white),
                             ),
+                          )
+                          : ListView.builder(
+                            itemCount: state.tracks.length,
+                            itemBuilder: (context, index) {
+                              return TrackStatItem(
+                                trackStat: state.tracks[index],
+                                index: index,
+                              );
+                            },
+                          ),
                 ),
               ],
             );
@@ -74,4 +81,4 @@ class MyTrackStatListScreen extends ConsumerWidget {
       ),
     );
   }
-}          
+}

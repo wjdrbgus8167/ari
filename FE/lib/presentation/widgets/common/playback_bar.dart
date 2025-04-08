@@ -14,7 +14,7 @@ import 'package:ari/core/services/audio_service.dart';
 import 'package:ari/core/utils/login_helper.dart';
 
 class PlaybackBar extends ConsumerWidget {
-  const PlaybackBar({Key? key}) : super(key: key);
+  const PlaybackBar({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -172,6 +172,7 @@ class PlaybackBar extends ConsumerWidget {
                                       albumId: listeningQueueItem.track.albumId,
                                       trackId: listeningQueueItem.track.trackId,
                                       ref: ref,
+                                      context: context,
                                     );
                                   } on DioException catch (e) {
                                     final code =
@@ -206,7 +207,7 @@ class PlaybackBar extends ConsumerWidget {
                     );
                     if (!ok) return;
 
-                    Navigator.pushNamed(context, AppRoutes.listeningqueue);
+                    Navigator.pushNamed(context, '/listeningqueue-tab');
                   },
                 ),
               ],
