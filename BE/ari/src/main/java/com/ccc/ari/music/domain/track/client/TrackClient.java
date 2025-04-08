@@ -18,4 +18,6 @@ public interface TrackClient {
 
     // 트랙 검색
     List<TrackDto> searchTracksByKeyword(String query);
+
+    Integer countTracksByAlbumId(Integer albumId);
 }

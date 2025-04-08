@@ -12,4 +12,5 @@ public interface JpaTrackRepository extends JpaRepository<TrackEntity,Integer> {
     Optional<TrackEntity> findByAlbum_AlbumIdAndTrackId(Integer albumId, Integer trackId);
     Optional<List<TrackEntity>> findAllByAlbum_AlbumId(Integer albumId);
     List<TrackEntity> findByTrackTitleContaining(String keyword);
+    Integer countAllByAlbumId(Integer albumId);
 }

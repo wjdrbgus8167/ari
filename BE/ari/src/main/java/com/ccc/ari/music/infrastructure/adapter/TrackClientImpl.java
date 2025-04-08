@@ -56,4 +56,9 @@ public class TrackClientImpl implements TrackClient {
     public List<TrackDto> searchTracksByKeyword(String query) {
         return trackService.searchTracksByKeyword(query);
     }
+
+    @Override
+    public Integer countTracksByAlbumId(Integer albumId) {
+        return trackService.countTracksByAlbumId(albumId);
+    }
 }

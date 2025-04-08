@@ -8,6 +8,7 @@ import com.ccc.ari.community.infrastructure.like.entity.TrackLikeJpaEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -46,6 +47,18 @@ public class AlbumRepositoryImpl implements LikeRepository {
         return switch (type) {
             case ALBUM -> albumLikeJpaRepository.existsByAlbumIdAndMemberIdAndActivateYnTrue(targetId, memberId);
             case TRACK -> trackLikeJpaRepository.existsByTrackIdAndMemberIdAndActivateYnTrue(targetId, memberId);
+        };
+    }
+
+    @Override
+    public List<Like> findAllByMember(Integer memberId, LikeType type) {
+        return switch (type) {
+            case ALBUM -> albumLikeJpaRepository.findAllByMemberIdAndActivateYnTrue(memberId).stream()
+                    .map(AlbumLikeJpaEntity::toDomain)
+                    .toList();
+            case TRACK -> trackLikeJpaRepository.findAllByMemberIdAndActivateYnTrue(memberId).stream()
+                    .map(TrackLikeJpaEntity::toDomain)
+                    .toList();
         };
     }
 }

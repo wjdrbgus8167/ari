@@ -75,4 +75,8 @@ public class TrackService {
                 .map(TrackMapper::toDto)
                 .toList();
     }
+
+    public Integer countTracksByAlbumId(Integer albumId) {
+        return jpaTrackRepository.countAllByAlbumId(albumId);
+    }
 }
