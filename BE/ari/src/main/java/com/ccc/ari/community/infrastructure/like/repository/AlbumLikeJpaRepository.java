@@ -4,6 +4,7 @@ import com.ccc.ari.community.infrastructure.like.entity.AlbumLikeJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -11,4 +12,6 @@ public interface AlbumLikeJpaRepository extends JpaRepository<AlbumLikeJpaEntity
     Optional<AlbumLikeJpaEntity> findByAlbumIdAndMemberId(Integer albumId, Integer memberId);
 
     Boolean existsByAlbumIdAndMemberIdAndActivateYnTrue(Integer albumId, Integer memberId);
+
+    List<AlbumLikeJpaEntity> findAllByMemberIdAndActivateYnTrue(Integer memberId);
 }

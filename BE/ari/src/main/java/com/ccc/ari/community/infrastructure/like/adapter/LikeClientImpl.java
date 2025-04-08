@@ -7,6 +7,7 @@ import com.ccc.ari.community.domain.like.entity.Like;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -28,5 +29,10 @@ public class LikeClientImpl implements LikeClient {
     @Override
     public void saveLike(Like like, LikeType type) {
         likeRepository.saveLike(like, type);
+    }
+
+    @Override
+    public List<Like> findAllByMember(Integer memberId, LikeType type) {
+        return likeRepository.findAllByMember(memberId, type);
     }
 }

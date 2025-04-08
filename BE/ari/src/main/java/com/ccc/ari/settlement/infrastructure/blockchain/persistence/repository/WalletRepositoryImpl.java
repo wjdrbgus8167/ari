@@ -20,4 +20,9 @@ public class WalletRepositoryImpl implements WalletRepository {
     public WalletEntity getWalletByArtistId(Integer artistId) {
         return walletJpaRepository.findByArtistId(artistId).orElse(null);
     }
+
+    @Override
+    public Boolean existsWalletByArtistId(Integer artistId) {
+        return walletJpaRepository.existsByArtistId(artistId);
+    }
 }
