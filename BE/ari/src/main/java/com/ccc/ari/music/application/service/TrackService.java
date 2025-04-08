@@ -77,6 +77,6 @@ public class TrackService {
     }
 
     public Integer countTracksByAlbumId(Integer albumId) {
-        return jpaTrackRepository.countAllByAlbumId(albumId);
+        return jpaTrackRepository.countAllByAlbum_AlbumId(albumId);
     }
 }
