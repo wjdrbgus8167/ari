@@ -431,6 +431,12 @@ class SubscriptionConstants {
 				"internalType": "uint256",
 				"name": "amount",
 				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "streamingCount",
+				"type": "uint256"
 			}
 		],
 		"name": "SettlementExecutedRegular",
