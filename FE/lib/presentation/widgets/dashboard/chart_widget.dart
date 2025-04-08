@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:math' as math;
 
+import 'package:intl/intl.dart';
+
 enum ChartType { subscribers, streams, revenue }
 
 enum ChartPeriod {
