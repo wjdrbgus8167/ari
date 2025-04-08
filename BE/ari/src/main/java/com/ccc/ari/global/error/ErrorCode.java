@@ -85,8 +85,9 @@ public enum ErrorCode {
     STREAMING_NOT_FOUND(HttpStatus.NOT_FOUND,"ST001","스트리밍 내역을 조회하는데 실패했습니다."),
 
     //아티스트 구독 관련
-    SUBSCRIPTION_ARTIST_NOT_REGISTER(HttpStatus.NOT_FOUND,"AS001","아티스트 구독 플랜이 등록되지 않은 상태입니다.");
-
+    SUBSCRIPTION_ARTIST_NOT_REGISTER(HttpStatus.NOT_FOUND,"AS001","아티스트 구독 플랜이 등록되지 않은 상태입니다."),
+    // 프로필 업로드
+    PROFILE_UPLOAD_FAIL(HttpStatus.NOT_FOUND,"PR001","프로필 업로드에 실패하였습니다.");
     private final HttpStatus status;
     private final String code;
     private final String message;
