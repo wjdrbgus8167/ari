@@ -59,6 +59,7 @@ class ArtistSubscriptionViewModel extends StateNotifier<ArtistSubscriptionState>
         );
       },
       (artistsResponse) {
+        print("아티스트 목록: ${artistsResponse.artists}");
         if (artistsResponse.artists.isNotEmpty) {
           state = state.copyWith(
             isLoading: false,
@@ -67,7 +68,9 @@ class ArtistSubscriptionViewModel extends StateNotifier<ArtistSubscriptionState>
           );
           
           // 선택된 아티스트에 대한 상세 정보 로드
-          //loadArtistDetail(artistsResponse.artists.first.artistId);
+          Future.microtask(
+            () => loadArtistDetail(artistsResponse.artists.first.artistId!),
+          );
         } else {
           state = state.copyWith(
             isLoading: false,
