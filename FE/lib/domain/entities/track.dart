@@ -18,6 +18,7 @@ class Track {
   final String? coverUrl;
   final String? trackFileUrl;
   final int trackLikeCount;
+  final int? artistId;
 
   const Track({
     required this.trackId,
@@ -36,6 +37,7 @@ class Track {
     required this.coverUrl,
     required this.trackFileUrl,
     required this.trackLikeCount,
+    this.artistId,
   });
 
   factory Track.fromJson(Map<String, dynamic> json, int albumId) {
@@ -46,6 +48,7 @@ class Track {
       genreName: json['genreName'] ?? '',
       trackTitle: json['trackTitle'] ?? '',
       artistName: json['artistName'] ?? json['artist'] ?? '',
+      artistId: json['artistId'] ?? 0,
       lyric: json['lyrics'] ?? '',
       trackNumber: json['trackNumber'] ?? 0,
       commentCount: json['commentCount'] ?? 0,
@@ -62,6 +65,7 @@ class Track {
   /// 데이터 모델(예: Hive 모델)로 변환하는 메서드
   data.Track toDataModel() {
     return data.Track(
+      artistId: artistId ?? 0,
       id: trackId,
       trackTitle: trackTitle,
       artist: artistName,

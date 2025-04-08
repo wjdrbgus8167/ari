@@ -12,12 +12,12 @@ class LyricsView extends StatefulWidget {
   final VoidCallback onToggle; // 창 닫기 기능 유지
 
   const LyricsView({
-    Key? key,
+    super.key,
     required this.albumCoverUrl,
     required this.trackTitle,
     required this.lyrics,
     required this.onToggle,
-  }) : super(key: key);
+  });
 
   @override
   _LyricsViewState createState() => _LyricsViewState();
@@ -49,7 +49,7 @@ class _LyricsViewState extends State<LyricsView> {
               paletteGenerator.dominantColor?.color ?? Colors.black;
         });
       }
-    } catch (e, stack) {
+    } catch (e) {
       debugPrint('🎨 팔레트 추출 실패: $e');
       setState(() {
         _dominantColor = Colors.black;
@@ -88,7 +88,7 @@ class _LyricsViewState extends State<LyricsView> {
   }
 
   Widget _buildLyricsScreen() {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: MediaQuery.of(context).size.height,
       // Stack을 사용하여 배경 이미지와 블러 효과, 그리고 콘텐츠를 겹쳐서 표시합니다.

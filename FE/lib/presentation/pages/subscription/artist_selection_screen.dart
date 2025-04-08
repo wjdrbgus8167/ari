@@ -11,22 +11,27 @@ class ArtistSelectionScreen extends ConsumerStatefulWidget {
   const ArtistSelectionScreen({super.key});
 
   @override
-  ConsumerState<ArtistSelectionScreen> createState() => _ArtistSelectionScreenState();
+  ConsumerState<ArtistSelectionScreen> createState() =>
+      _ArtistSelectionScreenState();
 }
 
 class _ArtistSelectionScreenState extends ConsumerState<ArtistSelectionScreen> {
   // 검색어를 저장할 상태 변수
   String searchQuery = '';
-  
+
   @override
   Widget build(BuildContext context) {
     final artistSelectionViewModel = ref.watch(artistInfoProvider);
 
     // 검색어에 따라 필터링된 아티스트 목록
-    final filteredArtists = artistSelectionViewModel.artistInfos
-        .where((artist) => artist.name.toLowerCase().contains(searchQuery.toLowerCase()))
-        .toList();
-    
+    final filteredArtists =
+        artistSelectionViewModel.artistInfos
+            .where(
+              (artist) =>
+                  artist.name.toLowerCase().contains(searchQuery.toLowerCase()),
+            )
+            .toList();
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
@@ -62,7 +67,12 @@ class _ArtistSelectionScreenState extends ConsumerState<ArtistSelectionScreen> {
                       Container(
                         width: double.infinity,
                         height: 40,
-                        padding: const EdgeInsets.only(top: 6, left: 5, right: 10, bottom: 6),
+                        padding: const EdgeInsets.only(
+                          top: 6,
+                          left: 5,
+                          right: 10,
+                          bottom: 6,
+                        ),
                         decoration: const BoxDecoration(
                           border: Border(
                             bottom: BorderSide(
@@ -102,17 +112,14 @@ class _ArtistSelectionScreenState extends ConsumerState<ArtistSelectionScreen> {
                                 },
                               ),
                             ),
-                            const Icon(
-                              Icons.search,
-                              color: Colors.white,
-                            ),
+                            const Icon(Icons.search, color: Colors.white),
                           ],
                         ),
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // 팔로잉 섹션
-                      Container(
+                      SizedBox(
                         width: double.infinity,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -151,7 +158,7 @@ class _ArtistSelectionScreenState extends ConsumerState<ArtistSelectionScreen> {
                                     ),
                                     const SizedBox(width: 10),
                                     Text(
-                                      '${filteredArtists.length}',  // 필터링된 개수로 변경
+                                      '${filteredArtists.length}', // 필터링된 개수로 변경
                                       style: const TextStyle(
                                         color: Color(0xFF989595),
                                         fontSize: 12,
@@ -164,37 +171,44 @@ class _ArtistSelectionScreenState extends ConsumerState<ArtistSelectionScreen> {
                               ],
                             ),
                             const SizedBox(height: 5),
-                            
+
                             // 팔로잉 리스트 (필터링된 목록 사용)
-                            Container(
+                            SizedBox(
                               width: double.infinity,
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.center,
-                                children: filteredArtists.map((artistInfo) {
-                                  return ArtistSelectionListItem(
-                                    artistInfo: artistInfo,
-                                    onToggleSubscription: () {
-                                      // 구독 중인 경우: 아무 동작 안 함
-                                      if (artistInfo.isSubscribed) {
-                                        return;
-                                      } 
-                                      // 구독 중이 아닌 경우: 체크 상태 토글
-                                      else {
-                                        ref.read(artistInfoProvider.notifier).toggleCheck(artistInfo.id);
-                                      }
-                                    },
-                                  );
-                                }).toList(),
+                                children:
+                                    filteredArtists.map((artistInfo) {
+                                      return ArtistSelectionListItem(
+                                        artistInfo: artistInfo,
+                                        onToggleSubscription: () {
+                                          // 구독 중인 경우: 아무 동작 안 함
+                                          if (artistInfo.isSubscribed) {
+                                            return;
+                                          }
+                                          // 구독 중이 아닌 경우: 체크 상태 토글
+                                          else {
+                                            ref
+                                                .read(
+                                                  artistInfoProvider.notifier,
+                                                )
+                                                .toggleCheck(artistInfo.id);
+                                          }
+                                        },
+                                      );
+                                    }).toList(),
                               ),
                             ),
-                            
+
                             // 검색 결과가 없는 경우 메시지 표시
                             if (filteredArtists.isEmpty)
                               Container(
                                 width: double.infinity,
-                                padding: const EdgeInsets.symmetric(vertical: 30),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 30,
+                                ),
                                 child: const Center(
                                   child: Text(
                                     '검색 결과가 없습니다',
@@ -216,8 +230,11 @@ class _ArtistSelectionScreenState extends ConsumerState<ArtistSelectionScreen> {
               ),
               // 하단 결제 버튼
               ButtonLarge(
-                  text: "구독하기",
-                  onPressed: () => ref.read(artistInfoProvider.notifier).navigateToSubscriptionPage(context),
+                text: "구독하기",
+                onPressed:
+                    () => ref
+                        .read(artistInfoProvider.notifier)
+                        .navigateToSubscriptionPage(context),
               ),
             ],
           ),

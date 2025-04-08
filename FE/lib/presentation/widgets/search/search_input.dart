@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ari/core/constants/app_colors.dart';
 
 /// 검색 입력 필드 위젯: 검색어 입력, 지우기
 class SearchInput extends StatelessWidget {

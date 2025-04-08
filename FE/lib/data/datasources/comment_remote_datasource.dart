@@ -1,7 +1,6 @@
 // lib/data/datasources/comment_remote_datasource.dart
 import 'package:dio/dio.dart';
 import 'package:ari/data/models/comment.dart';
-import 'package:ari/providers/global_providers.dart';
 
 class CommentRemoteDatasource {
   final Dio dio;

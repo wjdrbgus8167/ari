@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:http_parser/http_parser.dart';
 import 'package:path/path.dart' as path;
 import '../../core/exceptions/failure.dart';
 import '../models/upload_album_request.dart';

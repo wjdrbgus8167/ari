@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MyTrackStatListScreen extends ConsumerWidget {
-  const MyTrackStatListScreen({Key? key}) : super(key: key);
+  const MyTrackStatListScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -44,28 +44,29 @@ class MyTrackStatListScreen extends ConsumerWidget {
 
                 // 트랙 목록
                 Expanded(
-                  child: state.isLoading
-                      ? const Center(
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                          ),
-                        )
-                      : state.tracks.isEmpty
+                  child:
+                      state.isLoading
                           ? const Center(
-                              child: Text(
-                                '트랙이 없습니다.',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            )
-                          : ListView.builder(
-                              itemCount: state.tracks.length,
-                              itemBuilder: (context, index) {
-                                return TrackStatItem(
-                                  trackStat: state.tracks[index],
-                                  index: index,
-                                );
-                              },
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
                             ),
+                          )
+                          : state.tracks.isEmpty
+                          ? const Center(
+                            child: Text(
+                              '트랙이 없습니다.',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          )
+                          : ListView.builder(
+                            itemCount: state.tracks.length,
+                            itemBuilder: (context, index) {
+                              return TrackStatItem(
+                                trackStat: state.tracks[index],
+                                index: index,
+                              );
+                            },
+                          ),
                 ),
               ],
             );
@@ -74,4 +75,4 @@ class MyTrackStatListScreen extends ConsumerWidget {
       ),
     );
   }
-}          
+}

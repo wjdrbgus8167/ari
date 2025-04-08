@@ -4,8 +4,7 @@ import 'playlist_card.dart';
 
 class PlaylistHorizontalList extends StatelessWidget {
   final List<Playlist> playlists;
-  const PlaylistHorizontalList({Key? key, required this.playlists})
-    : super(key: key);
+  const PlaylistHorizontalList({super.key, required this.playlists});
 
   @override
   Widget build(BuildContext context) {

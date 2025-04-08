@@ -6,11 +6,9 @@ import 'package:flutter/material.dart';
 
 class SubscriptionChart extends StatelessWidget {
   final List<ArtistAllocation> artistAllocations;
-  
-  const SubscriptionChart({
-    Key? key,
-    required this.artistAllocations,
-  }) : super(key: key);
+
+  const SubscriptionChart({Key? key, required this.artistAllocations})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +33,7 @@ class SubscriptionChart extends StatelessWidget {
       ),
     );
   }
-  
+
   List<PieChartSectionData> _createPieChartSections() {
     return artistAllocations.map((allocation) {
       return PieChartSectionData(

@@ -63,6 +63,37 @@ class PlaybackState {
   String toString() {
     return 'PlaybackState(currentTrackId: $currentTrackId, albumId: $albumId, trackTitle: $trackTitle, artist: $artist, coverImageUrl: $coverImageUrl, trackUrl: $trackUrl, isPlaying: $isPlaying, isLiked: $isLiked)';
   }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is PlaybackState &&
+            runtimeType == other.runtimeType &&
+            currentTrackId == other.currentTrackId &&
+            albumId == other.albumId &&
+            trackUrl == other.trackUrl &&
+            trackTitle == other.trackTitle &&
+            artist == other.artist &&
+            coverImageUrl == other.coverImageUrl &&
+            lyrics == other.lyrics &&
+            isPlaying == other.isPlaying &&
+            isLiked == other.isLiked &&
+            currentQueueItemId == other.currentQueueItemId;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    currentTrackId,
+    albumId,
+    trackUrl,
+    trackTitle,
+    artist,
+    coverImageUrl,
+    lyrics,
+    isPlaying,
+    isLiked,
+    currentQueueItemId,
+  );
 }
 
 // 전역 재생상태 업데이트 하는 Notifier
@@ -108,6 +139,7 @@ class PlaybackNotifier extends StateNotifier<PlaybackState> {
       albumId: albumId,
       trackUrl: trackUrl,
       isLiked: isLiked,
+      currentQueueItemId: currentQueueItemId, // ✅ 이 줄 추가!
     );
   }
 }
@@ -126,8 +158,8 @@ final playbackServiceProvider = Provider<PlaybackService>((ref) {
   );
 });
 
-// PlaybackNotifier를 전역상태로 제공
-final playbackNotifierProvider =
-    StateNotifierProvider<PlaybackNotifier, PlaybackState>(
-      (ref) => PlaybackNotifier(),
-    );
+// // PlaybackNotifier를 전역상태로 제공
+// final playbackNotifierProvider =
+//     StateNotifierProvider<PlaybackNotifier, PlaybackState>(
+//       (ref) => PlaybackNotifier(),
+//     );

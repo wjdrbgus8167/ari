@@ -5,8 +5,6 @@ import '../../../data/models/my_channel/neighbor.dart';
 import '../../viewmodels/my_channel/my_channel_viewmodel.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../presentation/routes/app_router.dart'; // TODO: 라우팅 용
-import '../../../presentation/widgets/common/custom_toast.dart';
-import '../../../presentation/widgets/common/custom_dialog.dart';
 
 /// 이웃(팔로워/팔로잉) 섹션 탭 인덱스
 enum NeighborTab { followers, followings }

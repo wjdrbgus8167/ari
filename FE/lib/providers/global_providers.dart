@@ -10,6 +10,7 @@ import 'package:ari/providers/album/album_detail_providers.dart';
 
 import 'package:ari/providers/auth/auth_providers.dart';
 import 'package:ari/providers/user_provider.dart';
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -65,7 +66,7 @@ class PlaybackState {
       currentTrackId: currentTrackId ?? this.currentTrackId,
       trackTitle: trackTitle,
       isPlaying: isPlaying ?? this.isPlaying,
-      currentQueueItemId: this.currentQueueItemId,
+      currentQueueItemId: currentQueueItemId,
     );
   }
 }
@@ -186,4 +187,10 @@ final listeningQueueProvider =
       );
     });
 
-final apiClientProvider = Provider<ApiClient>((ref) => ApiClient(ref.read(dioProvider)));
+final apiClientProvider = Provider<ApiClient>(
+  (ref) => ApiClient(ref.read(dioProvider)),
+);
+
+final audioHandlerProvider = Provider<AudioHandler>((ref) {
+  throw UnimplementedError(); // main.dart에서 override됨
+});

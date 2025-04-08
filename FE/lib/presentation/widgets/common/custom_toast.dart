@@ -2,48 +2,44 @@ import 'package:flutter/material.dart';
 import 'package:ari/core/constants/app_colors.dart';
 
 class CustomToast {
-  /// [context] - 토스트 표시할 컨텍스트
-  /// [message] - 메시지
-  /// [type] - 토스트 종류 (성공 경고)
-  /// [duration] - 토스트가 표시되는 시간 (기본 2초)
   static void show({
     required BuildContext context,
     required String message,
     Duration duration = const Duration(seconds: 2),
   }) {
-    // 이전 토스트 제거
-    _removeToast();
+    // 프레임 이후 안전하게 실행되도록 변경
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!context.mounted) return;
 
-    // Overlay 위에 토스트 표시
-    final overlay = Overlay.of(context);
-    final overlayEntry = OverlayEntry(
-      builder:
-          (context) => _ToastOverlay(message: message, onDismiss: _removeToast),
-    );
-
-    // 전역 변수에 현재 토스트 저장
-    _currentToast = overlayEntry;
-
-    // 토스트 표시
-    overlay.insert(overlayEntry);
-
-    // n분 후 토스트 자동 없어짐
-    Future.delayed(duration, () {
+      // 이전 토스트 제거
       _removeToast();
+
+      final overlay = Overlay.of(context, rootOverlay: true);
+      if (overlay == null) return;
+
+      final overlayEntry = OverlayEntry(
+        builder:
+            (context) =>
+                _ToastOverlay(message: message, onDismiss: _removeToast),
+      );
+
+      _currentToast = overlayEntry;
+      overlay.insert(overlayEntry);
+
+      Future.delayed(duration, () {
+        _removeToast();
+      });
     });
   }
 
-  /// 현재 토스트 제거
   static void _removeToast() {
     _currentToast?.remove();
     _currentToast = null;
   }
 
-  // 현재 토스트 저장용 변수
   static OverlayEntry? _currentToast;
 }
 
-/// 토스트 오버레이 위젯
 class _ToastOverlay extends StatefulWidget {
   final String message;
   final VoidCallback onDismiss;
@@ -58,18 +54,26 @@ class _ToastOverlayState extends State<_ToastOverlay>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+  late double _bottomPadding;
+  late double _screenWidth;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final mediaQuery = MediaQuery.of(context);
+    _bottomPadding = mediaQuery.viewPadding.bottom;
+    _screenWidth = mediaQuery.size.width;
+  }
 
   @override
   void initState() {
     super.initState();
 
-    // 애니메이션 컨트롤러 초기화
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
 
-    // fade 애니메이션
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
@@ -78,7 +82,6 @@ class _ToastOverlayState extends State<_ToastOverlay>
       ),
     );
 
-    // 애니메이션 시작
     _animationController.forward();
   }
 
@@ -91,9 +94,9 @@ class _ToastOverlayState extends State<_ToastOverlay>
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      bottom: MediaQuery.of(context).viewPadding.bottom + 70,
-      left: MediaQuery.of(context).size.width * 0.125, // 좌우 여백
-      right: MediaQuery.of(context).size.width * 0.125, // 좌우 여백
+      bottom: _bottomPadding + 70,
+      left: _screenWidth * 0.125,
+      right: _screenWidth * 0.125,
       child: GestureDetector(
         onTap: () {
           _animationController.reverse().then((_) {
@@ -105,18 +108,15 @@ class _ToastOverlayState extends State<_ToastOverlay>
           child: Material(
             color: Colors.transparent,
             child: Container(
-              width: MediaQuery.of(context).size.width * 0.75, // 가로 길이 증가
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: AppColors.lightPurple.withValues(
-                  alpha: 0.7,
-                ), // 투명한 검정색 적용
+                color: AppColors.lightPurple.withAlpha(180),
                 borderRadius: BorderRadius.circular(12),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     color: Colors.black26,
                     blurRadius: 6,
-                    offset: const Offset(0, 3),
+                    offset: Offset(0, 3),
                   ),
                 ],
               ),
@@ -139,10 +139,7 @@ class _ToastOverlayState extends State<_ToastOverlay>
   }
 }
 
-// 확장 메서드(다이얼로그 쉽게 호출 가능)
-// 원본 클래스 수정하지 않아도 기능 확장 가능
 extension ToastExtension on BuildContext {
-  // 토스트 표시
   void showToast(
     String message, {
     Duration duration = const Duration(seconds: 2),

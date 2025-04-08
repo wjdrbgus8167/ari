@@ -6,10 +6,10 @@ class TrackStatItem extends StatelessWidget {
   final int index;
 
   const TrackStatItem({
-    Key? key,
+    super.key,
     required this.trackStat,
     required this.index,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +44,9 @@ class TrackStatItem extends StatelessWidget {
                 image: NetworkImage(trackStat.imageUrl),
                 fit: BoxFit.cover,
               ),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5),
+              ),
             ),
           ),
           const SizedBox(width: 10),
@@ -138,11 +140,7 @@ class SortButton extends StatelessWidget {
   final SortBy sortBy;
   final VoidCallback onPressed;
 
-  const SortButton({
-    Key? key,
-    required this.sortBy,
-    required this.onPressed,
-  }) : super(key: key);
+  const SortButton({super.key, required this.sortBy, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -151,28 +149,28 @@ class SortButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.only(top: 10, left: 20, right: 20),
         child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            sortBy == SortBy.totalPlayCount ? '누적 재생 수' : '월간 재생 수',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 15,
-              fontFamily: 'Pretendard',
-              fontWeight: FontWeight.w500,
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              sortBy == SortBy.totalPlayCount ? '누적 재생 수' : '월간 재생 수',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          ),
-          const SizedBox(width: 4), // 간격 추가
-          Transform.rotate(
-            angle: 1.57,
-            child: const Icon(
-              Icons.arrow_forward_ios,
-              color: Color(0xFFD9D9D9),
-              size: 16,
+            const SizedBox(width: 4), // 간격 추가
+            Transform.rotate(
+              angle: 1.57,
+              child: const Icon(
+                Icons.arrow_forward_ios,
+                color: Color(0xFFD9D9D9),
+                size: 16,
+              ),
             ),
-          ),
           ],
         ),
       ),

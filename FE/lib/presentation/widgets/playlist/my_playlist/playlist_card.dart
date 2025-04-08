@@ -4,7 +4,7 @@ import 'package:ari/domain/entities/playlist.dart';
 
 class PlaylistCard extends StatelessWidget {
   final Playlist playlist;
-  const PlaylistCard({Key? key, required this.playlist}) : super(key: key);
+  const PlaylistCard({super.key, required this.playlist});
 
   @override
   Widget build(BuildContext context) {

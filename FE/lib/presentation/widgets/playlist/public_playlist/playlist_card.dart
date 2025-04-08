@@ -9,7 +9,7 @@ import 'package:ari/domain/entities/track.dart';
 
 class PlaylistCard extends ConsumerWidget {
   final Playlist playlist;
-  const PlaylistCard({Key? key, required this.playlist}) : super(key: key);
+  const PlaylistCard({super.key, required this.playlist});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -50,6 +50,7 @@ class PlaylistCard extends ConsumerWidget {
             ref,
             domainTracks,
             domainTracks.first,
+            context,
           );
         }
       },

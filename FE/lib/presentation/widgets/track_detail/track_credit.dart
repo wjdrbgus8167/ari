@@ -8,13 +8,13 @@ class TrackCredit extends StatelessWidget {
   final List<String> genres;
 
   const TrackCredit({
-    Key? key,
+    super.key,
     required this.title,
     required this.trackName,
     required this.lyricists,
     required this.composers,
     required this.genres,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +55,7 @@ class TrackCredit extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           // 작사 섹션
-          Container(
+          SizedBox(
             width: double.infinity,
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -72,11 +72,14 @@ class TrackCredit extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                ...lyricists.map((lyricist) => 
-                  Padding(
+                ...lyricists.map(
+                  (lyricist) => Padding(
                     padding: const EdgeInsets.only(right: 12),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 2,
+                      ),
                       clipBehavior: Clip.antiAlias,
                       decoration: ShapeDecoration(
                         shape: RoundedRectangleBorder(
@@ -105,14 +108,14 @@ class TrackCredit extends StatelessWidget {
                         ],
                       ),
                     ),
-                  )
-                ).toList(),
+                  ),
+                ),
               ],
             ),
           ),
           const SizedBox(height: 12),
           // 작곡 섹션
-          Container(
+          SizedBox(
             width: double.infinity,
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -130,11 +133,14 @@ class TrackCredit extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                ...composers.map((composer) => 
-                  Padding(
+                ...composers.map(
+                  (composer) => Padding(
                     padding: const EdgeInsets.only(right: 12),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 2,
+                      ),
                       clipBehavior: Clip.antiAlias,
                       decoration: ShapeDecoration(
                         shape: RoundedRectangleBorder(
@@ -163,14 +169,14 @@ class TrackCredit extends StatelessWidget {
                         ],
                       ),
                     ),
-                  )
-                ).toList(),
+                  ),
+                ),
               ],
             ),
           ),
           const SizedBox(height: 12),
           // 장르 섹션
-          Container(
+          SizedBox(
             width: double.infinity,
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -187,11 +193,14 @@ class TrackCredit extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                ...genres.map((genre) => 
-                  Padding(
+                ...genres.map(
+                  (genre) => Padding(
                     padding: const EdgeInsets.only(right: 12),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 2,
+                      ),
                       clipBehavior: Clip.antiAlias,
                       decoration: ShapeDecoration(
                         shape: RoundedRectangleBorder(
@@ -219,8 +228,8 @@ class TrackCredit extends StatelessWidget {
                         ],
                       ),
                     ),
-                  )
-                ).toList(),
+                  ),
+                ),
               ],
             ),
           ),

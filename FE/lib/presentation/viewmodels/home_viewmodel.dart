@@ -89,6 +89,7 @@ class HomeViewModel extends StateNotifier<HomeState> {
           chartItems.map((chart) {
             return Track(
               id: chart.trackId,
+              artistId: 0,
               trackTitle: chart.trackTitle,
               artist: chart.artist,
               composer: '',

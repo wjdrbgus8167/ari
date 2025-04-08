@@ -4,7 +4,7 @@ import 'package:ari/domain/entities/track.dart';
 
 class BottomSheetOptions extends StatelessWidget {
   final Track track;
-  const BottomSheetOptions({Key? key, required this.track}) : super(key: key);
+  const BottomSheetOptions({super.key, required this.track});
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,7 @@ class BottomSheetOptions extends StatelessWidget {
   }
 
   Widget _buildTrackInfo() {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: 50,
       child: Row(

@@ -10,15 +10,22 @@ class RegularSubscriptionView extends ConsumerStatefulWidget {
   const RegularSubscriptionView({Key? key}) : super(key: key);
 
   @override
-  _RegularSubscriptionViewState createState() => _RegularSubscriptionViewState();
+  _RegularSubscriptionViewState createState() =>
+      _RegularSubscriptionViewState();
 }
 
-class _RegularSubscriptionViewState extends ConsumerState<RegularSubscriptionView> {
+class _RegularSubscriptionViewState
+    extends ConsumerState<RegularSubscriptionView> {
   @override
   void initState() {
     super.initState();
     // 초기 데이터 로드
-    Future.microtask(() => ref.read(regularSubscriptionViewModelProvider.notifier).loadSubscriptionCycles());
+    Future.microtask(
+      () =>
+          ref
+              .read(regularSubscriptionViewModelProvider.notifier)
+              .loadSubscriptionCycles(),
+    );
   }
 
   @override
@@ -28,15 +35,17 @@ class _RegularSubscriptionViewState extends ConsumerState<RegularSubscriptionVie
     if (state.isLoading) {
       return Center(child: CircularProgressIndicator(color: Colors.white));
     }
-    
+
     if (state.errorMessage != null) {
-      return Center(child: Text(state.errorMessage!, style: TextStyle(color: Colors.red)));
+      return Center(
+        child: Text(state.errorMessage!, style: TextStyle(color: Colors.red)),
+      );
     }
-    
+
     // 표시할 아티스트 목록 - 더보기 상태에 따라 전체 또는 최대 3개만 표시
     final displaySettlements = state.displaySettlements;
     final artistAllocations = state.artistAllocations;
-    
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,33 +58,46 @@ class _RegularSubscriptionViewState extends ConsumerState<RegularSubscriptionVie
               right: 20,
               bottom: 10,
             ),
-            child: state.cycles.isEmpty 
-                ? SizedBox() // 사이클이 없으면 빈 공간 표시
-                : DropdownButton<SubscriptionCycle>(
-                    value: state.selectedCycle,
-                    dropdownColor: const Color(0xFF373737),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w600,
+            child:
+                state.cycles.isEmpty
+                    ? SizedBox() // 사이클이 없으면 빈 공간 표시
+                    : DropdownButton<SubscriptionCycle>(
+                      value: state.selectedCycle,
+                      dropdownColor: const Color(0xFF373737),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w600,
+                      ),
+                      icon: const Icon(
+                        Icons.arrow_drop_down,
+                        color: Colors.white,
+                      ),
+                      underline: Container(), // 밑줄 제거
+                      onChanged: (newValue) {
+                        if (newValue != null) {
+                          ref
+                              .read(
+                                regularSubscriptionViewModelProvider.notifier,
+                              )
+                              .selectCycle(newValue);
+                        }
+                      },
+                      items:
+                          state.cycles.map<DropdownMenuItem<SubscriptionCycle>>(
+                            (cycle) {
+                              return DropdownMenuItem<SubscriptionCycle>(
+                                value: cycle,
+                                child: Text(
+                                  '${cycle.startedAt} ~ ${cycle.endedAt} 정기 구독',
+                                ),
+                              );
+                            },
+                          ).toList(),
                     ),
-                    icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                    underline: Container(), // 밑줄 제거
-                    onChanged: (newValue) {
-                      if (newValue != null) {
-                        ref.read(regularSubscriptionViewModelProvider.notifier).selectCycle(newValue);
-                      }
-                    },
-                    items: state.cycles.map<DropdownMenuItem<SubscriptionCycle>>((cycle) {
-                      return DropdownMenuItem<SubscriptionCycle>(
-                        value: cycle,
-                        child: Text('${cycle.startedAt} ~ ${cycle.endedAt} 정기 구독'),
-                      );
-                    }).toList(),
-                  ),
           ),
-          
+
           // 구독 정보 컨테이너
           Container(
             width: double.infinity,
@@ -122,7 +144,9 @@ class _RegularSubscriptionViewState extends ConsumerState<RegularSubscriptionVie
                             height: 20,
                             decoration: BoxDecoration(
                               image: DecorationImage(
-                                image: NetworkImage("https://placehold.co/20x20"),
+                                image: NetworkImage(
+                                  "https://placehold.co/20x20",
+                                ),
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -132,34 +156,43 @@ class _RegularSubscriptionViewState extends ConsumerState<RegularSubscriptionVie
                     ],
                   ),
                 ),
-                
+
                 SizedBox(height: 20),
-                
+
                 // 차트
                 if (artistAllocations.isNotEmpty)
                   SubscriptionChart(artistAllocations: artistAllocations),
-                
+
                 SizedBox(height: 60),
-                
+
                 // 아티스트 목록
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
-                    children: displaySettlements.map((settlement) => _buildArtistItem(settlement)).toList(),
+                    children:
+                        displaySettlements
+                            .map((settlement) => _buildArtistItem(settlement))
+                            .toList(),
                   ),
                 ),
-                
+
                 SizedBox(height: 20),
-                
+
                 // 더 보기 버튼 - 3개 이상일 때만 표시
-                if (state.subscriptionDetail != null && state.subscriptionDetail!.settlements.length > 3)
+                if (state.subscriptionDetail != null &&
+                    state.subscriptionDetail!.settlements.length > 3)
                   GestureDetector(
                     onTap: () {
-                      ref.read(regularSubscriptionViewModelProvider.notifier).toggleShowAllArtists();
+                      ref
+                          .read(regularSubscriptionViewModelProvider.notifier)
+                          .toggleShowAllArtists();
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 15,
+                        vertical: 8,
+                      ),
                       decoration: ShapeDecoration(
                         color: const Color(0xFF323232),
                         shape: RoundedRectangleBorder(
@@ -180,30 +213,35 @@ class _RegularSubscriptionViewState extends ConsumerState<RegularSubscriptionVie
               ],
             ),
           ),
-          
+
           // 아티스트별 스트리밍 정보
-          ...displaySettlements.map((settlement) => _buildArtistStreamingInfo(settlement)).toList(),
+          ...displaySettlements
+              .map((settlement) => _buildArtistStreamingInfo(settlement))
+              .toList(),
         ],
       ),
     );
   }
-  
+
   Widget _buildArtistItem(ArtistSettlement settlement) {
     // 해당 아티스트의 할당정보 찾기
-    final allocation = ref.read(regularSubscriptionViewModelProvider).artistAllocations
+    final allocation = ref
+        .read(regularSubscriptionViewModelProvider)
+        .artistAllocations
         .firstWhere(
-          (a) => a.artistNickname == settlement.artistNickname, 
-          orElse: () => ArtistAllocation(
-            artistNickname: settlement.artistNickname,
-            profileImageUrl: settlement.profileImageUrl,
-            streamingCount: settlement.streamingCount,
-            allocation: 0,
-            color: Colors.grey,
-          )
+          (a) => a.artistNickname == settlement.artistNickname,
+          orElse:
+              () => ArtistAllocation(
+                artistNickname: settlement.artistNickname,
+                profileImageUrl: settlement.profileImageUrl,
+                streamingCount: settlement.streamingCount,
+                allocation: 0,
+                color: Colors.grey,
+              ),
         );
-        
+
     return Container(
-      margin: EdgeInsets.only(bottom: 10), 
+      margin: EdgeInsets.only(bottom: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -244,7 +282,7 @@ class _RegularSubscriptionViewState extends ConsumerState<RegularSubscriptionVie
       ),
     );
   }
-  
+
   Widget _buildArtistStreamingInfo(ArtistSettlement settlement) {
     return Container(
       width: double.infinity,
@@ -257,7 +295,10 @@ class _RegularSubscriptionViewState extends ConsumerState<RegularSubscriptionVie
               children: [
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 18,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -320,7 +361,9 @@ class _RegularSubscriptionViewState extends ConsumerState<RegularSubscriptionVie
                             height: 15,
                             decoration: BoxDecoration(
                               image: DecorationImage(
-                                image: NetworkImage("https://placehold.co/15x15"),
+                                image: NetworkImage(
+                                  "https://placehold.co/15x15",
+                                ),
                                 fit: BoxFit.cover,
                               ),
                             ),

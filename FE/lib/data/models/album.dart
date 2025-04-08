@@ -5,6 +5,7 @@ class Album {
   final String title;
   final String genre;
   final String artist;
+  final int artistId; // 아티스트 ID (정수형으로 변경)
   final String coverUrl; // 앨범 커버 이미지 URL
   final DateTime releaseDate;
   final List<Track> tracks;
@@ -13,6 +14,7 @@ class Album {
     required this.id,
     required this.title,
     required this.artist,
+    required this.artistId,
     required this.genre,
     this.coverUrl = '', // 기본값 빈 문자열 또는 기본 URL
     required this.releaseDate,
@@ -28,6 +30,7 @@ class Album {
       id: json['albumId'],
       title: json['albumTitle'],
       artist: json['artist'],
+      artistId: json['artistId'] ?? 0, // 아티스트 ID가 없으면 0 사용
       genre: json['genreName'] ?? '', // genre 필드가 없으면 빈 문자열 사용
       coverUrl: json['coverImageUrl'] ?? '',
       // releaseDate가 없는 경우 기본값으로 현재 시간을 사용하거나 다른 기본값 지정

@@ -12,6 +12,7 @@ import 'package:ari/presentation/pages/subscription/subscription_select_screen.d
 import 'package:ari/presentation/viewmodels/subscription/artist_selection_viewmodel.dart';
 import 'package:ari/presentation/viewmodels/subscription/my_subscription_viewmodel.dart';
 import 'package:ari/presentation/widgets/common/custom_dialog.dart';
+import 'package:ari/presentation/widgets/common/listeningqueue_container.dart';
 import 'package:ari/providers/auth/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:ari/presentation/pages/album/album_detail_screen.dart';
@@ -118,6 +119,12 @@ class AppRouter {
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const ListeningQueueScreen(),
+        );
+
+      // 재생목록 탭
+      case '/listeningqueue-tab':
+        return MaterialPageRoute(
+          builder: (_) => const ListeningQueueTabContainer(),
         );
 
       case AppRoutes.track:

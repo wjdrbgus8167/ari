@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class LyricsContent extends StatelessWidget {
   final String lyrics;
 
-  const LyricsContent({Key? key, required this.lyrics}) : super(key: key);
+  const LyricsContent({super.key, required this.lyrics});
 
   @override
   Widget build(BuildContext context) {

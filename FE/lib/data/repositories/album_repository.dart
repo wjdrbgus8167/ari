@@ -37,6 +37,7 @@ class AlbumRepositoryImpl implements AlbumRepository {
       albumId: detail.albumId,
       albumTitle: detail.albumTitle,
       artist: detail.artist,
+      artistId: detail.artistId,
       description: detail.description,
       albumLikeCount: detail.albumLikeCount,
       genre: detail.genre,
@@ -83,6 +84,7 @@ class AlbumRepositoryImpl implements AlbumRepository {
       albumId: album.id,
       albumTitle: album.title,
       artist: album.artist,
+      artistId: album.artistId,
       description: "", // 기본값
       albumLikeCount: 0,
       genre: album.genre,
@@ -99,7 +101,7 @@ class AlbumRepositoryImpl implements AlbumRepository {
               albumTitle: album.title,
               genreName: album.genre,
               trackTitle: track.trackTitle,
-              artistName: track.artistName,
+              artistName: album.artist,
               lyric: track.lyric,
               trackNumber: track.trackNumber,
               commentCount: track.commentCount,
@@ -107,7 +109,7 @@ class AlbumRepositoryImpl implements AlbumRepository {
               composer: track.composer,
               comments: track.comments,
               createdAt: track.createdAt,
-              coverUrl: track.coverUrl,
+              coverUrl: album.coverUrl,
               trackFileUrl: track.trackFileUrl,
               trackLikeCount: track.trackLikeCount,
             );

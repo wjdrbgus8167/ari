@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TrackStat {
@@ -18,10 +17,7 @@ class TrackStat {
 }
 
 // 정렬 기준
-enum SortBy {
-  totalPlayCount,
-  monthlyPlayCount,
-}
+enum SortBy { totalPlayCount, monthlyPlayCount }
 
 // ViewModel 상태 클래스
 class TrackListState {
@@ -55,10 +51,10 @@ class TrackListNotifier extends StateNotifier<TrackListState> {
 
   Future<void> _loadTracks() async {
     state = state.copyWith(isLoading: true);
-    
+
     // 데이터 로드 (실제로는 API 호출 등)
     await Future.delayed(const Duration(milliseconds: 500)); // 임시 지연
-    
+
     // 샘플 데이터
     final tracks = [
       TrackStat(
@@ -83,44 +79,42 @@ class TrackListNotifier extends StateNotifier<TrackListState> {
         totalPlayCount: 78901,
       ),
     ];
-    
+
     // 현재 정렬 기준에 따라 정렬
     final sortedTracks = _sortTracks(tracks, state.sortBy);
-    
-    state = state.copyWith(
-      tracks: sortedTracks,
-      isLoading: false,
-    );
+
+    state = state.copyWith(tracks: sortedTracks, isLoading: false);
   }
 
   // 정렬 기준 변경
   void changeSortBy() {
-    final newSortBy = state.sortBy == SortBy.totalPlayCount 
-        ? SortBy.monthlyPlayCount 
-        : SortBy.totalPlayCount;
-    
+    final newSortBy =
+        state.sortBy == SortBy.totalPlayCount
+            ? SortBy.monthlyPlayCount
+            : SortBy.totalPlayCount;
+
     final sortedTracks = _sortTracks(state.tracks, newSortBy);
-    
-    state = state.copyWith(
-      sortBy: newSortBy,
-      tracks: sortedTracks,
-    );
+
+    state = state.copyWith(sortBy: newSortBy, tracks: sortedTracks);
   }
 
   // 트랙 정렬
   List<TrackStat> _sortTracks(List<TrackStat> tracks, SortBy sortBy) {
     final sortedTracks = List<TrackStat>.from(tracks);
-    
+
     if (sortBy == SortBy.totalPlayCount) {
       sortedTracks.sort((a, b) => b.totalPlayCount.compareTo(a.totalPlayCount));
     } else {
-      sortedTracks.sort((a, b) => b.monthlyPlayCount.compareTo(a.monthlyPlayCount));
+      sortedTracks.sort(
+        (a, b) => b.monthlyPlayCount.compareTo(a.monthlyPlayCount),
+      );
     }
-    
+
     return sortedTracks;
   }
 }
 
-final trackListProvider = StateNotifierProvider<TrackListNotifier, TrackListState>((ref) {
-  return TrackListNotifier();
-});
+final trackListProvider =
+    StateNotifierProvider<TrackListNotifier, TrackListState>((ref) {
+      return TrackListNotifier();
+    });

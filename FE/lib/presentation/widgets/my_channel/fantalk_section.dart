@@ -17,7 +17,7 @@ class FanTalkSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // 팬톡 상태 가져오기
-    
+
     final channelState = ref.watch(myChannelProvider);
     final fanTalkResponse = channelState.fanTalks;
     final isLoading = channelState.fanTalksStatus == MyChannelStatus.loading;
@@ -73,7 +73,6 @@ class FanTalkSection extends ConsumerWidget {
                 child: CircularProgressIndicator(color: Colors.blue),
               ),
             )
-
           // 에러 표시
           else if (hasError)
             Center(
@@ -86,7 +85,6 @@ class FanTalkSection extends ConsumerWidget {
                 ),
               ),
             )
-
           // 팬톡이 없는 경우 메시지 표시
           else if (fanTalkResponse == null || fanTalkResponse.fantalks.isEmpty)
             Center(
@@ -99,17 +97,14 @@ class FanTalkSection extends ConsumerWidget {
                 ),
               ),
             )
-
           // 팬톡 목록 표시 (최대 2개)
           else
             ...fanTalkResponse.fantalks
                 .take(2)
-                .map((fanTalk) => _buildFanTalkItem(context, fanTalk))
-                .toList(),
+                .map((fanTalk) => _buildFanTalkItem(context, fanTalk)),
 
           // 팬톡 작성 버튼 (항상 표시)
-          if (!isLoading && !hasError)
-            _buildWriteFanTalkButton(context),
+          if (!isLoading && !hasError) _buildWriteFanTalkButton(context),
         ],
       ),
     );

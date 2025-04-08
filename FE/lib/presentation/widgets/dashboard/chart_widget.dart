@@ -1,19 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:intl/intl.dart';
 import 'dart:math' as math;
 
-enum ChartType {
-  subscribers,
-  streams,
-  revenue,
-}
+enum ChartType { subscribers, streams, revenue }
 
-enum ChartPeriod {
-  daily,
-  monthly,
-  yearly,
-}
+enum ChartPeriod { daily, monthly, yearly }
 
 class ChartData {
   final int day; // 일간 데이터의 경우 1-31, 월간 데이터의 경우 1-12
@@ -49,7 +40,7 @@ class _ChartWidgetState extends State<ChartWidget> {
   Widget build(BuildContext context) {
     // 현재 기간에 따른 적절한 데이터 선택
     List<ChartData> currentData;
-    
+
     if (_currentPeriod == ChartPeriod.monthly) {
       // 월간 모드: 1~12월 데이터
       if (widget.monthlyData != null) {
@@ -59,11 +50,11 @@ class _ChartWidgetState extends State<ChartWidget> {
         // 기존 일간 데이터로부터 월간 데이터 생성 (같은 월의 데이터는 합산)
         // 예: 1월의 모든 일간 데이터를 더해서 1월 데이터 생성
         Map<int, double> monthlyValues = {};
-        
+
         for (var item in widget.data) {
           // 일간 데이터에서 월 정보 추출 (1~31일 데이터에서의 '월' 정보는 항상 1로 가정)
           int month = 1;
-          
+
           // 각 월별로 데이터 합산
           if (monthlyValues.containsKey(month)) {
             monthlyValues[month] = monthlyValues[month]! + item.value;
@@ -71,25 +62,26 @@ class _ChartWidgetState extends State<ChartWidget> {
             monthlyValues[month] = item.value;
           }
         }
-        
+
         // 월간 데이터로 변환
-        currentData = monthlyValues.entries
-            .map((entry) => ChartData(entry.key, entry.value))
-            .toList();
-        
+        currentData =
+            monthlyValues.entries
+                .map((entry) => ChartData(entry.key, entry.value))
+                .toList();
+
         // 월 번호순으로 정렬
         currentData.sort((a, b) => a.day.compareTo(b.day));
-        
+
         // 1~12월 데이터가 모두 있는지 확인하고 없는 월은 0으로 채우기
         List<ChartData> completeMonthlyData = [];
         for (int month = 1; month <= 12; month++) {
           final monthData = currentData.firstWhere(
-            (item) => item.day == month, 
-            orElse: () => ChartData(month, 0)
+            (item) => item.day == month,
+            orElse: () => ChartData(month, 0),
           );
           completeMonthlyData.add(monthData);
         }
-        
+
         currentData = completeMonthlyData;
       }
     } else if (_currentPeriod == ChartPeriod.yearly) {
@@ -99,7 +91,8 @@ class _ChartWidgetState extends State<ChartWidget> {
     } else {
       // 일간 모드: 선택된 년/월에 해당하는 일간 데이터만 필터링
       final lastDayOfMonth = DateTime(_selectedYear, _selectedMonth + 1, 0).day;
-      currentData = widget.data.where((item) => item.day <= lastDayOfMonth).toList();
+      currentData =
+          widget.data.where((item) => item.day <= lastDayOfMonth).toList();
     }
 
     // Y축 최대값에 따라 좌측 여백 계산
@@ -119,7 +112,7 @@ class _ChartWidgetState extends State<ChartWidget> {
             blurRadius: 4,
             offset: Offset(0, 2),
             spreadRadius: 0,
-          )
+          ),
         ],
       ),
       child: Column(
@@ -144,10 +137,7 @@ class _ChartWidgetState extends State<ChartWidget> {
                   }
                 },
                 items: const [
-                  DropdownMenuItem(
-                    value: ChartPeriod.daily,
-                    child: Text('일간'),
-                  ),
+                  DropdownMenuItem(value: ChartPeriod.daily, child: Text('일간')),
                   DropdownMenuItem(
                     value: ChartPeriod.monthly,
                     child: Text('월간'),
@@ -158,7 +148,7 @@ class _ChartWidgetState extends State<ChartWidget> {
                   ),
                 ],
               ),
-              
+
               // 오른쪽: 년도 및 월 선택 드롭다운
               Row(
                 children: [
@@ -167,7 +157,10 @@ class _ChartWidgetState extends State<ChartWidget> {
                     value: _selectedYear,
                     dropdownColor: const Color(0xFF373737),
                     style: const TextStyle(color: Colors.white),
-                    icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                    icon: const Icon(
+                      Icons.arrow_drop_down,
+                      color: Colors.white,
+                    ),
                     underline: Container(),
                     onChanged: (newValue) {
                       if (newValue != null) {
@@ -191,7 +184,10 @@ class _ChartWidgetState extends State<ChartWidget> {
                       value: _selectedMonth,
                       dropdownColor: const Color(0xFF373737),
                       style: const TextStyle(color: Colors.white),
-                      icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                      icon: const Icon(
+                        Icons.arrow_drop_down,
+                        color: Colors.white,
+                      ),
                       underline: Container(),
                       onChanged: (newValue) {
                         if (newValue != null) {
@@ -223,7 +219,7 @@ class _ChartWidgetState extends State<ChartWidget> {
                   final chartWidth = constraints.maxWidth;
                   // y축 너비를 제외한 실제 바 차트 영역의 너비
                   final barChartWidth = chartWidth - yAxisWidth;
-                  
+
                   return Row(
                     children: [
                       // Y축 영역
@@ -241,13 +237,20 @@ class _ChartWidgetState extends State<ChartWidget> {
                               touchTooltipData: BarTouchTooltipData(
                                 tooltipPadding: const EdgeInsets.all(8),
                                 tooltipMargin: 8,
-                                getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                                getTooltipItem: (
+                                  group,
+                                  groupIndex,
+                                  rod,
+                                  rodIndex,
+                                ) {
                                   final dataIndex = group.x.toInt();
-                                  if (dataIndex >= 0 && dataIndex < currentData.length) {
+                                  if (dataIndex >= 0 &&
+                                      dataIndex < currentData.length) {
                                     final value = currentData[dataIndex].value;
-                                    final label = _currentPeriod == ChartPeriod.monthly 
-                                        ? '${currentData[dataIndex].day}월: ${value.toStringAsFixed(0)}'
-                                        : '${currentData[dataIndex].day}일: ${value.toStringAsFixed(0)}';
+                                    final label =
+                                        _currentPeriod == ChartPeriod.monthly
+                                            ? '${currentData[dataIndex].day}월: ${value.toStringAsFixed(0)}'
+                                            : '${currentData[dataIndex].day}일: ${value.toStringAsFixed(0)}';
                                     return BarTooltipItem(
                                       label,
                                       const TextStyle(
@@ -267,10 +270,12 @@ class _ChartWidgetState extends State<ChartWidget> {
                                   showTitles: true,
                                   getTitlesWidget: (value, meta) {
                                     final index = value.toInt();
-                                    if (index >= 0 && index < currentData.length) {
+                                    if (index >= 0 &&
+                                        index < currentData.length) {
                                       final unit = currentData[index].day;
                                       // 월간/일간 모드에 따라 라벨 조정
-                                      if (_currentPeriod == ChartPeriod.monthly) {
+                                      if (_currentPeriod ==
+                                          ChartPeriod.monthly) {
                                         // 월간 모드는 모든 월 표시 (1~12월)
                                         return Text(
                                           '$unit',
@@ -302,9 +307,13 @@ class _ChartWidgetState extends State<ChartWidget> {
                                   showTitles: true,
                                   getTitlesWidget: (value, meta) {
                                     // Y축에 3개의 선만 표시 (0, 중간값, 최대값)
-                                    if (value == 0 || value == maxY / 2 || value == maxY) {
+                                    if (value == 0 ||
+                                        value == maxY / 2 ||
+                                        value == maxY) {
                                       return Padding(
-                                        padding: const EdgeInsets.only(right: 4),
+                                        padding: const EdgeInsets.only(
+                                          right: 4,
+                                        ),
                                         child: Text(
                                           _formatYAxisValue(value),
                                           style: const TextStyle(
@@ -331,9 +340,13 @@ class _ChartWidgetState extends State<ChartWidget> {
                               drawVerticalLine: false,
                               horizontalInterval: maxY / 2,
                               getDrawingHorizontalLine: (value) {
-                                if (value == 0 || value == maxY / 2 || value == maxY) {
+                                if (value == 0 ||
+                                    value == maxY / 2 ||
+                                    value == maxY) {
                                   return FlLine(
-                                    color: const Color(0xFFF2F2F2).withOpacity(0.3),
+                                    color: const Color(
+                                      0xFFF2F2F2,
+                                    ).withOpacity(0.3),
                                     strokeWidth: 0.5,
                                   );
                                 }
@@ -350,7 +363,7 @@ class _ChartWidgetState extends State<ChartWidget> {
                       ),
                     ],
                   );
-                }
+                },
               ),
             ),
           ),
@@ -379,9 +392,9 @@ class _ChartWidgetState extends State<ChartWidget> {
   // 차트의 최대 Y값 계산
   double _getMaxY(List<ChartData> data) {
     if (data.isEmpty) return 300;
-    
+
     final maxValue = data.map((e) => e.value).reduce((a, b) => a > b ? a : b);
-    
+
     // 적절한 스케일로 반올림
     if (maxValue <= 10) return 10;
     if (maxValue <= 50) return ((maxValue ~/ 10) + 1) * 10.0;
@@ -396,26 +409,30 @@ class _ChartWidgetState extends State<ChartWidget> {
   List<BarChartGroupData> _getBarGroups(List<ChartData> data) {
     // 데이터 개수에 따라 바 너비 조정 (데이터가 많을수록 좁게)
     final barWidth = math.max(2.0, math.min(60.0, 200 / data.length));
-    
-    return data.asMap().map((index, item) {
-      return MapEntry(
-        index,
-        BarChartGroupData(
-          x: index,
-          barRods: [
-            BarChartRodData(
-              toY: item.value,
-              color: _getBarColor(),
-              width: barWidth,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(2),
-                topRight: Radius.circular(2),
-              ),
+
+    return data
+        .asMap()
+        .map((index, item) {
+          return MapEntry(
+            index,
+            BarChartGroupData(
+              x: index,
+              barRods: [
+                BarChartRodData(
+                  toY: item.value,
+                  color: _getBarColor(),
+                  width: barWidth,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(2),
+                    topRight: Radius.circular(2),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      );
-    }).values.toList();
+          );
+        })
+        .values
+        .toList();
   }
 
   // 차트 유형에 따른 색상 설정
