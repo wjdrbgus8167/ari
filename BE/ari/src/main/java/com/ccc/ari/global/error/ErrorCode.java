@@ -80,8 +80,9 @@ public enum ErrorCode {
     SUBSCRIPTION_NOT_FOUND(HttpStatus.NOT_FOUND,"S001","구독권이 존재하지 않습니다."),
     SUBSCRIPTION_ACCESS_DENIED(HttpStatus.FORBIDDEN, "S002", "구독권이 유효하지 않거나 일치하지 않는 유효권입니다."),
     // 검색 관련
-    INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "Q001", "검색어를 입력해주세요.");
-
+    INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "Q001", "검색어를 입력해주세요."),
+    // 스트리밍 조회 관련
+    STREAMING_NOT_FOUND(HttpStatus.NOT_FOUND,"ST001","스트리밍 내역을 조회하는데 실패했습니다.");
     private final HttpStatus status;
     private final String code;
     private final String message;
