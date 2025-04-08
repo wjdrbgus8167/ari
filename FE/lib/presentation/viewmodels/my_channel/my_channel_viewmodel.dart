@@ -16,6 +16,7 @@ enum MyChannelStatus { initial, loading, success, error }
 
 /// 나의 채널 화면 상태 클래스
 class MyChannelState {
+  final String? currentMemberId; // 현재 표시 중인 회원 ID 추가
   final MyChannelStatus channelInfoStatus;
   final MyChannelStatus artistAlbumsStatus;
   final MyChannelStatus artistNoticesStatus;
@@ -38,6 +39,7 @@ class MyChannelState {
   final Failure? error;
 
   MyChannelState({
+    this.currentMemberId, // 현재 회원 ID 저장
     this.channelInfoStatus = MyChannelStatus.initial,
     this.artistAlbumsStatus = MyChannelStatus.initial,
     this.artistNoticesStatus = MyChannelStatus.initial,
@@ -62,6 +64,7 @@ class MyChannelState {
 
   /// 상태 복사 메서드
   MyChannelState copyWith({
+    String? currentMemberId,
     MyChannelStatus? channelInfoStatus,
     MyChannelStatus? artistAlbumsStatus,
     MyChannelStatus? artistNoticesStatus,
@@ -84,6 +87,7 @@ class MyChannelState {
     Failure? error,
   }) {
     return MyChannelState(
+      currentMemberId: currentMemberId ?? this.currentMemberId,
       channelInfoStatus: channelInfoStatus ?? this.channelInfoStatus,
       artistAlbumsStatus: artistAlbumsStatus ?? this.artistAlbumsStatus,
       artistNoticesStatus: artistNoticesStatus ?? this.artistNoticesStatus,
@@ -145,9 +149,25 @@ class MyChannelNotifier extends StateNotifier<MyChannelState> {
     required this.createArtistNoticeUseCase,
   }) : super(MyChannelState());
 
+  /// 다른 회원의 채널로 이동하기 전에 상태 리셋
+  /// 이전 상태가 그대로 유지되는 문제 해결
+  void resetState() {
+    state = MyChannelState(); // 완전히 새로운 초기 상태로 리셋
+  }
+
   /// 채널 정보 로딩
   Future<void> loadChannelInfo(String memberId) async {
-    state = state.copyWith(channelInfoStatus: MyChannelStatus.loading);
+    // 다른 회원의 채널로 이동하는 경우 먼저 상태 확인
+    if (state.currentMemberId != null && state.currentMemberId != memberId) {
+      // 회원 ID가 변경된 경우 상태 초기화
+      resetState();
+    }
+
+    // 현재 멤버 ID 저장
+    state = state.copyWith(
+      currentMemberId: memberId,
+      channelInfoStatus: MyChannelStatus.loading,
+    );
 
     final result = await getChannelInfoUseCase.execute(memberId);
 
@@ -289,7 +309,11 @@ class MyChannelNotifier extends StateNotifier<MyChannelState> {
 
   /// 팬톡 목록 로딩
   Future<void> loadFanTalks(String fantalkChannelId) async {
-    state = state.copyWith(fanTalksStatus: MyChannelStatus.loading);
+    // 팬톡 상태를 초기화 후 로딩 상태로 설정
+    state = state.copyWith(
+      fanTalksStatus: MyChannelStatus.loading,
+      fanTalks: null, // 명시적으로 null로 설정하여 이전 데이터 제거
+    );
 
     final result = await getFanTalksUseCase.execute(fantalkChannelId);
 
@@ -304,6 +328,14 @@ class MyChannelNotifier extends StateNotifier<MyChannelState> {
             fanTalksStatus: MyChannelStatus.success,
             fanTalks: fanTalks,
           ),
+    );
+  }
+
+  /// 팬톡 데이터 초기화 (채널 변경 시 호출)
+  void clearFanTalks() {
+    state = state.copyWith(
+      fanTalksStatus: MyChannelStatus.initial,
+      fanTalks: null,
     );
   }
 
@@ -385,32 +417,79 @@ class MyChannelNotifier extends StateNotifier<MyChannelState> {
     String memberId,
     String? fantalkChannelId,
   ) async {
-    // 채널 정보 먼저 로드
-    await _loadSafely(() => loadChannelInfo(memberId), '채널 정보');
-
-    // 채널 정보 로드 후 구독자 수 확인
-    final channelInfo = state.channelInfo;
-    final hasSubscribers =
-        channelInfo != null && channelInfo.subscriberCount > 0;
-
-    // 다른 데이터 로드
-    _loadSafely(() => loadArtistAlbums(memberId), '아티스트 앨범');
-    _loadSafely(() => loadArtistNotices(memberId), '아티스트 공지사항');
-
-    // 구독자가 있는 경우에만 팬톡 로드
-    if (hasSubscribers && fantalkChannelId != null) {
-      _loadSafely(() => loadFanTalks(fantalkChannelId), '팬톡');
-    } else {
-      // 구독자가 없는 경우 팬톡 상태를 성공으로 설정하되 데이터는 비움
-      state = state.copyWith(
-        fanTalksStatus: MyChannelStatus.success,
-        fanTalks: null,
-      );
+    // 이전 상태 체크하여 다른 채널로 이동한 경우 초기화
+    if (state.currentMemberId != null && state.currentMemberId != memberId) {
+      resetState(); // 상태 완전 초기화
     }
 
-    _loadSafely(() => loadPublicPlaylists(memberId), '공개된 플레이리스트');
-    _loadSafely(() => loadFollowers(memberId), '팔로워 목록');
-    _loadSafely(() => loadFollowings(memberId), '팔로잉 목록');
+    // 현재 멤버 ID 저장 및 로딩 상태로 변경
+    state = state.copyWith(
+      currentMemberId: memberId,
+      channelInfoStatus: MyChannelStatus.loading,
+      artistAlbumsStatus: MyChannelStatus.loading,
+      artistNoticesStatus: MyChannelStatus.loading,
+      fanTalksStatus: MyChannelStatus.loading,
+      publicPlaylistsStatus: MyChannelStatus.loading,
+      followersStatus: MyChannelStatus.loading,
+      followingsStatus: MyChannelStatus.loading,
+      // 명시적으로 이전 데이터 초기화
+      channelInfo: null,
+      artistAlbums: null,
+      artistNotices: null,
+      fanTalks: null,
+      publicPlaylists: null,
+      followers: null,
+      followings: null,
+    );
+
+    // 1. 채널 정보 먼저 로드
+    final channelInfoResult = await getChannelInfoUseCase.execute(memberId);
+
+    channelInfoResult.fold(
+      (failure) {
+        state = state.copyWith(
+          channelInfoStatus: MyChannelStatus.error,
+          error: failure,
+        );
+      },
+      (channelInfo) async {
+        // 2. 채널 정보 업데이트
+        state = state.copyWith(
+          channelInfoStatus: MyChannelStatus.success,
+          channelInfo: channelInfo,
+        );
+
+        // 3. 다른 데이터 로드를 위한 변수 설정
+        final hasSubscribers = channelInfo.subscriberCount > 0;
+        final actualFantalkChannelId = channelInfo.fantalkChannelId?.toString();
+
+        // 아티스트 앨범 로드
+        await _loadSafely(() => loadArtistAlbums(memberId), '아티스트 앨범');
+
+        // 아티스트 공지사항 로드
+        await _loadSafely(() => loadArtistNotices(memberId), '아티스트 공지사항');
+
+        // 팬톡 로드 (구독자가 있고 채널 ID가 있는 경우에만)
+        if (hasSubscribers && actualFantalkChannelId != null) {
+          await _loadSafely(() => loadFanTalks(actualFantalkChannelId), '팬톡');
+        } else {
+          // 팬톡 데이터 명시적으로 비우기
+          state = state.copyWith(
+            fanTalksStatus: MyChannelStatus.success,
+            fanTalks: null,
+          );
+        }
+
+        // 공개 플레이리스트 로드
+        await _loadSafely(() => loadPublicPlaylists(memberId), '공개된 플레이리스트');
+
+        // 팔로워 로드
+        await _loadSafely(() => loadFollowers(memberId), '팔로워 목록');
+
+        // 팔로잉 로드
+        await _loadSafely(() => loadFollowings(memberId), '팔로잉 목록');
+      },
+    );
   }
 
   // 안전하게 로드하는 헬퍼 메서드
@@ -422,7 +501,7 @@ class MyChannelNotifier extends StateNotifier<MyChannelState> {
       await loadFunction();
     } catch (e) {
       print('$dataName 로드 실패: $e');
-      // 에러 상태로 설정하지 않고 무시 (선택적)
+      // 에러 로깅만 하고 진행
     }
   }
 
@@ -455,10 +534,6 @@ class MyChannelNotifier extends StateNotifier<MyChannelState> {
     try {
       await createArtistNoticeUseCase(content, noticeImage: noticeImage);
       state = state.copyWith(createNoticeStatus: MyChannelStatus.success);
-
-      // 공지사항 생성 후 공지사항 목록 새로고침 (현재 로그인한 사용자의 ID 필요)
-      // 성공 후 로직 구현은 호출하는 쪽에서 처리
-
       return true;
     } catch (e) {
       state = state.copyWith(

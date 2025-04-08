@@ -120,6 +120,7 @@ class _FantalkListScreenState extends ConsumerState<FantalkListScreen> {
           fanTalks: fanTalks,
           isSubscribed: widget.isSubscribed,
           errorMessage: errorMessage,
+          fanTalksStatus: fantalkState.fanTalksStatus,
         ),
       ),
     );
@@ -132,16 +133,28 @@ class _FantalkListScreenState extends ConsumerState<FantalkListScreen> {
     required bool hasError,
     required List<FanTalk> fanTalks,
     required bool isSubscribed,
+    required FantalkStatus fanTalksStatus,
     String? errorMessage,
   }) {
-    // 로딩 중
-    if (isLoading && fanTalks.isEmpty) {
+    // 데이터가 있으면 데이터 표시
+    if (fanTalks.isNotEmpty) {
+      return ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: fanTalks.length,
+        itemBuilder: (context, index) {
+          return _buildFanTalkItem(context, fanTalks[index]);
+        },
+      );
+    }
+
+    // 로딩 중이고 데이터가 없는 경우
+    if (isLoading) {
       return const Center(
         child: CircularProgressIndicator(color: AppColors.mediumGreen),
       );
     }
 
-    // 에러 발생
+    // 에러 발생했고 데이터가 없는 경우
     if (hasError) {
       return Center(
         child: Column(
@@ -171,8 +184,8 @@ class _FantalkListScreenState extends ConsumerState<FantalkListScreen> {
       );
     }
 
-    // 팬톡이 없는 경우
-    if (fanTalks.isEmpty) {
+    // 팬톡이 없는 경우 (로딩 완료 상태)
+    if (fanTalksStatus == FantalkStatus.success && fanTalks.isEmpty) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -196,13 +209,9 @@ class _FantalkListScreenState extends ConsumerState<FantalkListScreen> {
       );
     }
 
-    // 팬톡 목록 표시
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: fanTalks.length,
-      itemBuilder: (context, index) {
-        return _buildFanTalkItem(context, fanTalks[index]);
-      },
+    // 기본 로딩 표시
+    return const Center(
+      child: CircularProgressIndicator(color: AppColors.mediumGreen),
     );
   }
 
@@ -295,9 +304,9 @@ class _FantalkListScreenState extends ConsumerState<FantalkListScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: .3),
+        color: Colors.black.withOpacity(0.3),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.blue.withValues(alpha: .3), width: 1),
+        border: Border.all(color: Colors.blue.withOpacity(0.3), width: 1),
       ),
       child: Row(
         children: [
