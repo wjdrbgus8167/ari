@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -32,7 +33,7 @@ public class AlbumClientImpl implements AlbumClient {
     }
 
     @Override
-    public List<AlbumEntity> getAllAlbums(Integer memberId) {
+    public Optional<List<AlbumEntity>> getAllAlbums(Integer memberId) {
         return albumService.getAllAlbums(memberId);
     }
 

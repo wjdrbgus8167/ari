@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -81,8 +82,8 @@ public class AlbumService {
         album.decreaseLikeCount();
     }
 
-    public List<AlbumEntity> getAllAlbums(Integer memberId){
-        List<AlbumEntity> list = jpaAlbumRepository.findAllByMember_MemberId(memberId);
+    public Optional<List<AlbumEntity>> getAllAlbums(Integer memberId){
+        Optional<List<AlbumEntity>> list = jpaAlbumRepository.findListByMember_MemberId(memberId);
 
         return list;
     }
