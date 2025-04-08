@@ -72,7 +72,7 @@ spring:
 #JWT 설정
 jwt:
   secret_key: ${JWT_SECRET_KEY}
-  access_expiration: 3600000
+  access_expiration: 604800000
   refresh_expiration: 604800000
 # 서버 포트 설정
 server:
