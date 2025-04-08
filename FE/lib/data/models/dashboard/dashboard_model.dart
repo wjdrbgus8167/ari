@@ -1,7 +1,5 @@
-// 아티스트 대시보드 데이터 모델 (Flutter/Dart)
-
 class DailySubscriberCount {
-  final String date;          // 날짜 (YY.MM.DD 형식)
+  final String date;          // 날짜 (YYYY-MM-DD 또는 YY.MM.DD 형식)
   final int subscriberCount;  // 해당 날짜의 구독자 수
 
   DailySubscriberCount({
@@ -24,6 +22,30 @@ class DailySubscriberCount {
   }
 }
 
+class MonthlySubscriberCount {
+  final String month;        // 월 (YY.MM 형식)
+  final int subscriberCount; // 해당 월의 구독자 수
+
+  MonthlySubscriberCount({
+    required this.month,
+    required this.subscriberCount,
+  });
+
+  factory MonthlySubscriberCount.fromJson(Map<String, dynamic> json) {
+    return MonthlySubscriberCount(
+      month: json['month'],
+      subscriberCount: json['subscriberCount'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'month': month,
+      'subscriberCount': subscriberCount,
+    };
+  }
+}
+
 class DailySettlement {
   final String date;        // 날짜 (YY.MM.DD 형식)
   final double settlement;  // 해당 날짜의 정산 금액
@@ -36,7 +58,9 @@ class DailySettlement {
   factory DailySettlement.fromJson(Map<String, dynamic> json) {
     return DailySettlement(
       date: json['date'],
-      settlement: json['settlement'].toDouble(),
+      settlement: json['settlement'] is int 
+          ? (json['settlement'] as int).toDouble() 
+          : json['settlement'].toDouble(),
     );
   }
 
@@ -51,19 +75,19 @@ class DailySettlement {
 class Album {
   final String albumTitle;     // 앨범 제목
   final String coverImageUrl;  // 앨범 커버 이미지 URL
-  final int trackCount;        // 앨범 내 트랙 수
+  final int totalStreaming;    // 앨범 총 스트리밍 횟수
 
   Album({
     required this.albumTitle,
     required this.coverImageUrl,
-    required this.trackCount,
+    required this.totalStreaming,
   });
 
   factory Album.fromJson(Map<String, dynamic> json) {
     return Album(
       albumTitle: json['albumTitle'],
       coverImageUrl: json['coverImageUrl'],
-      trackCount: json['trackCount'],
+      totalStreaming: json['totalStreaming'],
     );
   }
 
@@ -71,25 +95,26 @@ class Album {
     return {
       'albumTitle': albumTitle,
       'coverImageUrl': coverImageUrl,
-      'trackCount': trackCount,
+      'totalStreaming': totalStreaming,
     };
   }
 }
 
 class ArtistDashboardData {
-  final String walletAddress;           // 아티스트 지갑 주소
-  final int subscriberCount;            // 전체 구독자 수
-  final int totalStreamingCount;        // 전체 스트리밍 횟수
-  final int todayStreamingCount;        // 오늘 스트리밍 횟수
-  final int streamingDiff;              // 전일 대비 스트리밍 증감
-  final int todayNewSubscriberCount;    // 오늘 신규 구독자 수
-  final int newSubscriberDiff;          // 전일 대비 신규 구독자 증감
-  final double todaySettlement;         // 오늘 정산 금액
-  final double settlementDiff;          // 전일 대비 정산 금액 증감
-  final int todayNewSubscribeCount;     // 오늘 신규 구독 수
-  final List<Album> albums;             // 아티스트의 앨범 리스트
+  final String? walletAddress;           // 아티스트 지갑 주소
+  final int subscriberCount;             // 전체 구독자 수
+  final int totalStreamingCount;         // 전체 스트리밍 횟수
+  final int todayStreamingCount;         // 오늘 스트리밍 횟수
+  final int streamingDiff;               // 전일 대비 스트리밍 증감
+  final int todayNewSubscriberCount;     // 오늘 신규 구독자 수
+  final int newSubscriberDiff;           // 전일 대비 신규 구독자 증감
+  final double todaySettlement;          // 오늘 정산 금액
+  final double settlementDiff;           // 전일 대비 정산 금액 증감
+  final int todayNewSubscribeCount;      // 오늘 신규 구독 수
+  final List<Album> albums;              // 아티스트의 앨범 리스트
   final List<DailySubscriberCount> dailySubscriberCounts;  // 일간 구독자 수 추이
-  final List<DailySettlement> dailySettlement;             // 일간 정산 금액 추이
+  final List<DailySettlement> dailySettlement;  // 일간 정산 금액 추이
+  final List<MonthlySubscriberCount> monthlySubscriberCounts; // 월간 구독자 수 추이
 
   ArtistDashboardData({
     required this.walletAddress,
@@ -104,7 +129,8 @@ class ArtistDashboardData {
     required this.todayNewSubscribeCount,
     required this.albums,
     required this.dailySubscriberCounts,
-    required this.dailySettlement,
+    required this.dailySettlement, 
+    required this.monthlySubscriberCounts,
   });
 
   factory ArtistDashboardData.fromJson(Map<String, dynamic> json) {
@@ -114,10 +140,14 @@ class ArtistDashboardData {
       totalStreamingCount: json['totalStreamingCount'],
       todayStreamingCount: json['todayStreamingCount'],
       streamingDiff: json['streamingDiff'],
-      todayNewSubscriberCount: json['todayNewSubscriberCount'],
+      todayNewSubscriberCount: json['thisMonthNewSubscriberCount'], // API 응답 필드명 수정
       newSubscriberDiff: json['newSubscriberDiff'],
-      todaySettlement: json['todaySettlement'].toDouble(),
-      settlementDiff: json['settlementDiff'].toDouble(),
+      todaySettlement: json['todaySettlement'] is int 
+          ? (json['todaySettlement'] as int).toDouble() 
+          : json['todaySettlement'].toDouble(),
+      settlementDiff: json['settlementDiff'] is int 
+          ? (json['settlementDiff'] as int).toDouble() 
+          : json['settlementDiff'].toDouble(),
       todayNewSubscribeCount: json['todayNewSubscribeCount'],
       albums: (json['albums'] as List)
           .map((albumJson) => Album.fromJson(albumJson))
@@ -127,6 +157,9 @@ class ArtistDashboardData {
           .toList(),
       dailySettlement: (json['dailySettlement'] as List)
           .map((settlementJson) => DailySettlement.fromJson(settlementJson))
+          .toList(),
+      monthlySubscriberCounts: (json['monthlySubscriberCounts'] as List)
+          .map((countJson) => MonthlySubscriberCount.fromJson(countJson))
           .toList(),
     );
   }
@@ -138,7 +171,7 @@ class ArtistDashboardData {
       'totalStreamingCount': totalStreamingCount,
       'todayStreamingCount': todayStreamingCount,
       'streamingDiff': streamingDiff,
-      'todayNewSubscriberCount': todayNewSubscriberCount,
+      'thisMonthNewSubscriberCount': todayNewSubscriberCount, // API 응답 필드명 수정
       'newSubscriberDiff': newSubscriberDiff,
       'todaySettlement': todaySettlement,
       'settlementDiff': settlementDiff,
@@ -149,6 +182,9 @@ class ArtistDashboardData {
           .toList(),
       'dailySettlement': dailySettlement
           .map((settlement) => settlement.toJson())
+          .toList(),
+      'monthlySubscriberCounts': monthlySubscriberCounts
+          .map((count) => count.toJson())
           .toList(),
     };
   }
