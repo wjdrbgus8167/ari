@@ -1,4 +1,7 @@
+import 'package:ari/data/datasources/local/local_listening_queue_datasource.dart';
 import 'package:ari/domain/usecases/playback_permission_usecase.dart';
+import 'package:ari/presentation/viewmodels/listening_queue_viewmodel.dart';
+import 'package:ari/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +11,7 @@ import 'package:ari/presentation/widgets/common/custom_toast.dart';
 import 'package:dio/dio.dart';
 import 'package:ari/data/models/api_response.dart';
 import 'package:ari/providers/global_providers.dart';
+import 'package:ari/data/models/track.dart' as data;
 
 class AudioService {
   final AudioPlayer audioPlayer = AudioPlayer();
@@ -179,6 +183,7 @@ class AudioService {
     final dio = ref.read(dioProvider);
     final allowedTracks = <Track>[];
 
+    // 1. 재생 가능한 트랙 필터링
     for (final track in playlist) {
       final result = await permissionUsecase.check(
         track.albumId,
@@ -194,35 +199,47 @@ class AudioService {
       return;
     }
 
-    final initialIndex = allowedTracks.indexWhere(
-      (t) => t.trackId == startTrack.trackId,
-    );
-    if (initialIndex == -1) {
-      context.showToast('선택한 트랙은 재생할 수 없습니다.');
-      return;
-    }
+    final initialIndex = 0;
 
+    // 2. 첫 트랙 정보 로드 및 상태 갱신
     try {
       final track = await _fetchPlayableTrack(
         ref,
         dio,
-        startTrack.albumId,
-        startTrack.trackId,
+        allowedTracks.first.albumId,
+        allowedTracks.first.trackId,
         context,
       );
       await _playAndSetState(ref, track);
     } catch (e) {
       context.showToast(e.toString());
+      return;
     }
 
+    // 3. 현재 로그인한 사용자 ID 가져오기
+    final userId = ref.read(authUserIdProvider);
+
+    // 4. 기존 재생목록 불러오기 (data.Track → domain.Track 변환)
+    final existingQueue = (await loadListeningQueue(userId)).cast<data.Track>();
+    final existingQueueDomain =
+        existingQueue.map(mapDataTrackToDomain).toList();
+
+    // 5. 새 트랙을 최상단에 추가
+    final merged = [...allowedTracks, ...existingQueueDomain];
+    final finalQueue = merged;
+
+    // 6. Hive에 저장 (domain → data로 변환해서 저장)
+    final dataQueue = finalQueue.map((t) => t.toDataModel()).toList();
+    await saveListeningQueue(userId, dataQueue);
+
+    // 7. 재생 목록 구성
     _playlistSource.clear();
-    for (final track in allowedTracks) {
-      _playlistSource.add(AudioSource.uri(Uri.parse(track.trackFileUrl ?? '')));
+    for (final t in finalQueue) {
+      _playlistSource.add(AudioSource.uri(Uri.parse(t.trackFileUrl ?? '')));
     }
-    await audioPlayer.setAudioSource(
-      _playlistSource,
-      initialIndex: initialIndex,
-    );
+
+    await audioPlayer.setAudioSource(_playlistSource, initialIndex: 0);
+    ref.read(listeningQueueProvider.notifier).loadQueue(); // ← 이걸 추가
   }
 
   Future<void> _playAndSetState(WidgetRef ref, Track track) async {

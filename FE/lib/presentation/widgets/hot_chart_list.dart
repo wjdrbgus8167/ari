@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/providers/global_providers.dart';
 
 import 'package:ari/core/services/audio_service.dart';
-import 'package:ari/core/utils/safe_to_domain_track.dart';
 
 import 'package:ari/data/mappers/track_mapper.dart';
 import 'package:ari/data/models/track.dart' as ari;

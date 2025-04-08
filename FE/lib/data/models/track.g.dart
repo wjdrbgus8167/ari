@@ -25,16 +25,16 @@ class TrackAdapter extends TypeAdapter<Track> {
       albumId: fields[5] as int,
       trackFileUrl: fields[6] as String,
       lyrics: fields[7] as String,
-      trackLikeCount: fields[8] as int,
+      artistId: fields[10] as int?,
       coverUrl: fields[9] as String?,
-      artistId: fields[10] as int,
+      trackLikeCount: fields[8] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, Track obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)

@@ -39,7 +39,7 @@ class Track extends HiveObject {
   final String? coverUrl; // 🔹 앨범 커버 이미지 URL (nullable)
 
   @HiveField(10)
-  final int artistId;
+  final int? artistId;
   Track({
     required this.id,
     required this.trackTitle,

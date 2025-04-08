@@ -50,9 +50,14 @@ class PlaylistTrackList extends ConsumerWidget {
                 .read(audioServiceProvider)
                 .playFromQueueSubset(context, ref, fullPlaylist, selectedTrack);
 
-            await ref
-                .read(listeningQueueProvider.notifier)
-                .trackPlayed(trackItem.toDataTrack());
+            // ✅ context.mounted 대신 ref이 살아있는지 보장되게 처리
+            Future.microtask(() {
+              if (context.mounted) {
+                ref
+                    .read(listeningQueueProvider.notifier)
+                    .trackPlayed(trackItem.toDataTrack());
+              }
+            });
           },
 
           onToggleSelection: () {

@@ -5,11 +5,16 @@ import 'package:ari/data/models/track.dart';
 Future<Box<Track>> openListeningQueueBox(String userId) async {
   final boxName = 'listening_queue_$userId';
 
-  // ❗ 기존 박스를 삭제(개발용 코드)
-  if (await Hive.boxExists(boxName)) {
-    print('[DEBUG] 기존 박스 삭제: $boxName');
-    await Hive.deleteBoxFromDisk(boxName);
-  }
+  // // ❗ 기존 박스를 삭제(개발용 코드)
+  // if (await Hive.boxExists(boxName)) {
+  //   print('[DEBUG] 기존 박스 삭제: $boxName');
+  //   await Hive.deleteBoxFromDisk(boxName);
+  // }
+
+  // // Hive 전체 초기화 (개발용 코드)
+  // await Hive.close();
+  // await Hive.deleteBoxFromDisk('listening_queue_$userId');
+  // await Hive.openBox<Track>('listening_queue_$userId');
 
   // ✅ 새로운 박스 열기
   return await Hive.openBox<Track>(boxName);

@@ -207,7 +207,7 @@ class PlaybackBar extends ConsumerWidget {
                     );
                     if (!ok) return;
 
-                    Navigator.pushNamed(context, AppRoutes.listeningqueue);
+                    Navigator.pushNamed(context, '/listeningqueue-tab');
                   },
                 ),
               ],

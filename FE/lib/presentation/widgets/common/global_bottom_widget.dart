@@ -414,6 +414,7 @@ class _GlobalNavigationContainerState
         return '/'; // 음악 서랍 경로
       case 3:
         return AppRoutes.myChannel;
+
       default:
         return AppRoutes.home;
     }

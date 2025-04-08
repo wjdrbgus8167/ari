@@ -30,6 +30,8 @@ class _PlaylistSelectbarState extends ConsumerState<PlaylistSelectbar> {
     final repository = ref.read(playlistRepositoryProvider);
     try {
       final result = await repository.fetchPlaylists();
+      if (!mounted) return;
+
       setState(() {
         playlists = result;
         if (playlists.isNotEmpty) {
@@ -213,6 +215,8 @@ class _PlaylistSelectbarState extends ConsumerState<PlaylistSelectbar> {
           );
         },
       ).whenComplete(() {
+        if (!mounted) return;
+
         setState(() {
           isModalOpen = false;
         });
