@@ -20,6 +20,9 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -28,14 +31,20 @@ public class SettlementExecuteService {
     private final SubscriptionContract subscriptionContract;
     private final StreamingCountClient streamingCountClient;
     private final SubscriptionClient subscriptionClient;
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     // 1 LINK = 10^18
     private final BigInteger LINK_MULTIPLIER = BigInteger.TEN.pow(18);
     // 정기 구독의 결제 금액은 1LINK
     private final BigInteger REGULAR_AMOUNT = BigInteger.ONE.multiply(LINK_MULTIPLIER);
     // 아티스트 구독의 결제 금액은 1LINK
     private final BigInteger ARTIST_AMOUNT = BigInteger.ONE.multiply(LINK_MULTIPLIER);
+    private static final int MAX_RETRY_ATTEMPTS = 5;
+    private static final long RETRY_DELAY_MS = 2000;
+    private static final BigInteger GAS_PRICE_INCREMENT = BigInteger.valueOf(5_000_000_000L); // 5 Gwei
+    private static final BigInteger INITIAL_GAS_PRICE = BigInteger.valueOf(22_000_000_000L);
+    private static final BigInteger GAS_LIMIT = BigInteger.valueOf(8_000_000);
+    private static final long TRANSACTION_TIMEOUT_SECONDS = 60;
 
     /**
      * 정기 구독 정산 요청 이벤트를 처리하는 메서드
@@ -85,29 +94,26 @@ public class SettlementExecuteService {
                 .map(result -> BigInteger.valueOf(result.getCount()))
                 .toList();
 
+        // 5. 입력값 유효성 검사
+        if (artistIds.isEmpty() || streamingCounts.isEmpty()) {
+            logger.error("스트리밍 카운트 데이터가 비어있습니다 - SubscriberId: {}", event.getSubscriberId());
+            return;
+        }
+
         try {
-            // 가스 제공자 설정
-            ContractGasProvider gasProvider = new StaticGasProvider(
-                    BigInteger.valueOf(22_000_000_000L), // gasPrice
-                    BigInteger.valueOf(8_000_000)        // gasLimit
+            TransactionReceipt receipt = executeWithRetry(
+                    "정기 구독 정산",
+                    event.getSubscriberId().longValue(),
+                    () -> subscriptionContract.settlePaymentsRegularByArtist(
+                            BigInteger.valueOf(event.getSubscriberId()),
+                            BigInteger.valueOf(cycleId),
+                            REGULAR_AMOUNT,
+                            artistIds,
+                            streamingCounts
+                    ).send()
             );
-
-            // 컨트랙트에 가스 제공자 설정
-            subscriptionContract.setGasProvider(gasProvider);
-
-            TransactionReceipt receipt = subscriptionContract.settlePaymentsRegularByArtist(
-                    BigInteger.valueOf(event.getSubscriberId()),
-                    BigInteger.valueOf(cycleId),
-                    REGULAR_AMOUNT,
-                    artistIds,
-                    streamingCounts
-            ).send();
-
-            logger.info("정기 구독 정산 컨트랙트 함수 호출 성공 - SubscriberId: {}, CycleId: {}, TransactionHash: {}",
-                    event.getSubscriberId(), cycleId, receipt.getTransactionHash());
-
         } catch (Exception e) {
-            logger.error("정기 구독 정산 실행 함수 호출 중 문제가 발생했습니다 - SubscriberId: {}, CycleId: {}",
+            logger.error("정기 구독 정산 최종 실패 - SubscriberId: {}, CycleId: {}",
                     event.getSubscriberId(), cycleId, e);
         }
     }
@@ -145,27 +151,74 @@ public class SettlementExecuteService {
 
         // 3. 아티스트 구독 사이클 정산 컨트랙트 함수 실행
         try {
-            // 가스 제공자 설정
-            ContractGasProvider gasProvider = new StaticGasProvider(
-                    BigInteger.valueOf(22_000_000_000L), // gasPrice
-                    BigInteger.valueOf(8_000_000)        // gasLimit
+            TransactionReceipt receipt = executeWithRetry(
+                    "아티스트 구독 정산",
+                    event.getSubscriberId().longValue(),
+                    () -> subscriptionContract.settlePaymentsArtist(
+                            BigInteger.valueOf(event.getSubscriberId()),
+                            BigInteger.valueOf(event.getArtistId()),
+                            BigInteger.valueOf(cycleId),
+                            ARTIST_AMOUNT
+                    ).send()
             );
-
-            // 컨트랙트에 가스 제공자 설정
-            subscriptionContract.setGasProvider(gasProvider);
-
-            TransactionReceipt receipt = subscriptionContract.settlePaymentsArtist(
-                    BigInteger.valueOf(event.getSubscriberId()),
-                    BigInteger.valueOf(event.getArtistId()),
-                    BigInteger.valueOf(cycleId),
-                    ARTIST_AMOUNT
-            ).send();
-
-            logger.info("아티스트 구독 정산 컨트랙트 함수 호출 성공 - SubscriberId: {}, artistId: {}, CycleId: {}",
-                    event.getSubscriberId(), event.getArtistId(), cycleId);
         } catch (Exception e) {
-            logger.error("아티스트 구독 정산 실행 함수 호출 중 문제가 발생했습니다 - SubscriberId: {}, artistId: {}, CycleId: {}",
+            logger.error("아티스트 구독 정산 최종 실패 - SubscriberId: {}, ArtistId: {}, CycleId: {}",
                     event.getSubscriberId(), event.getArtistId(), cycleId, e);
         }
+    }
+
+    private TransactionReceipt executeWithRetry(String operationType,
+                                                Long subscriberId,
+                                                TransactionExecutor executor) {
+        Exception lastException = null;
+        BigInteger currentGasPrice = INITIAL_GAS_PRICE;
+
+        for (int attempt = 0; attempt < MAX_RETRY_ATTEMPTS; attempt++) {
+            try {
+                ContractGasProvider gasProvider = new StaticGasProvider(currentGasPrice, GAS_LIMIT);
+                subscriptionContract.setGasProvider(gasProvider);
+
+                CompletableFuture<TransactionReceipt> future = CompletableFuture.supplyAsync(() -> {
+                    try {
+                        return executor.execute();
+                    } catch (Exception e) {
+                        throw new CompletionException(e);
+                    }
+                });
+
+                TransactionReceipt receipt = future.get(TRANSACTION_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+
+                if (!receipt.isStatusOK()) {
+                    throw new RuntimeException("트랜잭션이 실패했습니다. Status: " + receipt.getStatus());
+                }
+
+                logger.info("{} 트랜잭션 성공 - SubscriberId: {}, GasPrice: {}, GasUsed: {}, Hash: {}",
+                        operationType, subscriberId, currentGasPrice, receipt.getGasUsed(), receipt.getTransactionHash());
+
+                return receipt;
+
+            } catch (Exception e) {
+                lastException = e;
+                logger.warn("{} 시도 #{} 실패 - SubscriberId: {}, GasPrice: {}",
+                        operationType, attempt + 1, subscriberId, currentGasPrice, e);
+
+                if (attempt < MAX_RETRY_ATTEMPTS - 1) {
+                    currentGasPrice = currentGasPrice.add(GAS_PRICE_INCREMENT);
+                    try {
+                        Thread.sleep(RETRY_DELAY_MS);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        throw new RuntimeException("재시도 중 인터럽트 발생", ie);
+                    }
+                }
+            }
+        }
+
+        throw new RuntimeException("최대 재시도 횟수 초과로 트랜잭션 실패", lastException);
+    }
+
+    @FunctionalInterface
+    private interface TransactionExecutor {
+        TransactionReceipt execute() throws Exception;
     }
 }
