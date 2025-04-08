@@ -26,7 +26,7 @@ class _AlbumDetailScreenState extends ConsumerState<AlbumDetailScreen> {
     // 화면이 로드될 때 앨범 데이터 가져오기
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
-          .read(albumDetailViewModelProvider.notifier)
+          .read(albumDetailViewModelProvider(widget.albumId).notifier)
           .loadAlbumDetail(widget.albumId);
     });
   }
@@ -34,7 +34,9 @@ class _AlbumDetailScreenState extends ConsumerState<AlbumDetailScreen> {
   @override
   Widget build(BuildContext context) {
     // 앨범 데이터 상태 가져오기
-    final albumDetailState = ref.watch(albumDetailViewModelProvider);
+    final albumDetailState = ref.watch(
+      albumDetailViewModelProvider(widget.albumId),
+    );
     print(albumDetailState.album?.coverImageUrl);
     return Scaffold(
       body: SingleChildScrollView(
@@ -83,6 +85,7 @@ class _AlbumDetailScreenState extends ConsumerState<AlbumDetailScreen> {
                         rating: albumDetailState.album!.rating,
                         genre: albumDetailState.album!.genre,
                         releaseDate: albumDetailState.album!.createdAt,
+                        albumId: widget.albumId,
                       ),
                       AlbumDetailTrackList(
                         tracks: albumDetailState.album!.tracks,

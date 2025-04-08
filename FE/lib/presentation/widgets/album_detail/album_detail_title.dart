@@ -1,7 +1,9 @@
 import 'package:ari/presentation/routes/app_router.dart';
 import 'package:flutter/material.dart';
+import 'package:ari/presentation/widgets/album_detail/show_rate_modal.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AlbumDetailTitle extends StatelessWidget {
+class AlbumDetailTitle extends ConsumerWidget {
   final String title;
   final String artist;
   final int artistId;
@@ -10,6 +12,7 @@ class AlbumDetailTitle extends StatelessWidget {
   final String rating;
   final String genre;
   final String releaseDate;
+  final int albumId;
 
   const AlbumDetailTitle({
     super.key,
@@ -21,10 +24,11 @@ class AlbumDetailTitle extends StatelessWidget {
     required this.rating,
     required this.genre,
     required this.releaseDate,
+    required this.albumId,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
       clipBehavior: Clip.antiAlias,
@@ -61,7 +65,6 @@ class AlbumDetailTitle extends StatelessWidget {
                 fontSize: 20,
                 fontFamily: 'Pretendard',
                 fontWeight: FontWeight.w700,
-                decoration: TextDecoration.underline, // 클릭 가능한 느낌 강조
               ),
             ),
           ),
@@ -131,36 +134,17 @@ class AlbumDetailTitle extends StatelessWidget {
               const SizedBox(width: 7),
 
               // 평점
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center, // 가운데 정렬
-                crossAxisAlignment: CrossAxisAlignment.center, // 수직 가운데 정렬
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: List.generate(
-                      5,
-                      (index) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 1),
-                        child: Icon(
-                          Icons.star,
-                          color: Color(0xFF8A4FFF),
-                          size: 12,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 5),
-                  Text(
-                    rating.toString(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 8,
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ],
+              GestureDetector(
+                onTap: () {
+                  showRatingModal(context: context, ref: ref, albumId: albumId);
+                },
+                child: Row(
+                  children: [
+                    Icon(Icons.star, size: 20, color: Colors.amber),
+                    const SizedBox(width: 4),
+                    Text('$rating', style: TextStyle(color: Colors.white)),
+                  ],
+                ),
               ),
             ],
           ),
