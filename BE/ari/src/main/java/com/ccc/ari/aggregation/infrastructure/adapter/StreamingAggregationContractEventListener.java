@@ -13,6 +13,7 @@ import org.web3j.protocol.core.methods.request.EthFilter;
 import org.web3j.protocol.core.methods.response.EthLog;
 import org.web3j.protocol.core.methods.response.Log;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.utils.Numeric;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -142,7 +143,7 @@ public class StreamingAggregationContractEventListener {
      * 
      * @return 모든 RawArtistTracksUpdated 이벤트 응답 목록
      */
-    public List<StreamingAggregationContract.RawArtistTracksUpdatedEventResponse> getAllRawArtistTracksUpdatedEvents() {
+    public List<StreamingAggregationContract.RawArtistTracksUpdatedEventResponse> getRawArtistTracksUpdatedEventsByArtistId(Integer artistId) {
         logger.info("RawArtistTracksUpdated 이벤트 조회를 시작합니다.");
         try {
             logger.info("스마트 컨트랙트 주소: {}", aggregationContract.getContractAddress());
@@ -157,6 +158,13 @@ public class StreamingAggregationContractEventListener {
 
             // 이벤트 토픽 인코딩
             filter.addSingleTopic(EventEncoder.encode(StreamingAggregationContract.RAWARTISTTRACKSUPDATED_EVENT));
+
+            // 첫 번째 indexed 파라미터(batchTimestamp)에 대해 필터링하지 않음
+            filter.addOptionalTopics();
+
+            // 두 번째 indexed 파라미터(artistId)에 대한 필터링
+            String encodedArtistId = "0x" + Numeric.toHexStringNoPrefixZeroPadded(BigInteger.valueOf(artistId), 64);
+            filter.addOptionalTopics(encodedArtistId);
 
             // 로그 조회
             EthLog ethLog = web3j.ethGetLogs(filter).send();
@@ -205,6 +213,7 @@ public class StreamingAggregationContractEventListener {
      */
     public List<StreamingAggregationContract.RawListenerTracksUpdatedEventResponse> getAllRawListenerTracksUpdatedEvents(
             LocalDateTime startTime, LocalDateTime endTime) {
+        
         logger.info("RawListenerTracksUpdated 이벤트 조회를 시작합니다. 시작 시간: {}, 종료 시간: {}", startTime, endTime);
 
         try {

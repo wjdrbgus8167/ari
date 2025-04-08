@@ -26,17 +26,17 @@ public class GetMyRegularSubscriptionDetailResponse {
     public static class Settlement{
         private String artistNickName;
         private String profileImageUrl;
-        private Integer StreamingCount;
-        private BigDecimal settlement;
+        private Integer streaming;
+        private Double amount;
 
         @Builder
         public Settlement(String artistNickName, String profileImageUrl
-                , Integer StreamingCount, BigDecimal settlement) {
+                , Integer streaming,Double amount) {
 
             this.artistNickName = artistNickName;
             this.profileImageUrl = profileImageUrl;
-            this.StreamingCount = StreamingCount;
-            this.settlement = settlement;
+            this.streaming = streaming;
+            this.amount = amount;
         }
     }
 }

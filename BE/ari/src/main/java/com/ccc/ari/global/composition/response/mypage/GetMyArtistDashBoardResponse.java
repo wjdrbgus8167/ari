@@ -14,45 +14,43 @@ public class GetMyArtistDashBoardResponse {
     private String walletAddress;
     private Integer subscriberCount;
     private Integer totalStreamingCount;
-    private Integer thisMonthStreamingCount;
     private Integer streamingDiff;
     private Integer thisMonthNewSubscriberCount;
     private Integer newSubscriberDiff;
-    private BigDecimal thisMonthSettlement;
-    private BigDecimal settlementDiff;
+    private Double settlementDiff;
+    private Double todaySettlement;
     private Integer todayStreamingCount;
     private Integer todayNewSubscribeCount;
 
     private List<MyArtistAlbum> albums;
     private List<MonthlySubscriberCount> monthlySubscriberCounts;
-    private List<MonthlySettlement> monthlySettlement;
+    private List<DailySettlement> dailySettlement;
     private List<DailySubscriberCount> dailySubscriberCounts;
 
 
     @Builder
     public GetMyArtistDashBoardResponse(String walletAddress,Integer subscriberCount,Integer totalStreamingCount
-            ,Integer thisMonthStreamingCount,Integer streamingDiff,Integer thisMonthNewSubscriberCount
-    ,Integer newSubscriberDiff,BigDecimal thisMonthSettlement,BigDecimal settlementDiff, Integer todayStreamingCount,
+            ,Integer streamingDiff,Integer thisMonthNewSubscriberCount
+    ,Integer newSubscriberDiff,Double settlementDiff, Integer todayStreamingCount,
                                         Integer todayNewSubscribeCount,List<MyArtistAlbum> albums,
                                         List<MonthlySubscriberCount> monthlySubscriberCounts,
-                                        List<MonthlySettlement> monthlySettlement
-                                        ,List<DailySubscriberCount> dailySubscriberCounts) {
+                                        List<DailySettlement> dailySettlement
+                                        ,List<DailySubscriberCount> dailySubscriberCounts,Double todaySettlement) {
 
         this.walletAddress = walletAddress;
         this.subscriberCount = subscriberCount;
         this.totalStreamingCount = totalStreamingCount;
-        this.thisMonthStreamingCount = thisMonthStreamingCount;
         this.streamingDiff = streamingDiff;
         this.thisMonthNewSubscriberCount = thisMonthNewSubscriberCount;
         this.newSubscriberDiff = newSubscriberDiff;
-        this.thisMonthSettlement = thisMonthSettlement;
         this.settlementDiff = settlementDiff;
         this.todayStreamingCount = todayStreamingCount;
         this.todayNewSubscribeCount = todayNewSubscribeCount;
         this.albums = albums;
         this.monthlySubscriberCounts = monthlySubscriberCounts;
-        this.monthlySettlement = monthlySettlement;
+        this.dailySettlement = dailySettlement;
         this.dailySubscriberCounts = dailySubscriberCounts;
+        this.todaySettlement = todaySettlement;
     }
 
     @Getter
@@ -60,13 +58,13 @@ public class GetMyArtistDashBoardResponse {
     public static class MyArtistAlbum{
         private String albumTitle;
         private String coverImageUrl;
-        private Integer trackCount;
+        private Integer totalStreaming;
 
         @Builder
-        public MyArtistAlbum(String albumTitle,String coverImageUrl,Integer trackCount){
+        public MyArtistAlbum(String albumTitle,String coverImageUrl,Integer totalStreaming){
             this.albumTitle = albumTitle;
             this.coverImageUrl = coverImageUrl;
-            this.trackCount = trackCount;
+            this.totalStreaming = totalStreaming;
         }
     }
 
@@ -85,14 +83,14 @@ public class GetMyArtistDashBoardResponse {
 
     @Getter
     @NoArgsConstructor
-    public static class MonthlySettlement{
-        private String month;
-        private Integer settlementCount;
+    public static class DailySettlement{
+        private String date;
+        private Double settlement;
 
         @Builder
-        public MonthlySettlement(String month,Integer settlementCount){
-            this.month = month;
-            this.settlementCount = settlementCount;
+        public DailySettlement(String date,Double settlement){
+            this.date = date;
+            this.settlement = settlement;
         }
     }
 
