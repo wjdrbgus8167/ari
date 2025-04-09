@@ -42,6 +42,14 @@ public class MyRegularSubscriptionDetailService {
         List<Subscription> subscription = subscriptionClient.getSubscriptionInfo(memberId)
                 .orElseThrow(()-> new ApiException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
 
+        if(subscription.size() != 0&&!subscription.isEmpty()){
+
+            for(Subscription sub : subscription){
+                log.info("현재 내 구독 목록 ID:{}",sub.getSubscriptionId().getValue());
+
+            }
+
+        }
         // 내 구독 목록 중에 정기 구독 가져오기
         Subscription regularSubscription = subscription.stream()
                 .filter(mySubscription ->
@@ -50,11 +58,15 @@ public class MyRegularSubscriptionDetailService {
                                 .equals(PlanType.R)
                 )
                 .findFirst() // 또는 필요에 따라 .findAny()
-                .orElse(null); //
+                .orElseThrow(()-> new ApiException(ErrorCode.SUBSCRIPTION_REGULAR_NOT_FOUND));
+
+        log.info("현재 나의 정기 구독 ID(subscriptionId):{}",regularSubscription.getSubscriptionId().getValue());
 
         // 구독 플랜 ID
         Integer subscriptionPlanId = Objects.requireNonNull(regularSubscription).getSubscriptionPlanId();
         log.info("구독 Plan ID:{}",subscriptionPlanId);
+
+        // 구독 목록조회-> 정기구독만 빼내기-> 정기구독의 subscriptionPlan으로 plan 조회(정기구독권 가격을 위해서)
 
         // 구독 플랜 ID로 정기 구독권 가져오기
         SubscriptionPlan subscriptionPlan = subscriptionPlanClient.getSubscriptionPlan(subscriptionPlanId);
@@ -66,8 +78,10 @@ public class MyRegularSubscriptionDetailService {
         /*
             내 정기 구독 세부 조회 Client
          */
-
+        log.info("내 정기 구독 세부 조회 시작");
+        // 현재 여기서 정기구독에 따른 세부 개역을 못가져오고 있음
         RegularSettlementDetailResponse regularSettlementDetailResponse = settlementClient.getMyRegularSettlementDetail(memberId,cycleId);
+        log.info("내 정기 구독 세부 조회 :{}",regularSettlementDetailResponse.getStreamingSettlements().size());
 
         settlements = regularSettlementDetailResponse.getStreamingSettlements().stream()
                 .map(streamingSettlementResult -> {
@@ -84,7 +98,7 @@ public class MyRegularSubscriptionDetailService {
                     return settlement;
                 }).toList();
 
-
+        log.info("정기 구독 사이클 확인 :{}",settlements.size());
         return GetMyRegularSubscriptionDetailResponse.builder()
                 .price(price)
                 .settlements(settlements)
