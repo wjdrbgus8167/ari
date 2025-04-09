@@ -12,6 +12,7 @@ import 'package:ari/domain/usecases/auth/auth_usecase.dart';
 import 'package:ari/presentation/viewmodels/auth/login_viewmodel.dart';
 import 'package:ari/presentation/viewmodels/auth/sign_up_viewmodel.dart';
 import 'package:ari/providers/global_providers.dart';
+import 'package:ari/providers/playback/playback_progress_provider.dart';
 import 'package:ari/providers/playback/playback_state_provider.dart';
 import 'package:ari/providers/user_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -171,6 +172,10 @@ class AuthStateNotifier extends StateNotifier<AsyncValue<bool>> {
       // 모든 플레이백 관련 상태 강제 초기화
       ref.invalidate(playbackProvider); // 추가: 프로바이더 무효화
       ref.invalidate(listeningQueueProvider); // 추가: 재생 큐 초기화
+
+      // 추가: 재생 위치 & 길이 프로바이더 무효화
+      ref.invalidate(playbackPositionProvider);
+      ref.invalidate(playbackDurationProvider);
 
       state = const AsyncValue.data(false);
     } catch (e, stackTrace) {

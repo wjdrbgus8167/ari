@@ -8,7 +8,6 @@ import 'package:ari/providers/playback/playback_state_provider.dart';
 import 'package:ari/providers/playback/playback_progress_provider.dart';
 import 'package:ari/core/constants/app_colors.dart';
 import 'package:ari/presentation/widgets/playback/expanded_playbackscreen.dart';
-import 'package:ari/presentation/routes/app_router.dart';
 import 'package:ari/core/services/playback_service.dart' as playbackServiceLib;
 import 'package:ari/core/services/audio_service.dart';
 import 'package:ari/core/utils/login_helper.dart';

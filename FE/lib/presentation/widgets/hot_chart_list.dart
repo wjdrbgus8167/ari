@@ -21,7 +21,6 @@ class _HotChartListState extends State<HotChartList> {
   @override
   void initState() {
     super.initState();
-    // 오른쪽 페이지 일부 보이도록 viewportFraction 0.85 설정
     _pageController = PageController(viewportFraction: 0.85);
   }
 
@@ -38,7 +37,7 @@ class _HotChartListState extends State<HotChartList> {
 
     return PageView.builder(
       controller: _pageController,
-      clipBehavior: Clip.none, // 자식 위젯이 부모 영역 넘어가도 보여지게 함
+      clipBehavior: Clip.none,
       itemCount: pageCount,
       itemBuilder: (context, pageIndex) {
         final int startIndex = pageIndex * itemsPerPage;
@@ -55,19 +54,19 @@ class _HotChartListState extends State<HotChartList> {
           offset: const Offset(-10, 0),
           child: Padding(
             padding: const EdgeInsets.only(top: 8, right: 8, bottom: 8),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children:
-                  pageTracks.asMap().entries.map((entry) {
-                    final localIndex = entry.key;
-                    final track = entry.value;
-                    final globalIndex = startIndex + localIndex;
-                    return _ChartItem(
-                      rank: globalIndex + 1,
-                      track: track,
-                      allTracks: widget.tracks,
-                    );
-                  }).toList(),
+            child: ListView.builder(
+              physics:
+                  const NeverScrollableScrollPhysics(), // PageView 내에서만 스크롤
+              itemCount: pageTracks.length,
+              itemBuilder: (context, index) {
+                final globalIndex = startIndex + index;
+                final track = pageTracks[index];
+                return _ChartItem(
+                  rank: globalIndex + 1,
+                  track: track,
+                  allTracks: widget.tracks,
+                );
+              },
             ),
           ),
         );
