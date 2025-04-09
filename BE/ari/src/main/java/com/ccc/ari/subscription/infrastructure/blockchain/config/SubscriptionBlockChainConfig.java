@@ -1,6 +1,7 @@
 package com.ccc.ari.subscription.infrastructure.blockchain.config;
 
 import com.ccc.ari.global.contract.SubscriptionContract;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,7 +124,7 @@ public class SubscriptionBlockChainConfig {
     @Scheduled(fixedDelayString = "${WEBSOCKET_HEALTH_CHECK_INTERVAL:30000}")
     public void checkWebSocketConnection() {
         if (isReconnecting.get()) {
-            logger.debug("이미 재연결 시도 중입니다. 중복 헬스체크를 건너뜁니다.");
+            logger.info("이미 재연결 시도 중입니다. 중복 헬스체크를 건너뜁니다.");
             return;
         }
 
@@ -136,11 +137,17 @@ public class SubscriptionBlockChainConfig {
         try {
             // 블록체인 노드 버전 조회로 연결 상태 확인
             Web3ClientVersion clientVersion = web3j.web3ClientVersion().send();
-            logger.debug("웹소켓 연결 정상. 클라이언트 버전: {}", clientVersion.getWeb3ClientVersion());
+            logger.info("웹소켓 연결 정상. 클라이언트 버전: {}", clientVersion.getWeb3ClientVersion());
         } catch (IOException e) {
             logger.warn("웹소켓 연결 상태 확인 실패: {}", e.getMessage());
             attemptReconnect();
         }
+    }
+
+    @PostConstruct
+    public void init() {
+        // 초기화 후 즉시 첫 번째 체크 실행
+        checkWebSocketConnection();
     }
 
     /**
@@ -206,7 +213,7 @@ public class SubscriptionBlockChainConfig {
         WebSocketService oldWebSocketService = webSocketServiceRef.get();
         if (oldWebSocketService != null) {
             oldWebSocketService.close();
-            logger.debug("이전 웹소켓 연결 종료 완료");
+            logger.info("이전 웹소켓 연결 종료 완료");
         }
     }
 
