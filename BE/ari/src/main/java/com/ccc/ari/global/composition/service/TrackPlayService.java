@@ -27,7 +27,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/*
+/**
 1. subscription client -> member_id로 조회
 
 2. subscription_cycle client -> subscription client 조회로 가져온 subscription_id로 구독 기간 조회
@@ -59,12 +59,23 @@ public class TrackPlayService {
 
         Integer memberId = trackPlayCommand.getMemberId();
 
-
         // 구독 조회 후 인가
         boolean isAuthorized = false;
 
         // 만약 지금 트랙이 나의 앨범이면 그냥 스트리밍 인가
-        if(!albumClient.isMyAlbum(trackPlayCommand.getAlbumId(),memberId)) {
+        if(albumClient.isMyAlbum(trackPlayCommand.getAlbumId(),memberId)) {
+            log.info("나의 트랙은 인가");
+
+            // 4. 나의 트랙은 스트리밍에 적용시키지 않음.
+            return TrackPlayResponse.builder()
+                    .artist(album.getArtist())
+                    .coverImageUrl(album.getCoverImageUrl())
+                    .lyrics(track.getLyrics())
+                    .tackFileUrl(track.getTrackFileUrl())
+                    .title(track.getTitle())
+                    .build();
+        }else{
+
             // 모든 구독 정보 조회
             List<Subscription> subscriptions = subscriptionClient.getSubscriptionInfo(trackPlayCommand.getMemberId())
                     .orElseThrow(()-> new ApiException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
@@ -107,9 +118,6 @@ public class TrackPlayService {
                     }
                 }
             }
-        }else{
-            log.info("나의 트랙은 인가");
-            isAuthorized = true;
         }
 
 
