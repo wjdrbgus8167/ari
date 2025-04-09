@@ -42,7 +42,7 @@ class WalletService extends ChangeNotifier {
   final Map<String, String> subscriptionContractAddresses = {
     'eip155:1': '0xSubscriptionContractAddressOnEthereum', // 이더리움 메인넷
     'eip155:11155111':
-        '0x309ee2b1356ef0096427dc40b51aa0cc18336e0d', // Sepolia 테스트넷
+        '0x129454652f50115600d1c8cd6441e1e931e22506', // Sepolia 테스트넷
     'eip155:137': '0xSubscriptionContractAddressOnPolygon', // Polygon 메인넷
   };
 
