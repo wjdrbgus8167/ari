@@ -1,19 +1,17 @@
 import 'package:ari/core/exceptions/failure.dart';
 import 'package:ari/data/datasources/genre_remote_datasource.dart';
-import 'package:ari/data/models/album.dart';
-import 'package:ari/data/models/track.dart';
+import 'package:ari/data/mappers/track_mapper.dart';
+import 'package:ari/domain/entities/album.dart' as entity;
+import 'package:ari/domain/entities/track.dart' as domain;
 import 'package:ari/domain/entities/chart_item.dart';
 import 'package:ari/core/utils/genre_utils.dart';
 import 'package:dartz/dartz.dart';
 
-/// 장르별 데이터 조회 유스케이스
 class GetGenreDataUseCase {
   final GenreRemoteDataSource _genreDataSource;
 
   GetGenreDataUseCase(this._genreDataSource);
 
-  /// 장르별 인기 차트 조회 (30일 내 데이터)
-  /// [genre] 장르 타입
   Future<Either<Failure, List<ChartItem>>> getGenreCharts(Genre genre) async {
     try {
       final charts = await _genreDataSource.fetchGenreCharts(genre);
@@ -25,14 +23,14 @@ class GetGenreDataUseCase {
     }
   }
 
-  /// 장르별 인기 트랙 조회 (7일 내 데이터)
-  /// [genre] 장르 타입
-  Future<Either<Failure, List<Track>>> getGenrePopularTracks(
+  Future<Either<Failure, List<domain.Track>>> getGenrePopularTracks(
     Genre genre,
   ) async {
     try {
       final tracks = await _genreDataSource.fetchGenrePopularTracks(genre);
-      return Right(tracks);
+      final entityTracks =
+          tracks.map((t) => t.toDomainTrack()).toList(); // 데이터 모델 → 도메인 모델 변환
+      return Right(entityTracks);
     } on Failure catch (f) {
       return Left(f);
     } catch (e) {
@@ -40,12 +38,14 @@ class GetGenreDataUseCase {
     }
   }
 
-  /// 장르별 신규 앨범 조회
-  /// [genre] 장르 타입
-  Future<Either<Failure, List<Album>>> getGenreNewAlbums(Genre genre) async {
+  Future<Either<Failure, List<entity.Album>>> getGenreNewAlbums(
+    Genre genre,
+  ) async {
     try {
       final albums = await _genreDataSource.fetchGenreNewAlbums(genre);
-      return Right(albums);
+      final entityAlbums =
+          albums.map((a) => entity.Album.fromDataModel(a)).toList(); // 변환
+      return Right(entityAlbums);
     } on Failure catch (f) {
       return Left(f);
     } catch (e) {
@@ -53,14 +53,14 @@ class GetGenreDataUseCase {
     }
   }
 
-  /// 장르별 인기 앨범 조회
-  /// [genre] 장르 타입
-  Future<Either<Failure, List<Album>>> getGenrePopularAlbums(
+  Future<Either<Failure, List<entity.Album>>> getGenrePopularAlbums(
     Genre genre,
   ) async {
     try {
       final albums = await _genreDataSource.fetchGenrePopularAlbums(genre);
-      return Right(albums);
+      final entityAlbums =
+          albums.map((a) => entity.Album.fromDataModel(a)).toList(); // 변환
+      return Right(entityAlbums);
     } on Failure catch (f) {
       return Left(f);
     } catch (e) {

@@ -4,6 +4,8 @@ import 'package:ari/domain/entities/track.dart' as domain;
 /// data.Track → domain.Track 변환 확장 메서드
 extension DataTrackMapper on data.Track {
   domain.Track toDomainTrack() {
+    print('🔁 [Mapper] toDomainTrack 실행 - id: $id');
+
     return domain.Track(
       trackId: id,
       trackTitle: trackTitle,

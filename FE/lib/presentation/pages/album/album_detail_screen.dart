@@ -76,17 +76,7 @@ class _AlbumDetailScreenState extends ConsumerState<AlbumDetailScreen> {
                             albumDetailState.album?.coverImageUrl ??
                             '기본 이미지 URL',
                       ),
-                      AlbumDetailTitle(
-                        title: albumDetailState.album!.albumTitle,
-                        artist: albumDetailState.album!.artist,
-                        artistId: albumDetailState.album!.artistId,
-                        viewCount: albumDetailState.album!.albumLikeCount,
-                        commentCount: albumDetailState.album!.commentCount,
-                        rating: albumDetailState.album!.rating,
-                        genre: albumDetailState.album!.genre,
-                        releaseDate: albumDetailState.album!.createdAt,
-                        albumId: widget.albumId,
-                      ),
+                      AlbumDetailTitle(albumId: widget.albumId),
                       AlbumDetailTrackList(
                         tracks: albumDetailState.album!.tracks,
                         albumCoverUrl:

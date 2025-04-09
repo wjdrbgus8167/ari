@@ -66,6 +66,7 @@ final authStateProvider =
         getAuthStatusUseCase: ref.watch(getAuthStatusUseCaseProvider),
         loginUseCase: ref.watch(loginUseCaseProvider),
         logoutUseCase: ref.watch(logoutUseCaseProvider),
+        ref: ref,
       );
     });
 
@@ -107,11 +108,13 @@ class AuthStateNotifier extends StateNotifier<AsyncValue<bool>> {
   final GetAuthStatusUseCase getAuthStatusUseCase;
   final LoginUseCase loginUseCase;
   final LogoutUseCase logoutUseCase;
+  final Ref ref;
 
   AuthStateNotifier({
     required this.getAuthStatusUseCase,
     required this.loginUseCase,
     required this.logoutUseCase,
+    required this.ref,
   }) : super(const AsyncValue.loading()) {
     print('[AuthStateNotifier] 초기화 시작');
     _initialize();
@@ -157,16 +160,17 @@ class AuthStateNotifier extends StateNotifier<AsyncValue<bool>> {
       await logoutUseCase();
       print('[AuthStateNotifier] 로그아웃 성공');
 
-      // ✅ 오디오 재생 중단 및 상태 초기화
-      final container = ProviderContainer(); // 외부 Provider 접근용
-      final audioService = container.read(audioServiceProvider);
-      final playbackNotifier = container.read(playbackProvider.notifier);
+      // 오디오 서비스 및 재생 상태 초기화
+      final audioService = ref.read(audioServiceProvider);
+      final playbackNotifier = ref.read(playbackProvider.notifier);
 
       await audioService.audioPlayer.stop(); // 오디오 중단
+      await audioService.audioPlayer.dispose(); // 추가: 오디오 플레이어 해제
       playbackNotifier.reset(); // 상태 초기화
 
-      // 필요하다면 재생 큐도 정리 가능
-      // container.read(listeningQueueProvider.notifier).clear();
+      // 모든 플레이백 관련 상태 강제 초기화
+      ref.invalidate(playbackProvider); // 추가: 프로바이더 무효화
+      ref.invalidate(listeningQueueProvider); // 추가: 재생 큐 초기화
 
       state = const AsyncValue.data(false);
     } catch (e, stackTrace) {

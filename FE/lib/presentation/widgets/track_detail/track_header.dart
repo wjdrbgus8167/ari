@@ -3,12 +3,13 @@ import 'package:ari/data/models/track.dart' as data;
 import 'package:ari/core/services/audio_service.dart';
 import 'package:ari/presentation/routes/app_router.dart';
 import 'package:ari/providers/global_providers.dart';
+import 'package:ari/providers/like_track_datasource_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/presentation/widgets/streaming_log_modal.dart';
 import 'package:ari/core/utils/safe_to_domain_track.dart';
 
-class TrackHeader extends ConsumerWidget {
+class TrackHeader extends ConsumerStatefulWidget {
   final int albumId;
   final String albumName;
   final String trackTitle;
@@ -39,16 +40,52 @@ class TrackHeader extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TrackHeader> createState() => _TrackHeaderState();
+}
+
+class _TrackHeaderState extends ConsumerState<TrackHeader> {
+  late bool isLiked;
+  late int likeCount;
+
+  @override
+  void initState() {
+    super.initState();
+    likeCount = widget.likeCount;
+    _fetchInitialLikeStatus();
+  }
+
+  Future<void> _fetchInitialLikeStatus() async {
+    final likeDatasource = ref.read(likeRemoteDatasourceProvider);
+    final liked = await likeDatasource.fetchLikeStatus(widget.trackId);
+    setState(() {
+      isLiked = liked;
+    });
+  }
+
+  Future<void> _toggleLike() async {
+    final likeDatasource = ref.read(likeRemoteDatasourceProvider);
+    await likeDatasource.toggleLikeStatus(
+      albumId: widget.albumId,
+      trackId: widget.trackId,
+    );
+    final updatedStatus = await likeDatasource.fetchLikeStatus(widget.trackId);
+    setState(() {
+      isLiked = updatedStatus;
+      likeCount += isLiked ? 1 : -1;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final audioService = ref.read(audioServiceProvider);
+
     return Container(
       width: double.infinity,
       clipBehavior: Clip.antiAlias,
       decoration: const BoxDecoration(color: Colors.transparent),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // 왼쪽 정보 영역
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
@@ -59,37 +96,30 @@ class TrackHeader extends ConsumerWidget {
                   Row(
                     children: [
                       Text(
-                        albumName,
+                        widget.albumName,
                         style: const TextStyle(
                           color: Color(0xFF9D9D9D),
                           fontSize: 12,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w400,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(width: 1),
                       const Icon(
                         Icons.arrow_forward_ios,
-                        color: Color(0xFF9D9D9D),
                         size: 14,
+                        color: Color(0xFF9D9D9D),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
-
-                  // 🔥 트랙 제목 + 아이콘 (인라인 밀착)
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Flexible(
                         child: Text(
-                          trackTitle,
+                          widget.trackTitle,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 20,
-                            fontFamily: 'Pretendard',
                             fontWeight: FontWeight.w700,
                           ),
                           maxLines: 2,
@@ -99,27 +129,23 @@ class TrackHeader extends ConsumerWidget {
                       const SizedBox(width: 4),
                       InkWell(
                         onTap: () async {
-                          final audioService = ref.read(audioServiceProvider);
-                          final queueNotifier = ref.read(
-                            listeningQueueProvider.notifier,
-                          );
-
                           final currentTrack = data.Track(
-                            artistId: artistId,
-                            id: trackId,
-                            trackTitle: trackTitle,
-                            artist: artistName,
+                            artistId: widget.artistId,
+                            id: widget.trackId,
+                            trackTitle: widget.trackTitle,
+                            artist: widget.artistName,
                             composer: '',
                             lyricist: '',
-                            albumId: albumId,
-                            trackFileUrl: trackFileUrl,
+                            albumId: widget.albumId,
+                            trackFileUrl: widget.trackFileUrl,
                             lyrics: '',
-                            coverUrl: albumImageUrl,
+                            coverUrl: widget.albumImageUrl,
                             trackLikeCount: likeCount,
                           );
 
-                          await queueNotifier.trackPlayed(currentTrack);
-
+                          await ref
+                              .read(listeningQueueProvider.notifier)
+                              .trackPlayed(currentTrack);
                           final fullQueue =
                               ref
                                   .read(listeningQueueProvider)
@@ -142,22 +168,18 @@ class TrackHeader extends ConsumerWidget {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 4),
-
-                  // 아티스트 정보
                   Row(
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(50),
                         child: Image.network(
-                          artistImageUrl,
+                          widget.artistImageUrl,
                           width: 26,
                           height: 26,
                           fit: BoxFit.cover,
                           errorBuilder:
-                              (context, error, stackTrace) =>
-                                  const Icon(Icons.person),
+                              (_, __, ___) => const Icon(Icons.person),
                         ),
                       ),
                       const SizedBox(width: 5),
@@ -168,42 +190,43 @@ class TrackHeader extends ConsumerWidget {
                               context,
                               AppRoutes.myChannel,
                               arguments: {
-                                'memberId': artistId.toString(), // 라우팅용 문자열로 변환
+                                'memberId': widget.artistId.toString(),
                               },
                             );
                           },
                           child: Text(
-                            artistName,
+                            widget.artistName,
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
-                              decoration:
-                                  TextDecoration.underline, // 선택 사항: 링크 느낌
+                              decoration: TextDecoration.underline,
                             ),
-                            maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ),
                     ],
                   ),
-
-                  // 좋아요/댓글/재생 횟수
+                  const SizedBox(height: 4),
                   Row(
                     children: [
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.favorite,
-                            size: 14,
-                            color: Colors.redAccent,
-                          ),
-                          const SizedBox(width: 3),
-                          Text(
-                            '$likeCount',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ],
+                      GestureDetector(
+                        onTap: _toggleLike,
+                        child: Row(
+                          children: [
+                            Icon(
+                              isLiked ? Icons.favorite : Icons.favorite_border,
+                              size: 14,
+                              color:
+                                  isLiked ? Colors.redAccent : Colors.white70,
+                            ),
+                            const SizedBox(width: 3),
+                            Text(
+                              '$likeCount',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(width: 9),
                       Row(
@@ -215,7 +238,7 @@ class TrackHeader extends ConsumerWidget {
                           ),
                           const SizedBox(width: 3),
                           Text(
-                            '$commentCount',
+                            '${widget.commentCount}',
                             style: const TextStyle(color: Colors.white),
                           ),
                         ],
@@ -224,22 +247,22 @@ class TrackHeader extends ConsumerWidget {
                       GestureDetector(
                         onTap: () {
                           context.showStreamingHistoryModal(
-                            albumId: albumId,
-                            trackId: trackId,
+                            albumId: widget.albumId,
+                            trackId: widget.trackId,
                           );
                         },
                         child: Row(
                           children: [
                             const Icon(
                               Icons.play_arrow,
-                              color: Colors.white,
                               size: 15,
+                              color: Colors.white,
                             ),
                             const SizedBox(width: 1),
                             Text(
-                              playCount == null
+                              widget.playCount == null
                                   ? "불러오는 중..."
-                                  : '$playCount회 재생',
+                                  : '${widget.playCount}회 재생',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
@@ -254,19 +277,17 @@ class TrackHeader extends ConsumerWidget {
               ),
             ),
           ),
-
-          // 앨범 커버
           Padding(
             padding: const EdgeInsets.all(12),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: Image.network(
-                albumImageUrl,
+                widget.albumImageUrl,
                 width: 100,
                 height: 100,
                 fit: BoxFit.cover,
                 errorBuilder:
-                    (context, error, stackTrace) => const Icon(
+                    (_, __, ___) => const Icon(
                       Icons.album,
                       size: 60,
                       color: Colors.white70,

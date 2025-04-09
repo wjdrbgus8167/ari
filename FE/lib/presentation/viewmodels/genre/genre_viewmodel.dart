@@ -1,8 +1,9 @@
 import 'package:ari/core/exceptions/failure.dart';
 import 'package:ari/core/utils/genre_utils.dart';
-import 'package:ari/data/models/album.dart';
-import 'package:ari/data/models/track.dart';
+import 'package:ari/domain/entities/album.dart';
+
 import 'package:ari/domain/entities/chart_item.dart';
+import 'package:ari/domain/entities/track.dart' as domain;
 import 'package:ari/domain/usecases/genre/get_genre_data_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dartz/dartz.dart';
@@ -21,7 +22,7 @@ class GenreState {
   final List<Album> newAlbums;
   final List<Album> popularAlbums;
   final List<ChartItem> monthlyCharts; // 월간 차트 (30일)
-  final List<Track> weeklyTracks; // 주간 인기 트랙 (7일)
+  final List<domain.Track> weeklyTracks; // 주간 인기 트랙 (7일)
   final ChartPeriodType selectedChartType;
   final String? errorMessage;
 
@@ -68,7 +69,7 @@ class GenreState {
     List<Album>? newAlbums,
     List<Album>? popularAlbums,
     List<ChartItem>? monthlyCharts,
-    List<Track>? weeklyTracks,
+    List<domain.Track>? weeklyTracks,
     ChartPeriodType? selectedChartType,
     String? errorMessage,
   }) {
@@ -94,7 +95,7 @@ class GenreViewModel extends StateNotifier<GenreState> {
     required GetGenreDataUseCase genreDataUseCase,
     required Genre genre,
   }) : _genreDataUseCase = genreDataUseCase,
-        super(GenreState.initial(genre)) {
+       super(GenreState.initial(genre)) {
     // 초기 데이터 로드
     loadGenreData();
   }
@@ -115,7 +116,8 @@ class GenreViewModel extends StateNotifier<GenreState> {
       final popularAlbumsResult = results[1] as Either<Failure, List<Album>>;
       final monthlyChartsResult =
           results[2] as Either<Failure, List<ChartItem>>;
-      final weeklyTracksResult = results[3] as Either<Failure, List<Track>>;
+      final weeklyTracksResult =
+          results[3] as Either<Failure, List<domain.Track>>;
       // 새 상태 구성
       newAlbumsResult.fold((failure) => _handleError(failure.message), (
         newAlbums,

@@ -1,3 +1,4 @@
+import 'package:ari/domain/entities/track.dart' as domain;
 import 'package:ari/presentation/routes/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,11 +7,8 @@ import 'package:ari/providers/global_providers.dart';
 
 import 'package:ari/core/services/audio_service.dart';
 
-import 'package:ari/data/mappers/track_mapper.dart';
-import 'package:ari/data/models/track.dart' as ari;
-
 class HotChartList extends StatefulWidget {
-  final List<ari.Track> tracks;
+  final List<domain.Track> tracks;
   const HotChartList({super.key, required this.tracks});
 
   @override
@@ -48,7 +46,7 @@ class _HotChartListState extends State<HotChartList> {
             (startIndex + itemsPerPage) > widget.tracks.length
                 ? widget.tracks.length
                 : (startIndex + itemsPerPage);
-        final List<ari.Track> pageTracks = widget.tracks.sublist(
+        final List<domain.Track> pageTracks = widget.tracks.sublist(
           startIndex,
           endIndex,
         );
@@ -81,14 +79,14 @@ class _HotChartListState extends State<HotChartList> {
 // _ChartItem를 ConsumerWidget로 변경하여 Provider를 사용할 수 있도록 함.
 class _ChartItem extends ConsumerWidget {
   final int rank;
-  final ari.Track track;
-  final List<ari.Track> allTracks; // 👈 추가
+  final domain.Track track;
+  final List<domain.Track> allTracks;
 
   const _ChartItem({
     super.key,
     required this.rank,
     required this.track,
-    required this.allTracks, // 👈 추가
+    required this.allTracks,
   });
 
   @override
@@ -162,7 +160,7 @@ class _ChartItem extends ConsumerWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  track.artist,
+                  track.artistName,
                   style: const TextStyle(color: Colors.white70, fontSize: 12),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -180,12 +178,12 @@ class _ChartItem extends ConsumerWidget {
               icon: const Icon(Icons.play_arrow, color: Colors.white),
               onPressed: () async {
                 final audioService = ref.read(audioServiceProvider);
-                final domainTrack = track.toDomainTrack();
+                final dataTrack = track.toDataModel();
                 // 재생목록에 추가
                 try {
                   await ref
                       .read(listeningQueueProvider.notifier)
-                      .trackPlayed(track);
+                      .trackPlayed(dataTrack);
                 } catch (e, stack) {
                   print('[ERROR] trackPlayed 중 오류: $e');
                   print(stack);
@@ -196,8 +194,8 @@ class _ChartItem extends ConsumerWidget {
                 await audioService.playFromQueueSubset(
                   context,
                   ref,
-                  allTracks.map((e) => e.toDomainTrack()).toList(),
-                  domainTrack,
+                  allTracks, // ✅ 도메인 모델 그대로 전달
+                  track, // ✅ 도메인 모델
                 );
                 print('[DEBUG] playFromQueueSubset 완료');
               },

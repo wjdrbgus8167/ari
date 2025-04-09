@@ -89,6 +89,8 @@ class Track extends HiveObject {
   }
 
   factory Track.fromJson(Map<String, dynamic> json) {
+    print('🎯 [fromJson] 트랙 파싱 시작: $json');
+
     return Track(
       id: json['trackId'],
       trackTitle: json['trackTitle'],
@@ -105,23 +107,23 @@ class Track extends HiveObject {
   }
 }
 
-domain.Track mapDataTrackToDomain(model.Track dataTrack) {
-  return domain.Track(
-    trackId: dataTrack.id,
-    albumTitle: '',
-    genreName: '',
-    trackTitle: dataTrack.trackTitle,
-    artistName: dataTrack.artist,
-    composer: [dataTrack.composer],
-    lyricist: [dataTrack.lyricist],
-    albumId: dataTrack.albumId,
-    trackFileUrl: dataTrack.trackFileUrl,
-    lyric: dataTrack.lyrics,
-    coverUrl: dataTrack.coverUrl,
-    trackLikeCount: dataTrack.trackLikeCount,
-    commentCount: 0,
-    comments: [],
-    trackNumber: 0,
-    createdAt: DateTime.now().toString(),
-  );
-}
+// domain.Track mapDataTrackToDomain(model.Track dataTrack) {
+//   return domain.Track(
+//     trackId: dataTrack.id,
+//     albumTitle: '',
+//     genreName: '',
+//     trackTitle: dataTrack.trackTitle,
+//     artistName: dataTrack.artist,
+//     composer: [dataTrack.composer],
+//     lyricist: [dataTrack.lyricist],
+//     albumId: dataTrack.albumId,
+//     trackFileUrl: dataTrack.trackFileUrl,
+//     lyric: dataTrack.lyrics,
+//     coverUrl: dataTrack.coverUrl,
+//     trackLikeCount: dataTrack.trackLikeCount,
+//     commentCount: 0,
+//     comments: [],
+//     trackNumber: 0,
+//     createdAt: DateTime.now().toString(),
+//   );
+// }

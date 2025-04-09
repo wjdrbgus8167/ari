@@ -19,6 +19,12 @@ class AudioService {
     children: [],
   );
 
+  // 현재 재생 중인 트랙 리스트와 전역 context/ref 저장용
+  late List<Track> _currentTrackList;
+  BuildContext? _globalContext;
+  WidgetRef? _globalRef;
+
+  // 오디오 진행 상태 스트림 (진행도, 전체 길이 등)
   Stream<Duration> get onPositionChanged => audioPlayer.positionStream;
   Stream<Duration?> get onDurationChanged => audioPlayer.durationStream;
 
@@ -26,15 +32,41 @@ class AudioService {
     _initializePlayer();
   }
 
+  // 🔁 트랙이 끝났을 때 다음 곡 재생 & 집계 API 호출
   void _initializePlayer() {
     audioPlayer.playerStateStream.listen((state) async {
       if (state.processingState == ProcessingState.completed) {
-        await audioPlayer.seekToNext();
-        await audioPlayer.play();
+        final nextIndex = audioPlayer.nextIndex;
+
+        if (nextIndex != null &&
+            nextIndex >= 0 &&
+            nextIndex < _playlistSource.length) {
+          final nextTrack = _currentTrackList[nextIndex];
+
+          try {
+            final playable = await _fetchPlayableTrack(
+              _globalRef!,
+              _globalRef!.read(dioProvider),
+              nextTrack.albumId,
+              nextTrack.trackId,
+              _globalContext!,
+            );
+
+            // ✅ 재생 상태를 갱신 + 실제 재생 수행
+            await _playAndSetState(_globalRef!, playable);
+
+            // ✅ 오디오 재생 위치를 다음 곡으로 이동
+            await audioPlayer.seek(Duration.zero, index: nextIndex);
+            await audioPlayer.play();
+          } catch (e) {
+            _globalContext?.showToast('다음 곡 재생 실패: $e');
+          }
+        }
       }
     });
   }
 
+  // 📀 전체 트랙 리스트 재생
   Future<void> playFullTrackList({
     required WidgetRef ref,
     required BuildContext context,
@@ -54,9 +86,7 @@ class AudioService {
         track.albumId,
         track.trackId,
       );
-      if (!result.isError) {
-        allowedTracks.add(track);
-      }
+      if (!result.isError) allowedTracks.add(track);
     }
 
     if (allowedTracks.isEmpty) {
@@ -64,8 +94,12 @@ class AudioService {
       return;
     }
 
-    final firstTrack = allowedTracks.first;
+    // 🔗 전역 context/ref 저장 (다음 곡 재생 시 사용)
+    _globalRef = ref;
+    _globalContext = context;
+    _currentTrackList = allowedTracks;
 
+    final firstTrack = allowedTracks.first;
     try {
       final track = await _fetchPlayableTrack(
         ref,
@@ -87,6 +121,7 @@ class AudioService {
     await audioPlayer.setAudioSource(_playlistSource, initialIndex: 0);
   }
 
+  // ▶ 단일 트랙 재생 (재생 권한 포함)
   Future<void> playSingleTrackWithPermission(
     WidgetRef ref,
     Track track,
@@ -114,6 +149,7 @@ class AudioService {
     await _playAndSetState(ref, playableTrack);
   }
 
+  // 🧩 특정 큐에서 특정 곡부터 재생
   Future<void> playFromQueueSubset(
     BuildContext context,
     WidgetRef ref,
@@ -129,9 +165,7 @@ class AudioService {
         track.albumId,
         track.trackId,
       );
-      if (!result.isError) {
-        allowedTracks.add(track);
-      }
+      if (!result.isError) allowedTracks.add(track);
     }
 
     if (allowedTracks.isEmpty) {
@@ -142,11 +176,14 @@ class AudioService {
     final initialIndex = allowedTracks.indexWhere(
       (t) => t.trackId == selectedTrack.trackId,
     );
-
     if (initialIndex == -1) {
       context.showToast('선택한 트랙은 재생할 수 없습니다.');
       return;
     }
+
+    _globalRef = ref;
+    _globalContext = context;
+    _currentTrackList = allowedTracks;
 
     try {
       final playableTrack = await _fetchPlayableTrack(
@@ -166,13 +203,13 @@ class AudioService {
     for (final track in allowedTracks) {
       _playlistSource.add(AudioSource.uri(Uri.parse(track.trackFileUrl ?? '')));
     }
-
     await audioPlayer.setAudioSource(
       _playlistSource,
       initialIndex: initialIndex,
     );
   }
 
+  // 📚 플레이리스트에서 특정 트랙부터 전체 재생
   Future<void> playPlaylistFromTrack(
     WidgetRef ref,
     List<Track> playlist,
@@ -183,15 +220,12 @@ class AudioService {
     final dio = ref.read(dioProvider);
     final allowedTracks = <Track>[];
 
-    // 1. 재생 가능한 트랙 필터링
     for (final track in playlist) {
       final result = await permissionUsecase.check(
         track.albumId,
         track.trackId,
       );
-      if (!result.isError) {
-        allowedTracks.add(track);
-      }
+      if (!result.isError) allowedTracks.add(track);
     }
 
     if (allowedTracks.isEmpty) {
@@ -199,9 +233,10 @@ class AudioService {
       return;
     }
 
-    final initialIndex = 0;
+    _globalRef = ref;
+    _globalContext = context;
+    _currentTrackList = allowedTracks;
 
-    // 2. 첫 트랙 정보 로드 및 상태 갱신
     try {
       final track = await _fetchPlayableTrack(
         ref,
@@ -211,44 +246,33 @@ class AudioService {
         context,
       );
       await _playAndSetState(ref, track);
-
-      // 🔥 핵심 추가
       allowedTracks[0] = track;
     } catch (e) {
       context.showToast(e.toString());
       return;
     }
 
-    // 3. 현재 로그인한 사용자 ID 가져오기
+    // Hive 저장 및 상태 동기화
     final userId = ref.read(authUserIdProvider);
-
-    // 4. 기존 재생목록 불러오기 (data.Track → domain.Track 변환)
     final existingQueue = (await loadListeningQueue(userId)).cast<data.Track>();
     final existingQueueDomain =
         existingQueue.map(mapDataTrackToDomain).toList();
-
-    // 5. 새 트랙을 최상단에 추가
-    final merged = [...allowedTracks, ...existingQueueDomain];
-    final finalQueue = merged;
-
-    // 6. Hive에 저장 (domain → data로 변환해서 저장)
+    final finalQueue = [...allowedTracks, ...existingQueueDomain];
     final dataQueue = finalQueue.map((t) => t.toDataModel()).toList();
     await saveListeningQueue(userId, dataQueue);
 
-    // 7. 재생 목록 구성
     _playlistSource.clear();
     for (final t in finalQueue) {
       _playlistSource.add(AudioSource.uri(Uri.parse(t.trackFileUrl ?? '')));
     }
-
     await audioPlayer.setAudioSource(_playlistSource, initialIndex: 0);
-    ref.read(listeningQueueProvider.notifier).loadQueue(); // ← 이걸 추가
+    ref.read(listeningQueueProvider.notifier).loadQueue();
   }
 
+  // 🎯 상태 업데이트 + 오디오 재생 처리
   Future<void> _playAndSetState(WidgetRef ref, Track track) async {
-    final uniqueId = "track_${track.trackId}";
+    final uniqueId = "track_\${track.trackId}";
 
-    // ✅ 1. 상태 먼저 업데이트
     ref
         .read(playbackProvider.notifier)
         .updateTrackInfo(
@@ -264,10 +288,10 @@ class AudioService {
         );
     ref.read(playbackProvider.notifier).updatePlaybackState(true);
 
-    // ✅ 2. 오디오 재생 시작 (상태 업데이트 후!)
     await _playSingleTrack(ref, track);
   }
 
+  // 📡 서버에서 스트리밍 가능한 트랙 정보 가져오기 (집계 포함)
   Future<Track> _fetchPlayableTrack(
     WidgetRef ref,
     Dio dio,
@@ -327,32 +351,24 @@ class AudioService {
       };
 
       context.showToast(message);
-      return Future.error(message); // 흐름 중단
+      return Future.error(message);
     }
   }
 
+  // 🔊 실제 오디오 재생
   Future<void> _playSingleTrack(WidgetRef ref, Track track) async {
     final url = track.trackFileUrl ?? '';
     final source = AudioSource.uri(Uri.parse(url));
     try {
-      print('[DEBUG] 🎧 setAudioSource 시도 중... URL: $url');
-
-      // 1. 소스 설정
-      final duration = await audioPlayer.setAudioSource(source);
-      print('[DEBUG] ✅ AudioSource 세팅 완료, duration: $duration');
-
-      // 2. 재생 시작
+      await audioPlayer.setAudioSource(source);
       await audioPlayer.play();
-      print('[DEBUG] 🔊 오디오 재생 시작됨');
-
-      // ✅ 3. 상태 갱신 (여기서 직접 반영)
       ref.read(playbackProvider.notifier).updatePlaybackState(true);
     } catch (e) {
-      print('[ERROR] 오디오 재생 중 오류 발생: $e');
       throw Exception('오디오 재생 중 오류 발생: $e');
     }
   }
 
+  // ▶ 재생/일시정지/탐색/반복 등 기본 컨트롤러
   Future<void> resume(WidgetRef ref) async {
     await audioPlayer.play();
     ref.read(playbackProvider.notifier).updatePlaybackState(true);
@@ -385,6 +401,12 @@ class AudioService {
   Future<void> setLoopMode(LoopMode loopMode) async {
     await audioPlayer.setLoopMode(loopMode);
   }
+
+  // 🎯 외부에서 직접 트랙 재생을 위한 엔트리
+  Future<void> playTrackDirectly(WidgetRef ref, Track track) async {
+    await _playAndSetState(ref, track);
+  }
 }
 
+// 📡 전역 Provider 등록
 final audioServiceProvider = Provider<AudioService>((ref) => AudioService());
