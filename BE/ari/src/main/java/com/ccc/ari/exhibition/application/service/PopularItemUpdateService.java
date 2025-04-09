@@ -76,7 +76,7 @@ public class PopularItemUpdateService {
     /**
      * 매일 오전 6시 30초 인기 트랙 및 앨범을 계산하고 저장합니다.
      */
-    @Scheduled(cron = "30 0 6 * * *")
+    @Scheduled(cron = "0 10 4/3 * * *")
     public void updatePopularMusic() {
         logger.info("인기 트랙 및 앨범 업데이트를 시작합니다.");
 
