@@ -2,7 +2,6 @@ package com.ccc.ari.subscription.infrastructure.persistence.repository;
 
 import com.ccc.ari.subscription.domain.SubscriptionCycle;
 import com.ccc.ari.subscription.domain.repository.SubscriptionCycleRepository;
-import com.ccc.ari.subscription.domain.vo.SubscriptionCycleId;
 import com.ccc.ari.subscription.domain.vo.SubscriptionId;
 import com.ccc.ari.subscription.infrastructure.persistence.entity.SubscriptionCycleEntity;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +49,8 @@ public class SubscriptionCycleRepositoryImpl implements SubscriptionCycleReposit
         return subscriptionCycleJpaRepository.findAllBySubscriptionId(subscriptionId.getValue())
                 .stream()
                 .filter(cycle ->
-                        (!cycle.getStartedAt().isBefore(startTime) && !cycle.getStartedAt().isAfter(endTime)))
+                        ((!cycle.getStartedAt().isBefore(startTime) && !cycle.getStartedAt().isAfter(endTime)) ||
+                                (!cycle.getEndedAt().isBefore(startTime) && !cycle.getEndedAt().isAfter(endTime))))
                 .findFirst()
                 .map(SubscriptionCycleEntity::toModel);
     }
