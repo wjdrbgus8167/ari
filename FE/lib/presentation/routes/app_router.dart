@@ -37,6 +37,7 @@ import 'package:ari/core/utils/genre_utils.dart';
 import 'package:ari/presentation/pages/genre/genre_page.dart';
 // 음악 서랍
 import 'package:ari/presentation/pages/music_drawer/music_drawer_screen.dart';
+import 'package:ari/presentation/pages/music_drawer/subscribed_artists_screen.dart';
 
 class AppRoutes {
   static const String home = '/';
@@ -65,6 +66,7 @@ class AppRoutes {
   static const String createFantalk = '/create-fantalk';
   static const String trackSelection = '/track-selection';
   static const String musicDrawer = '/music-drawer';
+  static const String subscribedArtists = '/music-drawer/subscribed-artists';
 
   static final Set<String> _protectedRoutes = {
     myPage,
@@ -174,6 +176,11 @@ class AppRouter {
       case AppRoutes.subscriptionSelect:
         return MaterialPageRoute(
           builder: (_) => const SubscriptionSelectScreen(),
+        );
+
+      case AppRoutes.subscribedArtists:
+        return MaterialPageRoute(
+          builder: (_) => const SubscribedArtistsScreen(),
         );
 
       case AppRoutes.subscriptionPayment:
