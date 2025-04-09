@@ -2,20 +2,16 @@ package com.ccc.ari.subscription.application.service;
 
 import com.ccc.ari.global.type.PlanType;
 import com.ccc.ari.subscription.application.command.GetMyRegularCyclesCommand;
+import com.ccc.ari.subscription.application.response.CycleInfo;
+import com.ccc.ari.subscription.application.response.GetMyArtistCyclesResponse;
 import com.ccc.ari.subscription.application.response.GetMyRegularCyclesResponse;
 import com.ccc.ari.subscription.domain.Subscription;
 import com.ccc.ari.subscription.domain.SubscriptionCycle;
 import com.ccc.ari.subscription.domain.SubscriptionPlan;
-import com.ccc.ari.subscription.domain.exception.ArtistSubscriptionNotFoundException;
-import com.ccc.ari.subscription.domain.exception.CycleNotFoundException;
-import com.ccc.ari.subscription.domain.exception.RegularPlanNotFoundException;
-import com.ccc.ari.subscription.domain.exception.RegularSubscriptionNotFoundException;
+import com.ccc.ari.subscription.domain.exception.*;
 import com.ccc.ari.subscription.domain.repository.SubscriptionCycleRepository;
 import com.ccc.ari.subscription.domain.repository.SubscriptionPlanRepository;
 import com.ccc.ari.subscription.domain.repository.SubscriptionRepository;
-import com.ccc.ari.subscription.domain.vo.SubscriptionCycleId;
-import com.ccc.ari.subscription.infrastructure.persistence.repository.SubscriptionCycleJpaRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Service
@@ -106,5 +102,49 @@ public class SubscriptionQueryService {
 
     public SubscriptionCycle getSubscriptionCycleById(Integer subscriptionCycleId) {
         return subscriptionCycleRepository.getSubscriptionCycleById(subscriptionCycleId);
+    }
+
+    /**
+     * 나의 아티스트별 정산 이력 조회를 위한 나의 특정 아티스트의 구독 사이클 조회
+     */
+    public GetMyArtistCyclesResponse getMyArtistSubscriptionCycle(Integer subscriberId, Integer artistId) {
+
+        List<CycleInfo> cycleInfos = getCycleInfosForPlan(subscriberId,
+                () -> subscriptionPlanRepository.findSubscriptionPlanByArtistId(artistId)
+                        .orElseThrow(() -> new ArtistPlanNotFoundException(artistId)),
+                PlanType.A,
+                () -> new ArtistSubscriptionNotFoundException(artistId));
+
+        cycleInfos.addAll(getCycleInfosForPlan(subscriberId,
+                () -> subscriptionPlanRepository.findSubscriptionPlanByPlanType(PlanType.R)
+                        .orElseThrow(RegularPlanNotFoundException::new),
+                PlanType.R,
+                RegularSubscriptionNotFoundException::new));
+
+        return GetMyArtistCyclesResponse.builder()
+                .cycleInfos(cycleInfos)
+                .build();
+    }
+
+    private List<CycleInfo> getCycleInfosForPlan(Integer subscriberId,
+                                                 Supplier<SubscriptionPlan> planSupplier,
+                                                 PlanType planType,
+                                                 Supplier<RuntimeException> exceptionSupplier) {
+        SubscriptionPlan plan = planSupplier.get();
+
+        return subscriptionRepository.findListByMemberIdAndSubscriptionPlanId(subscriberId,
+                        plan.getSubscriptionPlanId().getValue())
+                .orElseThrow(exceptionSupplier)
+                .stream()
+                .flatMap(subscription ->
+                                subscriptionCycleRepository.getSubscriptionCycleList(subscription.getSubscriptionId())
+                        .stream()
+                        .map(subscriptionCycle -> CycleInfo.builder()
+                                .cycleId(subscriptionCycle.getSubscriptionCycleId().getValue())
+                                .planType(planType)
+                                .startedAt(subscriptionCycle.getStartedAt())
+                                .endedAt(subscriptionCycle.getEndedAt())
+                                .build()))
+                .toList();
     }
 }

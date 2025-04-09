@@ -18,6 +18,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -205,6 +206,56 @@ public class SettlementQueryService {
                 .todaySettlement(dailySettlementMap.get(today))
                 .settlementDiff(dailySettlementMap.get(today) - dailySettlementMap.get(yesterday))
                 .dailySettlements(dailySettlementInfos)
+                .build();
+    }
+
+    /**
+     * 나의 아티스트별 구독 이력 조회를 위한 구독 사이클별 정산 조회
+     */
+    public GetMyArtistSettlementResponse getMyArtistSettlement(Integer subscriberId, Integer artistId) {
+
+        // 1. 해당 리스너의 해당 아티스트에 대한 모든 정산 이벤트 조회
+        List<SubscriptionContract.SettlementExecutedRegularEventResponse> regularEventResponses =
+                settlementExecutedEventListener.getSettlementExecutedRegularEventsBySubscriberIdAndArtistId(subscriberId, artistId);
+
+        List<SubscriptionContract.SettlementExecutedArtistEventResponse> artistEventResponses =
+                settlementExecutedEventListener.getSettlementExecutedArtistEventsBySubscriberIdAndArtistId(subscriberId, artistId);
+
+        // 2. 각 정산 이벤트를 CycleSettlementInfo로 매핑 후 리스트화
+        List<CycleSettlementInfo> cycleSettlements = new ArrayList<CycleSettlementInfo>(regularEventResponses.stream()
+                .map(event -> CycleSettlementInfo.builder()
+                        .CycleId(event.cycleId.intValue())
+                        .Settlement(new BigDecimal(event.amount)
+                                .divide(new BigDecimal(LINK_DIVISOR), 18, RoundingMode.HALF_UP)
+                                .doubleValue())
+                        .build())
+                .toList());
+
+        cycleSettlements.addAll(artistEventResponses.stream()
+                .map(event -> CycleSettlementInfo.builder()
+                        .CycleId(event.cycleId.intValue())
+                        .Settlement(new BigDecimal(event.amount)
+                                .divide(new BigDecimal(LINK_DIVISOR), 18, RoundingMode.HALF_UP)
+                                .doubleValue())
+                        .build())
+                .toList());
+
+        // 사이클 ID 기준으로 정렬
+        cycleSettlements.sort((a, b) -> b.getCycleId().compareTo(a.getCycleId()));
+
+        // 3. Settlements 합산하여 totalSettlement 계산
+        double totalSettlement = cycleSettlements.stream()
+                .mapToDouble(CycleSettlementInfo::getSettlement)
+                .sum();
+
+        // 4. 로깅 추가
+        logger.info("구독자({})의 아티스트({})에 대한 정산 내역 조회 완료 - 총 {}건, 총 합산 정산 금액: {}",
+                subscriberId, artistId, cycleSettlements.size(), totalSettlement);
+
+        // 5. 최종 응답 반환
+        return GetMyArtistSettlementResponse.builder()
+                .cycleSettlements(cycleSettlements)
+                .totalSettlement(totalSettlement)
                 .build();
     }
 }

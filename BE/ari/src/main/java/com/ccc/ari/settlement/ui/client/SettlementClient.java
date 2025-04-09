@@ -2,6 +2,7 @@ package com.ccc.ari.settlement.ui.client;
 
 import com.ccc.ari.settlement.application.command.GetMyRegularSettlementDetailCommand;
 import com.ccc.ari.settlement.application.response.GetArtistDailySettlementResponse;
+import com.ccc.ari.settlement.application.response.GetMyArtistSettlementResponse;
 import com.ccc.ari.settlement.application.response.RegularSettlementDetailResponse;
 import com.ccc.ari.settlement.application.service.SettlementQueryService;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +34,9 @@ public class SettlementClient {
     }
 
     /**
-     * 특정 사용자의 특정 아티스트에 대한 각 구독 사이클의 정산 금액을 조회합니다.
+     * 특정 사용자의 특정 아티스트에 대한 각 구독 사이클별 정산 금액을 조회합니다.
      */
-
+    public GetMyArtistSettlementResponse getMyArtistSettlement(Integer subscriberId, Integer artistId) {
+        return settlementQueryService.getMyArtistSettlement(subscriberId, artistId);
+    }
 }

@@ -74,7 +74,10 @@ public class SettlementExecuteService {
         GetListenerAggregationResponse response = null;
         try {
             response = streamingCountClient.getListenerAggregation(event.getSubscriberId(), startTime, endTime);
-            logger.info("스트리밍 카운트 조회 성공 - ArtistCountList 크기: {}", response.getArtistCountList().size());
+            response.getArtistCountList().forEach(
+                    artistData -> logger.info("스트리밍 카운트 조회 성공 - ArtistId: {}, Count: {}",
+                            artistData.getArtistId(), artistData.getCount())
+            );
         } catch (Exception e) {
             logger.error("스트리밍 카운트 조회 중 오류 발생 - SubscriberId: {}", event.getSubscriberId(), e);
             return;
@@ -82,7 +85,7 @@ public class SettlementExecuteService {
 
         // 3. 해당 시간대에 해당하는 구독 사이클 조회
         Integer cycleId = subscriptionClient.getRegularSubscriptionCycleIdByPeriod(event.getSubscriberId(), startTime, endTime)
-                    .getSubscriptionCycleId().getValue();
+                .getSubscriptionCycleId().getValue();
         logger.info("구독 사이클 조회 성공 - CycleId: {}", cycleId);
 
         // 4. 정기 구독 사이클 정산 컨트랙트 함수 실행
