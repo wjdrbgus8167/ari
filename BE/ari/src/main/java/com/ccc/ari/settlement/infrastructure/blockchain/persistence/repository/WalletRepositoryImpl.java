@@ -20,7 +20,7 @@ public class WalletRepositoryImpl implements WalletRepository {
 
     @Override
     public List<WalletEntity> getAllWallets() {
-        return walletJpaRepository.findAllWallets().orElse(null);
+        return walletJpaRepository.findAllBy().orElse(null);
     }
 
     @Override

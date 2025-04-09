@@ -10,7 +10,7 @@ public interface WalletJpaRepository extends JpaRepository<WalletEntity, Integer
 
     Optional<WalletEntity> findByArtistId(Integer artistId);
 
-    Optional<List<WalletEntity>> findAllWallets();
+    Optional<List<WalletEntity>> findAllBy();
 
     Boolean existsByArtistId(Integer artistId);
 }
