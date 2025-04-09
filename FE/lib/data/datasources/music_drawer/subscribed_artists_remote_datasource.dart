@@ -22,8 +22,12 @@ class SubscribedArtistsRemoteDataSourceImpl
       );
 
       // 응답 파싱
+      // 디버깅을 위해 응답 로깅
+      print('API 응답: $response');
+
       return SubscribedArtistsResponse.fromJson(response);
     } catch (e) {
+      print('구독 아티스트 데이터 로드 에러: $e');
       // 에러 처리
       rethrow;
     }

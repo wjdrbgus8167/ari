@@ -1,25 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dio/dio.dart';
-import 'package:ari/data/datasources/api_client.dart';
 import 'package:ari/data/datasources/music_drawer/subscribed_artists_remote_datasource.dart';
 import 'package:ari/data/repositories/music_drawer/subscribed_artists_repository_impl.dart';
 import 'package:ari/domain/repositories/music_drawer/subscribed_artists_repository.dart';
 import 'package:ari/domain/usecases/music_drawer/subscribed_artists_usecases.dart';
 import 'package:ari/presentation/viewmodels/music_drawer/subscribed_artists_viewmodel.dart';
-
-final dioProvider = Provider<Dio>((ref) {
-  final dio = Dio();
-  dio.options.baseUrl = 'https://ari-music.duckdns.org'; // 서버 URL 설정
-  dio.options.connectTimeout = const Duration(seconds: 10);
-  dio.options.receiveTimeout = const Duration(seconds: 10);
-  return dio;
-});
-
-/// API 클라이언트 프로바이더
-final apiClientProvider = Provider<ApiClient>((ref) {
-  final dio = ref.watch(dioProvider);
-  return ApiClient(dio);
-});
+import 'package:ari/providers/global_providers.dart';
 
 /// 구독 중인 아티스트 데이터소스 프로바이더
 final subscribedArtistsDataSourceProvider =

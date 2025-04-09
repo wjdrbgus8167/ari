@@ -14,11 +14,15 @@ class SubscribedArtistsRepositoryImpl implements SubscribedArtistsRepository {
       final response = await _dataSource.getSubscribedArtists();
 
       if (response.status == 200) {
-        return response.artists;
+        // 빈 배열이어도 성공으로 처리
+        return response.artists; // 빈 배열일 수 있음
       } else {
         throw Failure(message: response.message);
       }
     } catch (e) {
+      if (e is Failure) {
+        rethrow;
+      }
       throw Failure(message: '구독 중인 아티스트 목록을 불러오는데 실패했습니다');
     }
   }

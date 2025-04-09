@@ -1,6 +1,10 @@
 import 'package:ari/presentation/widgets/common/header_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ari/presentation/routes/app_router.dart';
+import 'package:ari/presentation/widgets/common/custom_dialog.dart';
+import 'package:ari/core/constants/app_colors.dart';
+import 'package:ari/providers/music_drawer/music_drawer_providers.dart';
 
 /// 음악 서랍 화면 - 플레이리스트, 구독 중인 아티스트, 좋아요 누른 콘텐츠를 확인할 수 있는 페이지
 class MusicDrawerScreen extends ConsumerStatefulWidget {
@@ -58,12 +62,74 @@ class _MusicDrawerScreenState extends ConsumerState<MusicDrawerScreen> {
                       const SizedBox(height: 32),
 
                       // 구독 중인 아티스트 섹션
-                      _buildNavigationItem(
-                        icon: Icons.people_outline,
-                        title: '구독 중인 아티스트',
-                        subtitle: '3명',
-                        onTap: () {
-                          // TODO: 구독 중인 아티스트 페이지로 이동
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final artistsCountAsync = ref.watch(
+                            subscribedArtistsCountProvider,
+                          );
+
+                          return artistsCountAsync.when(
+                            data:
+                                (count) => _buildNavigationItem(
+                                  icon: Icons.people_outline,
+                                  title: '구독 중인 아티스트',
+                                  subtitle: '$count명',
+                                  onTap: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      AppRoutes.subscribedArtists,
+                                    );
+                                  },
+                                ),
+                            loading:
+                                () => _buildNavigationItem(
+                                  icon: Icons.people_outline,
+                                  title: '구독 중인 아티스트',
+                                  subtitle: '로딩 중...',
+                                  onTap: () {
+                                    // 로딩 중에는 클릭 비활성화 또는 별도 처리
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          '데이터를 불러오는 중입니다. 잠시만 기다려주세요.',
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                            error: (error, stackTrace) {
+                              // 에러 메시지 파싱
+                              String errorMessage = '구독 중인 아티스트를 불러올 수 없습니다.';
+
+                              if (error.toString().contains('구독권이 존재하지 않습니다')) {
+                                errorMessage = '구독권이 존재하지 않습니다.';
+                              }
+
+                              return _buildNavigationItem(
+                                icon: Icons.people_outline,
+                                title: '구독 중인 아티스트',
+                                subtitle: '0명',
+                                onTap: () {
+                                  // 구독권 없음 다이얼로그 표시
+                                  context.showConfirmDialog(
+                                    title: '구독권 필요',
+                                    content:
+                                        '구독 중인 아티스트를 보려면 구독권이 필요합니다.\n구독 페이지로 이동하시겠습니까?',
+                                    confirmText: '구독하러 가기',
+                                    cancelText: '취소',
+                                    confirmButtonColor: AppColors.lightPurple,
+                                    onConfirm: () {
+                                      // 구독 페이지로 이동
+                                      Navigator.pushNamed(
+                                        context,
+                                        AppRoutes.subscriptionSelect,
+                                      );
+                                    },
+                                  );
+                                },
+                              );
+                            },
+                          );
                         },
                       ),
 

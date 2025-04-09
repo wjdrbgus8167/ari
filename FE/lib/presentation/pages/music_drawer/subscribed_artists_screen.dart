@@ -119,10 +119,12 @@ class SubscribedArtistsScreen extends ConsumerWidget {
   ) {
     return InkWell(
       onTap: () {
-        // 라우터를 통해 다른 사용자의 채널 페이지로 이동
-        AppRouter.navigateTo(context, ref, AppRoutes.myChannel, {
-          'memberId': artist.artistId.toString(),
-        });
+        // 아티스트 채널 페이지로 이동
+        Navigator.pushNamed(
+          context,
+          AppRoutes.myChannel,
+          arguments: {'memberId': artist.artistId.toString()},
+        );
       },
       child: Container(
         decoration: BoxDecoration(
@@ -140,14 +142,12 @@ class SubscribedArtistsScreen extends ConsumerWidget {
                 shape: BoxShape.circle,
                 color: Colors.white,
               ),
-              // 이미지 URL이 있을 경우 NetworkImage로 대체
-              // 현재는 임시로 흰색 원으로 표시
             ),
             const SizedBox(height: 16),
 
-            // 아티스트 이름
+            // 아티스트 이름 - 대문자 N으로 수정
             Text(
-              artist.artistNickname,
+              artist.artistNickName,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 18,
