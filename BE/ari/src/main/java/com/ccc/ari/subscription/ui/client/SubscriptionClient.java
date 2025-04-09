@@ -1,5 +1,6 @@
 package com.ccc.ari.subscription.ui.client;
 
+import com.ccc.ari.subscription.application.response.GetMyArtistCyclesResponse;
 import com.ccc.ari.subscription.application.service.SubscriptionQueryService;
 import com.ccc.ari.subscription.domain.SubscriptionCycle;
 import lombok.RequiredArgsConstructor;
@@ -25,5 +26,12 @@ public class SubscriptionClient {
 
     public SubscriptionCycle getSubscriptionCycleById(Integer subscriptionCycleId) {
         return subscriptionQueryService.getSubscriptionCycleById(subscriptionCycleId);
+    }
+
+    /**
+     * 특정 사용자의 특정 아티스트에 대한 모든 구독 사이클과 그 기간 조회
+     */
+    public GetMyArtistCyclesResponse getMyArtistCyclesResponse(Integer subscriberId, Integer artistId) {
+        return subscriptionQueryService.getMyArtistSubscriptionCycle(subscriberId, artistId);
     }
 }

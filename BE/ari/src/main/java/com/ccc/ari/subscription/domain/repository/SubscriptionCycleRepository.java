@@ -33,5 +33,4 @@ public interface SubscriptionCycleRepository {
      */
     SubscriptionCycle getSubscriptionCycleById(Integer subscriptionCycleId);
 
-
 }
