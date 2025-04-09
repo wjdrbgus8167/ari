@@ -5,6 +5,7 @@ import com.ccc.ari.aggregation.ui.response.GetListenerAggregationResponse;
 import com.ccc.ari.global.contract.SubscriptionContract;
 import com.ccc.ari.global.event.ArtistSettlementRequestedEvent;
 import com.ccc.ari.global.event.RegularSettlementRequestedEvent;
+import com.ccc.ari.settlement.domain.repository.WalletRepository;
 import com.ccc.ari.subscription.ui.client.SubscriptionClient;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -31,6 +32,7 @@ public class SettlementExecuteService {
     private final SubscriptionContract subscriptionContract;
     private final StreamingCountClient streamingCountClient;
     private final SubscriptionClient subscriptionClient;
+    private final WalletRepository walletRepository;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // 1 LINK = 10^18
@@ -99,8 +101,42 @@ public class SettlementExecuteService {
 
         // 5. 입력값 유효성 검사
         if (artistIds.isEmpty() || streamingCounts.isEmpty()) {
-            logger.error("스트리밍 카운트 데이터가 비어있습니다 - SubscriberId: {}", event.getSubscriberId());
-            return;
+            logger.warn("스트리밍 카운트 데이터가 비어있습니다 - SubscriberId: {}", event.getSubscriberId());
+            var allWallets = walletRepository.getAllWallets();
+
+            if (allWallets.isEmpty()) {
+                logger.error("지갑 데이터가 비어 있어 정산을 진행할 수 없습니다 - SubscriberId: {}", event.getSubscriberId());
+                return;
+            }
+
+            // 모든 아티스트의 스트리밍을 1로 설정해 모든 아티스트에게 균등 정산
+            final List<BigInteger> fallbackArtistIds = allWallets.stream()
+                    .map(wallet -> BigInteger.valueOf(wallet.getArtistId()))
+                    .toList();
+
+            final List<BigInteger> fallbackStreamingCounts = fallbackArtistIds.stream()
+                    .map(id -> BigInteger.ONE)
+                    .toList();
+
+            try {
+                logger.info("스트리밍 이력이 없어 모든 지갑에 균등하게 정산합니다.");
+                TransactionReceipt receipt = executeWithRetry(
+                        "정기 구독 정산(균등)",
+                        event.getSubscriberId().longValue(),
+                        () -> subscriptionContract.settlePaymentsRegularByArtist(
+                                BigInteger.valueOf(event.getSubscriberId()),
+                                BigInteger.valueOf(cycleId),
+                                REGULAR_AMOUNT,
+                                fallbackArtistIds,
+                                fallbackStreamingCounts
+                        ).send()
+                );
+                return;
+            } catch (Exception e) {
+                logger.error("정기 구독 정산 최종 실패 - SubscriberId: {}, CycleId: {}",
+                        event.getSubscriberId(), cycleId, e);
+                return;
+            }
         }
 
         try {

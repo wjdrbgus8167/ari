@@ -5,6 +5,8 @@ import com.ccc.ari.settlement.infrastructure.blockchain.persistence.entity.Walle
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 @RequiredArgsConstructor
 public class WalletRepositoryImpl implements WalletRepository {
@@ -14,6 +16,11 @@ public class WalletRepositoryImpl implements WalletRepository {
     @Override
     public WalletEntity save(WalletEntity walletEntity) {
         return walletJpaRepository.save(walletEntity);
+    }
+
+    @Override
+    public List<WalletEntity> getAllWallets() {
+        return walletJpaRepository.getAll().orElse(null);
     }
 
     @Override
