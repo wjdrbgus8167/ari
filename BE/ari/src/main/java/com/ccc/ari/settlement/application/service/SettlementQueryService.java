@@ -240,16 +240,22 @@ public class SettlementQueryService {
                         .build())
                 .toList());
 
-                // 사이클 ID 기준으로 정렬
-                cycleSettlements.sort((a, b) -> b.getCycleId().compareTo(a.getCycleId()));
+        // 사이클 ID 기준으로 정렬
+        cycleSettlements.sort((a, b) -> b.getCycleId().compareTo(a.getCycleId()));
 
-        // 3. 로깅 추가
-        logger.info("구독자({})의 아티스트({})에 대한 정산 내역 조회 완료 - 총 {}건",
-                        subscriberId, artistId, cycleSettlements.size());
+        // 3. Settlements 합산하여 totalSettlement 계산
+        double totalSettlement = cycleSettlements.stream()
+                .mapToDouble(CycleSettlementInfo::getSettlement)
+                .sum();
 
-        // 4. 최종 응답 반환
+        // 4. 로깅 추가
+        logger.info("구독자({})의 아티스트({})에 대한 정산 내역 조회 완료 - 총 {}건, 총 합산 정산 금액: {}",
+                subscriberId, artistId, cycleSettlements.size(), totalSettlement);
+
+        // 5. 최종 응답 반환
         return GetMyArtistSettlementResponse.builder()
-                    .cycleSettlements(cycleSettlements)
-                    .build();
-        }
+                .cycleSettlements(cycleSettlements)
+                .totalSettlement(totalSettlement)
+                .build();
+    }
 }

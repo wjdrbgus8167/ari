@@ -11,5 +11,6 @@ import java.util.List;
 @Builder
 public class GetMyArtistSettlementResponse {
 
+    private final Double totalSettlement;
     private final List<CycleSettlementInfo> cycleSettlements;
 }
