@@ -51,6 +51,10 @@ public class GetMyArtistDashBoardService {
         // 지갑 주소
         String walletAddress = walletClient.getWalletByArtistId(memberId).getAddress();
 
+        if(walletAddress == null){
+            throw new ApiException(ErrorCode.WALLET_NOT_REGTISTER);
+        }
+
         if (subscriptionPlan==null) {
             return GetMyArtistDashBoardResponse.builder()
                     .subscriberCount(0)
