@@ -79,6 +79,8 @@ public enum ErrorCode {
     // 구독 관련
     SUBSCRIPTION_NOT_FOUND(HttpStatus.NOT_FOUND,"S001","구독권이 존재하지 않습니다."),
     SUBSCRIPTION_ACCESS_DENIED(HttpStatus.FORBIDDEN, "S002", "구독권이 유효하지 않거나 일치하지 않는 유효권입니다."),
+    SUBSCRIPTION_REGULAR_NOT_FOUND(HttpStatus.NOT_FOUND,"S003","정기구독권이 존재하지 않습니다."),
+    WALLET_NOT_REGTISTER(HttpStatus.NOT_FOUND,"S004","지갑이 등록되지 않았습니다."),
     // 검색 관련
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "Q001", "검색어를 입력해주세요."),
     // 스트리밍 조회 관련
