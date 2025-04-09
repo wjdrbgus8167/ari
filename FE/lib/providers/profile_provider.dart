@@ -1,10 +1,13 @@
 // providers/profile/profile_provider.dart
 import 'dart:io';
+import 'package:ari/data/repositories/user_repository.dart';
 import 'package:ari/domain/entities/profile.dart';
 import 'package:ari/domain/repositories/user/user_repository.dart';
 import 'package:ari/domain/usecases/user/user_usecase.dart';
 import 'package:ari/presentation/viewmodels/mypage/edit_profile_viewmodel.dart';
+import 'package:ari/providers/user_provider.dart';
 import 'package:dartz/dartz.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -110,17 +113,17 @@ class ProfileNotifier extends StateNotifier<ProfileModel> {
   // 프로필 저장 함수
   Future<bool> saveProfile() async {
     try {
-      // 로딩 상태 시작
+      // 프로필 엔티티 생성
       final profile = state.toEntity();
       
       // 선택된 이미지 파일이 있는지 확인
-      File? imageFile;
+      MultipartFile? imageFile;
       if (state.profileImageFile != null) {
-        imageFile = File(state.profileImageFile!);
+        imageFile = await MultipartFile.fromFile(state.profileImageFile!, filename: state.profileImageFile!.split('/').last);
       }
       
       // API 호출 실행
-      final result = await updateUserProfileUseCase(profile, imageFile ?? File(''));
+      final result = await updateUserProfileUseCase(profile, imageFile);
       
       // 결과 처리
       return result.fold(
@@ -131,7 +134,7 @@ class ProfileNotifier extends StateNotifier<ProfileModel> {
         }, 
         (_) {
           // 성공 시, 필요한 경우 프로필 다시 로드
-          // loadProfile();
+          loadProfile();
           
           // 이미지 파일 참조 제거 (이미 서버에 업로드됨)
           if (state.profileImageFile != null) {
@@ -176,8 +179,7 @@ class ProfileNotifier extends StateNotifier<ProfileModel> {
 // Repository Provider
 final userRepositoryProvider = Provider<UserRepository>((ref) {
   // 실제 구현체 반환
-  // return UserRepositoryImpl(dataSource);
-  throw UnimplementedError(); // 실제 구현 시 제거
+  return UserRepositoryImpl(dataSource: ref.read(userRemoteDataSourceProvider));
 });
 
 // UseCase Provider

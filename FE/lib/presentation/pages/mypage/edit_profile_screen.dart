@@ -1,9 +1,13 @@
 // presentation/pages/mypage/edit_profile_screen.dart
+import 'package:ari/presentation/pages/mypage/mypage_screen.dart';
+import 'package:ari/presentation/routes/app_router.dart';
 import 'package:ari/presentation/viewmodels/mypage/edit_profile_viewmodel.dart';
+import 'package:ari/presentation/widgets/common/custom_toast.dart';
 import 'package:ari/presentation/widgets/mypage/profile_image_widget.dart';
 import 'package:ari/presentation/widgets/mypage/profile_input_field.dart';
 import 'package:ari/providers/profile_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ProfileEditScreen extends ConsumerStatefulWidget {
@@ -16,22 +20,25 @@ class ProfileEditScreen extends ConsumerStatefulWidget {
 class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   late final ProfileEditViewModel viewModel;
   bool _hasUnsavedChanges = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     viewModel = ref.read(profileEditViewModelProvider);
+    print('initState 호출됨');
     
-    // 데이터 로드 (첫 로드 시에만 필요하다면)
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // 필요시 데이터 로드 로직
-      // ref.read(profileProvider.notifier).loadProfile();
+    // 프로필 로드 및 컨트롤러 초기화
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      setState(() => _isLoading = true);
+      await viewModel.loadProfile(); // 이 메서드에서 컨트롤러 초기화까지 수행
+      setState(() => _isLoading = false);
     });
+    print('initState 호출됨');
   }
 
   @override
   void dispose() {
-    viewModel.dispose();
     super.dispose();
   }
 
@@ -122,19 +129,69 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                       actions: [
                         TextButton(
                           onPressed: () async {
-                            final success = await viewModel.saveProfile();
+                            print('저장 버튼 클릭됨 - 시작');
                             
-                            if (success) {
-                              if (!mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('프로필이 저장되었습니다.')),
-                              );
-                              Navigator.of(context).pop(true); // 결과 전달 (true = 업데이트 성공)
-                            } else {
-                              if (!mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('저장 중 오류가 발생했습니다.')),
-                              );
+                            // 먼저 필요한 context 정보 저장
+                            final scaffoldMessenger = ScaffoldMessenger.of(context);
+                            final navigator = Navigator.of(context);
+                            
+                            if (!mounted) return;
+                            
+                            setState(() {
+                              _isLoading = true;
+                              print('로딩 상태로 변경');
+                            });
+                            
+                            try {
+                              print('saveProfile 호출 전');
+                              // 프로필 저장 API 호출
+                              final success = await viewModel.saveProfile();
+                              print('saveProfile 호출 후: $success');
+                              
+                              // 비동기 작업 후 위젯이 여전히 마운트되어 있는지 확인
+                              if (!mounted) {
+                                print('API 호출 후 위젯이 마운트되지 않음');
+                                return;
+                              }
+                              
+                              // 모든 비동기 작업 완료 후 상태 업데이트
+                              setState(() {
+                                _isLoading = false;
+                                print('로딩 상태 해제');
+                              });
+                              
+                              if (success) {
+                                print('성공 분기 진입');
+                                // 토스트 메시지 표시
+                                scaffoldMessenger.showSnackBar(
+                                  SnackBar(content: Text('프로필이 저장되었습니다'), duration: Duration(seconds: 1))
+                                );
+                                
+                                // 비동기 작업 완료 후 화면 전환
+                                await Future.delayed(const Duration(milliseconds: 300));
+                                
+                                // 화면 전환 전 마운트 상태 재확인
+                                if (mounted) {
+                                  print('네비게이션 시작');
+                                  navigator.pushReplacementNamed(AppRoutes.myPage);
+                                  print('네비게이션 완료');
+                                }
+                              } else {
+                                print('실패 분기 진입');
+                                scaffoldMessenger.showSnackBar(
+                                  SnackBar(content: Text('저장 중 오류가 발생했습니다'), duration: Duration(seconds: 1))
+                                );
+                              }
+                            } catch (e) {
+                              print('예외 발생: ${e.toString()}');
+                              if (mounted) {
+                                setState(() {
+                                  _isLoading = false;
+                                });
+                                scaffoldMessenger.showSnackBar(
+                                  SnackBar(content: Text('오류가 발생했습니다: ${e.toString()}'), duration: Duration(seconds: 1))
+                                );
+                              }
                             }
                           },
                           child: const Text(

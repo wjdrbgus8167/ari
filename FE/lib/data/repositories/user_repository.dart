@@ -6,6 +6,7 @@ import 'package:ari/data/models/user/profile_model.dart';
 import 'package:ari/domain/entities/profile.dart';
 import 'package:ari/domain/repositories/user/user_repository.dart';
 import 'package:dartz/dartz.dart';
+import 'package:dio/dio.dart';
 
 class UserRepositoryImpl implements UserRepository {
   final UserRemoteDataSource dataSource;
@@ -30,7 +31,7 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<Either<Failure, void>> updateUserProfile(Profile profile, File image) async {
+  Future<Either<Failure, void>> updateUserProfile(Profile profile, MultipartFile? image) async {
     try {
       await dataSource.updateUserProfile(
         UpdateProfileRequest(

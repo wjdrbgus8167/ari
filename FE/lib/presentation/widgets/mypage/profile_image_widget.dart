@@ -53,19 +53,7 @@ class ProfileImageWidget extends ConsumerWidget {
     // 로컬에서 선택된 이미지 파일이 있는 경우
     if (profile.profileImageFile != null) {
       // 실제 앱에서는 선택된 이미지 파일 표시
-      // return Image.file(File(profile.profileImageFile!), fit: BoxFit.cover);
-      
-      // 시뮬레이션 (선택된 이미지 아이콘으로 표현)
-      return Container(
-        color: const Color(0xFF383838),
-        child: const Center(
-          child: Icon(
-            Icons.image, 
-            size: 50,
-            color: Colors.white70,
-          ),
-        ),
-      );
+      return Image.file(File(profile.profileImageFile!), fit: BoxFit.cover);
     }
     
     // 기존 프로필 이미지 URL이 있는 경우

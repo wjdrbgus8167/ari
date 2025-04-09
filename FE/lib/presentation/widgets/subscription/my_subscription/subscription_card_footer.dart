@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 
 class CardFooter extends StatelessWidget {
   final SubscriptionModel subscriptionModel;
-  final VoidCallback onCancelPressed;
+  final VoidCallback? onCancelPressed;
 
   const CardFooter({
     super.key,
     required this.subscriptionModel,
-    required this.onCancelPressed,
+    this.onCancelPressed,
   });
 
   @override
@@ -31,7 +31,7 @@ class CardFooter extends StatelessWidget {
                 subscriptionModel.period,
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 8,
+                  fontSize: 12,
                   fontFamily: 'Pretendard',
                   fontWeight: FontWeight.w400,
                 ),

@@ -1,5 +1,6 @@
 import 'package:ari/presentation/routes/app_router.dart';
 import 'package:ari/presentation/widgets/common/button_large.dart';
+import 'package:ari/presentation/widgets/common/custom_toast.dart';
 import 'package:ari/presentation/widgets/sign_up/sign_up_text_field.dart';
 import 'package:ari/providers/auth/auth_providers.dart';
 import 'package:flutter/material.dart';
@@ -68,16 +69,6 @@ class SignUpScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 14),
 
-                  // 에러 메시지 표시
-                  if (signUpState.errorMessage != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: Text(
-                        signUpState.errorMessage!,
-                        style: const TextStyle(color: Colors.red, fontSize: 14),
-                      ),
-                    ),
-
                   const SizedBox(height: 20),
 
                   // 회원가입 버튼
@@ -87,6 +78,8 @@ class SignUpScreen extends ConsumerWidget {
                       if (await viewModel.signUp()) {
                         // 잠시 후 로그인 화면으로 이동
                         Navigator.of(context).pushNamed(AppRoutes.login);
+                      } else {
+                        context.showToast('회원가입에 실패했습니다.');
                       }
                     },
                     isLoading: signUpState.isLoading,

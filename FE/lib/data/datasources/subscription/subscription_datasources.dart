@@ -7,6 +7,7 @@ import 'package:ari/data/models/subscription/my_subscription_model.dart';
 import 'package:ari/data/models/subscription/regular_subscription_models.dart';
 import 'package:dartz/dartz.dart';
 
+
 abstract class SubscriptionRemoteDataSource {
   Future<MySubscriptionModel?> getMySubscription();
 

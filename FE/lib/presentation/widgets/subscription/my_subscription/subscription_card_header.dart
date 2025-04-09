@@ -26,16 +26,16 @@ class CardHeader extends StatelessWidget {
                   subscriptionModel.title,
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 12,
+                    fontSize: 14,
                     fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
                   '함께한지 ${subscriptionModel.monthsSubscribed}개월 째',
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 8,
+                    fontSize: 12,
                     fontFamily: 'Pretendard',
                     fontWeight: FontWeight.w400,
                   ),
@@ -43,7 +43,7 @@ class CardHeader extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 6),
           Text(
             subscriptionModel.name,
             style: const TextStyle(

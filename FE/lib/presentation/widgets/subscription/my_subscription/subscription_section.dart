@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 // 정기 구독 섹션
 class RegularSubscriptionSection extends StatelessWidget {
   final List<SubscriptionModel> subscriptions;
-  final Function(int) onCancelPressed;
+  final Function(int)? onCancelPressed;
 
   const RegularSubscriptionSection({
     super.key,
     required this.subscriptions,
-    required this.onCancelPressed,
+    this.onCancelPressed,
   });
 
   @override
@@ -48,8 +48,10 @@ class RegularSubscriptionSection extends StatelessWidget {
               (subscription) => Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: SubscriptionCard(
-                  subscriptionModel: subscription,
-                  onCancelPressed: () => onCancelPressed(subscription.id),
+                    subscriptionModel: subscription,
+                    onCancelPressed: onCancelPressed != null 
+                    ? () => onCancelPressed!(subscription.id)
+                    : null,
                 ),
               ),
             ),
@@ -62,12 +64,12 @@ class RegularSubscriptionSection extends StatelessWidget {
 // 아티스트 구독 섹션
 class ArtistSubscriptionSection extends StatelessWidget {
   final List<SubscriptionModel> subscriptions;
-  final Function(int) onCancelPressed;
+  final Function(int)? onCancelPressed;
 
   const ArtistSubscriptionSection({
     super.key,
     required this.subscriptions,
-    required this.onCancelPressed,
+    this.onCancelPressed,
   });
 
   @override
@@ -106,7 +108,9 @@ class ArtistSubscriptionSection extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 10),
                 child: SubscriptionCard(
                   subscriptionModel: subscription,
-                  onCancelPressed: () => onCancelPressed(subscription.id),
+                  onCancelPressed: onCancelPressed != null 
+                  ? () => onCancelPressed!(subscription.id)
+                  : null,
                 ),
               ),
             ),

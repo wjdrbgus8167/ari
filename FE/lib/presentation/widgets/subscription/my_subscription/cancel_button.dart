@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CancelButton extends StatelessWidget {
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   const CancelButton({
     super.key,
@@ -16,7 +16,7 @@ class CancelButton extends StatelessWidget {
         '해지하기',
         style: TextStyle(
           color: Colors.white,
-          fontSize: 8,
+          fontSize: 12,
           fontFamily: 'Pretendard',
           fontWeight: FontWeight.w400,
           decoration: TextDecoration.underline,

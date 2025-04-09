@@ -2,11 +2,13 @@ import 'dart:io';
 import 'package:ari/domain/entities/profile.dart';
 import 'package:dio/dio.dart';
 
+import 'dart:convert';
+
 class UpdateProfileRequest {
   final String? nickname;
   final String? bio;
   final String? instagramId;
-  final File? profileImage;
+  final MultipartFile? profileImage;
 
   UpdateProfileRequest({
     this.nickname,
@@ -15,39 +17,45 @@ class UpdateProfileRequest {
     this.profileImage,
   });
 
-
-  /// Convert the update profile request to FormData
   FormData toFormData() {
     final formData = FormData();
-
-    // Add text fields if they are not null
+    
+    // 프로필 정보를 JSON 문자열로 변환하여 'profile' 필드에 추가
+    final Map<String, dynamic> profileData = {};
+    
     if (nickname != null) {
-      formData.fields.add(MapEntry('nickname', nickname!));
+      profileData['nickname'] = nickname;
     }
-
+    
     if (bio != null) {
-      formData.fields.add(MapEntry('bio', bio!));
+      profileData['bio'] = bio;
     }
-
+    
     if (instagramId != null) {
-      formData.fields.add(MapEntry('instagramId', instagramId!));
+      profileData['instagramId'] = instagramId;
     }
-
-    // Add profile image file if it exists
+    
+    // 빈 객체라도 'profile' 필드는 항상 추가
+    formData.fields.add(MapEntry('profile', jsonEncode(profileData)));
+    
+    // 프로필 이미지가 있으면 'profileImage' 필드에 추가
     if (profileImage != null) {
+      formData.files.add(MapEntry('profileImage', profileImage!));
+    } else {
+      // 이미지가 없어도 빈 파일이나 더미 파일을 추가
+      // 방법 1: 빈 바이트 배열로 빈 파일 만들기
       formData.files.add(MapEntry(
         'profileImage',
-        MultipartFile.fromFileSync(
-          profileImage!.path,
-          filename: 'profile_image.${profileImage!.path.split('.').last}',
-        ),
+        MultipartFile.fromBytes([], filename: 'empty.jpg')
       ));
+      
+      // 또는 방법 2: 필드만 비어있게 추가 (서버 구현에 따라 다름)
+      // formData.fields.add(MapEntry('profileImage', ''));
     }
-
+    
     return formData;
   }
 
-  /// Check if the request is empty (no updates)
   bool get isEmpty =>
       nickname == null &&
       bio == null &&

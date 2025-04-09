@@ -1,3 +1,4 @@
+import 'package:ari/domain/usecases/dashboard/get_dashboard_data_usecase.dart';
 import 'package:ari/presentation/routes/app_router.dart';
 import 'package:ari/presentation/viewmodels/mypage/mypage_viewmodel.dart';
 import 'package:ari/presentation/widgets/common/custom_dialog.dart';
@@ -5,6 +6,7 @@ import 'package:ari/presentation/widgets/common/header_widget.dart';
 import 'package:ari/presentation/widgets/mypage/mypage_menu_item.dart';
 import 'package:ari/presentation/widgets/mypage/mypage_profile.dart';
 import 'package:ari/providers/auth/auth_providers.dart';
+import 'package:ari/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -107,7 +109,27 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
                     MypageMenuItem(
                       title: '앨범 업로드',
                       routeName: AppRoutes.albumUpload,
-                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.albumUpload),
+                      onTap: () async {
+                        if (!(await viewModel.hasWallet())) {
+                          if (!mounted) return;
+                          final shouldRegisterArtist = await context.showConfirmDialog(
+                            title: "아티스트 등록",
+                            content: "정산 지갑 등록 후 이용 가능합니다.",
+                            confirmText: "등록하기",
+                            cancelText: "취소",
+                          );
+                          // 사용자가 확인(true)을 선택한 경우에만 로그아웃 실행
+                          if (shouldRegisterArtist == true) {
+                            if (!mounted) return;
+                            viewModel.onMenuItemClicked(context, AppRoutes.artistDashboard);
+                            return;
+                          }
+                        } else {
+                          if (!mounted) return;
+                          viewModel.onMenuItemClicked(context, AppRoutes.albumUpload);
+                          return;
+                        }
+                      },
                     ),
                     MypageMenuItem(
                       title: '아티스트 대시보드',

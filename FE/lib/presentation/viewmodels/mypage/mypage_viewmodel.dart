@@ -181,6 +181,20 @@ class MyPageViewModel extends StateNotifier<MyPageState> {
   void onMenuItemClicked(BuildContext context, String routeName) {
     Navigator.pushNamed(context, routeName);
   }
+
+  Future<bool> hasWallet() async {
+    final result = await ref.read(hasWalletUseCaseProvider)();
+    return result.fold(
+      (failure) {
+        debugPrint('지갑 여부 가져오기 실패: ${failure.message}');
+        return false;
+      },
+      (hasWalletUsecase) {
+        debugPrint('지갑 여부: $hasWallet');
+        return hasWalletUsecase.hasWallet;
+      },
+    );
+  }
 }
 
 

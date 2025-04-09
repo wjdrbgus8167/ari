@@ -68,18 +68,38 @@ class LoginViewModel extends StateNotifier<LoginState> {
   }
 
   Future<bool> login() async {
-
     state = state.copyWith(isLoading: true, errorMessage: null);
-    await authStateNotifier.login(state.email, state.password);
-    state = state.copyWith(isLoading: false);
-    await authStateNotifier.refreshAuthState(); 
-    await ref.read(userProvider.notifier).refreshUserInfo();
-
-    return true;
+    
+    try {
+      // 로그인 시도
+      final success = await authStateNotifier.login(state.email, state.password);
+      
+      if (success) {
+        // 로그인 성공 시 사용자 정보 갱신
+        await authStateNotifier.refreshAuthState(); 
+        await ref.read(userProvider.notifier).refreshUserInfo();
+        state = state.copyWith(isLoading: false);
+        return true;
+      } else {
+        // 로그인 실패
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: '이메일 또는 비밀번호가 올바르지 않습니다.'
+        );
+        return false;
+      }
+    } catch (e) {
+      // 오류 발생
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: '로그인 중 오류가 발생했습니다: ${e.toString()}'
+      );
+      return false;
+    }
   }
 
   // 소셜 로그인 시작 (구글)
-  Future<void> startGoogleLogin() async {
+  Future<bool> startGoogleLogin() async {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
@@ -92,16 +112,21 @@ class LoginViewModel extends StateNotifier<LoginState> {
           Uri.parse(googleAuthUrl),
           mode: LaunchMode.externalApplication,
         );
+        state = state.copyWith(isLoading: false);
+        return true;
       } else {
-        throw Exception('구글 로그인을 시작할 수 없습니다');
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: '구글 로그인을 시작할 수 없습니다'
+        );
+        return false;
       }
-      
-      state = state.copyWith(isLoading: false);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
         errorMessage: '구글 로그인을 시작하는 중 오류가 발생했습니다: ${e.toString()}',
       );
+      return false;
     }
   }
 
@@ -112,6 +137,11 @@ class LoginViewModel extends StateNotifier<LoginState> {
     try {
       // 백엔드가 제공한 토큰 처리
       await saveTokensUseCase(token);
+      
+      // 사용자 정보 갱신
+      await authStateNotifier.refreshAuthState();
+      await ref.read(userProvider.notifier).refreshUserInfo();
+      
       state = state.copyWith(isLoading: false);
       return true;
     } catch (e) {

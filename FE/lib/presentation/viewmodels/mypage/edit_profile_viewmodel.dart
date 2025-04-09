@@ -11,22 +11,32 @@ class ProfileEditViewModel {
   final TextEditingController introductionController;
   final TextEditingController instagramIdController;
   bool isLoading = false;
+  bool _initialized = false; // 초기화 여부를 추적하는 플래그 추가
   
   // 이미지 선택 여부를 알려주는 getter
   bool get hasSelectedImage => ref.read(profileProvider).profileImageFile != null;
+  
+  // 초기화 완료 여부를 확인하는 getter
+  bool get isInitialized => _initialized;
 
   ProfileEditViewModel(this.ref)
       : nameController = TextEditingController(),
         introductionController = TextEditingController(),
-        instagramIdController = TextEditingController() {
-    _initControllers();
-  }
-
+        instagramIdController = TextEditingController();
+  
   void _initControllers() {
     final profile = ref.read(profileProvider);
-    nameController.text = profile.name;
-    introductionController.text = profile.introduction;
-    instagramIdController.text = profile.instagramId;
+    // 빈 값이 아닌지 확인 후 설정
+    if (profile.name.isNotEmpty) {
+      nameController.text = profile.name;
+    }
+    if (profile.introduction.isNotEmpty) {
+      introductionController.text = profile.introduction;
+    }
+    if (profile.instagramId.isNotEmpty) {
+      instagramIdController.text = profile.instagramId;
+    }
+    _initialized = true;
   }
   
   // 프로필 정보 초기 로드
@@ -37,7 +47,7 @@ class ProfileEditViewModel {
     final success = await ref.read(profileProvider.notifier).loadProfile();
     
     if (success) {
-      // 컨트롤러 초기화
+      // 컨트롤러 초기화 (데이터 로드 성공 후에만)
       _initControllers();
     }
     
@@ -67,6 +77,7 @@ class ProfileEditViewModel {
     );
     
     if (pickedFile != null) {
+      debugPrint('이미지 선택됨: ${pickedFile.path}');
       ref.read(profileProvider.notifier).updateProfileImageFile(pickedFile.path);
     }
   }
@@ -139,7 +150,7 @@ class ProfileEditViewModel {
     
     // 저장 로직 실행 (이미지와 텍스트 정보 함께 전송)
     final success = await ref.read(profileProvider.notifier).saveProfile();
-    
+
     isLoading = false;
     ref.read(profileEditingProvider.notifier).state = false;
     
