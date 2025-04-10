@@ -24,8 +24,8 @@ public class GetMyArtistDashBoardResponse {
 
     private List<MyArtistAlbum> albums;
     private List<MonthlySubscriberCount> monthlySubscriberCounts;
-    private List<DailySettlement> dailySettlement;
-    private List<DailySubscriberCount> dailySubscriberCounts;
+    private List<HourlySettlement> hourlySettlement;
+    private List<HourlySubscriberCount> hourlySubscriberCounts;
 
 
     @Builder
@@ -34,8 +34,8 @@ public class GetMyArtistDashBoardResponse {
     ,Integer newSubscriberDiff,Double settlementDiff, Integer todayStreamingCount,
                                         Integer todayNewSubscribeCount,List<MyArtistAlbum> albums,
                                         List<MonthlySubscriberCount> monthlySubscriberCounts,
-                                        List<DailySettlement> dailySettlement
-                                        ,List<DailySubscriberCount> dailySubscriberCounts,Double todaySettlement) {
+                                        List<HourlySettlement> hourlySettlement
+                                        ,List<HourlySubscriberCount> hourlySubscriberCounts,Double todaySettlement) {
 
         this.walletAddress = walletAddress;
         this.subscriberCount = subscriberCount;
@@ -48,8 +48,8 @@ public class GetMyArtistDashBoardResponse {
         this.todayNewSubscribeCount = todayNewSubscribeCount;
         this.albums = albums;
         this.monthlySubscriberCounts = monthlySubscriberCounts;
-        this.dailySettlement = dailySettlement;
-        this.dailySubscriberCounts = dailySubscriberCounts;
+        this.hourlySettlement = hourlySettlement;
+        this.hourlySubscriberCounts = hourlySubscriberCounts;
         this.todaySettlement = todaySettlement;
     }
 
@@ -83,26 +83,26 @@ public class GetMyArtistDashBoardResponse {
 
     @Getter
     @NoArgsConstructor
-    public static class DailySettlement{
-        private String date;
+    public static class HourlySettlement{
+        private String hour;
         private Double settlement;
 
         @Builder
-        public DailySettlement(String date,Double settlement){
-            this.date = date;
+        public HourlySettlement(String hour,Double settlement){
+            this.hour = hour;
             this.settlement = settlement;
         }
     }
 
     @Getter
     @NoArgsConstructor
-    public static class DailySubscriberCount{
-        private String date;
+    public static class HourlySubscriberCount{
+        private String hour;
         private Integer subscriberCount;
 
         @Builder
-        public DailySubscriberCount(String date,Integer subscriberCount){
-            this.date = date;
+        public HourlySubscriberCount(String hour,Integer subscriberCount){
+            this.hour = hour;
             this.subscriberCount = subscriberCount;
         }
     }

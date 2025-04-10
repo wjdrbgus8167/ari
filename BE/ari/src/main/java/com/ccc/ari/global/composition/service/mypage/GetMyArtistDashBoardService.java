@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -58,12 +59,12 @@ public class GetMyArtistDashBoardService {
                     .streamingDiff(0)
                     .thisMonthNewSubscriberCount(0)
                     .albums(new ArrayList<>())
-                    .dailySettlement(new ArrayList<>())
+                    .hourlySettlement(new ArrayList<>())
                     .walletAddress(walletAddress) // 혹은 null
                     .newSubscriberDiff(0)
                     .settlementDiff(0.0)
                     .todaySettlement(0.0)
-                    .dailySubscriberCounts(new ArrayList<>())
+                    .hourlySubscriberCounts(new ArrayList<>())
                     .monthlySubscriberCounts(new ArrayList<>())
                     .todayStreamingCount(0)
                     .todayNewSubscribeCount(0)
@@ -148,7 +149,7 @@ public class GetMyArtistDashBoardService {
          * 월별 구독자 수와 일별 구독자 수 계산 로직
          */
         List<GetMyArtistDashBoardResponse.MonthlySubscriberCount> monthlySubscriberCounts = new ArrayList<>();
-        List<GetMyArtistDashBoardResponse.DailySubscriberCount> dailySubscriberCounts = new ArrayList<>();
+        List<GetMyArtistDashBoardResponse.HourlySubscriberCount> dailySubscriberCounts = new ArrayList<>();
 
         LocalDate now = LocalDate.now();
 
@@ -174,32 +175,33 @@ public class GetMyArtistDashBoardService {
         }
 
         // 2. 일별 구독자 수 (25.04.01 ~ 오늘)
-        LocalDate firstDayOfThisMonth = now.withDayOfMonth(1);
-        LocalDate today = now;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy.MM.dd HH");
+        LocalDate todayDate = LocalDate.now();
 
-        for (LocalDate date = firstDayOfThisMonth; !date.isAfter(today); date = date.plusDays(1)) {
-            LocalDateTime start = date.atStartOfDay();
-            LocalDateTime end = date.atTime(23, 59, 59, 999_999_999);
+        for (int hour = 0; hour < 24; hour++) {
+            LocalDateTime start = todayDate.atTime(hour, 0);
+            LocalDateTime end = todayDate.atTime(hour, 59, 59, 999_999_999);
 
             int count = subscriptionCompositionClient.getRegularSubscription(subscriptionPlanId, start, end).size();
 
-            dailySubscriberCounts.add(GetMyArtistDashBoardResponse.DailySubscriberCount
-                    .builder()
-                    .date(date.toString())
+            dailySubscriberCounts.add(GetMyArtistDashBoardResponse.HourlySubscriberCount.builder()
+                    .hour(start.format(formatter))
                     .subscriberCount(count)
                     .build());
         }
+
 
 
         //월 정산
         GetArtistDailySettlementResponse getArtistDailySettlementResponse
                 = settlementClient.getArtistHourlySettlement(memberId);
 
-        // 일일 정산 내역
-        List<GetMyArtistDashBoardResponse.DailySettlement> dailySettlementList =
+        // 일일 정산 내역 -> 시간별 정산 내역
+        List<GetMyArtistDashBoardResponse.HourlySettlement> hourlySettlementList =
                 getArtistDailySettlementResponse.getHourlySettlements().stream()
-                        .map(daily -> GetMyArtistDashBoardResponse.DailySettlement.builder()
-                                .date(daily.getHour())
+                        .sorted(Comparator.comparing(h -> LocalDateTime.parse(h.getHour(), formatter)))
+                        .map(daily -> GetMyArtistDashBoardResponse.HourlySettlement.builder()
+                                .hour(daily.getHour())
                                 .settlement(daily.getSettlement())
                                 .build())
                         .toList();
@@ -211,12 +213,12 @@ public class GetMyArtistDashBoardService {
                 .streamingDiff(streamingDiff)
                 .thisMonthNewSubscriberCount(thisMonthNewSubscriberCount)
                 .albums(albums)
-                .dailySettlement(dailySettlementList)
+                .hourlySettlement(hourlySettlementList)
                 .walletAddress(walletAddress)
                 .newSubscriberDiff(newSubscriberDiff)
                 .settlementDiff(getArtistDailySettlementResponse.getSettlementDiff())
                 .todaySettlement(getArtistDailySettlementResponse.getTodaySettlement())
-                .dailySubscriberCounts(dailySubscriberCounts)
+                .hourlySubscriberCounts(dailySubscriberCounts)
                 .monthlySubscriberCounts(monthlySubscriberCounts)
                 .todayStreamingCount(todayStreamingCount)
                 .todayNewSubscribeCount(todayNewSubscribeCount)
