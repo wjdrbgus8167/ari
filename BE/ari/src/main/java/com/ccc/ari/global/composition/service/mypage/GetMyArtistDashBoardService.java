@@ -193,13 +193,13 @@ public class GetMyArtistDashBoardService {
 
         //월 정산
         GetArtistDailySettlementResponse getArtistDailySettlementResponse
-                = settlementClient.getArtistDailySettlement(memberId);
+                = settlementClient.getArtistHourlySettlement(memberId);
 
         // 일일 정산 내역
         List<GetMyArtistDashBoardResponse.DailySettlement> dailySettlementList =
-                getArtistDailySettlementResponse.getDailySettlements().stream()
+                getArtistDailySettlementResponse.getHourlySettlements().stream()
                         .map(daily -> GetMyArtistDashBoardResponse.DailySettlement.builder()
-                                .date(daily.getDate())
+                                .date(daily.getHour())
                                 .settlement(daily.getSettlement())
                                 .build())
                         .toList();

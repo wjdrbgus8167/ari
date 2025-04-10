@@ -27,10 +27,11 @@ public class SettlementClient {
     }
 
     /**
-     * 특정 아티스트의 일간 정산 내역과 오늘의 정산 및 어제와의 정산 금액 차이를 조회합니다.
+     * 특정 아티스트의 시간별 정산 내역과
+     * 오늘의 정산 및 어제와의 정산 금액 차이를 조회합니다.
      */
-    public GetArtistDailySettlementResponse getArtistDailySettlement(Integer artistId) {
-        return settlementQueryService.getArtistDailySettlement(artistId);
+    public GetArtistDailySettlementResponse getArtistHourlySettlement(Integer artistId) {
+        return settlementQueryService.getArtisthoulySettlement(artistId);
     }
 
     /**

@@ -12,5 +12,5 @@ import java.util.List;
 public class GetArtistDailySettlementResponse {
     private final Double todaySettlement;
     private final Double settlementDiff;
-    private final List<DailySettlementInfo> dailySettlements;
+    private final List<HourlySettlementInfo> hourlySettlements;
 }
