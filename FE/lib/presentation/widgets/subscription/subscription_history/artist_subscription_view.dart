@@ -212,8 +212,8 @@ class _ArtistSubscriptionViewState extends ConsumerState<ArtistSubscriptionView>
             Row(
               children: [
                 Container(
-                  width: 30,
-                  height: 30,
+                  width: 60,
+                  height: 60,
                   decoration: ShapeDecoration(
                     image: DecorationImage(
                       image: NetworkImage(artistDetail.profileImageUrl ?? ''),
@@ -229,10 +229,10 @@ class _ArtistSubscriptionViewState extends ConsumerState<ArtistSubscriptionView>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${subscription.startedAt} ~ ${subscription.endedAt} ${subscription.planType == 'M' ? '정기 구독' : '아티스트 구독'}',
+                      '${subscription.startedAt} ~ ${subscription.endedAt} \n${subscription.planType == 'M' ? '정기 구독' : '아티스트 구독'}',
                       style: TextStyle(
                         color: const Color(0xFFD9D9D9),
-                        fontSize: 8,
+                        fontSize: 10,
                         fontFamily: 'Pretendard',
                         fontWeight: FontWeight.w400,
                       ),
