@@ -16,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -80,16 +82,23 @@ public class MyRegularSubscriptionDetailService {
         // 현재 여기서 정기구독에 따른 세부 개역을 못가져오고 있음
         RegularSettlementDetailResponse regularSettlementDetailResponse = settlementClient.getMyRegularSettlementDetail(memberId,cycleId);
         log.info("내 정기 구독 세부 조회 :{}",regularSettlementDetailResponse.getStreamingSettlements().size());
-
+        DecimalFormat df = new DecimalFormat("0.00");
         settlements = regularSettlementDetailResponse.getStreamingSettlements().stream()
                         .map(streamingSettlementResult -> {
                             log.info("정산 : {}", streamingSettlementResult.getAmount());
                             log.info("스티리밍 : {}", streamingSettlementResult.getStreaming());
 
+                            // 1. Double을 BigDecimal로 변환
+                            BigDecimal bigDecimalAmount = new BigDecimal(String.valueOf(streamingSettlementResult.getAmount()));
+
+                            BigDecimal divisor = new BigDecimal("1000000000000000000"); // 10^16
+                            BigDecimal result = bigDecimalAmount.divide(divisor);
+                            BigDecimal roundedAmount = result .setScale(2, RoundingMode.HALF_UP);
+
                             return GetMyRegularSubscriptionDetailResponse.Settlement.builder()
                                     .artistNickName(memberClient.getNicknameByMemberId(streamingSettlementResult.getArtistId()))
                                     .profileImageUrl(memberClient.getProfileImageUrlByMemberId(streamingSettlementResult.getArtistId()))
-                                    .amount(streamingSettlementResult.getAmount())
+                                    .amount(roundedAmount.doubleValue())
                                     .streaming(streamingSettlementResult.getStreaming())
                                     .build();
                         })
