@@ -33,7 +33,7 @@ class SubscriptionPlanCard extends ConsumerWidget {
             color: const Color(0xFF161616),
             shape: RoundedRectangleBorder(
               side: BorderSide(
-                width: 1,
+                width: 2,
                 color: plan.borderColor,
               ),
               borderRadius: BorderRadius.circular(10),
@@ -73,9 +73,9 @@ class SubscriptionPlanCard extends ConsumerWidget {
                     plan.description,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 8,
+                      fontSize: 12,
                       fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w400,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   Row(
@@ -88,7 +88,7 @@ class SubscriptionPlanCard extends ConsumerWidget {
                             plan.price.toString(),
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 12,
+                              fontSize: 14,
                               fontFamily: 'Pretendard',
                               fontWeight: FontWeight.w600,
                             ),
@@ -125,7 +125,7 @@ class SubscriptionPlanCard extends ConsumerWidget {
                           ),
                           child: isLoading
                               ? const SizedBox(
-                                  width: 12,
+                                  width: 14,
                                   height: 12,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
@@ -136,7 +136,7 @@ class SubscriptionPlanCard extends ConsumerWidget {
                                   '구매',
                                   style: TextStyle(
                                     color: Color(0xFFD9D9D9),
-                                    fontSize: 12,
+                                    fontSize: 14,
                                     fontFamily: 'Pretendard',
                                     fontWeight: FontWeight.w400,
                                   ),
@@ -161,9 +161,9 @@ class SubscriptionPlanCard extends ConsumerWidget {
           '무제한 듣기',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 12,
+            fontSize: 13,
             fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w400,
+            fontWeight: FontWeight.w300,
           ),
         );
       case SubscriptionType.artist:
@@ -171,9 +171,9 @@ class SubscriptionPlanCard extends ConsumerWidget {
           '무제한 듣기 + 아티스트 팬 혜택',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 12,
+            fontSize: 13,
             fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w400,
+            fontWeight: FontWeight.w300,
           ),
         );
     }

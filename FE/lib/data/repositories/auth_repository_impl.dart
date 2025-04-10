@@ -62,8 +62,9 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Token?> login(String email, String password) async {
     // refresh dataSource를 구현하여 새로운 토큰을 받는다.
-
+    print("여긴옴?");
     final newTokens = await remoteDataSource.login(LoginRequest(email: email, password: password));
+    print("여긴옴?2");
     if (newTokens != null) {
       // 그 토큰을 저장한다.
       await localDataSource.saveTokens(newTokens);

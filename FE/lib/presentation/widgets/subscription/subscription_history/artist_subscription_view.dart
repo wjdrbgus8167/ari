@@ -5,24 +5,28 @@ import 'package:ari/presentation/viewmodels/subscription/artist_subscription_vie
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ArtistSubscriptionView extends ConsumerWidget {
+class ArtistSubscriptionView extends ConsumerStatefulWidget {
   const ArtistSubscriptionView({Key? key}) : super(key: key);
 
-  final bool _didLoad = false;
+  @override
+  _ArtistSubscriptionViewState createState() => _ArtistSubscriptionViewState();
+}
+
+class _ArtistSubscriptionViewState extends ConsumerState<ArtistSubscriptionView> {
+  @override
+  void initState() {
+    super.initState();
+    // 초기 데이터 로드
+    Future.microtask(
+      () => ref
+          .read(artistSubscriptionViewModelProvider.notifier)
+          .loadArtistList(),
+    );
+  }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.read(artistSubscriptionViewModelProvider);
-
-    // 데이터 로드 (필요 시)
-    if (!_didLoad && state.artists.isEmpty && !state.isLoading) {
-      Future.microtask(
-        () =>
-            ref
-                .read(artistSubscriptionViewModelProvider.notifier)
-                .loadArtistList(),
-      );
-    }
+  Widget build(BuildContext context) {
+    final state = ref.watch(artistSubscriptionViewModelProvider);
 
     if (state.isLoading) {
       return Center(child: CircularProgressIndicator(color: Colors.white));

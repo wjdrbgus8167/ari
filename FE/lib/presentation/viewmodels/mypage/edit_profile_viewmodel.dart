@@ -1,174 +1,169 @@
+// presentation/viewmodels/mypage/edit_profile_viewmodel.dart
 import 'dart:io';
-import 'package:ari/domain/entities/profile.dart';
-import 'package:ari/domain/usecases/user/user_usecase.dart';
-import 'package:ari/providers/user_provider.dart';
-import 'package:dio/dio.dart';
+import 'package:ari/providers/profile_provider.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dartz/dartz.dart';
 import 'package:image_picker/image_picker.dart';
 
+class ProfileEditViewModel {
+  final Ref ref;
+  final TextEditingController nameController;
+  final TextEditingController introductionController;
+  final TextEditingController instagramIdController;
+  bool isLoading = false;
+  bool _initialized = false; // 초기화 여부를 추적하는 플래그 추가
+  
+  // 이미지 선택 여부를 알려주는 getter
+  bool get hasSelectedImage => ref.read(profileProvider).profileImageFile != null;
+  
+  // 초기화 완료 여부를 확인하는 getter
+  bool get isInitialized => _initialized;
 
-// ProfileEditState
-class ProfileEditState {
-  final Profile? profile;
-  final bool isLoading;
-  final String? errorMessage;
-  final bool isUpdating;
-  final bool isSuccess;
+  ProfileEditViewModel(this.ref)
+      : nameController = TextEditingController(),
+        introductionController = TextEditingController(),
+        instagramIdController = TextEditingController();
+  
+  void _initControllers() {
+    final profile = ref.read(profileProvider);
+    // 빈 값이 아닌지 확인 후 설정
+    if (profile.name.isNotEmpty) {
+      nameController.text = profile.name;
+    }
+    if (profile.introduction.isNotEmpty) {
+      introductionController.text = profile.introduction;
+    }
+    if (profile.instagramId.isNotEmpty) {
+      instagramIdController.text = profile.instagramId;
+    }
+    _initialized = true;
+  }
+  
+  // 프로필 정보 초기 로드
+  Future<bool> loadProfile() async {
+    isLoading = true;
+    ref.read(profileEditingProvider.notifier).state = true;
+    
+    final success = await ref.read(profileProvider.notifier).loadProfile();
+    
+    if (success) {
+      // 컨트롤러 초기화 (데이터 로드 성공 후에만)
+      _initControllers();
+    }
+    
+    isLoading = false;
+    ref.read(profileEditingProvider.notifier).state = false;
+    
+    return success;
+  }
 
-  ProfileEditState({
-    required this.profile,
-    this.isLoading = false,
-    this.errorMessage,
-    this.isUpdating = false,
-    this.isSuccess = false,
-  });
+  // 텍스트 필드 값을 업데이트 (이미지는 그대로 유지)
+  void updateTextFields() {
+    ref.read(profileProvider.notifier).updateProfile(
+          name: nameController.text,
+          introduction: introductionController.text,
+          instagramId: instagramIdController.text,
+        );
+  }
 
-  // 상태 복사본 생성 (일부 필드 업데이트 가능)
-  ProfileEditState copyWith({
-    Profile? profile,
-    bool? isLoading,
-    String? errorMessage,
-    bool? isUpdating,
-    bool? isSuccess,
-  }) {
-    return ProfileEditState(
-      profile: profile ?? this.profile,
-      isLoading: isLoading ?? this.isLoading,
-      errorMessage: errorMessage,
-      isUpdating: isUpdating ?? this.isUpdating,
-      isSuccess: isSuccess ?? this.isSuccess,
+  // 이미지 선택 처리
+  Future<void> selectProfileImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1000,
+      maxHeight: 1000,
+      imageQuality: 85,
+    );
+    
+    if (pickedFile != null) {
+      debugPrint('이미지 선택됨: ${pickedFile.path}');
+      ref.read(profileProvider.notifier).updateProfileImageFile(pickedFile.path);
+    }
+  }
+
+  // 카메라로 이미지 촬영
+  Future<void> takeProfilePicture() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.camera,
+      maxWidth: 1000,
+      maxHeight: 1000,
+      imageQuality: 85,
+    );
+    
+    if (pickedFile != null) {
+      ref.read(profileProvider.notifier).updateProfileImageFile(pickedFile.path);
+    }
+  }
+
+  // 이미지 미리보기 가져오기 (UI 표시용)
+  Widget getImagePreview() {
+    final profile = ref.read(profileProvider);
+    
+    // 선택한 이미지 파일이 있는 경우
+    if (profile.profileImageFile != null) {
+      return Image.file(
+        File(profile.profileImageFile!),
+        fit: BoxFit.cover,
+        width: 100,
+        height: 100,
+      );
+    }
+    
+    // 기존 이미지 URL이 있는 경우
+    if (profile.profileImageUrl != null && profile.profileImageUrl!.isNotEmpty) {
+      return Image.network(
+        profile.profileImageUrl!,
+        fit: BoxFit.cover,
+        width: 100,
+        height: 100,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return const Center(
+            child: CircularProgressIndicator(color: Colors.white54),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) {
+          return const Center(
+            child: Icon(Icons.error, color: Colors.red, size: 40),
+          );
+        },
+      );
+    }
+    
+    // 이미지가 없는 경우 기본 아이콘
+    return const Icon(
+      Icons.person,
+      size: 50,
+      color: Color(0xFF989595),
     );
   }
-}
 
-// ProfileEditNotifier
-class ProfileEditNotifier extends StateNotifier<ProfileEditState> {
-  final UpdateUserProfileUseCase _updateUserProfileUseCase;
-  final GetUserProfileUseCase _getUserProfileUseCase;
-  final ImagePicker _imagePicker = ImagePicker();
+  // 모든 프로필 정보(텍스트+이미지)를 함께 저장
+  Future<bool> saveProfile() async {
+    isLoading = true;
+    ref.read(profileEditingProvider.notifier).state = true;
+    
+    // 현재 입력값으로 텍스트 필드 업데이트
+    updateTextFields();
+    
+    // 저장 로직 실행 (이미지와 텍스트 정보 함께 전송)
+    final success = await ref.read(profileProvider.notifier).saveProfile();
 
-  ProfileEditNotifier(
-    this._updateUserProfileUseCase,
-    this._getUserProfileUseCase,
-  ) : super(ProfileEditState(
-        profile: Profile(
-          memberId: 1,
-          nickname: '',
-        ),
-      )) {
-    // 초기화 시 프로필 정보를 가져옴
-    loadUserProfile();
+    isLoading = false;
+    ref.read(profileEditingProvider.notifier).state = false;
+    
+    return success;
   }
 
-  // 프로필 정보 로드
-  Future<void> loadUserProfile() async {
-    try {
-      state = state.copyWith(isLoading: true, errorMessage: null);
-      final result = await _getUserProfileUseCase();
-      
-      result.fold(
-        (failure) => state = state.copyWith(
-          isLoading: false,
-          errorMessage: failure.message,
-        ),
-        (profile) => state = state.copyWith(
-          profile: profile,
-          isLoading: false,
-        ),
-      );
-      
-      // 로드 결과 로깅으로 디버깅
-      // print('Profile loaded: ${state.profile.nickname}, ${state.profile.bio}, ${state.profile.instagram}');
-    } catch (e) {
-      print('Failed to load profile: $e');
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: '프로필 정보를 가져오는데 실패했습니다: $e',
-      );
-    }
-  }
-
-  // 프로필 이미지 선택
-  Future<void> pickProfileImage() async {
-    try {
-      final pickedFile = await _imagePicker.pickImage(source: ImageSource.gallery);
-      if (pickedFile == null) return;
-
-      final imageFile = File(pickedFile.path);
-    } catch (e) {
-      state = state.copyWith(
-        errorMessage: '이미지를 선택하는데 실패했습니다: $e',
-      );
-    }
-  }
-
-  // 프로필 정보 업데이트
-  Future<void> updateProfile() async {
-    try {
-      // final request = state.profile.toUpdateProfileRequest();
-      
-      // // 업데이트할 내용이 없으면 무시
-      // if (request.isEmpty) {
-      //   state = state.copyWith(
-      //     errorMessage: '업데이트할 내용이 없습니다.',
-      //   );
-      //   return;
-      // }
-
-      // state = state.copyWith(
-      //   isUpdating: true,
-      //   errorMessage: null,
-      //   isSuccess: false,
-      // );
-
-      // final result = await _updateUserProfileUseCase(request, request.profileImage);
-      
-      // result.fold(
-      //   (failure) => state = state.copyWith(
-      //     isUpdating: false,
-      //     errorMessage: failure.message,
-      //     isSuccess: false,
-      //   ),
-      //   (profile) => state = state.copyWith(
-      //     profile: profile,
-      //     isUpdating: false,
-      //     isSuccess: true,
-      //   ),
-      // );
-    } catch (e) {
-      state = state.copyWith(
-        isUpdating: false,
-        errorMessage: '프로필 업데이트에 실패했습니다: $e',
-        isSuccess: false,
-      );
-    }
-  }
-
-  // 오류 메시지 초기화
-  void clearError() {
-    state = state.copyWith(errorMessage: null);
-  }
-
-  // 업데이트 성공 상태 초기화
-  void clearUpdateSuccess() {
-    state = state.copyWith(isSuccess: false);
+  void dispose() {
+    nameController.dispose();
+    introductionController.dispose();
+    instagramIdController.dispose();
   }
 }
 
-// GetUserProfileUseCase 프로바이더
-final getUserProfileUseCaseProvider = Provider<GetUserProfileUseCase>((ref) {
-  return GetUserProfileUseCase(ref.read(userRepositoryProvider));
-});
-
-// UpdateUserProfileUseCase 프로바이더
-final updateUserProfileUseCaseProvider = Provider<UpdateUserProfileUseCase>((ref) {
-  return UpdateUserProfileUseCase(ref.read(userRepositoryProvider));
-});
-
-// ViewModel 프로바이더
-final profileEditProvider = StateNotifierProvider<ProfileEditNotifier, ProfileEditState>((ref) {
-  final updateUseCase = ref.watch(updateUserProfileUseCaseProvider);
-  final getUseCase = ref.watch(getUserProfileUseCaseProvider);
-  return ProfileEditNotifier(updateUseCase, getUseCase);
+final profileEditViewModelProvider = Provider.autoDispose<ProfileEditViewModel>((ref) {
+  return ProfileEditViewModel(ref);
 });

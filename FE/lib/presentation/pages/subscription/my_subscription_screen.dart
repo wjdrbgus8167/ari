@@ -61,43 +61,29 @@ class MySubscriptionScreenState extends ConsumerState<MySubscriptionScreen> {
                     const SizedBox(height: 20),
                     // 구독 목록 영역
                     Expanded(
-                      child: Container(
-                        width: double.infinity,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // 정기 구독 섹션
-                            RegularSubscriptionSection(
-                              subscriptions:
-                                  viewModel.getMonthlySubscriptionsAsModel(),
-                              onCancelPressed:
-                                  (id) =>
-                                      ref
-                                          .read(
-                                            mySubscriptionViewModelProvider
-                                                .notifier,
-                                          )
-                                          .cancelMonthlySubscription(),
-                            ),
+                      child: ListView(
+                        children: [
+                          // 정기 구독 섹션
+                          RegularSubscriptionSection(
+                            subscriptions: viewModel.getMonthlySubscriptionsAsModel(),
+                            // onCancelPressed: (id) => ref
+                            //     .read(mySubscriptionViewModelProvider.notifier)
+                            //     .cancelMonthlySubscription(),
+                          ),
 
-                            const SizedBox(height: 30),
+                          const SizedBox(height: 30),
 
-                            // 아티스트 구독 섹션
-                            ArtistSubscriptionSection(
-                              subscriptions:
-                                  viewModel.getArtistSubscriptionsAsModel(),
-                              onCancelPressed:
-                                  (id) => ref
-                                      .read(
-                                        mySubscriptionViewModelProvider
-                                            .notifier,
-                                      )
-                                      .cancelArtistSubscription('1'),
-                            ),
-                          ],
-                        ),
+                          // 아티스트 구독 섹션
+                          ArtistSubscriptionSection(
+                            subscriptions: viewModel.getArtistSubscriptionsAsModel(),
+                            // onCancelPressed: (id) => ref
+                            //     .read(mySubscriptionViewModelProvider.notifier)
+                            //     .cancelArtistSubscription('1'),
+                          ),
+                          
+                          // 하단 여백 추가
+                          const SizedBox(height: 20),
+                        ],
                       ),
                     ),
                   ],

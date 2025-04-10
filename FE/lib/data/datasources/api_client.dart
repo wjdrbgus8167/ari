@@ -36,6 +36,7 @@ class ApiClient {
     required T Function(dynamic) fromJson,
     Map<String, dynamic>? queryParameters,
     dynamic data,
+    Options? options,
   }) async {
     try {
       Response response;
@@ -59,6 +60,7 @@ class ApiClient {
             url,
             data: data,
             queryParameters: queryParameters,
+            options: options,
           );
           break;
         case 'PATCH':

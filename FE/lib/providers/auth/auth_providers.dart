@@ -141,7 +141,7 @@ class AuthStateNotifier extends StateNotifier<AsyncValue<bool>> {
     await _initialize();
   }
 
-  Future<void> login(String email, String password) async {
+  Future<bool> login(String email, String password) async {
     print('[AuthStateNotifier] 로그인 시도: $email');
     try {
       await loginUseCase(email, password);
@@ -161,9 +161,11 @@ class AuthStateNotifier extends StateNotifier<AsyncValue<bool>> {
       ref.invalidate(playbackDurationProvider);
 
       state = const AsyncValue.data(true);
+      return true; // 성공 시 true 반환
     } catch (e, stackTrace) {
       print('[AuthStateNotifier] 로그인 실패: $e');
-      state = AsyncValue.error(e, stackTrace);
+      // 에러 상태를 설정하지 않고 기존 상태 유지
+      return false; // 실패 시 false 반환
     }
   }
 

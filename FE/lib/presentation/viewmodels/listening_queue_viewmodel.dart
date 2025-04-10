@@ -110,6 +110,9 @@ class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
       print('[DEBUG] 플레이리스트 조회 시작');
       final playlists = await playlistRepository.fetchPlaylists();
       print('[DEBUG] 조회된 플레이리스트: $playlists');
+      // ✅ dispose 되었는지 확인
+      if (!mounted) return;
+      // 상태 업데이트
       state = state.copyWith(playlists: playlists);
     } catch (e) {
       print('[ERROR] 플레이리스트 조회 중 에러 발생: $e');

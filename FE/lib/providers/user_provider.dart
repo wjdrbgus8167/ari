@@ -10,7 +10,9 @@ import 'package:ari/data/datasources/user/profile_remote_data_source.dart';
 import 'package:ari/data/repositories/user_repository.dart';
 import 'package:ari/domain/entities/profile.dart';
 import 'package:ari/domain/repositories/user/user_repository.dart';
+import 'package:ari/domain/usecases/dashboard/get_dashboard_data_usecase.dart';
 import 'package:ari/domain/usecases/user/user_usecase.dart';
+import 'package:ari/presentation/viewmodels/dashboard/artist_dashboard_viewmodel.dart';
 import 'package:ari/providers/global_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -303,4 +305,8 @@ final userRepositoryProvider = Provider<UserRepository>(
 );
 final getUserProfileUseCaseProvider = Provider(
   (ref) => GetUserProfileUseCase(ref.read(userRepositoryProvider)),
+);
+
+final hasWalletUseCaseProvider = Provider(
+  (ref) => HasWalletUseCase(ref.read(dashboardRepositoryProvider)),
 );
