@@ -310,7 +310,7 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                             contractAddress: subscriptionContractAddress,
                             artistId: int.parse(userId),
                             contractAbi: SubscriptionConstants.subscriptionContractAbi,
-                            onComplete: (regTxHash, regSuccess, regErrorMessage) {
+                            onComplete: (regTxHash, regSuccess, regErrorMessage) async {
                               dev.log("[구독] 사용자 등록 완료: 성공=$regSuccess, 해시=$regTxHash, 오류=$regErrorMessage");
                               
                               if (!mounted) return;
@@ -322,6 +322,9 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                               }
                             }
                           );
+                          walletService.initialize(context);
+                        await ref.read(artistDashboardProvider.notifier).hasWallet();
+                        await ref.read(artistDashboardProvider.notifier).loadDashboardData();
                         } catch (e) {
                           dev.log("[구독] 사용자 등록 중 오류 발생: ${e.toString()}");
                           if (mounted) {
@@ -389,7 +392,7 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                           ),
                           SizedBox(height: 20),
                           Text(
-                            '온체인 데이터 로드 중...',
+                            '투명한 데이터 로드 중...',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16,
@@ -486,9 +489,9 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                           WalletInfoWidget(
                             walletAddress: dashboardProvider.walletAddress ?? '',
                           ),
-                      
+
                           // 기록 섹션
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 10),
                           Container(
                             width: double.infinity,
                             margin: const EdgeInsets.symmetric(vertical: 16),

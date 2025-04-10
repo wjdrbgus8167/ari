@@ -95,7 +95,7 @@ class ArtistDashboardViewmodel extends StateNotifier<ArtistDashboardData> {
           return false;
         },
         (hasWalletModel) {
-          debugPrint('지갑 여부: $hasWallet');
+          debugPrint('지갑 여부: $hasWalletModel');
           return hasWalletModel.hasWallet; // hasWallet 값 직접 반환
         },
       );
