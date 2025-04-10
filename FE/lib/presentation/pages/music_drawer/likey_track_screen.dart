@@ -1,6 +1,5 @@
 import 'package:ari/core/services/audio_service.dart';
 import 'package:ari/domain/entities/track.dart';
-import 'package:ari/domain/usecases/music_drawer/likey_usecases.dart';
 import 'package:ari/data/models/music_drawer/likey_tracks_model.dart';
 import 'package:ari/providers/music_drawer/music_drawer_providers.dart';
 import 'package:ari/presentation/widgets/listening_queue/track_list_tile.dart';

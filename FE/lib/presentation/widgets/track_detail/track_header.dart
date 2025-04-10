@@ -147,12 +147,12 @@ class _TrackHeaderState extends ConsumerState<TrackHeader> {
                           if (userId == null) return;
 
                           await ref
-                              .read(listeningQueueProvider(userId).notifier)
+                              .read(listeningQueueProvider.notifier)
                               .trackPlayed(currentTrack);
 
                           final fullQueue =
                               ref
-                                  .read(listeningQueueProvider(userId))
+                                  .read(listeningQueueProvider)
                                   .playlist
                                   .map((e) => safeToDomainTrack(e.track))
                                   .toList();

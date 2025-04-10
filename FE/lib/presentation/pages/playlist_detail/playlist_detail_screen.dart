@@ -55,7 +55,7 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
     final playlistState = ref.watch(playlistViewModelProvider);
     final playlist = playlistState.selectedPlaylist;
     final listeningQueueState = ref.watch(
-      listeningQueueProvider(userId),
+      listeningQueueProvider,
     ); // ✅ userId 전달!
 
     return Scaffold(

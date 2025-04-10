@@ -37,10 +37,8 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
       return const Center(child: Text('로그인이 필요합니다.'));
     }
 
-    final state = ref.watch(listeningQueueProvider(userId)); // userId를 전달
-    final viewModel = ref.read(
-      listeningQueueProvider(userId).notifier,
-    ); // notifier 접근
+    final state = ref.watch(listeningQueueProvider); // userId를 전달
+    final viewModel = ref.read(listeningQueueProvider.notifier); // notifier 접근
     final playbackState = ref.watch(playbackProvider);
 
     return Scaffold(
