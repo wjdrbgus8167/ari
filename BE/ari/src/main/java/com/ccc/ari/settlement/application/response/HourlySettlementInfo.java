@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 @Builder
-public class DailySettlementInfo {
-    private final String date;
+public class HourlySettlementInfo {
+    private final String hour;
     private final Double settlement;
 }

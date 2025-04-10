@@ -134,12 +134,12 @@ public class SettlementQueryService {
 
 
     /**
-     * 아티스트 대시보드 구성을 위한 일간 정산 내역 조회
+     * 아티스트 대시보드 구성을 위한 시간별 정산 내역 조회
      */
     @Transactional
-    public GetArtistDailySettlementResponse getArtistDailySettlement(Integer artistId) {
+    public GetArtistDailySettlementResponse getArtisthoulySettlement(Integer artistId) {
 
-        logger.info("아티스트(ID: {})의 일간 정산 내역 조회 시작", artistId);
+        logger.info("아티스트(ID: {})의 시간별 정산 내역 조회 시작", artistId);
 
         // 1. 아티스트의 정기 구독 정산 이벤트 목록 조회
         //    - 해당 아티스트와 관련된 모든 정기 구독 정산 이벤트 데이터를 가져옴
@@ -151,62 +151,65 @@ public class SettlementQueryService {
         List<SubscriptionContract.SettlementExecutedArtistEventResponse> artistSettlements =
                 settlementExecutedEventListener.getAllArtistSettlementExecutedEvents(BigInteger.valueOf(artistId));
 
-        // 3. 정기 구독 정산 데이터를 날짜별 합계로 그룹화
-        //    - 각 구독 사이클의 종료일 기준으로 금액을 합산
-        Map<String, Double> dailySettlementMap = regularSettlements.stream()
+        // 3. 정기 구독 정산 데이터를 시간별 합계로 그룹화
+        //    - 각 구독 사이클의 종료 시간 기준으로 금액을 합산
+        Map<String, Double> hourlySettlementMap = regularSettlements.stream()
                 .collect(Collectors.groupingBy(
                         settlement -> subscriptionClient.getSubscriptionCycleById(settlement.artistId.intValue())
-                                .getEndedAt().toLocalDate().format(DateTimeFormatter.ofPattern("yy.MM.dd")),
+                                .getEndedAt().format(DateTimeFormatter.ofPattern("yy.MM.dd HH")),
                         Collectors.summingDouble(settlement -> new BigDecimal(settlement.amount)
                                 .divide(new BigDecimal(LINK_DIVISOR), 18, RoundingMode.HALF_UP).doubleValue())
                 ));
 
-        // 4. 아티스트 구독 정산 데이터를 날짜별로 합산
-        //    - 기존 날짜 그룹에 정산 금액을 추가하거나, 새로운 날짜 그룹을 생성
+        // 4. 아티스트 구독 정산 데이터를 시간별로 합산
+        //    - 기존 시간 그룹에 정산 금액을 추가하거나, 새로운 시간 그룹을 생성
         artistSettlements.forEach(settlement -> {
-            String date = subscriptionClient.getSubscriptionCycleById(settlement.cycleId.intValue())
-                    .getEndedAt().toLocalDate().format(DateTimeFormatter.ofPattern("yy.MM.dd"));
+            String hour = subscriptionClient.getSubscriptionCycleById(settlement.cycleId.intValue())
+                    .getEndedAt().format(DateTimeFormatter.ofPattern("yy.MM.dd HH"));
             double amount = new BigDecimal(settlement.amount)
                     .divide(new BigDecimal(LINK_DIVISOR), 18, RoundingMode.HALF_UP).doubleValue();
-            dailySettlementMap.merge(date, amount, Double::sum);
+            hourlySettlementMap.merge(hour, amount, Double::sum);
         });
 
-        // 5. 오늘과 어제의 날짜 데이터를 맵에 추가
+        // 5. 오늘과 어제의 시간 데이터를 계산하여 맵에 추가
         //    - 정산 금액이 없는 경우 기본값으로 0 설정
         LocalDateTime now = LocalDateTime.now();
-        String today = now.toLocalDate().format(DateTimeFormatter.ofPattern("yy.MM.dd"));
-        String yesterday = now.minusDays(1).toLocalDate().format(DateTimeFormatter.ofPattern("yy.MM.dd"));
+        Map<String, Double> todayHourlyMap = hourlySettlementMap.entrySet().stream()
+                .filter(entry -> entry.getKey().startsWith(now.toLocalDate().format(DateTimeFormatter.ofPattern("yy.MM.dd"))))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        dailySettlementMap.putIfAbsent(today, 0.0);
-        dailySettlementMap.putIfAbsent(yesterday, 0.0);
+        Map<String, Double> yesterdayHourlyMap = hourlySettlementMap.entrySet().stream()
+                .filter(entry -> entry.getKey().startsWith(now.minusDays(1).toLocalDate().format(DateTimeFormatter.ofPattern("yy.MM.dd"))))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        // 6. DailySettlementInfo 리스트 생성
-        //    - 날짜와 정산 금액 데이터를 DTO 객체로 변환
-        List<DailySettlementInfo> dailySettlementInfos = dailySettlementMap.entrySet().stream()
-                .map(entry -> DailySettlementInfo.builder()
-                        .date(entry.getKey())
+        // 6. HourlySettlementInfo 리스트 생성
+        //    - 시간과 정산 금액 데이터를 DTO 객체로 변환
+        List<HourlySettlementInfo> hourlySettlementInfos = hourlySettlementMap.entrySet().stream()
+                .map(entry -> HourlySettlementInfo.builder()
+                        .hour(entry.getKey())
                         .settlement(entry.getValue())
                         .build())
                 .collect(Collectors.toList());
 
         // 7. 최종적으로 로그에 내역 출력
-        dailySettlementInfos.forEach(info ->
-                logger.info("아티스트(ID: {}) - 날짜: {}, 정산금액: {}",
+        hourlySettlementInfos.forEach(info ->
+                logger.info("아티스트(ID: {}) - 시간: {}, 정산금액: {}",
                         artistId,
-                        info.getDate(),
+                        info.getHour(),
                         String.format("%,.0f", info.getSettlement())
                 )
         );
-        logger.info("아티스트(ID: {}) - 총 {}건의 일간 정산 완료",
+        logger.info("아티스트(ID: {}) - 총 {}건의 시간별 정산 완료",
                 artistId,
-                dailySettlementInfos.size()
+                hourlySettlementInfos.size()
         );
 
         // 8. 최종 응답 객체 반환 (정산 내역)
         return GetArtistDailySettlementResponse.builder()
-                .todaySettlement(dailySettlementMap.get(today))
-                .settlementDiff(dailySettlementMap.get(today) - dailySettlementMap.get(yesterday))
-                .dailySettlements(dailySettlementInfos)
+                .todaySettlement(todayHourlyMap.values().stream().mapToDouble(Double::doubleValue).sum())
+                .settlementDiff(todayHourlyMap.values().stream().mapToDouble(Double::doubleValue).sum() -
+                        yesterdayHourlyMap.values().stream().mapToDouble(Double::doubleValue).sum())
+                .hourlySettlements(hourlySettlementInfos)
                 .build();
     }
 
