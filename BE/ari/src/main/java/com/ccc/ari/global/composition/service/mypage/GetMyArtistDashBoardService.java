@@ -18,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -202,7 +204,9 @@ public class GetMyArtistDashBoardService {
                         .sorted(Comparator.comparing(h -> LocalDateTime.parse(h.getHour(), formatter)))
                         .map(daily -> GetMyArtistDashBoardResponse.HourlySettlement.builder()
                                 .hour(daily.getHour())
-                                .settlement(daily.getSettlement())
+                                .settlement(BigDecimal.valueOf(daily.getSettlement())
+                                        .setScale(2, RoundingMode.HALF_UP)
+                                        .doubleValue())
                                 .build())
                         .toList();
 
@@ -216,8 +220,12 @@ public class GetMyArtistDashBoardService {
                 .hourlySettlement(hourlySettlementList)
                 .walletAddress(walletAddress)
                 .newSubscriberDiff(newSubscriberDiff)
-                .settlementDiff(getArtistDailySettlementResponse.getSettlementDiff())
-                .todaySettlement(getArtistDailySettlementResponse.getTodaySettlement())
+                .settlementDiff(BigDecimal.valueOf(getArtistDailySettlementResponse.getSettlementDiff())
+                        .setScale(2, RoundingMode.HALF_UP)
+                        .doubleValue())
+                .todaySettlement(BigDecimal.valueOf(getArtistDailySettlementResponse.getTodaySettlement())
+                        .setScale(2, RoundingMode.HALF_UP)
+                        .doubleValue())
                 .hourlySubscriberCounts(dailySubscriberCounts)
                 .monthlySubscriberCounts(monthlySubscriberCounts)
                 .todayStreamingCount(todayStreamingCount)
