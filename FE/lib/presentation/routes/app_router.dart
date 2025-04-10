@@ -2,6 +2,8 @@ import 'package:ari/domain/entities/playlist.dart';
 import 'package:ari/presentation/pages/dashboard/artist_dashboard_screen.dart';
 import 'package:ari/presentation/pages/dashboard/my_track_stat_list.dart';
 import 'package:ari/presentation/pages/login/login_screen.dart';
+import 'package:ari/presentation/pages/music_drawer/likey_album_screen.dart';
+import 'package:ari/presentation/pages/music_drawer/likey_track_screen.dart';
 import 'package:ari/presentation/pages/mypage/edit_profile_screen.dart';
 import 'package:ari/presentation/pages/playlist_detail/playlist_detail_screen.dart';
 import 'package:ari/presentation/pages/sign_up/sign_up_screen.dart';
@@ -67,6 +69,8 @@ class AppRoutes {
   static const String trackSelection = '/track-selection';
   static const String musicDrawer = '/music-drawer';
   static const String subscribedArtists = '/music-drawer/subscribed-artists';
+  static const String likeyAlbum = 'music-drawer/likey-album';
+  static const String likeyTrack = 'music-drawer/likey-track';
 
   static final Set<String> _protectedRoutes = {
     myPage,
@@ -215,6 +219,12 @@ class AppRouter {
 
       case AppRoutes.myAlbumStatList:
         return MaterialPageRoute(builder: (_) => const MyTrackStatListScreen());
+
+      case AppRoutes.likeyAlbum:
+        return MaterialPageRoute(builder: (_) => const LikeyAlbumsScreen());
+
+      case AppRoutes.likeyTrack:
+        return MaterialPageRoute(builder: (_) => const LikeyTracksScreen());
 
       case AppRoutes.genre:
         final genre = args?['genre'] as Genre;
