@@ -329,7 +329,7 @@ class _NoticeCommentSectionState extends ConsumerState<NoticeCommentSection> {
     final formattedDate = dateFormatter.format(dateTime);
 
     // 편집 모드인지 확인
-    final isEditing = comment.isEditing;
+    // final isEditing = comment.isEditing;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -406,9 +406,9 @@ class _NoticeCommentSectionState extends ConsumerState<NoticeCommentSection> {
           const SizedBox(height: 8),
 
           // 댓글 내용 (수정 모드에 따라 다른 UI)
-          if (isEditing)
-            _buildEditCommentField(comment)
-          else
+          // if (isEditing)
+            // _buildEditCommentField(comment)
+          // else
             Padding(
               padding: const EdgeInsets.only(left: 40),
               child: Text(
@@ -422,120 +422,120 @@ class _NoticeCommentSectionState extends ConsumerState<NoticeCommentSection> {
             ),
 
           // 자신의 댓글인 경우 수정/삭제 버튼
-          if (comment.isMine && !isEditing)
-            Padding(
-              padding: const EdgeInsets.only(left: 40, top: 8),
-              child: Row(
-                children: [
-                  InkWell(
-                    onTap: () {
-                      // 수정 모드 활성화 및 텍스트 필드에 기존 내용 설정
-                      _editCommentController.text = comment.content;
-                      ref
-                          .read(noticeCommentProvider.notifier)
-                          .setEditMode(comment.commentId, true);
-                    },
-                    child: Text(
-                      '수정',
-                      style: TextStyle(color: Colors.grey[400], fontSize: 12),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  InkWell(
-                    onTap: () => _deleteComment(comment),
-                    child: Text(
-                      '삭제',
-                      style: TextStyle(color: Colors.grey[400], fontSize: 12),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          // if (comment.isMine && !isEditing)
+          //   Padding(
+          //     padding: const EdgeInsets.only(left: 40, top: 8),
+          //     child: Row(
+          //       children: [
+          //         InkWell(
+          //           onTap: () {
+          //             // 수정 모드 활성화 및 텍스트 필드에 기존 내용 설정
+          //             _editCommentController.text = comment.content;
+          //             ref
+          //                 .read(noticeCommentProvider.notifier)
+          //                 .setEditMode(comment.commentId, true);
+          //           },
+          //           child: Text(
+          //             '수정',
+          //             style: TextStyle(color: Colors.grey[400], fontSize: 12),
+          //           ),
+          //         ),
+          //         const SizedBox(width: 16),
+          //         InkWell(
+          //           onTap: () => _deleteComment(comment),
+          //           child: Text(
+          //             '삭제',
+          //             style: TextStyle(color: Colors.grey[400], fontSize: 12),
+          //           ),
+          //         ),
+          //       ],
+          //     ),
+          //   ),
         ],
       ),
     );
   }
 
   /// 댓글 수정 필드
-  Widget _buildEditCommentField(NoticeComment comment) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 40),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 수정 입력 필드
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.grey[800],
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: AppColors.mediumPurple.withValues(alpha: 0.3),
-                width: 1,
-              ),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: TextField(
-              controller: _editCommentController,
-              maxLines: 3,
-              minLines: 1,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(vertical: 8),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
+  // Widget _buildEditCommentField(NoticeComment comment) {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(left: 40),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         // 수정 입력 필드
+  //         Container(
+  //           decoration: BoxDecoration(
+  //             color: Colors.grey[800],
+  //             borderRadius: BorderRadius.circular(8),
+  //             border: Border.all(
+  //               color: AppColors.mediumPurple.withValues(alpha: 0.3),
+  //               width: 1,
+  //             ),
+  //           ),
+  //           padding: const EdgeInsets.symmetric(horizontal: 12),
+  //           child: TextField(
+  //             controller: _editCommentController,
+  //             maxLines: 3,
+  //             minLines: 1,
+  //             style: const TextStyle(color: Colors.white),
+  //             decoration: const InputDecoration(
+  //               border: InputBorder.none,
+  //               contentPadding: EdgeInsets.symmetric(vertical: 8),
+  //             ),
+  //           ),
+  //         ),
+  //         const SizedBox(height: 8),
 
-          // 수정 취소/완료 버튼
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              // 취소 버튼
-              InkWell(
-                onTap: () {
-                  ref
-                      .read(noticeCommentProvider.notifier)
-                      .setEditMode(comment.commentId, false);
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[700],
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Text(
-                    '취소',
-                    style: TextStyle(color: Colors.white, fontSize: 12),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              // 완료 버튼
-              InkWell(
-                onTap: () => _updateComment(comment),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.mediumPurple,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Text(
-                    '완료',
-                    style: TextStyle(color: Colors.white, fontSize: 12),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  //         // 수정 취소/완료 버튼
+  //         Row(
+  //           mainAxisAlignment: MainAxisAlignment.end,
+  //           children: [
+  //             // 취소 버튼
+  //             InkWell(
+  //               onTap: () {
+  //                 ref
+  //                     .read(noticeCommentProvider.notifier)
+  //                     .setEditMode(comment.commentId, false);
+  //               },
+  //               child: Container(
+  //                 padding: const EdgeInsets.symmetric(
+  //                   horizontal: 12,
+  //                   vertical: 6,
+  //                 ),
+  //                 decoration: BoxDecoration(
+  //                   color: Colors.grey[700],
+  //                   borderRadius: BorderRadius.circular(4),
+  //                 ),
+  //                 child: const Text(
+  //                   '취소',
+  //                   style: TextStyle(color: Colors.white, fontSize: 12),
+  //                 ),
+  //               ),
+  //             ),
+  //             const SizedBox(width: 8),
+  //             // 완료 버튼
+  //             InkWell(
+  //               onTap: () => _updateComment(comment),
+  //               child: Container(
+  //                 padding: const EdgeInsets.symmetric(
+  //                   horizontal: 12,
+  //                   vertical: 6,
+  //                 ),
+  //                 decoration: BoxDecoration(
+  //                   color: AppColors.mediumPurple,
+  //                   borderRadius: BorderRadius.circular(4),
+  //                 ),
+  //                 child: const Text(
+  //                   '완료',
+  //                   style: TextStyle(color: Colors.white, fontSize: 12),
+  //                 ),
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 }
