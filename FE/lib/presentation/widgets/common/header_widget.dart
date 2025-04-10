@@ -1,5 +1,3 @@
-import 'package:ari/core/utils/login_redirect_util.dart';
-import 'package:ari/presentation/routes/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -10,6 +8,7 @@ enum HeaderType {
   navbarPage,
   // 뒤로가기 있는 헤더: 뒤로가기 + 페이지 제목
   backWithTitle,
+  login,
 }
 
 class HeaderWidget extends ConsumerWidget {
@@ -58,6 +57,11 @@ class HeaderWidget extends ConsumerWidget {
         return _buildNavbarPageHeader();
       case HeaderType.backWithTitle:
         return _buildBackWithTitleHeader();
+      case HeaderType.login:
+        return _buildMainHeader(
+          context,
+          ref,
+        ); // Login uses the same layout as main
     }
   }
 
@@ -77,37 +81,29 @@ class HeaderWidget extends ConsumerWidget {
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween, // 기존 정렬 유지
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // 빈 공간으로 왼쪽 공간 차지
-          const Opacity(
-            opacity: 0,
-            child: IconButton(
-              icon: Icon(Icons.arrow_back_ios),
-              onPressed: null,
-            ),
-          ),
-
-          // 로고 (가운데 정렬)
+          // 뒤로가기 버튼 (login 타입일 때만 활성화)
+          type == HeaderType.login
+              ? IconButton(
+                icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                onPressed: onBackPressed ?? () => Navigator.pop(context),
+              )
+              : const SizedBox(width: 48), // 공간 유지
+          // 로고
           Image.asset(
             'assets/images/logo.png',
             height: 32,
             fit: BoxFit.contain,
           ),
 
-          // 마이페이지 아이콘
-          IconButton(
-            icon: const Icon(Icons.person),
-            onPressed: () async {
-              await checkLoginAndRedirect(
-                context,
-                ref,
-                onLoginSuccess: () {
-                  Navigator.pushNamed(context, AppRoutes.myPage);
-                },
-              );
-            },
-          ),
+          // 마이페이지 버튼 (login 타입일 때 숨김)
+          type == HeaderType.login
+              ? const SizedBox(width: 48) // 공간 유지
+              : IconButton(
+                icon: const Icon(Icons.person),
+                onPressed: onMyPagePressed,
+              ),
         ],
       ),
     );

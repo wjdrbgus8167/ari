@@ -15,7 +15,11 @@ class PlaylistViewModel extends StateNotifier<PlaylistState> {
   Future<void> fetchPlaylists() async {
     try {
       final playlists = await playlistRepository.fetchPlaylists();
+      print('[DEBUG] fetchPlaylists: playlists.length = ${playlists.length}');
+
       if (playlists.isNotEmpty) {
+        state = state.copyWith(playlists: playlists);
+
         setPlaylist(playlists.first);
       }
     } catch (e) {

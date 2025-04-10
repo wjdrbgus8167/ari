@@ -4,6 +4,7 @@ import 'package:ari/presentation/pages/dashboard/my_track_stat_list.dart';
 import 'package:ari/presentation/pages/login/login_screen.dart';
 import 'package:ari/presentation/pages/music_drawer/likey_album_screen.dart';
 import 'package:ari/presentation/pages/music_drawer/likey_track_screen.dart';
+import 'package:ari/presentation/pages/music_drawer/my_playlist_screen.dart';
 import 'package:ari/presentation/pages/mypage/edit_profile_screen.dart';
 import 'package:ari/presentation/pages/playlist_detail/playlist_detail_screen.dart';
 import 'package:ari/presentation/pages/sign_up/sign_up_screen.dart';
@@ -71,6 +72,7 @@ class AppRoutes {
   static const String subscribedArtists = '/music-drawer/subscribed-artists';
   static const String likeyAlbum = 'music-drawer/likey-album';
   static const String likeyTrack = 'music-drawer/likey-track';
+  static const String myPlaylist = '/myplaylist';
 
   static final Set<String> _protectedRoutes = {
     myPage,
@@ -277,6 +279,9 @@ class AppRouter {
           settings: settings,
           builder: (_) => const MusicDrawerScreen(),
         );
+
+      case AppRoutes.myPlaylist:
+        return MaterialPageRoute(builder: (_) => const MyPlaylistScreen());
 
       default:
         // 없는 경로는 홈으로 리다이렉트, 스낵바로 알림
