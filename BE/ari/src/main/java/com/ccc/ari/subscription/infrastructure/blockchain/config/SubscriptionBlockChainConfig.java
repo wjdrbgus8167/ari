@@ -1,7 +1,6 @@
 package com.ccc.ari.subscription.infrastructure.blockchain.config;
 
 import com.ccc.ari.global.contract.SubscriptionContract;
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,12 +141,6 @@ public class SubscriptionBlockChainConfig {
             logger.warn("웹소켓 연결 상태 확인 실패: {}", e.getMessage());
             attemptReconnect();
         }
-    }
-
-    @PostConstruct
-    public void init() {
-        // 초기화 후 즉시 첫 번째 체크 실행
-        checkWebSocketConnection();
     }
 
     /**
