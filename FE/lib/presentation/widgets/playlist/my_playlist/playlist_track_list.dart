@@ -2,6 +2,7 @@ import 'package:ari/core/services/audio_service.dart';
 import 'package:ari/domain/mapper/playlist_track_item_mapper.dart';
 import 'package:ari/providers/global_providers.dart';
 import 'package:ari/presentation/widgets/playlist/my_playlist/playlist_track_list_tile.dart';
+import 'package:ari/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -10,6 +11,14 @@ class PlaylistTrackList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final userId = ref.watch(authUserIdProvider); // authUserIdProvider 사용
+
+    if (userId.isEmpty) {
+      return const Center(
+        child: Text('로그인 후 이용해 주세요.', style: TextStyle(color: Colors.white)),
+      );
+    }
+
     final playlistState = ref.watch(playlistViewModelProvider);
 
     if (playlistState.selectedPlaylist == null) {
@@ -53,8 +62,9 @@ class PlaylistTrackList extends ConsumerWidget {
             // ✅ context.mounted 대신 ref이 살아있는지 보장되게 처리
             Future.microtask(() {
               if (context.mounted) {
+                // userId를 통해 listeningQueueProvider 접근
                 ref
-                    .read(listeningQueueProvider.notifier)
+                    .read(listeningQueueProvider(userId).notifier)
                     .trackPlayed(trackItem.toDataTrack());
               }
             });

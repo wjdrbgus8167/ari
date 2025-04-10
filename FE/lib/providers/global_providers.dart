@@ -177,15 +177,18 @@ final playlistViewModelProvider =
     });
 
 // ListeningQueueViewModel(재생목록) 전역 상태
-final listeningQueueProvider =
-    StateNotifierProvider<ListeningQueueViewModel, ListeningQueueState>((ref) {
-      final userId = ref.watch(authUserIdProvider);
-      final playlistRepository = ref.watch(playlistRepositoryProvider);
-      return ListeningQueueViewModel(
-        userId: userId,
-        playlistRepository: playlistRepository,
-      );
-    });
+// ✅ userId를 명시적으로 전달받도록 변경
+final listeningQueueProvider = StateNotifierProvider.family<
+  ListeningQueueViewModel,
+  ListeningQueueState,
+  String
+>((ref, userId) {
+  final playlistRepository = ref.watch(playlistRepositoryProvider);
+  return ListeningQueueViewModel(
+    userId: userId,
+    playlistRepository: playlistRepository,
+  );
+});
 
 final apiClientProvider = Provider<ApiClient>(
   (ref) => ApiClient(ref.read(dioProvider)),

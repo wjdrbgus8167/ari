@@ -1,5 +1,6 @@
 import 'package:ari/domain/entities/track.dart' as domain;
 import 'package:ari/presentation/routes/app_router.dart';
+import 'package:ari/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -176,27 +177,22 @@ class _ChartItem extends ConsumerWidget {
               constraints: const BoxConstraints(),
               icon: const Icon(Icons.play_arrow, color: Colors.white),
               onPressed: () async {
-                final audioService = ref.read(audioServiceProvider);
+                final userId = ref.read(authUserIdProvider);
+                if (userId == null) return;
+
                 final dataTrack = track.toDataModel();
-                // 재생목록에 추가
-                try {
-                  await ref
-                      .read(listeningQueueProvider.notifier)
-                      .trackPlayed(dataTrack);
-                } catch (e, stack) {
-                  print('[ERROR] trackPlayed 중 오류: $e');
-                  print(stack);
-                }
-                //  재생
-                print('[DEBUG] playFromQueueSubset 시작');
+                final audioService = ref.read(audioServiceProvider);
+
+                await ref
+                    .read(listeningQueueProvider(userId).notifier)
+                    .trackPlayed(dataTrack);
 
                 await audioService.playFromQueueSubset(
                   context,
                   ref,
-                  allTracks, // ✅ 도메인 모델 그대로 전달
-                  track, // ✅ 도메인 모델
+                  allTracks,
+                  track,
                 );
-                print('[DEBUG] playFromQueueSubset 완료');
               },
             ),
           ),
