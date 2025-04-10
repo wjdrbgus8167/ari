@@ -442,7 +442,7 @@ class MyChannelNotifier extends StateNotifier<MyChannelState> {
       followings: null,
     );
 
-    // 1. 채널 정보 먼저 로드
+    // 1. 채널 정보 로드
     final channelInfoResult = await getChannelInfoUseCase.execute(memberId);
 
     channelInfoResult.fold(
@@ -459,40 +459,38 @@ class MyChannelNotifier extends StateNotifier<MyChannelState> {
           channelInfo: channelInfo,
         );
 
-        // 3. 다른 데이터 로드를 위한 변수 설정
-        final hasSubscribers = channelInfo.subscriberCount > 0;
-        final actualFantalkChannelId = channelInfo.fantalkChannelId?.toString();
+        // 3. 화면 상단에 필요한 데이터만 병렬로 먼저 로드
+        // (프로필, 앨범, 공지사항)
+        await Future.wait([
+          _loadSafely(() => loadArtistAlbums(memberId), '아티스트 앨범'),
+          _loadSafely(() => loadArtistNotices(memberId), '아티스트 공지사항'),
+        ]);
 
-        // 아티스트 앨범 로드
-        await _loadSafely(() => loadArtistAlbums(memberId), '아티스트 앨범');
+        // 4. 나머지 데이터는 이후에 백그라운드로 로드
+        // 비동기로 처리하고 Future를 캡처하지 않음
+        Future.microtask(() async {
+          final actualFantalkChannelId =
+              channelInfo.fantalkChannelId?.toString();
+          final hasSubscribers = channelInfo.subscriberCount > 0;
 
-        // 아티스트 공지사항 로드
-        await _loadSafely(() => loadArtistNotices(memberId), '아티스트 공지사항');
+          if (hasSubscribers && actualFantalkChannelId != null) {
+            await _loadSafely(() => loadFanTalks(actualFantalkChannelId), '팬톡');
+          } else {
+            state = state.copyWith(
+              fanTalksStatus: MyChannelStatus.success,
+              fanTalks: null,
+            );
+          }
 
-        // 팬톡 로드 (구독자가 있고 채널 ID가 있는 경우에만)
-        if (hasSubscribers && actualFantalkChannelId != null) {
-          await _loadSafely(() => loadFanTalks(actualFantalkChannelId), '팬톡');
-        } else {
-          // 팬톡 데이터 명시적으로 비우기
-          state = state.copyWith(
-            fanTalksStatus: MyChannelStatus.success,
-            fanTalks: null,
-          );
-        }
-
-        // 공개 플레이리스트 로드
-        await _loadSafely(() => loadPublicPlaylists(memberId), '공개된 플레이리스트');
-
-        // 팔로워 로드
-        await _loadSafely(() => loadFollowers(memberId), '팔로워 목록');
-
-        // 팔로잉 로드
-        await _loadSafely(() => loadFollowings(memberId), '팔로잉 목록');
+          await _loadSafely(() => loadPublicPlaylists(memberId), '공개된 플레이리스트');
+          await _loadSafely(() => loadFollowers(memberId), '팔로워 목록');
+          await _loadSafely(() => loadFollowings(memberId), '팔로잉 목록');
+        });
       },
     );
   }
 
-  // 안전하게 로드하는 헬퍼 메서드
+  // 안전하게 로드하는 헬퍼
   Future<void> _loadSafely(
     Future<void> Function() loadFunction,
     String dataName,

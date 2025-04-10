@@ -67,12 +67,12 @@ class FantalkRemoteDataSourceImpl implements FantalkRemoteDataSource {
     try {
       Map<String, dynamic> requestData = {'content': content};
 
-      // 트랙 ID가 있는 경우 추가
+      // 트랙 ID가 있는 경우
       if (trackId != null) {
         requestData['trackId'] = trackId;
       }
 
-      // 폼데이터 준비 (이미지가 있는 경우를 위해)
+      // 폼데이터 준비
       FormData formData;
 
       // 이미지가 있는 경우
@@ -83,8 +83,8 @@ class FantalkRemoteDataSourceImpl implements FantalkRemoteDataSource {
           'fantalkImage': fantalkImage,
         });
       } else {
-        // 이미지가 없는 경우 - JSON으로 요청
-        formData = FormData.fromMap(requestData);
+        // 이미지가 없는 경우
+        formData = FormData.fromMap({'request': jsonEncode(requestData)});
       }
 
       // API 호출
@@ -92,8 +92,7 @@ class FantalkRemoteDataSourceImpl implements FantalkRemoteDataSource {
         '/api/v1/fantalk-channels/$fantalkChannelId/fantalks',
         data: formData,
         options: Options(
-          contentType:
-              fantalkImage != null ? 'multipart/form-data' : 'application/json',
+          contentType: 'multipart/form-data', // 항상 멀티파트로 
         ),
       );
 
