@@ -44,8 +44,8 @@ public class CachingIpfsClientImpl implements IpfsClient {
             @Value("${PINATA_ENDPOINT}") String ipfsApiUrl,
             @Value("${PINATA_JWT}") String jwtToken,
             @Value("${PINATA_GATEWAY}") String gatewayDomain,
-            @Value("${IPFS_LOCAL_NODE_URL:/ip4/127.0.0.1/tcp/5001}") String localNodeUrl,
-            @Value("${IPFS_USE_LOCAL_CACHE:true}") boolean useLocalCache,
+            @Value("${IPFS_LOCAL_NODE_URL}") String localNodeUrl,
+            @Value("${IPFS_USE_LOCAL_CACHE}") boolean useLocalCache,
             @Value("${IPFS_TIMEOUT:30000}") int timeout) {
 
         this.restTemplate = new RestTemplate();
