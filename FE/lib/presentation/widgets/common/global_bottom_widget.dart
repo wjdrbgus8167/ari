@@ -411,7 +411,7 @@ class _GlobalNavigationContainerState
         return AppRoutes.home;
       // case 1은 SearchScreen을 직접 사용하므로 여기서는 처리하지 않음
       case 2:
-        return '/'; // 음악 서랍 경로
+        return AppRoutes.musicDrawer;
       case 3:
         return AppRoutes.myChannel;
 
