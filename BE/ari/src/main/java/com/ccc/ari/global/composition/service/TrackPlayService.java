@@ -4,7 +4,6 @@ import com.ccc.ari.global.error.ApiException;
 import com.ccc.ari.global.error.ErrorCode;
 import com.ccc.ari.global.event.StreamingEvent;
 import com.ccc.ari.global.type.PlanType;
-import com.ccc.ari.member.domain.client.MemberClient;
 import com.ccc.ari.music.application.command.TrackPlayCommand;
 import com.ccc.ari.music.domain.album.AlbumDto;
 import com.ccc.ari.music.domain.album.client.AlbumClient;
@@ -15,7 +14,7 @@ import com.ccc.ari.music.domain.track.client.TrackClient;
 import com.ccc.ari.music.ui.response.TrackPlayResponse;
 import com.ccc.ari.subscription.domain.Subscription;
 import com.ccc.ari.subscription.domain.SubscriptionPlan;
-import com.ccc.ari.subscription.domain.client.SubscriptionClient;
+import com.ccc.ari.subscription.domain.client.SubscriptionCompositionClient;
 import com.ccc.ari.subscription.domain.client.SubscriptionPlanClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +23,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -47,7 +45,7 @@ public class TrackPlayService {
     private final AlbumClient  albumClient;
     private final ApplicationEventPublisher eventPublisher;
     private final GenreClient genreClient;
-    private final SubscriptionClient subscriptionClient;
+    private final SubscriptionCompositionClient subscriptionCompositionClient;
     private final SubscriptionPlanClient subscriptionPlanClient;
 
     @Transactional
@@ -77,7 +75,7 @@ public class TrackPlayService {
         }else{
 
             // 모든 구독 정보 조회
-            List<Subscription> subscriptions = subscriptionClient.getSubscriptionInfo(trackPlayCommand.getMemberId())
+            List<Subscription> subscriptions = subscriptionCompositionClient.getSubscriptionInfo(trackPlayCommand.getMemberId())
                     .orElseThrow(()-> new ApiException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
             // 현재 가지고 있는 구독권 조회
             for (Subscription subscription : subscriptions) {

@@ -10,7 +10,7 @@ import com.ccc.ari.member.domain.client.MemberClient;
 import com.ccc.ari.member.domain.member.MemberDto;
 import com.ccc.ari.settlement.ui.client.WalletClient;
 import com.ccc.ari.subscription.domain.SubscriptionPlan;
-import com.ccc.ari.subscription.domain.client.SubscriptionClient;
+import com.ccc.ari.subscription.domain.client.SubscriptionCompositionClient;
 import com.ccc.ari.subscription.domain.client.SubscriptionPlanClient;
 
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ public class FollowListService {
     private final FollowClient followClient;
     private final MemberClient memberClient;
     private final SubscriptionPlanClient subscriptionPlanClient;
-    private final SubscriptionClient subscriptionClient;
+    private final SubscriptionCompositionClient subscriptionCompositionClient;
     private final WalletClient walletClient;
 
     public Object getFollowingList(Integer memberId, Integer currentMemberId) {
@@ -65,10 +65,10 @@ public class FollowListService {
 
                 if (artistPlan.isPresent()) {
                     Integer planId = artistPlan.get().getSubscriptionPlanId().getValue();
-                    Integer count = subscriptionClient.countActiveSubscribersByPlanId(planId);
+                    Integer count = subscriptionCompositionClient.countActiveSubscribersByPlanId(planId);
                     subscriberCountMap.put(followingId, count);
 
-                    boolean isSubscribed = subscriptionClient.hasActiveSubscription(currentMemberId, planId);
+                    boolean isSubscribed = subscriptionCompositionClient.hasActiveSubscription(currentMemberId, planId);
                     subscribedYnMap.put(followingId, isSubscribed);
                 } else {
                     subscriberCountMap.put(followingId, 0);

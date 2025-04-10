@@ -1,6 +1,5 @@
 package com.ccc.ari.global.composition.service.mypage;
 
-import com.ccc.ari.aggregation.ui.client.StreamingCountClient;
 import com.ccc.ari.global.composition.response.mypage.GetMyRegularSubscriptionDetailResponse;
 import com.ccc.ari.global.error.ApiException;
 import com.ccc.ari.global.error.ErrorCode;
@@ -9,10 +8,8 @@ import com.ccc.ari.member.domain.client.MemberClient;
 import com.ccc.ari.settlement.application.response.RegularSettlementDetailResponse;
 import com.ccc.ari.settlement.ui.client.SettlementClient;
 import com.ccc.ari.subscription.domain.Subscription;
-import com.ccc.ari.subscription.domain.SubscriptionCycle;
 import com.ccc.ari.subscription.domain.SubscriptionPlan;
-import com.ccc.ari.subscription.domain.client.SubscriptionClient;
-import com.ccc.ari.subscription.domain.client.SubscriptionCycleClient;
+import com.ccc.ari.subscription.domain.client.SubscriptionCompositionClient;
 import com.ccc.ari.subscription.domain.client.SubscriptionPlanClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +27,7 @@ public class MyRegularSubscriptionDetailService {
 
     private final SubscriptionPlanClient subscriptionPlanClient;
     private final MemberClient memberClient;
-    private final SubscriptionClient subscriptionClient;
+    private final SubscriptionCompositionClient subscriptionCompositionClient;
     private final SettlementClient settlementClient;
 
     public GetMyRegularSubscriptionDetailResponse getMyRegularSubscriptionDetail(Integer cycleId
@@ -39,7 +36,7 @@ public class MyRegularSubscriptionDetailService {
         log.info("memberId:{}",memberId);
 
         // 내 구독 목록 가져오기
-        List<Subscription> subscription = subscriptionClient.getSubscriptionInfo(memberId)
+        List<Subscription> subscription = subscriptionCompositionClient.getSubscriptionInfo(memberId)
                 .orElseThrow(()-> new ApiException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
 
         if(subscription.size() != 0&&!subscription.isEmpty()){
