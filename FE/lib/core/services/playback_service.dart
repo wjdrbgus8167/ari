@@ -54,37 +54,35 @@ class PlaybackService {
         final String artist = data['artist'];
         final String lyrics = data['lyrics'];
 
-        // 고유식별자 만들기
         final uniqueId = "track_$trackId";
 
-        // AudioService를 사용해 API에서 받은 trackFileUrl로 트랙을 처음부터 재생 시작
-        final audioService = ref.read(audioServiceProvider);
-        await audioService.playSingleTrackWithPermission(
-          ref,
-          domain.Track(
-            trackId: trackId,
-            albumId: albumId,
-            trackTitle: title,
-            artistName: artist,
-            lyric: lyrics,
-            trackNumber: 0,
-            commentCount: 0,
-            lyricist: [''],
-            composer: [''],
-            comments: [],
-            createdAt: DateTime.now().toString(),
-            coverUrl: coverImageUrl,
-            trackFileUrl: trackFileUrl,
-            trackLikeCount: 0,
-            albumTitle: '',
-            genreName: '',
-          ),
-          context,
+        // Track 객체 생성
+        final track = domain.Track(
+          trackId: trackId,
+          albumId: albumId,
+          trackTitle: title,
+          artistName: artist,
+          lyric: lyrics,
+          trackNumber: 0,
+          commentCount: 0,
+          lyricist: [''],
+          composer: [''],
+          comments: [],
+          createdAt: DateTime.now().toString(),
+          coverUrl: coverImageUrl,
+          trackFileUrl: trackFileUrl,
+          trackLikeCount: 0,
+          albumTitle: '',
+          genreName: '',
         );
+
+        // ✅ AudioService를 통해 상태 갱신 + 재생만 수행 (중복 API 호출 X)
+        final audioService = ref.read(audioServiceProvider);
+        await audioService.playTrackDirectly(ref, track);
 
         print('[DEBUG] playTrack: 재생 시작됨');
 
-        // PlaybackState 업데이트: 트랙 정보와 함께 currentTrackId와 trackUrl, albumId, isLiked 업데이트
+        // 🎯 PlaybackState 동기화
         ref
             .read(playbackProvider.notifier)
             .updateTrackInfo(
@@ -99,28 +97,10 @@ class PlaybackService {
               currentQueueItemId: uniqueId,
             );
 
-        final domain.Track trackObj = domain.Track(
-          trackId: trackId,
-          albumId: albumId,
-          albumTitle: title,
-          genreName: '', // 누락된 필수 매개변수 추가
-          trackTitle: title,
-          artistName: artist,
-          lyric: lyrics,
-          trackNumber: 0,
-          commentCount: 0,
-          lyricist: [''],
-          composer: [''],
-          comments: [],
-          createdAt: DateTime.now().toString(),
-          coverUrl: coverImageUrl,
-          trackFileUrl: trackFileUrl,
-          trackLikeCount: 0,
-        );
-
+        // 🎯 ListeningQueue에 기록
         ref
             .read(lq.listeningQueueProvider.notifier)
-            .trackPlayed(trackObj.toDataModel());
+            .trackPlayed(track.toDataModel());
       } else {
         throw Exception('재생 API 호출 실패: ${response.data['message']}');
       }

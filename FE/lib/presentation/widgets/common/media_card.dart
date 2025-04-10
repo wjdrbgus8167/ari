@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class MediaCard extends ConsumerWidget {
   final String imageUrl;
   final String title;
-  final String? subtitle; // 부제목이 필요한 경우 (예: 앨범의 아티스트)
+  final String? subtitle;
   final VoidCallback? onTap;
   final VoidCallback? onPlayPressed;
 
@@ -20,26 +20,6 @@ class MediaCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // imageUrl이 비어있지 않으면 네트워크 이미지, 아니면 기본 에셋 이미지를 사용
-    Widget imageWidget;
-    if (imageUrl.isNotEmpty) {
-      imageWidget = Image.network(
-        imageUrl,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return Image.asset(
-            'assets/images/default_album_cover.png',
-            fit: BoxFit.cover,
-          );
-        },
-      );
-    } else {
-      imageWidget = Image.asset(
-        'assets/images/default_album_cover.png',
-        fit: BoxFit.cover,
-      );
-    }
-
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -52,18 +32,33 @@ class MediaCard extends ConsumerWidget {
               aspectRatio: 1,
               child: Stack(
                 children: [
-                  // 앨범/플레이리스트 이미지
+                  // 정사각형 이미지 + 비율 유지
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: imageWidget,
+                    child: Container(
+                      width: double.infinity,
+                      height: double.infinity,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image:
+                              imageUrl.isNotEmpty
+                                  ? NetworkImage(imageUrl)
+                                  : const AssetImage(
+                                        'assets/images/default_album_cover.png',
+                                      )
+                                      as ImageProvider,
+                          fit: BoxFit.cover,
+                          alignment: Alignment.center,
+                        ),
+                      ),
+                    ),
                   ),
-                  // ⏯ 오른쪽 아래에 작은 재생 버튼
+                  // ⏯ 재생 버튼
                   Positioned(
                     bottom: 6,
                     right: 6,
                     child: GestureDetector(
                       onTap: () async {
-                        // 재생 버튼 누를 때 로그인 체크 후 onPlayPressed 실행
                         final ok = await checkLoginAndNavigateIfNeeded(
                           context: context,
                           ref: ref,

@@ -34,6 +34,7 @@ class AlbumRepositoryImpl implements AlbumRepository {
   // AlbumDetailModel을 도메인 엔티티 Album으로 변환하는 매핑 함수
   domain.Album _mapAlbumDetailToDomain(AlbumDetailModel detail) {
     return domain.Album(
+      albumLikedYn: detail.albumLikedYn,
       albumId: detail.albumId,
       albumTitle: detail.albumTitle,
       artist: detail.artist,
@@ -81,6 +82,7 @@ class AlbumRepositoryImpl implements AlbumRepository {
   // 데이터 모델의 Album(data_model.Album)을 도메인 엔티티(domain.Album)로 변환하는 함수
   domain.Album _mapDataAlbumToDomain(data_model.Album album) {
     return domain.Album(
+      albumLikedYn: false, // 기본값
       albumId: album.id,
       albumTitle: album.title,
       artist: album.artist,

@@ -39,7 +39,7 @@ class CustomDialog extends StatelessWidget {
     this.confirmText = '확인',
     this.cancelText = '취소',
     this.confirmButtonColor = AppColors.lightPurple,
-    this.cancelButtonColor = Colors.grey,
+    this.cancelButtonColor = const Color.fromRGBO(158, 158, 158, 1),
     this.textColor = Colors.black87,
     this.onConfirm,
     this.onCancel,
@@ -55,9 +55,9 @@ class CustomDialog extends StatelessWidget {
     this.dialogBackgroundColor = Colors.black,
     this.contentOpacity = 0.75, // 내용 불투명도
   }) : assert(
-        content != null || customContent != null,
-        '내용 또는 컨텐츠 중 하나는 넣어줘야 함',
-      );
+         content != null || customContent != null,
+         '내용 또는 컨텐츠 중 하나는 넣어줘야 함',
+       );
 
   @override
   Widget build(BuildContext context) {

@@ -26,6 +26,8 @@ class CarouselContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('[🌀 CarouselContainer] children 수: ${children.length}');
+
     return Container(
       padding: padding,
       // color: const Color(0xFF1A1A1A),

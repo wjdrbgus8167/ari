@@ -1,14 +1,16 @@
 import 'package:ari/data/datasources/playlist/playlist_remote_datasource.dart';
-import 'package:ari/domain/entities/album.dart';
-import 'package:ari/domain/entities/playlist.dart' as domain;
 import 'package:ari/data/models/playlist.dart' as data;
-import 'package:ari/data/models/track.dart';
+import 'package:ari/data/mappers/playlist_trackitem_mapper.dart';
+
 import 'package:ari/core/utils/album_filter.dart';
 import 'package:ari/core/utils/genre_utils.dart';
+
+import 'package:ari/domain/entities/album.dart';
+import 'package:ari/domain/entities/playlist.dart' as domain;
+import 'package:ari/domain/entities/track.dart' as domain;
 import 'package:ari/domain/repositories/album/album_detail_repository.dart';
 import 'package:ari/domain/usecases/get_charts_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ari/data/mappers/playlist_trackitem_mapper.dart';
 
 class HomeState {
   final Genre selectedGenreLatest;
@@ -18,7 +20,7 @@ class HomeState {
   final List<Album> filteredLatestAlbums;
   final List<Album> filteredPopularAlbums;
   final List<domain.Playlist> popularPlaylists;
-  final List<Track> hot50Titles;
+  final List<domain.Track> hot50Titles;
 
   HomeState({
     required this.selectedGenreLatest,
@@ -40,7 +42,7 @@ class HomeState {
     List<Album>? filteredLatestAlbums,
     List<Album>? filteredPopularAlbums,
     List<domain.Playlist>? popularPlaylists,
-    List<Track>? hot50Titles,
+    List<domain.Track>? hot50Titles,
   }) {
     return HomeState(
       selectedGenreLatest: selectedGenreLatest ?? this.selectedGenreLatest,
@@ -85,18 +87,24 @@ class HomeViewModel extends StateNotifier<HomeState> {
   Future<void> loadHot50Titles() async {
     try {
       final chartItems = await getChartsUseCase.execute();
-      final List<Track> convertedTracks =
+      final List<domain.Track> convertedTracks =
           chartItems.map((chart) {
-            return Track(
-              id: chart.trackId,
+            return domain.Track(
+              trackId: chart.trackId,
               artistId: 0,
               trackTitle: chart.trackTitle,
-              artist: chart.artist,
-              composer: '',
-              lyricist: '',
+              artistName: chart.artist,
+              composer: [],
+              lyricist: [],
               albumId: chart.albumId,
+              albumTitle: '',
+              genreName: '',
+              trackNumber: 0,
+              commentCount: 0,
+              comments: [],
+              createdAt: '',
               trackFileUrl: chart.trackFileUrl,
-              lyrics: '',
+              lyric: '',
               trackLikeCount: 0,
               coverUrl: chart.coverImageUrl,
             );

@@ -5,6 +5,7 @@ import 'package:ari/domain/entities/track_comment.dart';
 
 class AlbumDetailModel extends Album {
   AlbumDetailModel({
+    required super.albumLikedYn,
     required super.albumId,
     required super.albumTitle,
     required super.artist,
@@ -23,6 +24,7 @@ class AlbumDetailModel extends Album {
   factory AlbumDetailModel.fromJson(Map<String, dynamic> json) {
     try {
       return AlbumDetailModel(
+        albumLikedYn: json['albumLikedYn'] ?? false,
         albumId: json['albumId'],
         albumTitle: json['albumTitle'],
         artist: json['artist'],
@@ -31,7 +33,7 @@ class AlbumDetailModel extends Album {
         albumLikeCount: json['albumLikeCount'] ?? 0,
         genre: json['genreName'] ?? '',
         commentCount: json['albumCommentCount'] ?? 0,
-        rating: "0",
+        rating: json['albumRating']?.toString() ?? '0.0', // ✅ 요기!
         createdAt: json['releasedAt'].toString().substring(0, 10) ?? '',
         coverImageUrl: json['coverImageUrl'],
         comments:

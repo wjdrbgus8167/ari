@@ -1,6 +1,7 @@
 import 'package:ari/core/exceptions/failure.dart';
 import 'package:ari/domain/entities/album.dart';
 import 'package:ari/domain/repositories/album/album_detail_repository.dart';
+import 'package:ari/domain/repositories/album/album_rating_repository.dart';
 import 'package:dartz/dartz.dart';
 
 class GetAlbumDetail {
@@ -12,5 +13,15 @@ class GetAlbumDetail {
   /// [albumId]: 조회할 앨범의 ID
   Future<Either<Failure, Album>> execute(int albumId) async {
     return await repository.getAlbumDetail(albumId);
+  }
+}
+
+class RateAlbum {
+  final AlbumRatingRepository repository;
+
+  RateAlbum(this.repository);
+
+  Future<Either<Failure, void>> execute(int albumId, double rating) async {
+    return await repository.rateAlbum(albumId, rating);
   }
 }

@@ -12,6 +12,7 @@ import 'package:ari/domain/usecases/auth/auth_usecase.dart';
 import 'package:ari/presentation/viewmodels/auth/login_viewmodel.dart';
 import 'package:ari/presentation/viewmodels/auth/sign_up_viewmodel.dart';
 import 'package:ari/providers/global_providers.dart';
+import 'package:ari/providers/playback/playback_progress_provider.dart';
 import 'package:ari/providers/playback/playback_state_provider.dart';
 import 'package:ari/providers/user_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -66,6 +67,7 @@ final authStateProvider =
         getAuthStatusUseCase: ref.watch(getAuthStatusUseCaseProvider),
         loginUseCase: ref.watch(loginUseCaseProvider),
         logoutUseCase: ref.watch(logoutUseCaseProvider),
+        ref: ref,
       );
     });
 
@@ -107,11 +109,13 @@ class AuthStateNotifier extends StateNotifier<AsyncValue<bool>> {
   final GetAuthStatusUseCase getAuthStatusUseCase;
   final LoginUseCase loginUseCase;
   final LogoutUseCase logoutUseCase;
+  final Ref ref;
 
   AuthStateNotifier({
     required this.getAuthStatusUseCase,
     required this.loginUseCase,
     required this.logoutUseCase,
+    required this.ref,
   }) : super(const AsyncValue.loading()) {
     print('[AuthStateNotifier] 초기화 시작');
     _initialize();
@@ -142,6 +146,20 @@ class AuthStateNotifier extends StateNotifier<AsyncValue<bool>> {
     try {
       await loginUseCase(email, password);
       print('[AuthStateNotifier] 로그인 성공');
+
+      // ✅ 오디오 서비스 및 재생 상태 초기화
+      final audioService = ref.read(audioServiceProvider);
+      final playbackNotifier = ref.read(playbackProvider.notifier);
+
+      await audioService.audioPlayer.stop(); // 혹시라도 백그라운드에서 재생 중이면 정지
+      playbackNotifier.reset(); // 재생 상태 초기화
+
+      // invalidate로 강제 상태 리셋
+      ref.invalidate(playbackProvider);
+      ref.invalidate(listeningQueueProvider);
+      ref.invalidate(playbackPositionProvider);
+      ref.invalidate(playbackDurationProvider);
+
       state = const AsyncValue.data(true);
       return true; // 성공 시 true 반환
     } catch (e, stackTrace) {
@@ -159,16 +177,16 @@ class AuthStateNotifier extends StateNotifier<AsyncValue<bool>> {
       await logoutUseCase();
       print('[AuthStateNotifier] 로그아웃 성공');
 
-      // ✅ 오디오 재생 중단 및 상태 초기화
-      final container = ProviderContainer(); // 외부 Provider 접근용
-      final audioService = container.read(audioServiceProvider);
-      final playbackNotifier = container.read(playbackProvider.notifier);
+      // 오디오 서비스 및 재생 상태 초기화
+      final audioService = ref.read(audioServiceProvider);
+      final playbackNotifier = ref.read(playbackProvider.notifier);
 
       await audioService.audioPlayer.stop(); // 오디오 중단
       playbackNotifier.reset(); // 상태 초기화
 
-      // 필요하다면 재생 큐도 정리 가능
-      // container.read(listeningQueueProvider.notifier).clear();
+      // 모든 플레이백 관련 상태 강제 초기화
+      ref.invalidate(playbackProvider); // 추가: 프로바이더 무효화
+      ref.invalidate(listeningQueueProvider); // 추가: 재생 큐 초기화
 
       state = const AsyncValue.data(false);
     } catch (e, stackTrace) {
