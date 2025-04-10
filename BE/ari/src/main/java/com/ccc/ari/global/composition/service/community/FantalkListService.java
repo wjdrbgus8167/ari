@@ -11,7 +11,7 @@ import com.ccc.ari.music.domain.album.client.AlbumClient;
 import com.ccc.ari.music.domain.track.TrackDto;
 import com.ccc.ari.music.domain.track.client.TrackClient;
 import com.ccc.ari.subscription.domain.SubscriptionPlan;
-import com.ccc.ari.subscription.domain.client.SubscriptionClient;
+import com.ccc.ari.subscription.domain.client.SubscriptionCompositionClient;
 import com.ccc.ari.subscription.domain.client.SubscriptionPlanClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,7 +31,7 @@ public class FantalkListService {
     private final AlbumClient albumClient;
     private final FantalkChannelClient fantalkChannelClient;
     private final SubscriptionPlanClient subscriptionPlanClient;
-    private final SubscriptionClient subscriptionClient;
+    private final SubscriptionCompositionClient subscriptionCompositionClient;
 
     public FantalkListResponse getFantalkList(Integer fantalkChannelId, Integer currentMemberId) {
         // 1. fantalkChannelId에 해당하는 팬톡 목록을 조회합니다.
@@ -76,7 +76,7 @@ public class FantalkListService {
 
             if (artistPlan.isPresent()) {
                 Integer planId = artistPlan.get().getSubscriptionPlanId().getValue();
-                subscribedYn = subscriptionClient.hasActiveSubscription(currentMemberId, planId);
+                subscribedYn = subscriptionCompositionClient.hasActiveSubscription(currentMemberId, planId);
             }
         }
 

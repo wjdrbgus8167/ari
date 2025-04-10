@@ -6,6 +6,7 @@ import com.ccc.ari.global.composition.service.mypage.MyArtisSubscriptionService;
 import com.ccc.ari.global.security.MemberUserDetails;
 import com.ccc.ari.global.util.ApiUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("api/v1/mypages")
+@RequestMapping("/api/v1/mypages")
+@Slf4j
 public class MyArtisSubscriptionController {
 
     private final MyArtisSubscriptionService myArtisSubscriptionService;
@@ -40,6 +42,7 @@ public class MyArtisSubscriptionController {
             @PathVariable Integer artistId,
             @AuthenticationPrincipal MemberUserDetails memberUserDetails
     ){
+        log.info("내 아티스트 구독 상세 내역 조회 시작 ");
         Integer memberId = memberUserDetails.getMemberId();
 
         GetMyArtistSubscriptionDetailResponse response =

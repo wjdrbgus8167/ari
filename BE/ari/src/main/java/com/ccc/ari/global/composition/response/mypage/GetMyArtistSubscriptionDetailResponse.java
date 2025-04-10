@@ -15,13 +15,13 @@ public class GetMyArtistSubscriptionDetailResponse {
 
     private String artistNickName;
     private String profileImageUrl;
-    private BigDecimal totalSettlement;
+    private Double totalSettlement;
     private Integer totalStreamingCount;
     private List<ArtistSubscriptionDetail> subscriptions;
 
     @Builder
     public GetMyArtistSubscriptionDetailResponse(String artistNickName, String profileImageUrl
-            , BigDecimal totalSettlement, Integer totalStreamingCount,List<ArtistSubscriptionDetail> subscriptions) {
+            , Double totalSettlement, Integer totalStreamingCount,List<ArtistSubscriptionDetail> subscriptions) {
         this.artistNickName = artistNickName;
         this.profileImageUrl = profileImageUrl;
         this.totalSettlement = totalSettlement;
@@ -38,12 +38,12 @@ public class GetMyArtistSubscriptionDetailResponse {
         private LocalDateTime startedAt;
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime endedAt;
-        private BigDecimal settlement;
+        private Double settlement;
 
 
         @Builder
         public ArtistSubscriptionDetail(String planType, LocalDateTime startedAt
-                , LocalDateTime endedAt, BigDecimal settlement) {
+                , LocalDateTime endedAt, Double settlement) {
             this.planType = planType;
             this.startedAt = startedAt;
             this.endedAt = endedAt;

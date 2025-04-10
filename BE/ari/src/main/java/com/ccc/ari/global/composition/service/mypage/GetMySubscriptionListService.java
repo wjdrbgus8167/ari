@@ -7,7 +7,7 @@ import com.ccc.ari.global.type.PlanType;
 import com.ccc.ari.member.domain.client.MemberClient;
 import com.ccc.ari.subscription.domain.Subscription;
 import com.ccc.ari.subscription.domain.SubscriptionPlan;
-import com.ccc.ari.subscription.domain.client.SubscriptionClient;
+import com.ccc.ari.subscription.domain.client.SubscriptionCompositionClient;
 import com.ccc.ari.subscription.domain.client.SubscriptionPlanClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GetMySubscriptionListService {
 
-    private final SubscriptionClient subscriptionClient;
+    private final SubscriptionCompositionClient subscriptionCompositionClient;
     private final SubscriptionPlanClient subscriptionPlanClient;
     private final MemberClient memberClient;
 
@@ -31,7 +31,7 @@ public class GetMySubscriptionListService {
     public GetMySubscriptionListResponse getMySubscriptionList(Integer memberId) {
 
         // 현재 내가 구독한 구독에 대한 정보 조회
-        List<Subscription> subscriptionList = subscriptionClient.getSubscriptionInfo(memberId)
+        List<Subscription> subscriptionList = subscriptionCompositionClient.getSubscriptionInfo(memberId)
                 .orElseThrow(() -> new ApiException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
 
         // 각각 정기 구독과 아티스트 구독 List

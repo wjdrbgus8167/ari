@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -109,11 +110,11 @@ public class SubscriptionQueryService {
      */
     public GetMyArtistCyclesResponse getMyArtistSubscriptionCycle(Integer subscriberId, Integer artistId) {
 
-        List<CycleInfo> cycleInfos = getCycleInfosForPlan(subscriberId,
+        List<CycleInfo> cycleInfos = new ArrayList<>(getCycleInfosForPlan(subscriberId,
                 () -> subscriptionPlanRepository.findSubscriptionPlanByArtistId(artistId)
                         .orElseThrow(() -> new ArtistPlanNotFoundException(artistId)),
                 PlanType.A,
-                () -> new ArtistSubscriptionNotFoundException(artistId));
+                () -> new ArtistSubscriptionNotFoundException(artistId)));
 
         cycleInfos.addAll(getCycleInfosForPlan(subscriberId,
                 () -> subscriptionPlanRepository.findSubscriptionPlanByPlanType(PlanType.R)
@@ -125,6 +126,7 @@ public class SubscriptionQueryService {
                 .cycleInfos(cycleInfos)
                 .build();
     }
+
 
     private List<CycleInfo> getCycleInfosForPlan(Integer subscriberId,
                                                  Supplier<SubscriptionPlan> planSupplier,

@@ -7,7 +7,7 @@ import com.ccc.ari.global.composition.response.artist.GetChannelInfoResponse;
 import com.ccc.ari.member.domain.client.MemberClient;
 import com.ccc.ari.member.domain.member.MemberDto;
 import com.ccc.ari.subscription.domain.SubscriptionPlan;
-import com.ccc.ari.subscription.domain.client.SubscriptionClient;
+import com.ccc.ari.subscription.domain.client.SubscriptionCompositionClient;
 import com.ccc.ari.subscription.domain.client.SubscriptionPlanClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ public class GetChannelInfoService {
     private final MemberClient memberClient;
     private final FollowClient followClient;
     private final SubscriptionPlanClient subscriptionPlanClient;
-    private final SubscriptionClient subscriptionClient;
+    private final SubscriptionCompositionClient subscriptionCompositionClient;
 
     public GetChannelInfoResponse getChannelInfo(Integer channelOwnerId, Integer currentMemberId) {
         FantalkChannelDto channelDto = fantalkChannelClient.getFantalkChannelByArtistId(channelOwnerId);
@@ -36,7 +36,7 @@ public class GetChannelInfoService {
 
         if (artistPlan.isPresent()) {
             Integer planId = artistPlan.get().getSubscriptionPlanId().getValue();
-            subscriberCount = subscriptionClient.countActiveSubscribersByPlanId(planId);
+            subscriberCount = subscriptionCompositionClient.countActiveSubscribersByPlanId(planId);
         }
 
         return GetChannelInfoResponse.builder()

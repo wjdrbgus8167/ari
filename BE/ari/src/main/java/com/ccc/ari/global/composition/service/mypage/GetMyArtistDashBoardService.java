@@ -12,7 +12,7 @@ import com.ccc.ari.settlement.application.response.GetArtistDailySettlementRespo
 import com.ccc.ari.settlement.ui.client.SettlementClient;
 import com.ccc.ari.settlement.ui.client.WalletClient;
 import com.ccc.ari.subscription.domain.SubscriptionPlan;
-import com.ccc.ari.subscription.domain.client.SubscriptionClient;
+import com.ccc.ari.subscription.domain.client.SubscriptionCompositionClient;
 import com.ccc.ari.subscription.domain.client.SubscriptionPlanClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,17 +22,13 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class GetMyArtistDashBoardService {
 
-    private final SubscriptionClient subscriptionClient;
+    private final SubscriptionCompositionClient subscriptionCompositionClient;
     private final SubscriptionPlanClient  subscriptionPlanClient;
     private final AlbumClient albumClient;
     private final StreamingCountClient streamingCountClient;
@@ -87,7 +83,7 @@ public class GetMyArtistDashBoardService {
         GetArtistStreamingResponse getArtistStreamingResponse = streamingCountClient.getArtistAlbumStreamings(memberId);
 
         // 현재 구독자 수 조회 - 활성화 되어 있는 구독자만 가져옴
-        Integer subscriberCount = subscriptionClient
+        Integer subscriberCount = subscriptionCompositionClient
                 .getSubscriptionBySubscriptionPlanId(subscriptionPlanId).size();
         log.info("현재 구독자 수:{}", subscriberCount);
 
@@ -98,7 +94,7 @@ public class GetMyArtistDashBoardService {
         log.info("이번 달 구독 종료 시간:{}",endOfMonth);
 
         // 이번 달 신규 구독자 수
-        Integer thisMonthNewSubscriberCount = subscriptionClient
+        Integer thisMonthNewSubscriberCount = subscriptionCompositionClient
                 .getRegularSubscription(subscriptionPlanId, startOfMonth, endOfMonth).size();
 
 
@@ -108,7 +104,7 @@ public class GetMyArtistDashBoardService {
 
         // 오늘 하루 신규 구독자 수
         Integer todayNewSubscribeCount =
-                subscriptionClient.getRegularSubscription(subscriptionPlanId,startOfToday,endOfToday).size();
+                subscriptionCompositionClient.getRegularSubscription(subscriptionPlanId,startOfToday,endOfToday).size();
 
         log.info("이번달 신규 구독자 수 :{}", thisMonthNewSubscriberCount);
         log.info("오늘 하루 신규 구독자:{}", todayNewSubscribeCount);
@@ -141,7 +137,7 @@ public class GetMyArtistDashBoardService {
         LocalDateTime startofTime =YearMonth.of(2025, 3).atDay(1).atStartOfDay();;
 
         // 이전 달 말까지의 구독자 수 가져오기
-        Integer subscribersUntilPreviousMonth = subscriptionClient
+        Integer subscribersUntilPreviousMonth = subscriptionCompositionClient
                 .getRegularSubscription(subscriptionPlanId,startofTime, endOfPreviousMonth).size();
 
 
@@ -166,7 +162,7 @@ public class GetMyArtistDashBoardService {
             LocalDateTime start = tempMonth.atDay(1).atStartOfDay();
             LocalDateTime end = tempMonth.atEndOfMonth().atTime(23, 59, 59, 999_999_999);
 
-            int count = subscriptionClient.getRegularSubscription(subscriptionPlanId, start, end).size();
+            int count = subscriptionCompositionClient.getRegularSubscription(subscriptionPlanId, start, end).size();
 
             monthlySubscriberCounts.add(GetMyArtistDashBoardResponse.MonthlySubscriberCount
                     .builder()
@@ -185,7 +181,7 @@ public class GetMyArtistDashBoardService {
             LocalDateTime start = date.atStartOfDay();
             LocalDateTime end = date.atTime(23, 59, 59, 999_999_999);
 
-            int count = subscriptionClient.getRegularSubscription(subscriptionPlanId, start, end).size();
+            int count = subscriptionCompositionClient.getRegularSubscription(subscriptionPlanId, start, end).size();
 
             dailySubscriberCounts.add(GetMyArtistDashBoardResponse.DailySubscriberCount
                     .builder()
