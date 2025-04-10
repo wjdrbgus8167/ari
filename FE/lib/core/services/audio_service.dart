@@ -266,7 +266,9 @@ class AudioService {
       _playlistSource.add(AudioSource.uri(Uri.parse(t.trackFileUrl ?? '')));
     }
     await audioPlayer.setAudioSource(_playlistSource, initialIndex: 0);
-    ref.read(listeningQueueProvider.notifier).loadQueue();
+    if (_globalContext?.mounted ?? false) {
+      _globalRef!.read(listeningQueueProvider.notifier).loadQueue();
+    }
   }
 
   // 🎯 상태 업데이트 + 오디오 재생 처리

@@ -146,6 +146,20 @@ class AuthStateNotifier extends StateNotifier<AsyncValue<bool>> {
     try {
       await loginUseCase(email, password);
       print('[AuthStateNotifier] 로그인 성공');
+
+      // ✅ 오디오 서비스 및 재생 상태 초기화
+      final audioService = ref.read(audioServiceProvider);
+      final playbackNotifier = ref.read(playbackProvider.notifier);
+
+      await audioService.audioPlayer.stop(); // 혹시라도 백그라운드에서 재생 중이면 정지
+      playbackNotifier.reset(); // 재생 상태 초기화
+
+      // invalidate로 강제 상태 리셋
+      ref.invalidate(playbackProvider);
+      ref.invalidate(listeningQueueProvider);
+      ref.invalidate(playbackPositionProvider);
+      ref.invalidate(playbackDurationProvider);
+
       state = const AsyncValue.data(true);
     } catch (e, stackTrace) {
       print('[AuthStateNotifier] 로그인 실패: $e');
@@ -166,16 +180,11 @@ class AuthStateNotifier extends StateNotifier<AsyncValue<bool>> {
       final playbackNotifier = ref.read(playbackProvider.notifier);
 
       await audioService.audioPlayer.stop(); // 오디오 중단
-      await audioService.audioPlayer.dispose(); // 추가: 오디오 플레이어 해제
       playbackNotifier.reset(); // 상태 초기화
 
       // 모든 플레이백 관련 상태 강제 초기화
       ref.invalidate(playbackProvider); // 추가: 프로바이더 무효화
       ref.invalidate(listeningQueueProvider); // 추가: 재생 큐 초기화
-
-      // 추가: 재생 위치 & 길이 프로바이더 무효화
-      ref.invalidate(playbackPositionProvider);
-      ref.invalidate(playbackDurationProvider);
 
       state = const AsyncValue.data(false);
     } catch (e, stackTrace) {

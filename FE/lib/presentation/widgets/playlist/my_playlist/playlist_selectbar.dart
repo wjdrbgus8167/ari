@@ -40,6 +40,7 @@ class _PlaylistSelectbarState extends ConsumerState<PlaylistSelectbar> {
         }
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         errorMessage = e.toString();
       });
