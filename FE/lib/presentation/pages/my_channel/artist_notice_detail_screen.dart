@@ -192,9 +192,9 @@ class _ArtistNoticeDetailScreenState
           _buildCurrentNotice(notice),
 
           // 구분선
-          const SizedBox(height: 32),
-          const Divider(color: Colors.grey, height: 1),
-          const SizedBox(height: 24),
+          // const SizedBox(height: 32),
+          // const Divider(color: Colors.grey, height: 1),
+          // const SizedBox(height: 24),
 
           // 댓글 섹션
           NoticeCommentSection(noticeId: _currentNoticeId),
@@ -224,14 +224,14 @@ class _ArtistNoticeDetailScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 공지사항 헤더 (제목 + 날짜) - 수정: 제목 색상 변경 및 날짜 우측 배치
+        // 공지사항 헤더 (제목 + 날짜)
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text(
               '현재 공지',
               style: TextStyle(
-                color: AppColors.mediumPurple, // 색상 변경
+                color: AppColors.mediumPurple,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -244,7 +244,6 @@ class _ArtistNoticeDetailScreenState
         ),
         const SizedBox(height: 24),
 
-        // 공지사항 내용과 이미지를 하나의 카드에 배치
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(16),
@@ -269,7 +268,7 @@ class _ArtistNoticeDetailScreenState
                 ),
               ),
 
-              // 텍스트 밑에 이미지 배치
+              // 텍스트 밑에 이미지
               if (notice.noticeImageUrl != null) ...[
                 const SizedBox(height: 16),
                 ClipRRect(
