@@ -67,7 +67,7 @@ class ListeningQueueState {
 /// PlaylistRepository를 통해 플레이리스트 관련 작업을 수행합니다.
 class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
   final String userId;
-  final IPlaylistRepository playlistRepository; // repository 주입
+  final IPlaylistRepository playlistRepository;
 
   ListeningQueueViewModel({
     required this.userId,
@@ -84,17 +84,14 @@ class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
     _loadPlaylists();
   }
 
-  /// 로컬 저장소에서 재생목록을 불러옵니다.
+  // 재생목록을 로드합니다.
   Future<void> loadQueue() async {
-    // data 모델 타입의 트랙을 불러옴
     final dataTracks = await loadListeningQueue(userId); // List<data.Track>
-    // data 모델을 도메인 엔티티로 변환
     final domainTracks =
         dataTracks.map((dataTrack) => mapDataTrackToDomain(dataTrack)).toList();
     final items =
         domainTracks.map((track) => ListeningQueueItem(track: track)).toList();
 
-    // ✅ dispose 되었는지 확인
     if (!mounted) return;
 
     state = state.copyWith(
@@ -104,28 +101,24 @@ class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
     );
   }
 
-  /// PlaylistRepository를 통해 플레이리스트 목록을 불러옵니다.
+  // 플레이리스트 목록을 불러옵니다.
   Future<void> _loadPlaylists() async {
     try {
-      print('[DEBUG] 플레이리스트 조회 시작');
       final playlists = await playlistRepository.fetchPlaylists();
-      print('[DEBUG] 조회된 플레이리스트: $playlists');
-      // ✅ dispose 되었는지 확인
-      if (!mounted) return;
-      // 상태 업데이트
+      // if (!mounted) return;
       state = state.copyWith(playlists: playlists);
     } catch (e) {
       print('[ERROR] 플레이리스트 조회 중 에러 발생: $e');
     }
   }
 
-  /// 특정 트랙이 재생될 때 자동으로 재생목록에 추가합니다.
+  // 트랙이 재생될 때 자동으로 재생목록에 추가합니다.
   Future<void> trackPlayed(data.Track track) async {
     await addTrackToListeningQueue(userId, track);
     await loadQueue();
   }
 
-  /// 검색어에 따라 재생목록을 필터링합니다.
+  // 트랙을 검색해서 재생목록을 필터링합니다.
   void filterTracks(String query) {
     if (query.isEmpty) {
       state = state.copyWith(filteredPlaylist: List.from(state.playlist));
@@ -143,7 +136,7 @@ class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
     }
   }
 
-  /// 특정 항목의 선택 여부를 토글합니다.
+  // 트랙 선택 여부를 토글합니다.
   void toggleTrackSelection(ListeningQueueItem item) {
     final newSelected = Set<ListeningQueueItem>.from(state.selectedTracks);
     if (newSelected.contains(item)) {
@@ -154,7 +147,7 @@ class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
     state = state.copyWith(selectedTracks: newSelected);
   }
 
-  /// 전체 선택 또는 해제 기능.
+  // 모든 트랙 선택 또는 해제합니다.
   void toggleSelectAll() {
     final allSelected =
         state.filteredPlaylist.isNotEmpty &&
@@ -166,20 +159,19 @@ class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
     }
   }
 
-  /// 재생목록의 순서를 변경하고, 로컬 저장소에 업데이트합니다.
+  // 재생목록 순서를 변경합니다.
   Future<void> reorderTracks(int oldIndex, int newIndex) async {
     final updatedList = List<ListeningQueueItem>.from(state.filteredPlaylist);
     if (newIndex > oldIndex) newIndex -= 1;
     final item = updatedList.removeAt(oldIndex);
     updatedList.insert(newIndex, item);
-    // domain.Track 리스트를 data.Track 리스트로 변환
     final tracksOrder = updatedList.map((i) => i.track.toDataModel()).toList();
     await updateListeningQueueOrder(userId, tracksOrder);
     state = state.copyWith(filteredPlaylist: updatedList);
     await loadQueue();
   }
 
-  /// 재생목록에서 특정 항목을 삭제하고, 상태를 업데이트합니다.
+  // 트랙을 삭제합니다.
   Future<void> removeTrack(ListeningQueueItem item) async {
     await removeTrackFromListeningQueue(userId, item.track.trackId);
     await loadQueue();
@@ -188,7 +180,7 @@ class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
     state = state.copyWith(selectedTracks: newSelected);
   }
 
-  /// 선택된 트랙들을 기존 플레이리스트에 추가합니다.
+  // 선택된 트랙들을 플레이리스트에 추가합니다.
   Future<void> addSelectedTracksToPlaylist(
     Playlist selectedPlaylist,
     List<ListeningQueueItem> selectedItems,
@@ -199,14 +191,10 @@ class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
         item.track.trackId,
       );
     }
-    print('[DEBUG] 선택된 트랙 수: ${selectedItems.length}');
-    print('[DEBUG] 추가 대상 플레이리스트 ID: ${selectedPlaylist.id}');
-
-    // 추가 후 선택 상태 초기화
     state = state.copyWith(selectedTracks: {});
   }
 
-  /// 새 플레이리스트를 생성한 후 선택된 트랙들을 추가합니다.
+  // 새 플레이리스트를 만들고 트랙들을 추가합니다.
   Future<void> createPlaylistAndAddTracks(
     String title,
     bool publicYn,
@@ -217,10 +205,6 @@ class ListeningQueueViewModel extends StateNotifier<ListeningQueueState> {
     for (var item in selectedItems) {
       await playlistRepository.addTrack(newPlaylist.id, item.track.trackId);
     }
-    print('[DEBUG] 플레이리스트 생성 요청: title=$title, publicYn=$publicYn');
-    print('[DEBUG] PlaylistCreateRequest JSON: ${request.toJson()}');
-
-    // 새 플레이리스트 생성 후 플레이리스트 목록 업데이트
     await _loadPlaylists();
     state = state.copyWith(selectedTracks: {});
   }

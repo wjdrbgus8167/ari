@@ -336,7 +336,7 @@ class GenrePage extends ConsumerWidget {
             ],
           ),
         ),
-        SizedBox(height: 390, child: HotChartList(tracks: tracks)),
+        SizedBox(height: 420, child: HotChartList(tracks: tracks)),
         const SizedBox(height: 20),
       ],
     );

@@ -1,6 +1,7 @@
 import 'package:ari/presentation/viewmodels/playback/playback_state.dart';
 import 'package:ari/presentation/widgets/common/custom_toast.dart';
 import 'package:ari/providers/global_providers.dart';
+import 'package:ari/providers/user_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,8 +25,9 @@ class PlaybackBar extends ConsumerWidget {
     final audioService = ref.read(audioServiceProvider);
     final coverImage = ref.watch(coverImageProvider);
 
-    // listeningQueueProvider의 상태를 가져옵니다.
-    final queueState = ref.watch(listeningQueueProvider);
+    final userId = ref.watch(authUserIdProvider); // 그냥 바로 사용
+
+    final queueState = ref.watch(listeningQueueProvider(userId)); // 이렇게 바로
 
     return GestureDetector(
       onTap: () async {

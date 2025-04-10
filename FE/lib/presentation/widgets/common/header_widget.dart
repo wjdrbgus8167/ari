@@ -77,14 +77,24 @@ class HeaderWidget extends ConsumerWidget {
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween, // 기존 정렬 유지
         children: [
-          // 로고
+          // 빈 공간으로 왼쪽 공간 차지
+          const Opacity(
+            opacity: 0,
+            child: IconButton(
+              icon: Icon(Icons.arrow_back_ios),
+              onPressed: null,
+            ),
+          ),
+
+          // 로고 (가운데 정렬)
           Image.asset(
             'assets/images/logo.png',
-            height: 32, // 로고 높이 조정
+            height: 32,
             fit: BoxFit.contain,
           ),
+
           // 마이페이지 아이콘
           IconButton(
             icon: const Icon(Icons.person),

@@ -7,11 +7,11 @@ import 'package:ari/providers/global_providers.dart';
 import 'package:ari/presentation/widgets/common/listening_queue_appbar.dart';
 import 'package:ari/presentation/widgets/common/track_count_bar.dart';
 import 'package:ari/presentation/widgets/listening_queue/track_list_tile.dart';
-import 'package:ari/presentation/widgets/listening_queue/bottom_sheet_options.dart';
 import 'package:ari/presentation/widgets/common/search_bar.dart';
 import 'package:ari/presentation/widgets/listening_queue/playlist_selection_bottom_sheet.dart';
 import 'package:ari/presentation/widgets/listening_queue/create_playlist_modal.dart';
 import 'package:ari/providers/playback/playback_state_provider.dart';
+import 'package:ari/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -31,8 +31,16 @@ class _ListeningQueueScreenState extends ConsumerState<ListeningQueueScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(listeningQueueProvider);
-    final viewModel = ref.read(listeningQueueProvider.notifier);
+    final userId = ref.watch(authUserIdProvider); // authUserIdProvider 사용
+
+    if (userId.isEmpty) {
+      return const Center(child: Text('로그인이 필요합니다.'));
+    }
+
+    final state = ref.watch(listeningQueueProvider(userId)); // userId를 전달
+    final viewModel = ref.read(
+      listeningQueueProvider(userId).notifier,
+    ); // notifier 접근
     final playbackState = ref.watch(playbackProvider);
 
     return Scaffold(

@@ -2,6 +2,7 @@ import 'package:ari/core/services/audio_service.dart';
 import 'package:ari/domain/entities/track.dart';
 import 'package:ari/providers/global_providers.dart';
 import 'package:ari/presentation/widgets/listening_queue/track_list_tile.dart';
+import 'package:ari/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -10,8 +11,10 @@ class ListeningQueueTrackList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(listeningQueueProvider);
-    final viewModel = ref.read(listeningQueueProvider.notifier);
+    final userId = ref.watch(authUserIdProvider); // 그냥 바로 사용
+
+    final state = ref.watch(listeningQueueProvider(userId));
+    final viewModel = ref.read(listeningQueueProvider(userId).notifier);
 
     final tracks = state.filteredPlaylist;
 

@@ -1,3 +1,4 @@
+import 'package:ari/providers/user_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
@@ -7,8 +8,7 @@ import 'package:ari/core/services/audio_service.dart';
 import 'package:ari/data/models/api_response.dart';
 import 'package:ari/providers/global_providers.dart';
 import 'package:ari/domain/entities/track.dart' as domain;
-import 'package:ari/providers/listening_queue/listening_queue_provider.dart'
-    as lq;
+
 import 'package:ari/domain/usecases/playback_permission_usecase.dart';
 
 class PlaybackService {
@@ -98,8 +98,10 @@ class PlaybackService {
             );
 
         // 🎯 ListeningQueue에 기록
+        final userId = ref.read(authUserIdProvider); // userId 가져오기
+
         ref
-            .read(lq.listeningQueueProvider.notifier)
+            .read(listeningQueueProvider(userId).notifier)
             .trackPlayed(track.toDataModel());
       } else {
         throw Exception('재생 API 호출 실패: ${response.data['message']}');
