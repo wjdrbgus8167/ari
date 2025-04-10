@@ -87,7 +87,7 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
                     // 프로필 위젯
                     MypageProfile(
                       name: userProfile.nickname,
-                      instagramId: userProfile.instagram,
+                      instagramId: userProfile.instagram ?? "",
                       bio: userProfile.bio,
                       followers: userProfile.followerCount,
                       following: userProfile.followingCount,

@@ -81,7 +81,7 @@ class SimpleChartWidget extends StatelessWidget {
                                     // 차트 유형에 따라 접미사 조정
                                     String suffix = '';
                                     if (chartType == ChartType.revenue) {
-                                      suffix = ' USD';
+                                      suffix = ' LINK';
                                     } else if (chartType == ChartType.subscribers) {
                                       suffix = '명';
                                     } else if (chartType == ChartType.streams) {
