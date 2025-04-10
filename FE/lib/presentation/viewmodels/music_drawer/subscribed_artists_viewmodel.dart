@@ -78,7 +78,6 @@ class SubscribedArtistsViewModel extends StateNotifier<SubscribedArtistsState> {
   Future<int> getSubscribedArtistsCount() async {
       try {
         final result = await _getSubscribedArtistsUseCase.execute();
-      print(result);
       
       return result.fold(
         (failure) {
