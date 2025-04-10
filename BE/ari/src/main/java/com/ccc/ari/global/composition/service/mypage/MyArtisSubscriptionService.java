@@ -103,9 +103,6 @@ public class MyArtisSubscriptionService {
 
         List<GetMyArtistSubscriptionDetailResponse.ArtistSubscriptionDetail> artistSubscriptions = new ArrayList<>();
 
-        log.info("아티스트 구독 응답 리스트 만들기 시작");
-        log.info("사이클 개수: {}", getMyArtistCyclesResponse.getCycleInfos().size());
-        log.info("정산 개수: {}", getMyArtistSettlementResponse.getCycleSettlements().size());
 
         if (!getMyArtistCyclesResponse.getCycleInfos().isEmpty() && !getMyArtistSettlementResponse.getCycleSettlements().isEmpty()) {
 
