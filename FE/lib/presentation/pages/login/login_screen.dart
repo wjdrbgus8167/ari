@@ -1,6 +1,7 @@
 import 'package:ari/presentation/routes/app_router.dart';
 import 'package:ari/presentation/widgets/common/button_large.dart';
 import 'package:ari/presentation/widgets/common/custom_toast.dart';
+import 'package:ari/presentation/widgets/common/header_widget.dart';
 import 'package:ari/providers/auth/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,27 +28,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
     });
 
-
     return Scaffold(
-      // 배경색 검정
       backgroundColor: Colors.black,
-      // 앱바: HomeScreen과 동일한 스타일 + 커스텀 뒤로가기 버튼
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        centerTitle: true,
-        // 뒤로가기 버튼: 클릭 시 이전 화면으로 이동
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Image.asset(
-            'assets/images/prev_btn.png',
-            width: 40,
-            height: 40,
-          ),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(56),
+        child: HeaderWidget(
+          type: HeaderType.login,
+          onBackPressed: () => Navigator.pop(context),
         ),
-        title: Image.asset('assets/images/logo.png', height: 40),
-        elevation: 0,
       ),
       // 로그인 폼 포함
       body: SingleChildScrollView(
@@ -110,24 +98,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   loginState.isLoading
                       ? null // 로딩 중일 때는 버튼 비활성화
                       : () async {
-                          // 입력 유효성 검사
-                          if (!viewModel.validateInputs()) {
-                            return; // 유효성 검사 실패 시 진행하지 않음 (에러 메시지는 이미 설정됨)
+                        // 입력 유효성 검사
+                        if (!viewModel.validateInputs()) {
+                          return; // 유효성 검사 실패 시 진행하지 않음 (에러 메시지는 이미 설정됨)
+                        }
+
+                        // 로그인 시도
+                        final success = await viewModel.login();
+                        print('success: $success'); // 로그인 성공 여부 출력
+                        if (success) {
+                          // 로그인 성공 시 홈 화면으로 이동
+                          if (context.mounted) {
+                            Navigator.of(context).pushNamedAndRemoveUntil(
+                              AppRoutes.home,
+                              (route) => false, // 이전 화면들을 모두 제거
+                            );
                           }
-                          
-                          // 로그인 시도
-                          final success = await viewModel.login();
-                          print('success: $success'); // 로그인 성공 여부 출력
-                          if (success) {
-                            // 로그인 성공 시 홈 화면으로 이동
-                            if (context.mounted) {
-                              Navigator.of(context).pushNamedAndRemoveUntil(
-                                AppRoutes.home, 
-                                (route) => false, // 이전 화면들을 모두 제거
-                              );
-                            }
-                          }
-                        },
+                        }
+                      },
             ),
             const SizedBox(height: 16),
             // 구글 계정으로 로그인 버튼
@@ -150,10 +138,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     loginState.isLoading
                         ? null // 로딩 중일 때는 버튼 비활성화
                         : () async {
-                            // 구글 로그인 로직 구현
-                            await viewModel.startGoogleLogin();
-                            // 결과는 리다이렉트와 콜백으로 처리되므로 여기서 추가 로직 필요 없음
-                          },
+                          // 구글 로그인 로직 구현
+                          await viewModel.startGoogleLogin();
+                          // 결과는 리다이렉트와 콜백으로 처리되므로 여기서 추가 로직 필요 없음
+                        },
                 label: const Text(
                   '구글 계정으로 로그인하기',
                   style: TextStyle(fontWeight: FontWeight.bold),
