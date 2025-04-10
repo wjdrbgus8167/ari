@@ -5,6 +5,7 @@ import 'package:ari/core/exceptions/failure.dart';
 import 'package:ari/domain/entities/profile.dart';
 import 'package:ari/domain/repositories/user/user_repository.dart';
 import 'package:dartz/dartz.dart';
+import 'package:dio/dio.dart';
 
 class GetUserProfileUseCase {
   final UserRepository repository;
@@ -18,5 +19,5 @@ class UpdateUserProfileUseCase {
 
   UpdateUserProfileUseCase(this.repository);
 
-   Future<Either<Failure, void>> call(Profile profile, File image) => repository.updateUserProfile(profile, image);
+   Future<Either<Failure, void>> call(Profile profile, MultipartFile? image) => repository.updateUserProfile(profile, image);
 }

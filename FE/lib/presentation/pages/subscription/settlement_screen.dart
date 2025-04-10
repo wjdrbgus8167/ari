@@ -1,4 +1,5 @@
-import 'package:ari/presentation/viewmodels/subscription/settlement_viewmodel.dart';
+import 'package:ari/presentation/viewmodels/settlement/settlement_history_viewmodel.dart';
+import 'package:ari/presentation/widgets/common/header_widget.dart';
 import 'package:ari/presentation/widgets/subscription/settlement_item_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,40 +25,23 @@ class SettlementScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 앱바
-              Container(
-                width: double.infinity,
-                height: 60,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                clipBehavior: Clip.antiAlias,
-                decoration: const BoxDecoration(color: Colors.black),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      '정산 내역',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
+              // 헤더 부분
+              HeaderWidget(
+                type: HeaderType.backWithTitle, 
+                title: '정산내역', 
+                onBackPressed: () {
+                  Navigator.pop(context);
+                }
               ),
-              const SizedBox(height: 20),
               
               // 월 선택 섹션
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -67,12 +51,11 @@ class SettlementScreen extends ConsumerWidget {
                         // 이전 달 버튼
                         GestureDetector(
                           onTap: () => notifier.previousMonth(),
-                          child: Container(
-                            transform: Matrix4.identity()..translate(0.0, 0.0)..rotateZ(3.14),
+                          child: const SizedBox(
                             width: 20,
-                            height: 24,
-                            child: const Icon(
-                              Icons.arrow_forward_ios,
+                            height: 20,
+                            child: Icon(
+                              Icons.arrow_back_ios,
                               color: Colors.white,
                               size: 20,
                             ),
@@ -85,7 +68,7 @@ class SettlementScreen extends ConsumerWidget {
                           state.currentMonth,
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 16,
+                            fontSize: 18,
                             fontFamily: 'Pretendard',
                             fontWeight: FontWeight.w600,
                           ),
@@ -95,10 +78,10 @@ class SettlementScreen extends ConsumerWidget {
                         // 다음 달 버튼
                         GestureDetector(
                           onTap: () => notifier.nextMonth(),
-                          child: Container(
+                          child: const SizedBox(
                             width: 20,
                             height: 20,
-                            child: const Icon(
+                            child: Icon(
                               Icons.arrow_forward_ios,
                               color: Colors.white,
                               size: 20,
@@ -110,11 +93,10 @@ class SettlementScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               
               // 필터 섹션
               Container(
-                width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -125,25 +107,138 @@ class SettlementScreen extends ConsumerWidget {
                       '전체',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 12,
+                        fontSize: 14,
                         fontFamily: 'Pretendard',
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(width: 10),
-                    Container(
-                      width: 15,
-                      height: 15,
-                      child: const Icon(
+                    const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: Icon(
                         Icons.filter_list,
                         color: Color(0xFFD9D9D9),
-                        size: 15,
+                        size: 16,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
+              
+              // 정산 요약 정보 (새로 추가)
+              if (state.status == SettlementStatus.success && state.data != null)
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1A1A1A),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        '이번 달 정산 요약',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            '스트리밍 정산:',
+                            style: TextStyle(
+                              color: Color(0xFFD9D9D9),
+                              fontSize: 14,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          Text(
+                            '${state.data!.settlement.streamingSettlement.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            '구독 정산:',
+                            style: TextStyle(
+                              color: Color(0xFFD9D9D9),
+                              fontSize: 14,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          Text(
+                            '${state.data!.settlement.subscribeSettlement.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Divider(color: Color(0xFF2A2A2A), height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            '총 정산액:',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            '${state.data!.settlement.totalSettlement.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              
+              // 내역 제목
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: const Text(
+                  '정산 내역',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontFamily: 'Pretendard',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
               
               // 내역 목록
               Expanded(

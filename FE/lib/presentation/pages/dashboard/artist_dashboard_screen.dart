@@ -256,234 +256,294 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
   
   @override
   Widget build(BuildContext context) {
-    // 대시보드 데이터 가져오기
-    final dashboardData = ref.watch(artistDashboardProvider);
-    final hasWallet = dashboardData.walletAddress != null && dashboardData.walletAddress!.isNotEmpty;
-    
-    // 앨범/트랙 보유 여부 확인 (실제로는 API 호출 등으로 확인)
-    final hasTracks = true; // 앨범이 있으면 트랙이 있다고 가정
-
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Container(
-            width: double.infinity,
-            clipBehavior: Clip.antiAlias,
-            decoration: const BoxDecoration(color: Colors.black),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 헤더 섹션
-                HeaderWidget(
-                  type: HeaderType.backWithTitle,
-                  title: "아티스트 대시보드",
-                  onBackPressed: () {
-                    Navigator.pop(context);
-                  },
+        child: FutureBuilder<bool>(
+          future: ref.read(artistDashboardProvider.notifier).hasWallet(),
+          builder: (context, hasWalletSnapshot) {
+            // 로딩 중일 때
+            if (hasWalletSnapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(
+                  color: Color(0xFF6C63FF),
                 ),
-
-                // 메인 컨텐츠
-                Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.symmetric(horizontal: 16), // 좌우 마진 추가
-                  padding: const EdgeInsets.all(16), // 패딩 조정
-                  decoration: ShapeDecoration(
-                    shape: RoundedRectangleBorder(
-                      side: const BorderSide(width: 0.50, color: Color(0xFF373737)),
-                      borderRadius: BorderRadius.circular(5),
+              );
+            }
+            // 지갑이 없는 경우 - WalletWidget만 표시
+            if (hasWalletSnapshot.data == false) {
+              return SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  children: [
+                    HeaderWidget(
+                      type: HeaderType.backWithTitle,
+                      title: "아티스트 대시보드",
+                      onBackPressed: () {
+                        Navigator.pop(context);
+                      },
                     ),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 트랙 목록 섹션 (트랙이 있을 때만 표시)
-                      if (hasTracks)
-                        Container(
-                          width: double.infinity,
-                          margin: const EdgeInsets.only(bottom: 30),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween, // 변경된 부분
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  const Text(
-                                    '나의 트랙 목록',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                      fontFamily: 'Pretendard',
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () => ref.read(artistDashboardProvider.notifier).navigateToAlbumStatList(context),
-                                    child: const Icon(
-                                      Icons.keyboard_arrow_right_rounded,
-                                      color: Color.fromARGB(255, 255, 255, 255),
-                                      size: 20,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              // 트랙 목록은 별도 위젯으로 구현 예정
-                            ],
-                          ),
-                        ),
-                      
-                        // 지갑 주소가 있는 경우와 없는 경우 다른 UI 표시
-                        if (hasWallet)
-                          WalletInfoWidget(
-                            walletAddress: dashboardData.walletAddress ?? '',
-                          )
-                        else
-                          // 지갑 위젯
-                          const WalletWidget(),
-                          const SizedBox(height: 10),
-
-                          // 지갑 등록 버튼
-                          GestureDetector(
-                            onTap: isLoading ? null : () async {
-                              setState(() {
-                                isLoading = true;
-                              });
+                    const SizedBox(height: 20),
+                    const WalletWidget(), // 지갑 설정 위젯
+                    const SizedBox(height: 10),
+                    // 지갑 등록 버튼 (기존 코드 유지)
+                    GestureDetector(
+                      onTap: isLoading ? null : () async {
+                        setState(() {
+                          isLoading = true;
+                        });
+                        
+                        try {
+                          final walletService = ref.read(walletServiceProvider);
+                          final userId = ref.read(userIdProvider);
+                          final String subscriptionContractAddress = walletService.getCurrentSubscriptionContractAddress();
+                          
+                          if (userId == null) {
+                            dev.log("[구독] 사용자 ID가 없습니다.");
+                            setState(() {
+                              isLoading = false;
+                            });
+                            return;
+                          }
+                          
+                          await walletService.registerArtist(
+                            contractAddress: subscriptionContractAddress,
+                            artistId: int.parse(userId),
+                            contractAbi: SubscriptionConstants.subscriptionContractAbi,
+                            onComplete: (regTxHash, regSuccess, regErrorMessage) {
+                              dev.log("[구독] 사용자 등록 완료: 성공=$regSuccess, 해시=$regTxHash, 오류=$regErrorMessage");
                               
-                              try {
-                                // 지갑 서비스 가져오기
-                                final walletService = ref.read(walletServiceProvider);
-                                final userId = ref.read(userIdProvider);
-                                final String subscriptionContractAddress = walletService.getCurrentSubscriptionContractAddress();
-                                
-                                if (userId == null) {
-                                  dev.log("[구독] 사용자 ID가 없습니다.");
-                                  setState(() {
-                                    isLoading = false;
-                                  });
-                                  return;
-                                }
-                                
-                                await walletService.registerArtist(
-                                  contractAddress: subscriptionContractAddress,
-                                  artistId: int.parse(userId),
-                                  contractAbi: SubscriptionConstants.subscriptionContractAbi,
-                                  onComplete: (regTxHash, regSuccess, regErrorMessage) {
-                                    dev.log("[구독] 사용자 등록 완료: 성공=$regSuccess, 해시=$regTxHash, 오류=$regErrorMessage");
-                                    
-                                    if (!mounted) return;
-                                    
-                                    if (regSuccess) {
-                                      setState(() {
-                                        isLoading = false;
-                                      });
-                                    }
-                                  }
-                                );
-                              } catch (e) {
-                                dev.log("[구독] 사용자 등록 중 오류 발생: ${e.toString()}");
-                                if (mounted) {
-                                  setState(() {
-                                    isLoading = false;
-                                  });
-                                }
+                              if (!mounted) return;
+                              
+                              if (regSuccess) {
+                                setState(() {
+                                  isLoading = false;
+                                });
                               }
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: isLoading ? Colors.grey : const Color(0xFF6C63FF),
-                                borderRadius: BorderRadius.circular(5),
+                            }
+                          );
+                        } catch (e) {
+                          dev.log("[구독] 사용자 등록 중 오류 발생: ${e.toString()}");
+                          if (mounted) {
+                            setState(() {
+                              isLoading = false;
+                            });
+                          }
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: isLoading ? Colors.grey : const Color(0xFF6C63FF),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
-                              child: isLoading
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                    ),
-                                  )
-                                : const Text(
-                                    '지갑 등록하기',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontFamily: 'Pretendard',
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
+                            )
+                          : const Text(
+                              '지갑 등록하기',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            // 지갑이 있는 경우, 대시보드 데이터 로드 상태 확인
+            final dashboardProvider = ref.watch(artistDashboardProvider);
+            final isLoadingData = ref.watch(artistDashboardProvider.notifier).isLoadingData;
+            
+            // 데이터 로딩 중인 경우 로딩 화면 표시
+            if (isLoadingData) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  HeaderWidget(
+                    type: HeaderType.backWithTitle,
+                    title: "아티스트 대시보드",
+                    onBackPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  const Expanded(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(
+                            color: Color(0xFF6C63FF),
+                          ),
+                          SizedBox(height: 20),
+                          Text(
+                            '온체인 데이터 로드 중...',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                    
-                    // 기록 섹션
-                    const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }
+
+            // 데이터 로드 완료되면 대시보드 표시
+            final hasTracks = dashboardProvider.albums;
+            
+            return SingleChildScrollView(
+              child: Container(
+                width: double.infinity,
+                clipBehavior: Clip.antiAlias,
+                decoration: const BoxDecoration(color: Colors.black),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 헤더 섹션
+                    HeaderWidget(
+                      type: HeaderType.backWithTitle,
+                      title: "아티스트 대시보드",
+                      onBackPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+
+                    // 메인 컨텐츠
                     Container(
                       width: double.infinity,
-                      margin: const EdgeInsets.symmetric(vertical: 16), // 좌우 마진 추가
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.all(16),
+                      decoration: ShapeDecoration(
+                        shape: RoundedRectangleBorder(
+                          side: const BorderSide(width: 0.50, color: Color(0xFF373737)),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                      ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            '기록',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.w600,
+                          // 트랙 목록 섹션 (트랙이 있을 때만 표시)
+                          if (hasTracks.isNotEmpty)
+                            Container(
+                              width: double.infinity,
+                              margin: const EdgeInsets.only(bottom: 30),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      const Text(
+                                        '나의 트랙 목록',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 20,
+                                          fontFamily: 'Pretendard',
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () => ref.read(artistDashboardProvider.notifier).navigateToAlbumStatList(context),
+                                        child: const Icon(
+                                          Icons.keyboard_arrow_right_rounded,
+                                          color: Color.fromARGB(255, 255, 255, 255),
+                                          size: 20,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10),
+                                  // 트랙 목록은 별도 위젯으로 구현 예정
+                                ],
+                              ),
+                            ),
+                          
+                          // 지갑 정보 표시
+                          WalletInfoWidget(
+                            walletAddress: dashboardProvider.walletAddress ?? '',
+                          ),
+                      
+                          // 기록 섹션
+                          const SizedBox(height: 20),
+                          Container(
+                            width: double.infinity,
+                            margin: const EdgeInsets.symmetric(vertical: 16),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  '기록',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontFamily: 'Pretendard',
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                if (hasTracks.isNotEmpty) 
+                                  // 트랙이 있는 경우 상세 통계 표시
+                                  _buildDetailedStats(dashboardProvider)
+                                else
+                                  // 트랙이 없는 경우 간단한 통계 표시
+                                  _buildSimpleStats(dashboardProvider),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 10),
-                          if (hasTracks) 
-                            // 트랙이 있는 경우 상세 통계 표시
-                            _buildDetailedStats(dashboardData)
-                          else
-                            // 트랙이 없는 경우 간단한 통계 표시
-                            _buildSimpleStats(dashboardData),
-                        ],
-                      ),
-                    ),
-                    
-                    // 차트 섹션 (트랙이 있을 때만 표시)
-                    const SizedBox(height: 20),
-                    if (hasTracks) ...[
-                      // 구독자 수 차트
-                     
-                      // 전체 월의 데이터를 보이도록 변환
+                      
+                          // 차트 섹션 (트랙이 있을 때만 표시)
+                          const SizedBox(height: 20),
+                          if (hasTracks.isNotEmpty) ...[
                             _buildChartSection(
                               '구독자 수 추이',
                               ChartType.subscribers,
-                              _convertSubscriberDataToChartData(dashboardData),
+                              _convertSubscriberDataToChartData(dashboardProvider),
                             ),
                             const SizedBox(height: 10),
-                            // 정산금액 차트
                             _buildChartSection(
                               '정산금액 추이',
                               ChartType.revenue,
-                              _convertSettlementDataToChartData(dashboardData),
+                              _convertSettlementDataToChartData(dashboardProvider),
                             ),
-                    
-                    ],
+                          ],
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
-              ]
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
-    }
+  }
     
     // 트랙이 있는 경우 상세 통계 위젯
     Widget _buildDetailedStats(ArtistDashboardData data) {

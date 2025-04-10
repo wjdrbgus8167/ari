@@ -24,9 +24,9 @@ class MypageMenuItem extends StatelessWidget {
           title,
           style: TextStyle(
             color: Colors.white,
-            fontSize: 12,
+            fontSize: 14,
             fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w400,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),

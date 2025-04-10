@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ari/core/constants/app_colors.dart';
 import 'package:ari/core/constants/contract_constants.dart';
 import 'package:ari/core/services/wallet_service.dart';
@@ -307,19 +309,24 @@ class MySubscriptionViewModel extends StateNotifier<SubscriptionState> {
   }
 
   /// 월간 구독 취소 메서드 (ID로 식별)
-  Future<void> cancelMonthlySubscription() async {
+  /// 월간 구독 취소 메서드
+  Future<bool> cancelMonthlySubscription() async {
     state = state.copyWith(isLoading: true);
+    
     if (userId == null) {
       dev.log('[구독] 사용자 ID가 없습니다.');
       state = state.copyWith(isLoading: false);
-      return;
+      return false;
     }
     
     final String subscriptionContractAddress = 
         walletService.getCurrentSubscriptionContractAddress();
     
+    // Completer를 사용해 비동기 작업 완료를 기다림
+    final completer = Completer<bool>();
+    
     // 계약 함수 호출
-    await walletService.cancelRegularSubscription(
+    walletService.cancelRegularSubscription(
       contractAddress: subscriptionContractAddress,
       userId: int.parse(userId),
       contractAbi: SubscriptionConstants.subscriptionContractAbi,
@@ -328,51 +335,80 @@ class MySubscriptionViewModel extends StateNotifier<SubscriptionState> {
         
         if (success) {
           dev.log('[구독] 월간 구독 취소 성공');
+          
+          // 로컬 데이터에서 해당 구독 삭제
+          final updatedMonthlySubscriptions = state.monthlySubscriptions
+              .where((subscription) => subscription.id != userId)
+              .toList();
+          
+          // 상태 업데이트
+          state = state.copyWith(
+            monthlySubscriptions: updatedMonthlySubscriptions,
+            isLoading: false
+          );
+          
+          // 완료 통지
+          completer.complete(true);
         } else {
           dev.log('[구독] 월간 구독 취소 실패: $errorMessage');
+          state = state.copyWith(isLoading: false);
+          completer.complete(false);
         }
-
-        // 로컬 데이터에서 해당 구독 삭제
-        final updatedMonthlySubscriptions = state.monthlySubscriptions
-            .where((subscription) => subscription.id != userId)
-            .toList();
-        },
-      );
+      },
+    );
+    
+    // 작업이 완료될 때까지 기다림
+    return await completer.future;
   }
   // 아티스트 구독 취소
-  Future<void> cancelArtistSubscription(String artistId) async {
+  Future<bool> cancelArtistSubscription(String artistId) async {
     state = state.copyWith(isLoading: true);
     
     if (userId == null) {
       dev.log('[구독] 사용자 ID가 없습니다.');
       state = state.copyWith(isLoading: false);
-      return;
+      return false;
     }
     
     final String subscriptionContractAddress = 
         walletService.getCurrentSubscriptionContractAddress();
     
+    // Completer를 사용해 비동기 작업 완료를 기다림
+    final completer = Completer<bool>();
+    
     // 계약 함수 호출
-    await walletService.cancelArtistSubscription(
+    walletService.cancelArtistSubscription(
       contractAddress: subscriptionContractAddress,
       subscriberId: int.parse(userId),
       artistId: int.parse(artistId),
       contractAbi: SubscriptionConstants.subscriptionContractAbi,
       onComplete: (txHash, success, errorMessage) {
-        dev.log('[구독] 월간 구독 취소 결과: 성공=$success, 해시=$txHash, 오류=$errorMessage');
+        dev.log('[구독] 아티스트 구독 취소 결과: 성공=$success, 해시=$txHash, 오류=$errorMessage');
         
         if (success) {
-          dev.log('[구독] 월간 구독 취소 성공');
+          dev.log('[구독] 아티스트 구독 취소 성공');
+          
+          // 로컬 데이터에서 해당 구독 삭제
+          final updatedArtistSubscriptions = state.artistSubscriptions
+              .where((subscription) => subscription.id != artistId)
+              .toList();
+          
+          // 상태 업데이트
+          state = state.copyWith(
+            artistSubscriptions: updatedArtistSubscriptions,
+            isLoading: false
+          );
+          
+          completer.complete(true);
         } else {
-          dev.log('[구독] 월간 구독 취소 실패: $errorMessage');
+          dev.log('[구독] 아티스트 구독 취소 실패: $errorMessage');
+          state = state.copyWith(isLoading: false);
+          completer.complete(false);
         }
-
-        // 로컬 데이터에서 해당 구독 삭제
-        final updatedMonthlySubscriptions = state.monthlySubscriptions
-            .where((subscription) => subscription.id != userId)
-            .toList();
-        },
-      );
+      },
+    );
+    
+    return await completer.future;
   }
 
   // 새 구독 추가 메서드

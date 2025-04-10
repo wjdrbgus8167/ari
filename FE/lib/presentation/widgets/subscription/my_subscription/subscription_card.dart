@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 class SubscriptionCard extends StatelessWidget {
   final SubscriptionModel subscriptionModel;
-  final VoidCallback onCancelPressed;
+  final VoidCallback? onCancelPressed;
 
   const SubscriptionCard({
     super.key,
@@ -17,17 +17,17 @@ class SubscriptionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 120,
+      height: 140,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         gradient: subscriptionModel.accentColor,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Container(
-        margin: const EdgeInsets.all(1), // 테두리 두께
+        margin: const EdgeInsets.all(2), // 테두리 두께
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.black, // 배경색, 앱의 배경색에 맞게 변경하세요
+          color: const Color(0xFF161616),// 배경색, 앱의 배경색에 맞게 변경하세요
           borderRadius: BorderRadius.circular(10),
         ),
         child: Column(
@@ -41,7 +41,7 @@ class SubscriptionCard extends StatelessWidget {
             // 하단 부분 (기간, 코인, 해지 버튼)
             CardFooter(
               subscriptionModel: subscriptionModel,
-              onCancelPressed: onCancelPressed,
+              // onCancelPressed: onCancelPressed,
             ),
           ],
         ),

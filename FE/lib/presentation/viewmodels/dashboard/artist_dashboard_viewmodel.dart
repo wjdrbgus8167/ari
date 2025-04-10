@@ -17,11 +17,14 @@ class ArtistDashboardViewmodel extends StateNotifier<ArtistDashboardData> {
   final GetArtistAlbumsUseCase getArtistAlbumsUseCase;
   final GetDashboardDataUseCase getDashboardDataUseCase;
   final String? memberId; // 현재 로그인한 멤버 ID
-  
+  final HasWalletUseCase hasWalletUseCase; 
+  bool _isLoadingData = true;
+
   ArtistDashboardViewmodel({
     required this.getArtistAlbumsUseCase,
     required this.getDashboardDataUseCase,
     required this.memberId,
+    required this.hasWalletUseCase,
   }) : super(_initialData());
   
   // 초기 데이터
@@ -49,10 +52,14 @@ class ArtistDashboardViewmodel extends StateNotifier<ArtistDashboardData> {
     Navigator.pushNamed(context, AppRoutes.myAlbumStatList);
   }
   
+  // 로딩 상태 getter
+  bool get isLoadingData => _isLoadingData;
+
   // 데이터 로드 (UseCase 호출)
   Future<void> loadDashboardData() async {
     try {
       // 로딩 상태로 변경 (로딩 상태를 표시하기 위한 상태 복사본 필요)
+      _isLoadingData = true;
       // 현재 ArtistDashboardData에는 isLoading 필드가 없으므로 UI에서 별도 처리 필요
       
       // 대시보드 데이터 가져오기
@@ -75,9 +82,25 @@ class ArtistDashboardViewmodel extends StateNotifier<ArtistDashboardData> {
     } catch (e) {
       // 예외 처리
       // UI에서 에러 표시 필요
+    } finally {
+      // 로딩 상태 해제
+      _isLoadingData = false;
     }
   }
-  
+  Future<bool> hasWallet() async {
+      final result = await hasWalletUseCase();
+      return result.fold(
+        (failure) {
+          debugPrint('지갑 여부 가져오기 실패: ${failure.message}');
+          return false;
+        },
+        (hasWalletModel) {
+          debugPrint('지갑 여부: $hasWallet');
+          return hasWalletModel.hasWallet; // hasWallet 값 직접 반환
+        },
+      );
+  }
+    
   // 데이터 새로고침
   Future<void> refreshData() async {
     await loadDashboardData();
@@ -164,6 +187,7 @@ final artistDashboardProvider = StateNotifierProvider<ArtistDashboardViewmodel, 
     getArtistAlbumsUseCase: ref.read(getArtistAlbumsUseCaseProvider),
     getDashboardDataUseCase: ref.read(getDashboardDataUseCaseProvider),
     memberId: memberId,
+    hasWalletUseCase: ref.read(hasWalletUseCaseProvider),
   );
 });
 

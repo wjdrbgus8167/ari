@@ -4,6 +4,7 @@ import 'package:ari/domain/usecases/user/user_usecase.dart';
 import 'package:ari/providers/auth/auth_providers.dart';
 import 'package:ari/providers/user_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 // 로그인 상태 관리 클래스
@@ -68,43 +69,69 @@ class LoginViewModel extends StateNotifier<LoginState> {
   }
 
   Future<bool> login() async {
-
     state = state.copyWith(isLoading: true, errorMessage: null);
-    await authStateNotifier.login(state.email, state.password);
-    state = state.copyWith(isLoading: false);
-    await authStateNotifier.refreshAuthState(); 
-    await ref.read(userProvider.notifier).refreshUserInfo();
-
-    return true;
-  }
-
-  // 소셜 로그인 시작 (구글)
-  Future<void> startGoogleLogin() async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
-
+    
     try {
-      // 백엔드 엔드포인트 URL
-      const googleAuthUrl = 'api/v1/oauth2/authorization/google';
+      // 로그인 시도
+      final success = await authStateNotifier.login(state.email, state.password);
       
-      // URL 열기
-      if (await canLaunchUrl(Uri.parse(googleAuthUrl))) {
-        await launchUrl(
-          Uri.parse(googleAuthUrl),
-          mode: LaunchMode.externalApplication,
-        );
+      if (success) {
+        // 로그인 성공 시 사용자 정보 갱신
+        await authStateNotifier.refreshAuthState(); 
+        await ref.read(userProvider.notifier).refreshUserInfo();
+        state = state.copyWith(isLoading: false);
+        return true;
       } else {
-        throw Exception('구글 로그인을 시작할 수 없습니다');
+        // 로그인 실패
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: '이메일 또는 비밀번호가 올바르지 않습니다.'
+        );
+        return false;
       }
-      
-      state = state.copyWith(isLoading: false);
     } catch (e) {
+      // 오류 발생
       state = state.copyWith(
         isLoading: false,
-        errorMessage: '구글 로그인을 시작하는 중 오류가 발생했습니다: ${e.toString()}',
+        errorMessage: '로그인 중 오류가 발생했습니다: ${e.toString()}'
       );
+      return false;
     }
   }
 
+  // 소셜 로그인 시작 (구글)
+  Future<GoogleSignInAccount?> startGoogleLogin() async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      
+      // 로그인이 성공했을 때만 GoogleSignInAccount 객체 반환
+      if (googleUser != null) {
+        return googleUser;
+      } else {
+        // 사용자가 로그인을 취소한 경우
+        state = state.copyWith(
+          isLoading: false, 
+          errorMessage: '구글 로그인이 취소되었습니다.'
+        );
+        return null;
+      }
+    } catch (e) {
+      // 오류 발생 시
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: '구글 로그인 중 오류가 발생했습니다: ${e.toString()}'
+      );
+      return null;
+    } finally {
+      // 로딩 상태 해제
+      if (state.isLoading) {
+        state = state.copyWith(isLoading: false);
+      }
+    }
+  }
+  
   // 리다이렉트 처리
   Future<bool> handleSocialLoginCallback(Token token) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
@@ -112,6 +139,11 @@ class LoginViewModel extends StateNotifier<LoginState> {
     try {
       // 백엔드가 제공한 토큰 처리
       await saveTokensUseCase(token);
+      
+      // 사용자 정보 갱신
+      await authStateNotifier.refreshAuthState();
+      await ref.read(userProvider.notifier).refreshUserInfo();
+      
       state = state.copyWith(isLoading: false);
       return true;
     } catch (e) {

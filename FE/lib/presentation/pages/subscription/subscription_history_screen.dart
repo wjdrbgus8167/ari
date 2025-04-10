@@ -57,7 +57,7 @@ class SubscriptionHistoryScreen extends ConsumerWidget {
               '정기 구독',
               state.selectedTab == 'regular',
               () => ref
-                  .read(subscriptionHistoryViewModelProvider.notifier)
+                  .watch(subscriptionHistoryViewModelProvider.notifier)
                   .changeTab('regular'),
             ),
           ),
@@ -68,7 +68,7 @@ class SubscriptionHistoryScreen extends ConsumerWidget {
               '아티스트 구독',
               state.selectedTab == 'artist',
               () => ref
-                  .read(subscriptionHistoryViewModelProvider.notifier)
+                  .watch(subscriptionHistoryViewModelProvider.notifier)
                   .changeTab('artist'),
             ),
           ),

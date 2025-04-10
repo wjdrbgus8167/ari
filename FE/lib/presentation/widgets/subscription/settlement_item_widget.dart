@@ -1,4 +1,4 @@
-import 'package:ari/presentation/viewmodels/subscription/settlement_viewmodel.dart';
+import 'package:ari/presentation/viewmodels/settlement/settlement_history_viewmodel.dart';
 import 'package:flutter/material.dart';
 
 class SettlementItemWidget extends StatelessWidget {
@@ -25,7 +25,7 @@ class SettlementItemWidget extends StatelessWidget {
             decoration: BoxDecoration(color: Colors.black),
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Row(
@@ -48,7 +48,6 @@ class SettlementItemWidget extends StatelessWidget {
                     ),
                     const SizedBox(width: 10),
                     Container(
-                      height: 30,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -58,7 +57,7 @@ class SettlementItemWidget extends StatelessWidget {
                             item.title,
                             style: const TextStyle(
                               color: Color(0xFFD9D9D9),
-                              fontSize: 8,
+                              fontSize: 14,
                               fontFamily: 'Pretendard',
                               fontWeight: FontWeight.w400,
                             ),
@@ -73,7 +72,7 @@ class SettlementItemWidget extends StatelessWidget {
                                 '+${item.amount.toStringAsFixed(2)}',
                                 style: const TextStyle(
                                   color: Colors.white,
-                                  fontSize: 12,
+                                  fontSize: 14,
                                   fontFamily: 'Pretendard',
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -96,11 +95,31 @@ class SettlementItemWidget extends StatelessWidget {
                     ),
                   ],
                 ),
+                // 날짜 표시 추가
+                Text(
+                  _formatDate(item.date),
+                  style: const TextStyle(
+                    color: Color(0xFF808080),
+                    fontSize: 12,
+                    fontFamily: 'Pretendard',
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
               ],
             ),
+          ),
+          Container(
+            width: double.infinity,
+            height: 1,
+            color: const Color(0xFF1A1A1A),
           ),
         ],
       ),
     );
+  }
+
+  // 날짜 포맷팅 헬퍼 메서드
+  String _formatDate(DateTime date) {
+    return '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
   }
 }

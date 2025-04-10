@@ -20,10 +20,10 @@ class SubscriptionProcessButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
         ),
         child: Container(
-          margin: const EdgeInsets.all(1),
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 9),
+          margin: const EdgeInsets.all(2),
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
           decoration: BoxDecoration(
-            color: Colors.black, // 내부 배경색 (앱 배경에 맞게 조정)
+            color: const Color(0xFF161616), // 내부 배경색 (앱 배경에 맞게 조정)
             borderRadius: BorderRadius.circular(10),
           ),
           child: const Row(
@@ -35,7 +35,7 @@ class SubscriptionProcessButton extends StatelessWidget {
                 '지금 구독하러 가기',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 12,
+                  fontSize: 16,
                   fontFamily: 'Pretendard',
                   fontWeight: FontWeight.w600,
                 ),

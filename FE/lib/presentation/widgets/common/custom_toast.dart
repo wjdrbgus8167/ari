@@ -7,20 +7,16 @@ class CustomToast {
     required String message,
     Duration duration = const Duration(seconds: 2),
   }) {
-    // 프레임 이후 안전하게 실행되도록 변경
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!context.mounted) return;
 
-      // 이전 토스트 제거
       _removeToast();
 
       final overlay = Overlay.of(context, rootOverlay: true);
       if (overlay == null) return;
 
       final overlayEntry = OverlayEntry(
-        builder:
-            (context) =>
-                _ToastOverlay(message: message, onDismiss: _removeToast),
+        builder: (context) => _ToastOverlay(message: message, onDismiss: _removeToast),
       );
 
       _currentToast = overlayEntry;
@@ -54,14 +50,16 @@ class _ToastOverlayState extends State<_ToastOverlay>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  late double _bottomPadding;
+  late double _keyboardHeight;
   late double _screenWidth;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final mediaQuery = MediaQuery.of(context);
-    _bottomPadding = mediaQuery.viewPadding.bottom;
+    
+    // 키보드 높이 계산 (viewInsets 사용)
+    _keyboardHeight = mediaQuery.viewInsets.bottom;
     _screenWidth = mediaQuery.size.width;
   }
 
@@ -94,7 +92,8 @@ class _ToastOverlayState extends State<_ToastOverlay>
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      bottom: _bottomPadding + 70,
+      // 키보드 높이 위로 토스트 배치
+      bottom: _keyboardHeight + 16, 
       left: _screenWidth * 0.125,
       right: _screenWidth * 0.125,
       child: GestureDetector(

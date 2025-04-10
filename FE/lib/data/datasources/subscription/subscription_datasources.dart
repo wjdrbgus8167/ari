@@ -7,6 +7,7 @@ import 'package:ari/data/models/subscription/my_subscription_model.dart';
 import 'package:ari/data/models/subscription/regular_subscription_models.dart';
 import 'package:dartz/dartz.dart';
 
+
 abstract class SubscriptionRemoteDataSource {
   Future<MySubscriptionModel?> getMySubscription();
 
@@ -37,57 +38,11 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
   }
   @override
   Future<ArtistDetail?> getArtistSubscriptionDetail(int artistId) {
-    final jsonString = '''
-      {
-        "data": {
-          "artistNickName": "캐릭캐릭 밴드",
-          "profileImageUrl": null,
-          "totalSettlement": 11.11,
-          "totalStreamingCount": 11,
-          "subscriptions": [
-                      {
-                          "planType": "A",
-                          "startedAt": "2025-04-08 16:15:00",
-                          "endedAt": "2025-04-08 17:15:00",
-                          "settlement": 11.11
-                      },
-                      {
-                          "planType": "A",
-                          "startedAt": "2025-04-08 17:15:00",
-                          "endedAt": "2025-04-08 18:15:00",
-                          "settlement": 11.11
-                      },
-                      {
-                          "planType": "A",
-                          "startedAt": "2025-04-08 18:15:00",
-                          "endedAt": "2025-04-08 19:15:00",
-                          "settlement": 11.11
-                      },
-                      {
-                          "planType": "A",
-                          "startedAt": "2025-04-08 19:15:00",
-                          "endedAt": "2025-04-08 20:15:00",
-                          "settlement": 11.11
-                      },
-                      {
-                          "planType": "A",
-                          "startedAt": "2025-04-08 20:15:00",
-                          "endedAt": "2025-04-08 21:15:00",
-                          "settlement": 11.11
-                      }
-                      ]
-        },
-      ''';
-    // return apiClient.request<ArtistDetail>(
-    //   url: '/api/v1/mypages/subscriptions/artists/$artistId/detail',
-    //   method: 'GET',
-    //   fromJson: (data) => ArtistDetail.fromJson(data),
-    // );
-    // Parse the JSON string to a Map
-    final Map<String, dynamic> jsonMap = json.decode(jsonString);
-
-    // Use fromJson method to convert the map to an ArtistDetail object
-    return Future.value(ArtistDetail.fromJson(jsonMap));
+    return apiClient.request<ArtistDetail>(
+      url: '/api/v1/mypages/subscriptions/artists/$artistId/detail',
+      method: 'GET',
+      fromJson: (data) => ArtistDetail.fromJson(data),
+    );
   }
   @override
   Future<ArtistsResponse?> getArtistSubscriptionHistory() {

@@ -65,10 +65,31 @@ class _WalletWidgetState extends ConsumerState<WalletWidget> {
 
   // 이벤트 리스너 설정
   void _setupEventListeners() {
-    _walletService.onConnect = (_) => setState(() {});
-    _walletService.onDisconnect = (_) => setState(() {});
-    _walletService.onUpdate = (_) => setState(() {});
-    _walletService.onNetworkChange = (_) => setState(() {});
+    _walletService.onConnect = (data) {
+      // 위젯이 여전히 마운트 상태인지 확인
+      if (mounted) {
+        try {
+          print("Wallet connected"); // 디버그용 로그 추가
+          setState(() {
+            // 특정 상태 업데이트가 필요하면 여기서 처리
+          });
+        } catch (e) {
+          print("Error in onConnect handler: $e"); // 에러 로그
+        }
+      }
+    };
+    
+    _walletService.onDisconnect = (data) {
+      if (mounted) setState(() {});
+    };
+    
+    _walletService.onUpdate = (data) {
+      if (mounted) setState(() {});
+    };
+    
+    _walletService.onNetworkChange = (data) {
+      if (mounted) setState(() {});
+    };
   }
 
   @override

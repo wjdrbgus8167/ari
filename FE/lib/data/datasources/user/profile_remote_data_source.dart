@@ -1,5 +1,6 @@
 import 'package:ari/data/datasources/api_client.dart';
 import 'package:ari/data/models/user/profile_model.dart';
+import 'package:dio/dio.dart';
 
 
 abstract class UserRemoteDataSource {
@@ -30,6 +31,9 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       url: '/api/v1/mypages/profile',
       method: 'PUT',
       data: updateProfileRequest.toFormData(),
+      options: Options(
+        contentType: 'multipart/form-data', // 명시적으로 설정
+      ),
       fromJson: (_) {}, 
     );
   }

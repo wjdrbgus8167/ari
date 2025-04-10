@@ -28,12 +28,16 @@ class _LikeButtonState extends ConsumerState<LikeButton> {
   Future<void> _loadStatus() async {
     try {
       final liked = await widget.fetchLikeStatus();
-      setState(() {
-        _isLiked = liked;
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLiked = liked;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
       debugPrint('좋아요 상태 불러오기 오류: $e');
     }
   }
