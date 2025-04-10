@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -70,7 +71,7 @@ public class MyRegularSubscriptionDetailService {
 
         // 정기 구독권 가격
         BigDecimal price = subscriptionPlan.getPrice();
-        List<GetMyRegularSubscriptionDetailResponse.Settlement> settlements = new ArrayList<>();
+        List<GetMyRegularSubscriptionDetailResponse.Settlement> settlements;
 
         /*
             내 정기 구독 세부 조회 Client
@@ -81,21 +82,21 @@ public class MyRegularSubscriptionDetailService {
         log.info("내 정기 구독 세부 조회 :{}",regularSettlementDetailResponse.getStreamingSettlements().size());
 
         settlements = regularSettlementDetailResponse.getStreamingSettlements().stream()
-                .map(streamingSettlementResult -> {
+                        .map(streamingSettlementResult -> {
+                            log.info("정산 : {}", streamingSettlementResult.getAmount());
+                            log.info("스티리밍 : {}", streamingSettlementResult.getStreaming());
 
-                    GetMyRegularSubscriptionDetailResponse.Settlement settlement =
-                            GetMyRegularSubscriptionDetailResponse.Settlement
-                                    .builder()
+                            return GetMyRegularSubscriptionDetailResponse.Settlement.builder()
                                     .artistNickName(memberClient.getNicknameByMemberId(streamingSettlementResult.getArtistId()))
                                     .profileImageUrl(memberClient.getProfileImageUrlByMemberId(streamingSettlementResult.getArtistId()))
                                     .amount(streamingSettlementResult.getAmount())
                                     .streaming(streamingSettlementResult.getStreaming())
                                     .build();
-
-                    return settlement;
-                }).toList();
+                        })
+                        .collect(Collectors.toList());
 
         log.info("정기 구독 사이클 확인 :{}",settlements.size());
+
         return GetMyRegularSubscriptionDetailResponse.builder()
                 .price(price)
                 .settlements(settlements)

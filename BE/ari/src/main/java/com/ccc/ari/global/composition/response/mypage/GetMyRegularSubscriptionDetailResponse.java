@@ -18,7 +18,7 @@ public class GetMyRegularSubscriptionDetailResponse {
     @Builder
     public GetMyRegularSubscriptionDetailResponse(BigDecimal price,List<Settlement> settlements) {
         this.price = price;
-        this.settlements = new ArrayList<>();
+        this.settlements = settlements;
     }
 
     @Getter
