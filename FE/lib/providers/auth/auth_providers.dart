@@ -147,18 +147,20 @@ class AuthStateNotifier extends StateNotifier<AsyncValue<bool>> {
       await loginUseCase(email, password);
       print('[AuthStateNotifier] 로그인 성공');
 
-      // ✅ 오디오 서비스 및 재생 상태 초기화
-      final audioService = ref.read(audioServiceProvider);
-      final playbackNotifier = ref.read(playbackProvider.notifier);
+      // // ✅ 오디오 서비스 및 재생 상태 초기화
+      // final audioService = ref.read(audioServiceProvider);
+      // final playbackNotifier = ref.read(playbackProvider.notifier);
 
-      await audioService.audioPlayer.stop(); // 혹시라도 백그라운드에서 재생 중이면 정지
-      playbackNotifier.reset(); // 재생 상태 초기화
+      // await audioService.audioPlayer.stop(); // 혹시라도 백그라운드에서 재생 중이면 정지
+      // playbackNotifier.reset(); // 재생 상태 초기화
 
-      // invalidate로 강제 상태 리셋
-      ref.invalidate(playbackProvider);
-      ref.invalidate(listeningQueueProvider);
-      ref.invalidate(playbackPositionProvider);
-      ref.invalidate(playbackDurationProvider);
+      // // invalidate로 강제 상태 리셋
+      // ref.invalidate(playbackProvider);
+      // Future.microtask(() {
+      //   ref.invalidate(listeningQueueProvider);
+      // });
+      // ref.invalidate(playbackPositionProvider);
+      // ref.invalidate(playbackDurationProvider);
 
       state = const AsyncValue.data(true);
       return true; // 성공 시 true 반환
@@ -174,23 +176,46 @@ class AuthStateNotifier extends StateNotifier<AsyncValue<bool>> {
     state = const AsyncValue.loading();
 
     try {
+      // 로그아웃 시도 전에 로그를 추가
+      print('[AuthStateNotifier] 로그아웃 실행 중...');
       await logoutUseCase();
       print('[AuthStateNotifier] 로그아웃 성공');
 
-      // 오디오 서비스 및 재생 상태 초기화
-      final audioService = ref.read(audioServiceProvider);
-      final playbackNotifier = ref.read(playbackProvider.notifier);
+      // // 오디오 서비스 및 재생 상태 초기화
+      // final audioService = ref.read(audioServiceProvider);
+      // final playbackNotifier = ref.read(playbackProvider.notifier);
 
-      await audioService.audioPlayer.stop(); // 오디오 중단
-      playbackNotifier.reset(); // 상태 초기화
+      // // 오디오 중단
+      // await audioService.audioPlayer.stop();
+      // print('[AuthStateNotifier] 오디오 중단 완료');
 
-      // 모든 플레이백 관련 상태 강제 초기화
-      ref.invalidate(playbackProvider); // 추가: 프로바이더 무효화
-      ref.invalidate(listeningQueueProvider); // 추가: 재생 큐 초기화
+      // // 상태 초기화
+      // playbackNotifier.reset();
+      // print('[AuthStateNotifier] 재생 상태 초기화 완료');
 
+      // // 모든 플레이백 관련 상태 강제 초기화
+      // // 순환 방지 위해 invalidate는 다음 프레임으로 미룸
+      // Future.microtask(() {
+      //   print('[AuthStateNotifier] 상태 초기화 시작');
+      //   ref.invalidate(playbackProvider);
+      //   print('[AuthStateNotifier] playbackProvider 초기화 완료');
+
+      //   ref.invalidate(listeningQueueProvider);
+      //   print('[AuthStateNotifier] listeningQueueProvider 초기화 완료');
+
+      //   ref.invalidate(playbackPositionProvider);
+      //   print('[AuthStateNotifier] playbackPositionProvider 초기화 완료');
+
+      //   ref.invalidate(playbackDurationProvider);
+      //   print('[AuthStateNotifier] playbackDurationProvider 초기화 완료');
+      // });
+
+      // 로그아웃 완료
       state = const AsyncValue.data(false);
+      print('[AuthStateNotifier] 로그아웃 완료');
     } catch (e, stackTrace) {
       print('[AuthStateNotifier] 로그아웃 실패: $e');
+      print('[AuthStateNotifier] 스택 트레이스: $stackTrace');
       state = AsyncValue.error(e, stackTrace);
     }
   }

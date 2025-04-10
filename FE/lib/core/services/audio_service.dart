@@ -267,7 +267,7 @@ class AudioService {
     }
     await audioPlayer.setAudioSource(_playlistSource, initialIndex: 0);
     if (_globalContext?.mounted ?? false) {
-      _globalRef!.read(listeningQueueProvider.notifier).loadQueue();
+      _globalRef!.read(listeningQueueProvider(userId).notifier).loadQueue();
     }
   }
 

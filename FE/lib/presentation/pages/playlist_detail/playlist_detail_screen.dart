@@ -1,10 +1,10 @@
 import 'package:ari/presentation/widgets/common/custom_toast.dart';
 import 'package:ari/presentation/widgets/playlist/public_playlist/track_count_bar.dart';
+import 'package:ari/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/domain/entities/playlist.dart';
 import 'package:ari/providers/global_providers.dart';
-import 'package:ari/presentation/widgets/common/global_bottom_widget.dart';
 import 'package:ari/presentation/widgets/playlist/my_playlist/playlist_track_list.dart';
 import 'package:ari/presentation/widgets/listening_queue/playlist_selection_bottom_sheet.dart';
 import 'package:ari/presentation/widgets/listening_queue/create_playlist_modal.dart';
@@ -50,8 +50,13 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final userId = ref.watch(authUserIdProvider); // 여기서 userId 가져옴
+
     final playlistState = ref.watch(playlistViewModelProvider);
     final playlist = playlistState.selectedPlaylist;
+    final listeningQueueState = ref.watch(
+      listeningQueueProvider(userId),
+    ); // ✅ userId 전달!
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -120,8 +125,7 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
                         backgroundColor: Colors.transparent,
                         builder:
                             (_) => PlaylistSelectionBottomSheet(
-                              playlists:
-                                  ref.read(listeningQueueProvider).playlists,
+                              playlists: listeningQueueState.playlists,
                               onPlaylistSelected: (selectedPlaylist) {
                                 for (var item in selectedTracks) {
                                   ref

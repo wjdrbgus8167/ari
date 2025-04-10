@@ -44,9 +44,12 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
     _commentsFuture = commentDatasource.fetchComments(widget.trackId);
   }
 
-  void _refreshComments() {
+  void _refreshComments() async {
+    print('[_refreshComments] called');
+    final newComments = await commentDatasource.fetchComments(widget.trackId);
+    print('[_refreshComments] newComments.length = ${newComments.length}');
     setState(() {
-      _commentsFuture = commentDatasource.fetchComments(widget.trackId);
+      _commentsFuture = Future.value(newComments);
     });
   }
 
@@ -162,14 +165,24 @@ class _CommentOverlayState extends ConsumerState<CommentOverlay> {
                                   children: [
                                     CircleAvatar(
                                       radius: 20,
+                                      backgroundColor:
+                                          comment.profileImageUrl != null
+                                              ? Colors.transparent
+                                              : Colors.grey[800], // 배경색 추가
                                       backgroundImage:
                                           comment.profileImageUrl != null
                                               ? NetworkImage(
                                                 comment.profileImageUrl!,
                                               )
-                                              : const NetworkImage(
-                                                "https://placehold.co/40x40",
-                                              ),
+                                              : null,
+                                      child:
+                                          comment.profileImageUrl == null
+                                              ? const Icon(
+                                                Icons.person,
+                                                color: Colors.white,
+                                                size: 20,
+                                              )
+                                              : null,
                                     ),
                                     const SizedBox(width: 12),
                                     Expanded(

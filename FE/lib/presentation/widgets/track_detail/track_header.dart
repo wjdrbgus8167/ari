@@ -4,6 +4,7 @@ import 'package:ari/core/services/audio_service.dart';
 import 'package:ari/presentation/routes/app_router.dart';
 import 'package:ari/providers/global_providers.dart';
 import 'package:ari/providers/like_track_datasource_provider.dart';
+import 'package:ari/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/presentation/widgets/streaming_log_modal.dart';
@@ -44,7 +45,7 @@ class TrackHeader extends ConsumerStatefulWidget {
 }
 
 class _TrackHeaderState extends ConsumerState<TrackHeader> {
-  late bool isLiked;
+  bool isLiked = false; // 초기값 false로 설정
   late int likeCount;
 
   @override
@@ -142,13 +143,16 @@ class _TrackHeaderState extends ConsumerState<TrackHeader> {
                             coverUrl: widget.albumImageUrl,
                             trackLikeCount: likeCount,
                           );
+                          final userId = ref.read(authUserIdProvider);
+                          if (userId == null) return;
 
                           await ref
-                              .read(listeningQueueProvider.notifier)
+                              .read(listeningQueueProvider(userId).notifier)
                               .trackPlayed(currentTrack);
+
                           final fullQueue =
                               ref
-                                  .read(listeningQueueProvider)
+                                  .read(listeningQueueProvider(userId))
                                   .playlist
                                   .map((e) => safeToDomainTrack(e.track))
                                   .toList();
