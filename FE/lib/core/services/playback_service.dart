@@ -98,10 +98,9 @@ class PlaybackService {
             );
 
         // 🎯 ListeningQueue에 기록
-        final userId = ref.read(authUserIdProvider); // userId 가져오기
 
         ref
-            .read(listeningQueueProvider(userId).notifier)
+            .read(listeningQueueProvider.notifier)
             .trackPlayed(track.toDataModel());
       } else {
         throw Exception('재생 API 호출 실패: ${response.data['message']}');

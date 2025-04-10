@@ -13,8 +13,8 @@ class ListeningQueueTrackList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userId = ref.watch(authUserIdProvider); // 그냥 바로 사용
 
-    final state = ref.watch(listeningQueueProvider(userId));
-    final viewModel = ref.read(listeningQueueProvider(userId).notifier);
+    final state = ref.watch(listeningQueueProvider);
+    final viewModel = ref.read(listeningQueueProvider.notifier);
 
     final tracks = state.filteredPlaylist;
 

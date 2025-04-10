@@ -64,7 +64,7 @@ class PlaylistTrackList extends ConsumerWidget {
               if (context.mounted) {
                 // userId를 통해 listeningQueueProvider 접근
                 ref
-                    .read(listeningQueueProvider(userId).notifier)
+                    .read(listeningQueueProvider.notifier)
                     .trackPlayed(trackItem.toDataTrack());
               }
             });

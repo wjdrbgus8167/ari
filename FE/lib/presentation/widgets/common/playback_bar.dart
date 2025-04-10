@@ -25,9 +25,9 @@ class PlaybackBar extends ConsumerWidget {
     final audioService = ref.read(audioServiceProvider);
     final coverImage = ref.watch(coverImageProvider);
 
-    final userId = ref.watch(authUserIdProvider); // 그냥 바로 사용
+    final userId = ref.watch(authUserIdProvider);
 
-    final queueState = ref.watch(listeningQueueProvider(userId)); // 이렇게 바로
+    final queueState = ref.watch(listeningQueueProvider);
 
     return GestureDetector(
       onTap: () async {

@@ -191,7 +191,7 @@ class _ChartItem extends ConsumerWidget {
                 final audioService = ref.read(audioServiceProvider);
 
                 await ref
-                    .read(listeningQueueProvider(userId).notifier)
+                    .read(listeningQueueProvider.notifier)
                     .trackPlayed(dataTrack);
 
                 await audioService.playFromQueueSubset(
