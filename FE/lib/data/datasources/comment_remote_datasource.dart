@@ -26,7 +26,24 @@ class CommentRemoteDatasource {
       '/api/v1/albums/$albumId/tracks/$trackId/comments',
       data: {"content": content, "contentTimestamp": contentTimestamp},
     );
-    final data = response.data['data'];
+
+    final data = response.data['data']; // ← null
+    if (data == null) {
+      // 그냥 댓글이 성공적으로 등록되었다고 보고,
+      // 곧바로 GET 요청으로 목록을 갱신하면 됨.
+      // 여기는 "빈" Comment를 임시로 반환하거나
+      // 에러 대신 "등록 완료" 정도로 간주하는 로직을 작성
+      return Comment(
+        commentId: 0,
+        nickname: '',
+        content: '',
+        createdAt: DateTime.now(),
+        timestamp: null,
+        profileImageUrl: null,
+        memberId: 0,
+      );
+    }
+
     return Comment.fromJson(data);
   }
 }
