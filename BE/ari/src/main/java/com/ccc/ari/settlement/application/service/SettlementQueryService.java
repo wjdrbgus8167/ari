@@ -57,14 +57,14 @@ public class SettlementQueryService {
         // 2. 정산 목록 중 해당 날짜에 이뤄진 정산만 합산(시이클 종료 시간 기준)
         regularSettlement = regularSettlements.stream()
                 .filter(settlementEvent -> {
-                    LocalDateTime endedAt = subscriptionClient.getSubscriptionCycleById(settlementEvent.cycleId.intValue())
+                    LocalDateTime endedAt = subscriptionClient.getSubscriptionCycleById(settlementEvent.artistId.intValue())
                             .getEndedAt();
                     boolean isSameDate = endedAt.getYear() == command.getYear() &&
                             endedAt.getMonthValue() == command.getMonth() &&
                             endedAt.getDayOfMonth() == command.getDay();
                     if (isSameDate) {
                         logger.info("정기 정산 이벤트 포함. Cycle ID: {}, Wei 금액: {}, LINK 금액: {}",
-                                settlementEvent.cycleId,
+                                settlementEvent.artistId,
                                 settlementEvent.amount,
                                 new BigDecimal(settlementEvent.amount)
                                         .divide(new BigDecimal(LINK_DIVISOR), 18, RoundingMode.HALF_UP));
@@ -74,6 +74,7 @@ public class SettlementQueryService {
                 .map(settlementEvent -> new BigDecimal(settlementEvent.amount)
                         .divide(new BigDecimal(LINK_DIVISOR), 18, RoundingMode.HALF_UP))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         artistSettlement = artistSettlements.stream()
                 .filter(settlementEvent -> {
                     LocalDateTime endedAt =
@@ -82,7 +83,7 @@ public class SettlementQueryService {
                             endedAt.getMonthValue() == command.getMonth() &&
                             endedAt.getDayOfMonth() == command.getDay();
                     if (isSameDate) {
-                        logger.info("정기 정산 이벤트 포함. Cycle ID: {}, Wei 금액: {}, LINK 금액: {}",
+                        logger.info("아티스트 정산 이벤트 포함. Cycle ID: {}, Wei 금액: {}, LINK 금액: {}",
                                 settlementEvent.cycleId,
                                 settlementEvent.amount,
                                 new BigDecimal(settlementEvent.amount)
@@ -119,7 +120,7 @@ public class SettlementQueryService {
         // 2. StreamingSettlementResult 리스트로 변환
         List<StreamingSettlementResult> streamingResults = regularSettlements.stream()
                 .map(event -> StreamingSettlementResult.builder()
-                        .artistId(event.artistId.intValue())
+                        .artistId(event.cycleId.intValue())
                         .streaming(event.streamingCount.intValue())
                         .amount(event.amount.doubleValue())
                         .build())
@@ -154,7 +155,7 @@ public class SettlementQueryService {
         //    - 각 구독 사이클의 종료일 기준으로 금액을 합산
         Map<String, Double> dailySettlementMap = regularSettlements.stream()
                 .collect(Collectors.groupingBy(
-                        settlement -> subscriptionClient.getSubscriptionCycleById(settlement.cycleId.intValue())
+                        settlement -> subscriptionClient.getSubscriptionCycleById(settlement.artistId.intValue())
                                 .getEndedAt().toLocalDate().format(DateTimeFormatter.ofPattern("yy.MM.dd")),
                         Collectors.summingDouble(settlement -> new BigDecimal(settlement.amount)
                                 .divide(new BigDecimal(LINK_DIVISOR), 18, RoundingMode.HALF_UP).doubleValue())
@@ -224,7 +225,7 @@ public class SettlementQueryService {
         // 2. 각 정산 이벤트를 CycleSettlementInfo로 매핑 후 리스트화
         List<CycleSettlementInfo> cycleSettlements = new ArrayList<CycleSettlementInfo>(regularEventResponses.stream()
                 .map(event -> CycleSettlementInfo.builder()
-                        .CycleId(event.cycleId.intValue())
+                        .CycleId(event.artistId.intValue())
                         .Settlement(new BigDecimal(event.amount)
                                 .divide(new BigDecimal(LINK_DIVISOR), 18, RoundingMode.HALF_UP)
                                 .doubleValue())
