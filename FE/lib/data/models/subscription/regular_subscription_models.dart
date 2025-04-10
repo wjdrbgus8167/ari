@@ -40,12 +40,12 @@ class ArtistSettlement {
   
   factory ArtistSettlement.fromJson(Map<String, dynamic> json) {
     return ArtistSettlement(
-      artistNickname: json['artistNickname'],
+      artistNickname: json['artistNickName'],
       profileImageUrl: json['profileImageUrl'],
-      streamingCount: json['streamingCount'],
-      settlement: json['settlement'] is int 
-                ? (json['settlement'] as int).toDouble() 
-                : json['settlement'],
+      streamingCount: json['streaming'],
+      settlement: json['amount'] is int 
+                ? (json['amount'] as int).toDouble() 
+                : json['amount'],
     );
   }
 }

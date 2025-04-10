@@ -11,7 +11,7 @@ class SettlementUsecase {
 
   /// 유스케이스 실행: 댓글 목록 조회
   /// [noticeId]: 댓글을 조회할 공지사항 ID
-  Future<Either<Failure, Settlement>> call(int month) {
-    return repository.getSettlementHistory(month);
+  Future<Either<Failure, Settlement>> call(int year, int month, int day) async {
+    return repository.getSettlementHistory(year, month, day);
   }
 }

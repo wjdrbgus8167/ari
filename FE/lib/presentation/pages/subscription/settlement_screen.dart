@@ -1,6 +1,5 @@
 import 'package:ari/presentation/viewmodels/settlement/settlement_history_viewmodel.dart';
 import 'package:ari/presentation/widgets/common/header_widget.dart';
-import 'package:ari/presentation/widgets/subscription/settlement_item_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -34,7 +33,7 @@ class SettlementScreen extends ConsumerWidget {
                 }
               ),
               
-              // 월 선택 섹션
+              // 날짜 선택 섹션 (월 선택에서 일 선택으로 변경)
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -48,9 +47,9 @@ class SettlementScreen extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // 이전 달 버튼
+                        // 이전 날짜 버튼
                         GestureDetector(
-                          onTap: () => notifier.previousMonth(),
+                          onTap: () => notifier.previousDay(),
                           child: const SizedBox(
                             width: 20,
                             height: 20,
@@ -63,9 +62,9 @@ class SettlementScreen extends ConsumerWidget {
                         ),
                         const SizedBox(width: 10),
                         
-                        // 현재 월 표시
+                        // 현재 날짜 표시
                         Text(
-                          state.currentMonth,
+                          state.currentDate,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,
@@ -75,9 +74,9 @@ class SettlementScreen extends ConsumerWidget {
                         ),
                         const SizedBox(width: 10),
                         
-                        // 다음 달 버튼
+                        // 다음 날짜 버튼
                         GestureDetector(
-                          onTap: () => notifier.nextMonth(),
+                          onTap: () => notifier.nextDay(),
                           child: const SizedBox(
                             width: 20,
                             height: 20,
@@ -89,6 +88,17 @@ class SettlementScreen extends ConsumerWidget {
                           ),
                         ),
                       ],
+                    ),
+                    
+                    // 날짜 선택 아이콘 (새로 추가)
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: () => _showDatePicker(context, ref, state),
+                      child: const Icon(
+                        Icons.calendar_today,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                     ),
                   ],
                 ),
@@ -127,8 +137,8 @@ class SettlementScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               
-              // 정산 요약 정보 (새로 추가)
-              if (state.status == SettlementStatus.success && state.data != null)
+              // 정산 요약 정보
+              if (state.status == SettlementStatus.loaded && state.data != null)
                 Container(
                   width: double.infinity,
                   margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -140,9 +150,9 @@ class SettlementScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        '이번 달 정산 요약',
-                        style: TextStyle(
+                      Text(
+                        '${state.selectedDate.year}.${state.selectedDate.month}.${state.selectedDate.day} 정산 요약',
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                           fontFamily: 'Pretendard',
@@ -163,7 +173,7 @@ class SettlementScreen extends ConsumerWidget {
                             ),
                           ),
                           Text(
-                            '${state.data!.settlement.streamingSettlement.toStringAsFixed(2)}',
+                            '${state.data!.streamingSettlement.toStringAsFixed(2)}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14,
@@ -187,7 +197,7 @@ class SettlementScreen extends ConsumerWidget {
                             ),
                           ),
                           Text(
-                            '${state.data!.settlement.subscribeSettlement.toStringAsFixed(2)}',
+                            '${state.data!.subscribeSettlement.toStringAsFixed(2)}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14,
@@ -211,7 +221,7 @@ class SettlementScreen extends ConsumerWidget {
                             ),
                           ),
                           Text(
-                            '${state.data!.settlement.totalSettlement.toStringAsFixed(2)}',
+                            '${state.data!.totalSettlement.toStringAsFixed(2)}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 16,
@@ -240,7 +250,7 @@ class SettlementScreen extends ConsumerWidget {
                 ),
               ),
               
-              // 내역 목록
+              // 내역 목록 (아직 구현되지 않음 - 현재 모델에서는 아이템 목록이 없음)
               Expanded(
                 child: state.status == SettlementStatus.loading
                     ? const Center(child: CircularProgressIndicator(color: Colors.white))
@@ -251,26 +261,46 @@ class SettlementScreen extends ConsumerWidget {
                               style: const TextStyle(color: Colors.white),
                             ),
                           )
-                        : state.data == null || state.data!.items.isEmpty
-                            ? const Center(
-                                child: Text(
-                                  '정산 내역이 없습니다',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              )
-                            : ListView.builder(
-                                itemCount: state.data!.items.length,
-                                itemBuilder: (context, index) {
-                                  return SettlementItemWidget(
-                                    item: state.data!.items[index],
-                                  );
-                                },
-                              ),
+                        : const Center(
+                            child: Text(
+                              '상세 정산 내역이 제공되지 않습니다',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
               ),
             ],
           ),
         ),
       ),
     );
+  }
+  
+  // 날짜 선택 다이얼로그
+  Future<void> _showDatePicker(BuildContext context, WidgetRef ref, SettlementState state) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: state.selectedDate,
+      firstDate: DateTime(2023),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: Color(0xFF6C63FF),
+              onPrimary: Colors.white,
+              surface: Color(0xFF333333),
+              onSurface: Colors.white,
+            ),
+            dialogBackgroundColor: const Color(0xFF222222),
+          ),
+          child: child!,
+        );
+      },
+    );
+    
+    if (picked != null && picked != state.selectedDate) {
+      // 새 날짜로 데이터 로드
+      ref.read(settlementProvider.notifier).fetchDailySettlement(picked);
+    }
   }
 }
