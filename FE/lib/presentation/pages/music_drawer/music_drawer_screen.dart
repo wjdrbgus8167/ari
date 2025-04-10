@@ -122,7 +122,7 @@ class _MusicDrawerScreenState extends ConsumerState<MusicDrawerScreen> {
                                       // 구독 페이지로 이동
                                       Navigator.pushNamed(
                                         context,
-                                        AppRoutes.subscriptionSelect,
+                                        AppRoutes.subscribedArtists,
                                       );
                                     },
                                   );
@@ -138,10 +138,27 @@ class _MusicDrawerScreenState extends ConsumerState<MusicDrawerScreen> {
                       // 좋아요 누른 섹션
                       _buildNavigationItem(
                         icon: Icons.favorite_border,
-                        title: '좋아요 누른',
+                        title: '좋아요 누른 앨범',
                         subtitle: '',
                         onTap: () {
                           // TODO: 좋아요 누른 콘텐츠 페이지로 이동
+                          Navigator.pushNamed(
+                                        context,
+                                        AppRoutes.likeyAlbum,
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      _buildNavigationItem(
+                        icon: Icons.favorite_border,
+                        title: '좋아요 누른 트랙',
+                        subtitle: '',
+                        onTap: () {
+                          // TODO: 좋아요 누른 콘텐츠 페이지로 이동
+                          Navigator.pushNamed(
+                                        context,
+                                        AppRoutes.likeyTrack,
+                          );
                         },
                       ),
 
