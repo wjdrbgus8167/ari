@@ -43,216 +43,6 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
     super.dispose();
   }
 
-  // 현재 선택된 년월 상태 추가
-  int _selectedYear = 2025;
-  int _selectedMonth = 4; // 기본값은 4월
-
-  // 일간 구독자 데이터를 차트 데이터로 변환하고 누락된 날짜는 0으로 채우기
-  List<ChartData> _convertSubscriberDataToChartData(ArtistDashboardData data) {
-    // 1. 기존 데이터 변환
-    final Map<int, double> subscriberByDay = {};
-    
-    // 현재 선택된 년월에 해당하는 데이터만 필터링
-    final selectedYearMonthStr = "${_selectedYear.toString().substring(2)}.${_selectedMonth.toString().padLeft(2, '0')}";
-    
-    // 데이터 형식에 따라 다른 처리
-    for (var item in data.dailySubscriberCounts) {
-      // 날짜 형식에 따라 일자와 년월 추출 (YYYY-MM-DD 또는 YY.MM.DD)
-      int day;
-      String yearMonth;
-      
-      if (item.date.contains('-')) {
-        // YYYY-MM-DD 형식 (예: 2025-04-07)
-        final parts = item.date.split('-');
-        if (parts.length == 3) {
-          yearMonth = "${parts[0].substring(2)}.${parts[1]}"; // "25.04" 형식으로 변환
-          day = int.tryParse(parts[2]) ?? 0;
-        } else {
-          continue; // 잘못된 날짜 형식은 건너뜀
-        }
-      } else {
-        // YY.MM.DD 형식 (예: 25.04.07)
-        final parts = item.date.split('.');
-        if (parts.length == 3) {
-          yearMonth = "${parts[0]}.${parts[1]}"; // "25.04" 형식
-          day = int.tryParse(parts[2]) ?? 0;
-        } else {
-          continue; // 잘못된 날짜 형식은 건너뜀
-        }
-      }
-      
-      // 현재 선택된 년월에 해당하는 데이터만 사용
-      if (yearMonth == selectedYearMonthStr && day > 0) {
-        subscriberByDay[day] = item.subscriberCount.toDouble();
-      }
-    }
-    
-    // 2. 해당 월의 총 일수 계산
-    final daysInMonth = _getDaysInMonth(_selectedYear, _selectedMonth);
-    
-    // 3. 누락된 날짜를 0으로 채우기 (1 ~ 해당 월의 마지막 일)
-    for (int day = 1; day <= daysInMonth; day++) {
-      if (!subscriberByDay.containsKey(day)) {
-        subscriberByDay[day] = 0.0; // 없는 날짜는 0으로 설정
-      }
-    }
-    
-    // 4. 결과를 ChartData 리스트로 변환하고 정렬
-    final result = subscriberByDay.entries
-        .map((entry) => ChartData(entry.key, entry.value))
-        .toList();
-    
-    // 날짜순으로 정렬
-    result.sort((a, b) => a.x.compareTo(b.x));
-    
-    return result;
-  }
-
-  // 정산 데이터를 차트 데이터로 변환하고 누락된 날짜는 0으로 채우기
-  List<ChartData> _convertSettlementDataToChartData(ArtistDashboardData data) {
-    // 1. 기존 데이터 변환
-    final Map<int, double> settlementByDay = {};
-    
-    // 현재 선택된 년월에 해당하는 데이터만 필터링
-    final selectedYearMonthStr = "${_selectedYear.toString().substring(2)}.${_selectedMonth.toString().padLeft(2, '0')}";
-    
-    // 데이터 파싱
-    for (var item in data.dailySettlement) {
-      // YY.MM.DD 형식 (예: 25.04.07)
-      final parts = item.date.split('.');
-      if (parts.length == 3) {
-        final yearMonth = "${parts[0]}.${parts[1]}";
-        final day = int.tryParse(parts[2]) ?? 0;
-        
-        // 현재 선택된 년월에 해당하는 데이터만 사용
-        if (yearMonth == selectedYearMonthStr && day > 0) {
-          settlementByDay[day] = item.settlement;
-        }
-      }
-    }
-    
-    // 2. 해당 월의 총 일수 계산
-    final daysInMonth = _getDaysInMonth(_selectedYear, _selectedMonth);
-    
-    // 3. 누락된 날짜를 0으로 채우기 (1 ~ 해당 월의 마지막 일)
-    for (int day = 1; day <= daysInMonth; day++) {
-      if (!settlementByDay.containsKey(day)) {
-        settlementByDay[day] = 0.0; // 없는 날짜는 0으로 설정
-      }
-    }
-    
-    // 4. 결과를 ChartData 리스트로 변환하고 정렬
-    final result = settlementByDay.entries
-        .map((entry) => ChartData(entry.key, entry.value))
-        .toList();
-    
-    // 날짜순으로 정렬
-    result.sort((a, b) => a.x.compareTo(b.x));
-    
-    return result;
-  }
-
-  // 해당 년월의 일수 계산 함수
-  int _getDaysInMonth(int year, int month) {
-    return DateTime(year, month + 1, 0).day;
-  }
-
-  // 이전 월로 이동
-  void _goToPreviousMonth() {
-    setState(() {
-      if (_selectedMonth > 1) {
-        _selectedMonth--;
-      } else {
-        _selectedMonth = 12;
-        _selectedYear--;
-      }
-    });
-  }
-
-  // 다음 월로 이동
-  void _goToNextMonth() {
-    setState(() {
-      if (_selectedMonth < 12) {
-        _selectedMonth++;
-      } else {
-        _selectedMonth = 1;
-        _selectedYear++;
-      }
-    });
-  }
-
-  // 월 선택 UI 위젯
-  Widget _buildMonthSelector() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2), // 패딩 줄임
-      decoration: BoxDecoration(
-        color: const Color(0xFF333333),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios, size: 10, color: Colors.white), // 아이콘 크기도 약간 줄임
-            padding: EdgeInsets.zero, // 패딩 제거
-            constraints: const BoxConstraints(), // 기본 제약 제거
-            visualDensity: VisualDensity.compact, // 더 작은 크기로 표시
-            onPressed: _goToPreviousMonth,
-          ),
-          Text(
-            "${_selectedYear}년 ${_selectedMonth}월",
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 11, // 폰트 크기 줄임
-              fontFamily: 'Pretendard',
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.arrow_forward_ios, size: 10, color: Colors.white), // 아이콘 크기도 약간 줄임
-            padding: EdgeInsets.zero, // 패딩 제거
-            constraints: const BoxConstraints(), // 기본 제약 제거
-            visualDensity: VisualDensity.compact, // 더 작은 크기로 표시
-            onPressed: _goToNextMonth,
-          ),
-        ],
-      ),
-    );
-  }
-
-  // 차트 섹션 UI (월 선택기만 포함)
-  Widget _buildChartSection(String title, ChartType chartType, List<ChartData> data) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 제목과 월 선택기를 함께 표시
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontFamily: 'Pretendard',
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              _buildMonthSelector(),
-            ],
-          ),
-          const SizedBox(height: 10),
-          // 수정된 간소화 차트 위젯 사용
-          SimpleChartWidget(
-            chartType: chartType,
-            data: data,
-          ),
-        ],
-      ),
-    );
-  }
   
   @override
   Widget build(BuildContext context) {
@@ -523,18 +313,19 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
                           // 차트 섹션 (트랙이 있을 때만 표시)
                           const SizedBox(height: 20),
                           if (hasTracks.isNotEmpty) ...[
-                            _buildChartSection(
-                              '구독자 수 추이',
-                              ChartType.subscribers,
-                              _convertSubscriberDataToChartData(dashboardProvider),
+                            ChartSectionWidget(
+                              title: '시간별 구독자 수',
+                              chartType: ChartType.subscribers,
+                              dashboardData: dashboardProvider,
                             ),
                             const SizedBox(height: 10),
-                            _buildChartSection(
-                              '정산금액 추이',
-                              ChartType.revenue,
-                              _convertSettlementDataToChartData(dashboardProvider),
+                            ChartSectionWidget(
+                              title: '시간별 정산금액',
+                              chartType: ChartType.revenue,
+                              dashboardData: dashboardProvider,
                             ),
                           ],
+                          // 차트 섹션 (트랙이 없을 때는 표시하지 않음)
                         ],
                       ),
                     ),
@@ -908,4 +699,243 @@ class _ArtistDashboardScreenState extends ConsumerState<ArtistDashboardScreen> {
         ),
       );
     }
+}
+
+class ChartDateState {
+  int year;
+  int month;
+  int day;
+
+  ChartDateState({
+    required this.year,
+    required this.month,
+    required this.day,
+  });
+
+  // 이전 날짜로 이동
+  void goToPrevious() {
+    final currentDate = DateTime(year, month, day);
+    final previousDate = currentDate.subtract(const Duration(days: 1));
+    
+    year = previousDate.year;
+    month = previousDate.month;
+    day = previousDate.day;
+  }
+
+  // 다음 날짜로 이동
+  void goToNext() {
+    final currentDate = DateTime(year, month, day);
+    final nextDate = currentDate.add(const Duration(days: 1));
+    
+    year = nextDate.year;
+    month = nextDate.month;
+    day = nextDate.day;
+  }
+
+  // 날짜 문자열 반환
+  String get dateString => "$year.$month.$day";
+}
+
+// 독립적인 차트 섹션 위젯
+class ChartSectionWidget extends StatefulWidget {
+  final String title;
+  final ChartType chartType;
+  final ArtistDashboardData dashboardData;
+  
+  const ChartSectionWidget({
+    Key? key,
+    required this.title,
+    required this.chartType,
+    required this.dashboardData,
+  }) : super(key: key);
+
+  @override
+  State<ChartSectionWidget> createState() => _ChartSectionWidgetState();
+}
+
+class _ChartSectionWidgetState extends State<ChartSectionWidget> {
+  // 이 차트 섹션만의 독립적인 날짜 상태
+  late ChartDateState _dateState;
+
+  @override
+  void initState() {
+    super.initState();
+    // 현재 날짜로 초기화
+    final now = DateTime.now();
+    _dateState = ChartDateState(
+      year: now.year,
+      month: now.month,
+      day: now.day,
+    );
+  }
+
+  // 시간별 구독자 데이터를 차트 데이터로 변환
+  List<ChartData> _convertHourlySubscriberData() {
+    final Map<int, double> subscriberByHour = {};
+    
+    // 선택된 날짜 문자열 생성 (형식: "YY.MM.DD")
+    final selectedDateStr = "${_dateState.year.toString().substring(2)}.${_dateState.month.toString().padLeft(2, '0')}.${_dateState.day.toString().padLeft(2, '0')}";
+    
+    // 데이터 파싱
+    for (var item in widget.dashboardData.hourlySubscriberCounts) {
+      // 형식은 "YY.MM.DD HH" (예: "25.04.10 14")
+      final parts = item.hour.split(' ');
+      if (parts.length == 2) {
+        final date = parts[0];
+        final hour = int.tryParse(parts[1]) ?? 0;
+        
+        // 선택된 날짜의 데이터만 사용
+        if (date == selectedDateStr && hour >= 0 && hour <= 23) {
+          subscriberByHour[hour] = item.subscriberCount.toDouble();
+        }
+      }
+    }
+    
+    // 누락된 시간(0-23)에 0 값 채우기
+    for (int hour = 0; hour <= 23; hour++) {
+      if (!subscriberByHour.containsKey(hour)) {
+        subscriberByHour[hour] = 0.0;
+      }
+    }
+    
+    // ChartData 리스트로 변환 및 정렬
+    final result = subscriberByHour.entries
+        .map((entry) => ChartData(entry.key, entry.value))
+        .toList();
+    
+    // 시간순 정렬
+    result.sort((a, b) => a.x.compareTo(b.x));
+    
+    return result;
+  }
+
+  // 시간별 정산 데이터를 차트 데이터로 변환
+  List<ChartData> _convertHourlySettlementData() {
+    final Map<int, double> settlementByHour = {};
+    
+    // 선택된 날짜 문자열 생성 (형식: "YY.MM.DD")
+    final selectedDateStr = "${_dateState.year.toString().substring(2)}.${_dateState.month.toString().padLeft(2, '0')}.${_dateState.day.toString().padLeft(2, '0')}";
+    
+    // 데이터 파싱
+    for (var item in widget.dashboardData.hourlySettlement) {
+      // 형식은 "YY.MM.DD HH" (예: "25.04.10 14")
+      final parts = item.hour.split(' ');
+      if (parts.length == 2) {
+        final date = parts[0];
+        final hour = int.tryParse(parts[1]) ?? 0;
+        
+        // 선택된 날짜의 데이터만 사용
+        if (date == selectedDateStr && hour >= 0 && hour <= 23) {
+          settlementByHour[hour] = item.settlement;
+        }
+      }
+    }
+    
+    // 누락된 시간(0-23)에 0 값 채우기
+    for (int hour = 0; hour <= 23; hour++) {
+      if (!settlementByHour.containsKey(hour)) {
+        settlementByHour[hour] = 0.0;
+      }
+    }
+    
+    // ChartData 리스트로 변환 및 정렬
+    final result = settlementByHour.entries
+        .map((entry) => ChartData(entry.key, entry.value))
+        .toList();
+    
+    // 시간순 정렬
+    result.sort((a, b) => a.x.compareTo(b.x));
+    
+    return result;
+  }
+
+  // 날짜 선택기 UI 위젯
+  Widget _buildDateSelector() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      decoration: BoxDecoration(
+        color: const Color(0xFF333333),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back_ios, size: 10, color: Colors.white),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            visualDensity: VisualDensity.compact,
+            onPressed: () {
+              setState(() {
+                _dateState.goToPrevious();
+              });
+            },
+          ),
+          Text(
+            _dateState.dateString,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.arrow_forward_ios, size: 10, color: Colors.white),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            visualDensity: VisualDensity.compact,
+            onPressed: () {
+              setState(() {
+                _dateState.goToNext();
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // 차트 타입에 따라 데이터 변환 함수 선택
+    List<ChartData> chartData;
+    if (widget.chartType == ChartType.subscribers) {
+      chartData = _convertHourlySubscriberData();
+    } else {
+      chartData = _convertHourlySettlementData();
+    }
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 제목과 날짜 선택기 함께 표시
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                widget.title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              _buildDateSelector(),
+            ],
+          ),
+          const SizedBox(height: 10),
+          // 차트 위젯
+          SimpleChartWidget(
+            chartType: widget.chartType,
+            data: chartData,
+            isHourlyChart: true,
+          ),
+        ],
+      ),
+    );
+  }
 }

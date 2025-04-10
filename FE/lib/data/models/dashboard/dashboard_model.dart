@@ -1,30 +1,6 @@
-class DailySubscriberCount {
-  final String date;          // 날짜 (YYYY-MM-DD 또는 YY.MM.DD 형식)
-  final int subscriberCount;  // 해당 날짜의 구독자 수
-
-  DailySubscriberCount({
-    required this.date,
-    required this.subscriberCount,
-  });
-
-  factory DailySubscriberCount.fromJson(Map<String, dynamic> json) {
-    return DailySubscriberCount(
-      date: json['date'],
-      subscriberCount: json['subscriberCount'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'date': date,
-      'subscriberCount': subscriberCount,
-    };
-  }
-}
-
 class MonthlySubscriberCount {
-  final String month;        // 월 (YY.MM 형식)
-  final int subscriberCount; // 해당 월의 구독자 수
+  final String month;          // 날짜 (YYYY-MM-DD 또는 YY.MM.DD 형식)
+  final int subscriberCount;  // 해당 날짜의 구독자 수
 
   MonthlySubscriberCount({
     required this.month,
@@ -46,18 +22,42 @@ class MonthlySubscriberCount {
   }
 }
 
-class DailySettlement {
-  final String date;        // 날짜 (YY.MM.DD 형식)
+class HourlySubscriberCount {
+  final String hour;        // 월 (YY.MM 형식)
+  final int subscriberCount; // 해당 월의 구독자 수
+
+  HourlySubscriberCount({
+    required this.hour,
+    required this.subscriberCount,
+  });
+
+  factory HourlySubscriberCount.fromJson(Map<String, dynamic> json) {
+    return HourlySubscriberCount(
+      hour: json['hour'],
+      subscriberCount: json['subscriberCount'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'hour': hour,
+      'subscriberCount': subscriberCount,
+    };
+  }
+}
+
+class HourlySettlement {
+  final String hour;        // 날짜 (YY.MM.DD 형식)
   final double settlement;  // 해당 날짜의 정산 금액
 
-  DailySettlement({
-    required this.date,
+  HourlySettlement({
+    required this.hour,
     required this.settlement,
   });
 
-  factory DailySettlement.fromJson(Map<String, dynamic> json) {
-    return DailySettlement(
-      date: json['date'],
+  factory HourlySettlement.fromJson(Map<String, dynamic> json) {
+    return HourlySettlement(
+      hour: json['hour'],
       settlement: json['settlement'] is int 
           ? (json['settlement'] as int).toDouble() 
           : json['settlement'].toDouble(),
@@ -66,7 +66,7 @@ class DailySettlement {
 
   Map<String, dynamic> toJson() {
     return {
-      'date': date,
+      'hour': hour,
       'settlement': settlement,
     };
   }
@@ -112,9 +112,9 @@ class ArtistDashboardData {
   final double settlementDiff;           // 전일 대비 정산 금액 증감
   final int todayNewSubscribeCount;      // 오늘 신규 구독 수
   final List<Album> albums;              // 아티스트의 앨범 리스트
-  final List<DailySubscriberCount> dailySubscriberCounts;  // 일간 구독자 수 추이
-  final List<DailySettlement> dailySettlement;  // 일간 정산 금액 추이
-  final List<MonthlySubscriberCount> monthlySubscriberCounts; // 월간 구독자 수 추이
+  final List<MonthlySubscriberCount> dailySubscriberCounts;  // 일간 구독자 수 추이
+  final List<HourlySettlement> hourlySettlement;  // 일간 정산 금액 추이
+  final List<HourlySubscriberCount> hourlySubscriberCounts; // 월간 구독자 수 추이
 
   ArtistDashboardData({
     required this.walletAddress,
@@ -129,8 +129,8 @@ class ArtistDashboardData {
     required this.todayNewSubscribeCount,
     required this.albums,
     required this.dailySubscriberCounts,
-    required this.dailySettlement, 
-    required this.monthlySubscriberCounts,
+    required this.hourlySettlement, 
+    required this.hourlySubscriberCounts,
   });
 
   factory ArtistDashboardData.fromJson(Map<String, dynamic> json) {
@@ -152,40 +152,15 @@ class ArtistDashboardData {
       albums: (json['albums'] as List)
           .map((albumJson) => Album.fromJson(albumJson))
           .toList(),
-      dailySubscriberCounts: (json['dailySubscriberCounts'] as List)
-          .map((countJson) => DailySubscriberCount.fromJson(countJson))
-          .toList(),
-      dailySettlement: (json['dailySettlement'] as List)
-          .map((settlementJson) => DailySettlement.fromJson(settlementJson))
-          .toList(),
-      monthlySubscriberCounts: (json['monthlySubscriberCounts'] as List)
+      dailySubscriberCounts: (json['monthlySubscriberCounts'] as List)
           .map((countJson) => MonthlySubscriberCount.fromJson(countJson))
           .toList(),
+      hourlySettlement: (json['hourlySettlement'] as List)
+          .map((settlementJson) => HourlySettlement.fromJson(settlementJson))
+          .toList(),
+      hourlySubscriberCounts: (json['hourlySubscriberCounts'] as List)
+          .map((countJson) => HourlySubscriberCount.fromJson(countJson))
+          .toList(),
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'walletAddress': walletAddress,
-      'subscriberCount': subscriberCount,
-      'totalStreamingCount': totalStreamingCount,
-      'todayStreamingCount': todayStreamingCount,
-      'streamingDiff': streamingDiff,
-      'thisMonthNewSubscriberCount': todayNewSubscriberCount, // API 응답 필드명 수정
-      'newSubscriberDiff': newSubscriberDiff,
-      'todaySettlement': todaySettlement,
-      'settlementDiff': settlementDiff,
-      'todayNewSubscribeCount': todayNewSubscribeCount,
-      'albums': albums.map((album) => album.toJson()).toList(),
-      'dailySubscriberCounts': dailySubscriberCounts
-          .map((count) => count.toJson())
-          .toList(),
-      'dailySettlement': dailySettlement
-          .map((settlement) => settlement.toJson())
-          .toList(),
-      'monthlySubscriberCounts': monthlySubscriberCounts
-          .map((count) => count.toJson())
-          .toList(),
-    };
   }
 }

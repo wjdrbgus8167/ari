@@ -388,7 +388,7 @@ class _GlobalNavigationContainerState
         return AppRoutes.home; // 홈
       // case 1 → 위 _buildSearchNavigator()에서 처리(/search)
       case 2:
-        return '/'; // 예시
+        return AppRoutes.musicDrawer;
       case 3:
         return AppRoutes.myChannel;
       default:
