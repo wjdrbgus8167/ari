@@ -28,7 +28,7 @@ public class IpfsCacheManager {
             @Value("${IPFS_LOCAL_NODE_URL}") String localNodeUrl,
             @Value("${IPFS_CACHE_MAX_ITEMS:5000}") long maxCacheItems,
             @Value("${IPFS_USE_LOCAL_CACHE}") boolean useLocalCache,
-            @Value("${IPFS_TIMEOUT:30000}") int timeout) {
+            @Value("${IPFS_TIMEOUT:15000}") int timeout) {
 
         this.maxCacheItems = maxCacheItems;
         this.useLocalCache = useLocalCache;

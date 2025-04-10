@@ -20,7 +20,7 @@ public class IpfsConfig {
             @Value("${PINATA_GATEWAY}") String gatewayDomain,
             @Value("${IPFS_LOCAL_NODE_URL}") String localNodeUrl,
             @Value("${IPFS_USE_LOCAL_CACHE}") boolean useLocalCache,
-            @Value("${IPFS_TIMEOUT:30000}") int timeout) {
+            @Value("${IPFS_TIMEOUT:15000}") int timeout) {
 
         return new CachingIpfsClientImpl(ipfsApiUrl, jwtToken, gatewayDomain, localNodeUrl, useLocalCache, timeout);
     }

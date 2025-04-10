@@ -35,9 +35,10 @@ public class CachingIpfsClientImpl implements IpfsClient {
     private final Logger log = LoggerFactory.getLogger(CachingIpfsClientImpl.class);
 
     // IPFS 로컬 노드 관련 필드
-    private final IPFS localNode;
+    private  IPFS localNode;
     private final boolean useLocalCache;
     private final int timeout;
+    private boolean actuallyUseCache;
 
     @Autowired
     public CachingIpfsClientImpl(
@@ -46,7 +47,7 @@ public class CachingIpfsClientImpl implements IpfsClient {
             @Value("${PINATA_GATEWAY}") String gatewayDomain,
             @Value("${IPFS_LOCAL_NODE_URL}") String localNodeUrl,
             @Value("${IPFS_USE_LOCAL_CACHE}") boolean useLocalCache,
-            @Value("${IPFS_TIMEOUT:30000}") int timeout) {
+            @Value("${IPFS_TIMEOUT:15000}") int timeout) {
 
         this.restTemplate = new RestTemplate();
         this.ipfsApiUrl = ipfsApiUrl;
@@ -57,9 +58,11 @@ public class CachingIpfsClientImpl implements IpfsClient {
 
         // 로컬 노드 초기화
         this.useLocalCache = useLocalCache;
+        this.actuallyUseCache = useLocalCache;
+
         if (useLocalCache) {
             this.localNode = new IPFS(localNodeUrl);
-            this.localNode.timeout(timeout); // 타임아웃 설정 (이전 코드와 다름)
+            this.localNode = this.localNode.timeout(timeout);
             log.info("IPFS 로컬 노드 캐싱 활성화: {}", localNodeUrl);
         } else {
             this.localNode = null;
@@ -133,7 +136,7 @@ public class CachingIpfsClientImpl implements IpfsClient {
         log.info("IPFS에서 데이터를 가져오는 중입니다. CID: {}", ipfsPath);
 
         // 로컬 노드 캐싱이 활성화된 경우
-        if (useLocalCache) {
+        if (actuallyUseCache && localNode != null) {
             try {
                 // 로컬 노드에서 데이터 조회 시도
                 String localData = getFromLocalNode(ipfsPath);
@@ -204,51 +207,62 @@ public class CachingIpfsClientImpl implements IpfsClient {
      * 데이터를 로컬 IPFS 노드에 비동기적으로 캐싱합니다.
      */
     private void cacheToLocalNode(String cid, String data) {
-        if (localNode == null) return;
+        if (!actuallyUseCache || localNode == null) return;
 
         CompletableFuture.runAsync(() -> {
-            try {
-                log.debug("캐싱 시도 CID: {}", cid);
+            int maxRetries = 2;
+            int retryCount = 0;
 
-                // CIDv1 (bafk...) 형식 처리
-                Multihash fileMultihash;
-                if (cid.startsWith("bafk")) {
-                    // CIDv1을 디코드하는 로직
-                    // io.ipfs.cid.Cid를 사용
-                    fileMultihash = io.ipfs.cid.Cid.decode(cid);
-                } else {
-                    // 전통적인 CIDv0 (Qm...) 형식 처리
-                    fileMultihash = Multihash.fromBase58(cid);
-                }
-
-                // 이미 캐싱되어 있는지 확인
+            while (retryCount <= maxRetries) {
                 try {
-                    byte[] existingData = localNode.cat(fileMultihash);
-                    if (existingData != null && existingData.length > 0) {
-                        log.debug("데이터가 이미 로컬 노드에 캐싱되어 있음: {}", cid);
-                        return;
+                    log.debug("캐싱 시도 CID: {} (시도 #{}/{})", cid, retryCount + 1, maxRetries + 1);
+
+                    // CIDv1 (bafk...) 형식 처리
+                    Multihash fileMultihash;
+                    if (cid.startsWith("bafk")) {
+                        fileMultihash = io.ipfs.cid.Cid.decode(cid);
+                    } else {
+                        fileMultihash = Multihash.fromBase58(cid);
                     }
-                } catch (IOException e) {
-                    // 존재하지 않으면 계속 진행
+
+                    // 이미 캐싱되어 있는지 확인 (짧은 타임아웃으로 빠르게 체크)
+                    try {
+                        // 더 짧은 타임아웃으로 체크
+                        IPFS quickCheck = localNode.timeout(5000);
+                        byte[] existingData = quickCheck.cat(fileMultihash);
+                        if (existingData != null && existingData.length > 0) {
+                            log.debug("데이터가 이미 로컬 노드에 캐싱되어 있음: {}", cid);
+                            return;
+                        }
+                    } catch (IOException e) {
+                        // 존재하지 않으면 계속 진행
+                    }
+
+                    // 데이터를 로컬 노드에 추가
+                    byte[] bytes = data.getBytes(StandardCharsets.UTF_8);
+                    NamedStreamable.ByteArrayWrapper file = new NamedStreamable.ByteArrayWrapper(bytes);
+                    MerkleNode addResult = localNode.add(file).get(0);
+
+                    // 추가된 파일 핀 (더 짧은 타임아웃)
+                    IPFS pinIpfs = localNode.timeout(15000);
+                    pinIpfs.pin.add(fileMultihash);
+
+                    log.info("데이터가 로컬 노드에 성공적으로 캐싱됨: {}", cid);
+                    return; // 성공하면 루프 종료
+                } catch (Exception e) {
+                    retryCount++;
+                    if (retryCount <= maxRetries) {
+                        log.warn("로컬 노드에 캐싱 중 오류 발생: {}, 재시도 {}/{}", cid, retryCount, maxRetries);
+                        try {
+                            // 잠시 대기 후 재시도
+                            Thread.sleep(1000 * retryCount);
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                        }
+                    } else {
+                        log.warn("로컬 노드에 캐싱 실패 (최대 재시도 횟수 초과): {}, 오류: {}", cid, e.getMessage());
+                    }
                 }
-
-                // 데이터를 로컬 노드에 추가
-                byte[] bytes = data.getBytes(StandardCharsets.UTF_8);
-                NamedStreamable.ByteArrayWrapper file = new NamedStreamable.ByteArrayWrapper(bytes);
-                MerkleNode addResult = localNode.add(file).get(0);
-
-                // CID가 다른 경우에도 원본 CID로 핀
-                if (!addResult.hash.toString().equals(cid)) {
-                    log.debug("원본 CID: {}, 추가된 노드 해시: {}", cid, addResult.hash);
-                }
-
-                // 추가된 파일 핀
-                localNode.pin.add(fileMultihash);
-
-                log.info("데이터가 로컬 노드에 성공적으로 캐싱됨: {}", cid);
-            } catch (Exception e) {
-                log.warn("로컬 노드에 캐싱 중 오류 발생: {}, 오류 타입: {}, 오류 메시지: {}",
-                        cid, e.getClass().getName(), e.getMessage());
             }
         });
     }
