@@ -8,7 +8,6 @@ class LoginPrompt extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // ref.watch를 const가 아닌 위치로 이동
     final nickname = ref.watch(userNicknameProvider);
 
     return Padding(
@@ -17,27 +16,44 @@ class LoginPrompt extends ConsumerWidget {
         alignment: Alignment.centerLeft,
         child: GestureDetector(
           onTap: () {
-            // 닉네임 유무에 따라 다른 화면으로 이동
             if (nickname != null && nickname.isNotEmpty) {
-              // 로그인된 상태: 프로필 화면으로 이동
+              // 프로필 화면 이동 로직
             } else {
-              // 비로그인 상태: 로그인 화면으로 이동
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const LoginScreen()),
               );
             }
           },
-          child: Text(
-            nickname != null && nickname.isNotEmpty
-                ? '$nickname님 환영합니다.'
-                : '로그인해주세요 >',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          child:
+              nickname != null && nickname.isNotEmpty
+                  ? Text(
+                    '$nickname님 환영합니다.',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  )
+                  : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '로그인해주세요',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Icon(
+                        Icons.arrow_forward_ios,
+                        size: 16,
+                        color: Colors.white,
+                      ),
+                    ],
+                  ),
         ),
       ),
     );
