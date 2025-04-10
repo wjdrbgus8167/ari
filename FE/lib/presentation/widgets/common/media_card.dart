@@ -24,7 +24,6 @@ class MediaCard extends ConsumerWidget {
       onTap: onTap,
       child: Container(
         width: 140,
-        margin: const EdgeInsets.symmetric(horizontal: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -32,7 +31,6 @@ class MediaCard extends ConsumerWidget {
               aspectRatio: 1,
               child: Stack(
                 children: [
-                  // 정사각형 이미지 + 꽉 채우기 + 중심 정렬
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: Image(
@@ -43,13 +41,12 @@ class MediaCard extends ConsumerWidget {
                                     'assets/images/default_album_cover.png',
                                   )
                                   as ImageProvider,
-                      fit: BoxFit.cover, // 이미지를 꽉 채우기
+                      fit: BoxFit.cover,
                       width: double.infinity,
                       height: double.infinity,
                       alignment: Alignment.center,
                     ),
                   ),
-                  // ⏯ 재생 버튼
                   Positioned(
                     bottom: 6,
                     right: 6,
@@ -60,9 +57,7 @@ class MediaCard extends ConsumerWidget {
                           ref: ref,
                         );
                         if (!ok) return;
-                        if (onPlayPressed != null) {
-                          onPlayPressed!();
-                        }
+                        onPlayPressed?.call();
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -81,7 +76,7 @@ class MediaCard extends ConsumerWidget {
                 ],
               ),
             ),
-
+            // 필요에 따라 vertical 간격도 줄일 수 있습니다.
             const SizedBox(height: 8),
             Text(
               title,

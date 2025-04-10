@@ -79,7 +79,7 @@ class HomeScreen extends ConsumerWidget {
             /// ✅ HOT 20 섹션
             const HomeSectionHeader(title: "HOT 20"),
             SizedBox(
-              height: 430,
+              height: 350,
               child: HotChartList(tracks: homeState.hot50Titles),
             ),
           ],

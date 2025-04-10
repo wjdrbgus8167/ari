@@ -22,6 +22,7 @@ class _HotChartListState extends State<HotChartList> {
   @override
   void initState() {
     super.initState();
+    // 다음 페이지가 살짝 보이도록 0.85로 설정
     _pageController = PageController(viewportFraction: 0.85);
   }
 
@@ -33,18 +34,23 @@ class _HotChartListState extends State<HotChartList> {
 
   @override
   Widget build(BuildContext context) {
-    const int itemsPerPage = 5;
-    final int pageCount = (widget.tracks.length / itemsPerPage).ceil();
+    // 한 페이지당 4개씩
+    const int itemsPerPage = 4;
+    final int totalTracks = widget.tracks.length;
+    final int pageCount = (totalTracks / itemsPerPage).ceil();
 
     return PageView.builder(
       controller: _pageController,
       clipBehavior: Clip.none,
       itemCount: pageCount,
       itemBuilder: (context, pageIndex) {
+        // 마지막 페이지인지 확인
+        final bool isLastPage = pageIndex == pageCount - 1;
+
         final int startIndex = pageIndex * itemsPerPage;
         final int endIndex =
-            (startIndex + itemsPerPage) > widget.tracks.length
-                ? widget.tracks.length
+            (startIndex + itemsPerPage) > totalTracks
+                ? totalTracks
                 : (startIndex + itemsPerPage);
         final List<domain.Track> pageTracks = widget.tracks.sublist(
           startIndex,
@@ -52,12 +58,13 @@ class _HotChartListState extends State<HotChartList> {
         );
 
         return Transform.translate(
-          offset: const Offset(-10, 0),
+          // 마지막 페이지라면 옆 페이지가 보이지 않도록 offset 제거
+          offset: isLastPage ? Offset.zero : const Offset(-10, 0),
           child: Padding(
-            padding: const EdgeInsets.only(top: 8, right: 8, bottom: 8),
+            // 마지막 페이지라면 우측 padding 제거
+            padding: EdgeInsets.only(right: isLastPage ? 0 : 8, bottom: 8),
             child: ListView.builder(
-              physics:
-                  const NeverScrollableScrollPhysics(), // PageView 내에서만 스크롤
+              physics: const NeverScrollableScrollPhysics(),
               itemCount: pageTracks.length,
               itemBuilder: (context, index) {
                 final globalIndex = startIndex + index;
@@ -146,7 +153,7 @@ class _ChartItem extends ConsumerWidget {
             ),
           ),
           const SizedBox(width: 8),
-          // 제목 및 아티스트 컨테이너
+          // 제목 및 아티스트
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -169,7 +176,7 @@ class _ChartItem extends ConsumerWidget {
             ),
           ),
           const SizedBox(width: 8),
-          // 재생 버튼 컨테이너
+          // 재생 버튼
           SizedBox(
             width: 40,
             child: IconButton(
