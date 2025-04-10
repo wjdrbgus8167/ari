@@ -1,3 +1,4 @@
+import 'package:ari/data/models/subscription/artist_subscription_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/data/models/music_drawer/subscribed_artist_model.dart';
@@ -5,7 +6,7 @@ import 'package:ari/domain/usecases/music_drawer/subscribed_artists_usecases.dar
 
 /// 구독 중인 아티스트 상태
 class SubscribedArtistsState {
-  final List<SubscribedArtistModel> artists;
+  final List<Artist> artists;
   final bool isLoading;
   final String? errorMessage;
 
@@ -17,7 +18,7 @@ class SubscribedArtistsState {
 
   /// 새로운 상태 생성
   SubscribedArtistsState copyWith({
-    List<SubscribedArtistModel>? artists,
+    List<Artist>? artists,
     bool? isLoading,
     String? errorMessage,
   }) {
@@ -42,11 +43,9 @@ class SubscribedArtistsState {
 /// 구독 중인 아티스트 뷰모델
 class SubscribedArtistsViewModel extends StateNotifier<SubscribedArtistsState> {
   final GetSubscribedArtistsUseCase _getSubscribedArtistsUseCase;
-  final GetSubscribedArtistsCountUseCase _getSubscribedArtistsCountUseCase;
-
+  
   SubscribedArtistsViewModel(
     this._getSubscribedArtistsUseCase,
-    this._getSubscribedArtistsCountUseCase,
   ) : super(SubscribedArtistsState()) {
     // 초기 데이터 로드
     loadSubscribedArtists();
@@ -57,9 +56,19 @@ class SubscribedArtistsViewModel extends StateNotifier<SubscribedArtistsState> {
     try {
       state = SubscribedArtistsState.loading();
 
-      final artists = await _getSubscribedArtistsUseCase.execute();
-
-      state = state.copyWith(artists: artists, isLoading: false);
+      final result = await _getSubscribedArtistsUseCase.execute();
+      print(result);
+      result.fold(
+        (failure) {
+          state = state.copyWith(
+            isLoading: false,
+            artists: [],
+          );
+        },
+        (result) {
+          state = state.copyWith(artists: result.artists, isLoading: false);
+        },
+      );
     } catch (e) {
       state = SubscribedArtistsState.error(e.toString());
     }
@@ -67,11 +76,26 @@ class SubscribedArtistsViewModel extends StateNotifier<SubscribedArtistsState> {
 
   /// 구독 중인 아티스트 수 조회
   Future<int> getSubscribedArtistsCount() async {
-    try {
-      return await _getSubscribedArtistsCountUseCase.execute();
+      try {
+        final result = await _getSubscribedArtistsUseCase.execute();
+      print(result);
+      
+      return result.fold(
+        (failure) {
+          state = state.copyWith(
+            isLoading: false,
+            artists: [],
+          );
+          return 0; // 실패 시 0 반환
+        },
+        (result) {
+          state = state.copyWith(artists: result.artists, isLoading: false);
+          return result.artists.length; // 성공 시 아티스트 수 반환
+        },
+      );
     } catch (e) {
-      debugPrint('아티스트 수 조회 에러: $e');
-      return 0;
+      state = SubscribedArtistsState.error(e.toString());
+      return 0; // 예외 발생 시 0 반환
     }
   }
 }

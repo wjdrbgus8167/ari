@@ -9,8 +9,8 @@ class Settlement {
 
   factory Settlement.fromJson(Map<String, dynamic> json) {
     return Settlement(
-      streamingSettlement: json['streamingSettlement'] as double,
-      subscribeSettlement: json['subscribeSettlement'] as double,
+      streamingSettlement: double.parse(json['regularSettlement'] as String) ,
+      subscribeSettlement: double.parse(json['artistSettlement'] as String),
     );
   }
 

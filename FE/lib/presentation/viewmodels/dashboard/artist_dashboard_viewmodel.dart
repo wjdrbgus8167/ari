@@ -42,8 +42,8 @@ class ArtistDashboardViewmodel extends StateNotifier<ArtistDashboardData> {
       todayNewSubscribeCount: 0,
       albums: [],
       dailySubscriberCounts: [],
-      dailySettlement: [],
-      monthlySubscriberCounts: [],
+      hourlySettlement: [],
+      hourlySubscriberCounts: [],
     );
   }
   
@@ -159,8 +159,8 @@ class ArtistDashboardViewmodel extends StateNotifier<ArtistDashboardData> {
         todayNewSubscribeCount: state.todayNewSubscribeCount,
         albums: state.albums,
         dailySubscriberCounts: state.dailySubscriberCounts,
-        dailySettlement: state.dailySettlement,
-        monthlySubscriberCounts: state.monthlySubscriberCounts,
+        hourlySettlement: state.hourlySettlement,
+        hourlySubscriberCounts: state.hourlySubscriberCounts,
       );
       
       return true;

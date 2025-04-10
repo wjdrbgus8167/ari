@@ -27,23 +27,13 @@ final getSubscribedArtistsUseCaseProvider =
       return GetSubscribedArtistsUseCase(repository);
     });
 
-/// 구독 중인 아티스트 수 조회 유스케이스 프로바이더
-final getSubscribedArtistsCountUseCaseProvider =
-    Provider<GetSubscribedArtistsCountUseCase>((ref) {
-      final repository = ref.watch(subscribedArtistsRepositoryProvider);
-      return GetSubscribedArtistsCountUseCase(repository);
-    });
-
 /// 구독 중인 아티스트 뷰모델 프로바이더
 final subscribedArtistsViewModelProvider = StateNotifierProvider<
   SubscribedArtistsViewModel,
   SubscribedArtistsState
 >((ref) {
   final getArtistsUseCase = ref.watch(getSubscribedArtistsUseCaseProvider);
-  final getArtistsCountUseCase = ref.watch(
-    getSubscribedArtistsCountUseCaseProvider,
-  );
-  return SubscribedArtistsViewModel(getArtistsUseCase, getArtistsCountUseCase);
+  return SubscribedArtistsViewModel(getArtistsUseCase);
 });
 
 /// 구독 중인 아티스트 수 프로바이더

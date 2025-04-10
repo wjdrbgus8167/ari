@@ -10,10 +10,10 @@ class SettlementRepositoryImpl implements SettlementRepository {
   SettlementRepositoryImpl({required this.dataSource});
 
   @override
-  Future<Either<Failure, Settlement>> getSettlementHistory(int month) async {
+  Future<Either<Failure, Settlement>> getSettlementHistory(int year, int month, int day) async {
     try {
-      final response = await dataSource.getSettlementHistory(month);
-
+      final response = await dataSource.getSettlementHistory(year, month, day);
+      
       // 응답 데이터 구조 확인
       if (response == null) {
         return Left(Failure(message: "Response data is null"));

@@ -1,3 +1,4 @@
+import 'package:ari/data/models/subscription/artist_subscription_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/data/models/music_drawer/subscribed_artist_model.dart';
@@ -39,35 +40,35 @@ class SubscribedArtistsScreen extends ConsumerWidget {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (state.errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              '데이터를 불러올 수 없습니다',
-              style: TextStyle(color: Colors.white, fontSize: 16),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              state.errorMessage!,
-              style: TextStyle(color: Colors.grey[400], fontSize: 14),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () => _retryLoading(ref),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-              ),
-              child: const Text('다시 시도'),
-            ),
-          ],
-        ),
-      );
-    }
+    // if (state.errorMessage != null) {
+    //   return Center(
+    //     child: Column(
+    //       mainAxisAlignment: MainAxisAlignment.center,
+    //       children: [
+    //         const Text(
+    //           '데이터를 불러올 수 없습니다',
+    //           style: TextStyle(color: Colors.white, fontSize: 16),
+    //         ),
+    //         const SizedBox(height: 8),
+    //         Text(
+    //           state.errorMessage!,
+    //           style: TextStyle(color: Colors.grey[400], fontSize: 14),
+    //         ),
+    //         const SizedBox(height: 24),
+    //         ElevatedButton(
+    //           onPressed: () => _retryLoading(ref),
+    //           style: ElevatedButton.styleFrom(
+    //             backgroundColor: Colors.white,
+    //             foregroundColor: Colors.black,
+    //           ),
+    //           child: const Text('다시 시도'),
+    //         ),
+    //       ],
+    //     ),
+    //   );
+    // }
 
-    if (state.artists.isEmpty) {
+    if (state.artists.isEmpty || state.errorMessage != null) {
       return const Center(
         child: Text(
           '구독 중인 아티스트가 없습니다',
@@ -115,7 +116,7 @@ class SubscribedArtistsScreen extends ConsumerWidget {
   Widget _buildArtistCard(
     BuildContext context,
     WidgetRef ref,
-    SubscribedArtistModel artist,
+    Artist artist,
   ) {
     return InkWell(
       onTap: () {
@@ -147,20 +148,14 @@ class SubscribedArtistsScreen extends ConsumerWidget {
 
             // 아티스트 이름 - 대문자 N으로 수정
             Text(
-              artist.artistNickName,
+              artist.artistNickname,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
-
-            // 팔로워 수와 구독자 수 정보
-            Text(
-              '4.3K Followers / 구독자 4.2만명',
-              style: TextStyle(color: Colors.grey[400], fontSize: 12),
-            ),
+            const SizedBox(height: 12),
           ],
         ),
       ),

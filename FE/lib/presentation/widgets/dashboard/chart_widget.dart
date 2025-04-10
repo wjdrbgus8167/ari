@@ -1,19 +1,29 @@
-// SimpleChartWidget - 월간 모드 없이 일간 데이터만 표시하는 간소화된 차트 위젯
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:math' as math;
 
+class ChartData {
+  final int x;     // X축 값 (시간별 차트에서는 시간 0-23)
+  final double y;  // Y축 값 (구독자 수 또는 정산금액)
+
+  ChartData(this.x, this.y);
+}
+
+enum ChartType { subscribers, streams, revenue }
+
 class SimpleChartWidget extends StatelessWidget {
   final ChartType chartType;
   final List<ChartData> data;
+  final bool isHourlyChart; // 시간별 표시 여부
   final String? title;
 
   const SimpleChartWidget({
-    super.key,
+    Key? key,
     required this.chartType,
     required this.data,
+    this.isHourlyChart = false, // 기본값은 일별 차트
     this.title,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +86,7 @@ class SimpleChartWidget extends StatelessWidget {
                                   final dataIndex = group.x.toInt();
                                   if (dataIndex >= 0 && dataIndex < data.length) {
                                     final value = data[dataIndex].y;
-                                    final day = data[dataIndex].x;
+                                    final hour = data[dataIndex].x;
                                     
                                     // 차트 유형에 따라 접미사 조정
                                     String suffix = '';
@@ -88,7 +98,11 @@ class SimpleChartWidget extends StatelessWidget {
                                       suffix = '회';
                                     }
                                     
-                                    final label = '$day일: ${value.toStringAsFixed(0)}$suffix';
+                                    // 시간별 표시
+                                    final label = isHourlyChart
+                                        ? '$hour시: ${value.toStringAsFixed(1)}$suffix'
+                                        : '$hour일: ${value.toStringAsFixed(0)}$suffix';
+                                    
                                     return BarTooltipItem(
                                       label,
                                       const TextStyle(
@@ -109,16 +123,31 @@ class SimpleChartWidget extends StatelessWidget {
                                   getTitlesWidget: (value, meta) {
                                     final index = value.toInt();
                                     if (index >= 0 && index < data.length) {
-                                      final day = data[index].x;
-                                      // 일간 모드는 5일 간격 + 첫날 + 마지막날
-                                      if (day % 5 == 0 || day == 1 || day == 30) {
-                                        return Text(
-                                          '$day',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 10,
-                                          ),
-                                        );
+                                      final xValue = data[index].x;
+                                      
+                                      // 시간별 모드일 때는 4시간 간격으로 표시 (0, 4, 8, 12, 16, 20)
+                                      if (isHourlyChart) {
+                                        if (xValue % 4 == 0 || xValue == 0 || xValue == 23) {
+                                          return Text(
+                                            '$xValue',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                            ),
+                                          );
+                                        }
+                                      } 
+                                      // 일별 모드일 때는 5일 간격 + 첫날 + 마지막날
+                                      else {
+                                        if (xValue % 5 == 0 || xValue == 1 || xValue == 30) {
+                                          return Text(
+                                            '$xValue',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                            ),
+                                          );
+                                        }
                                       }
                                     }
                                     return const Text('');
@@ -245,11 +274,16 @@ class SimpleChartWidget extends StatelessWidget {
   }
 
   // 차트에 표시할 막대 그룹 생성
-  List<BarChartGroupData> _getBarGroups(List<ChartData> data) {
-    // 데이터 개수에 따라 바 너비 조정 (데이터가 많을수록 좁게)
-    final barWidth = math.max(2.0, math.min(60.0, 200 / data.length));
+  List<BarChartGroupData> _getBarGroups(List<ChartData> sortedData) {
+    // 데이터 정렬
+    List<ChartData> sortedData = List.from(data);
+    sortedData.sort((a, b) => a.x.compareTo(b.x));
     
-    return data.asMap().map((index, item) {
+    // 시간별/일별 데이터 개수에 따라 바 너비 조정
+    final int totalBars = isHourlyChart ? 24 : 31; // 시간별은 0-23시, 일별은 1-31일
+    final barWidth = math.max(2.0, math.min(60.0, 200 / totalBars));
+    
+    return sortedData.asMap().map((index, item) {
       return MapEntry(
         index,
         BarChartGroupData(
@@ -279,17 +313,8 @@ class SimpleChartWidget extends StatelessWidget {
         return const Color(0xFF6C63FF); // 보라색
       case ChartType.revenue:
         return const Color(0xFFFFBD69); // 주황색
+      default:
+        return const Color(0xFF4ECDC4); // 기본 색상
     }
   }
-}
-
-// 차트 유형 enum
-enum ChartType { subscribers, streams, revenue }
-
-// 차트 데이터 클래스
-class ChartData {
-  final int x; // x축 값 (일간 데이터의 경우 1-31)
-  final double y; // y축 값
-
-  ChartData(this.x, this.y);
 }
