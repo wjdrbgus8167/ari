@@ -61,6 +61,7 @@ public class GetLikeListService {
             AlbumDto albumDto = albumClient.getAlbumById(trackDto.getAlbumId());
 
             LikeTrackListResponse.TrackItem trackItem = LikeTrackListResponse.TrackItem.builder()
+                    .albumId(albumDto.getAlbumId())
                     .trackId(trackDto.getTrackId())
                     .trackTitle(trackDto.getTitle())
                     .artist(albumDto.getArtist())

@@ -20,6 +20,7 @@ public class LikeTrackListResponse {
     @Getter
     @Builder
     public static class TrackItem {
+        private Integer albumId;
         private Integer trackId;
         private String trackTitle;
         private String artist;
