@@ -41,11 +41,10 @@ class MypageProfile extends StatelessWidget {
           ),
 
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               // Left side - Profile information
-              SizedBox(
+              Expanded( // Expanded로 감싸서 사용 가능한 공간을 효율적으로 활용
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,6 +132,8 @@ class MypageProfile extends StatelessWidget {
                                 fontFamily: 'Pretendard',
                                 fontWeight: FontWeight.w400,
                               ),
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis, // 오버플로우 처리 추가
                             ),
                             const SizedBox(height: 15),
                           ]
@@ -164,6 +165,9 @@ class MypageProfile extends StatelessWidget {
                   ],
                 ),
               ),
+
+              // 여백 추가
+              const SizedBox(width: 10),
 
               // Edit profile button
               GestureDetector(

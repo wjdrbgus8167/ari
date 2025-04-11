@@ -1,6 +1,9 @@
+import 'package:ari/core/services/audio_service.dart';
 import 'package:ari/data/models/music_drawer/likey_albums_model.dart';
+import 'package:ari/domain/entities/album.dart';
 import 'package:ari/presentation/routes/app_router.dart';
 import 'package:ari/presentation/viewmodels/music_drawer/likey_album_viewmodel.dart';
+import 'package:ari/presentation/widgets/common/custom_toast.dart';
 import 'package:ari/presentation/widgets/common/header_widget.dart';
 import 'package:ari/presentation/widgets/common/media_card.dart';
 import 'package:ari/providers/music_drawer/music_drawer_providers.dart';
@@ -14,13 +17,19 @@ class LikeyAlbumsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // 좋아요 누른 앨범 상태 감시
     final likeyAlbumsState = ref.watch(likeyAlbumsViewModelProvider);
-
+    
+    // 컴포넌트가 처음 마운트될 때만 데이터 로드
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!likeyAlbumsState.hasLoaded && !likeyAlbumsState.isLoading) {
+        ref.read(likeyAlbumsViewModelProvider.notifier).loadLikeyAlbums();
+      }
+    });
+    
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(child: _buildContent(context, ref, likeyAlbumsState)),
     );
   }
-
   /// 화면 컨텐츠 빌드
   Widget _buildContent(
     BuildContext context,
@@ -97,7 +106,7 @@ class LikeyAlbumsScreen extends ConsumerWidget {
                       // 첫 번째 열
                       Expanded(
                         child: rowIndex * 2 < state.likeyAlbumsCount
-                            ? _buildAlbumCard(
+                            ? _buildAlbumItem(
                                 context,
                                 ref,
                                 state.likeyAlbums[rowIndex * 2],
@@ -109,7 +118,7 @@ class LikeyAlbumsScreen extends ConsumerWidget {
                       // 두 번째 열
                       Expanded(
                         child: rowIndex * 2 + 1 < state.likeyAlbumsCount
-                            ? _buildAlbumCard(
+                            ? _buildAlbumItem(
                                 context,
                                 ref,
                                 state.likeyAlbums[rowIndex * 2 + 1],
@@ -128,23 +137,63 @@ class LikeyAlbumsScreen extends ConsumerWidget {
     );
   }
   
-  Widget _buildAlbumCard(
+  // 개별 앨범 아이템 빌드 - 함수명 변경 (_buildAlbumItems → _buildAlbumItem)
+  Widget _buildAlbumItem(
     BuildContext context,
     WidgetRef ref,
-    LikeyAlbum album,
+    LikeyAlbum likeyAlbum,
     double cardHeight,
   ) {
-    return SizedBox(
-      height: cardHeight,
-      child: MediaCard(
-        imageUrl: album.coverImageUrl,
-        title: album.albumTitle,
-        subtitle: album.artist,
-        onTap: () {
-          // 앨범 상세 페이지로 이동
-          Navigator.pushNamed(context, AppRoutes.album, arguments: album.albumId);
-        },
-      ),
+    final audioService = ref.read(audioServiceProvider);
+    final viewModel = ref.read(likeyAlbumsViewModelProvider.notifier);
+    final albumDetail = viewModel.getAlbumDetail(likeyAlbum.albumId);
+    
+    return MediaCard(
+      imageUrl: likeyAlbum.coverImageUrl,
+      title: likeyAlbum.albumTitle,
+      subtitle: albumDetail != null 
+          ? '${likeyAlbum.artist} · ${_formatAlbumInfo(albumDetail)}'
+          : likeyAlbum.artist,
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          AppRoutes.album,
+          arguments: {'albumId': likeyAlbum.albumId},
+        );
+      },
+      onPlayPressed: () {
+        // 앨범 상세 정보가 있는 경우에만 재생 가능
+        if (albumDetail != null && albumDetail.tracks.isNotEmpty) {
+          print('[DEBUG] album.tracks.length = ${albumDetail.tracks.length}');
+          for (final track in albumDetail.tracks) {
+            print(
+              '[DEBUG] ▶️ trackId=${track.trackId}, title=${track.trackTitle}, fileUrl=${track.trackFileUrl}',
+            );
+          }
+          
+          audioService.playPlaylistFromTrack(
+            ref,
+            albumDetail.tracks,
+            albumDetail.tracks.first,
+            context,
+          );
+        } else {
+          // 재생 가능한 트랙이 없는 경우 토스트 메시지 표시
+          context.showToast('앨범에 재생 가능한 트랙이 없습니다.');
+        }
+      },
     );
+  }
+  
+  // 앨범 추가 정보 포맷팅 헬퍼 함수
+  String _formatAlbumInfo(Album album) {
+    List<String> infoParts = [];
+    
+    // 트랙 수 정보 추가
+    if (album.tracks.isNotEmpty) {
+      infoParts.add('${album.tracks.length}곡');
+    }
+    
+    return infoParts.join(' · ');
   }
 }

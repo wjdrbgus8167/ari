@@ -55,7 +55,7 @@ class ArtistSubscriptionViewModel extends StateNotifier<ArtistSubscriptionState>
       (failure) {
         state = state.copyWith(
           isLoading: false,
-          errorMessage: '아티스트 목록을 불러오는 중 오류가 발생했습니다: ${failure.message}',
+          errorMessage: '구독권이 존재하지 않습니다.',
         );
       },
       (artistsResponse) {

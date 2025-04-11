@@ -34,7 +34,7 @@ class _ArtistSubscriptionViewState extends ConsumerState<ArtistSubscriptionView>
 
     if (state.errorMessage != null) {
       return Center(
-        child: Text(state.errorMessage!, style: TextStyle(color: Colors.red)),
+        child: Text(state.errorMessage!, style: TextStyle(color: Colors.white)),
       );
     }
 
