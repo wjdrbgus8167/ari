@@ -209,7 +209,27 @@ public class CachingIpfsClientImpl implements IpfsClient {
 
     private String getFromLocalCache(String ipfsPath) {
         try {
-            Multihash fileMultihash = Multihash.fromBase58(ipfsPath);
+            // CID 형식 확인 및 적절한 디코딩 방법 선택
+            Multihash fileMultihash;
+            if (ipfsPath.startsWith("Qm")) {
+                // CIDv0 (Base58 인코딩)
+                fileMultihash = Multihash.fromBase58(ipfsPath);
+            } else if (ipfsPath.startsWith("bafk")) {
+                // CIDv1 (Base32 인코딩)
+                // Cid 클래스를 통해 디코딩하고 Multihash로 변환
+                io.ipfs.cid.Cid cid = io.ipfs.cid.Cid.decode(ipfsPath);
+                fileMultihash = Multihash.deserialize(cid.toBytes());
+            } else {
+                // 다른 형식의 CID는 일반적으로 디코딩 시도
+                try {
+                    fileMultihash = Multihash.fromBase58(ipfsPath);
+                } catch (Exception e) {
+                    // Base58 디코딩 실패 시 Cid 클래스로 시도
+                    io.ipfs.cid.Cid cid = io.ipfs.cid.Cid.decode(ipfsPath);
+                    fileMultihash = Multihash.deserialize(cid.toBytes());
+                }
+            }
+
             byte[] data = localNode.cat(fileMultihash);
             if (data != null && data.length > 0) {
                 log.info("로컬 캐시에서 데이터 조회 성공: {}", ipfsPath);
@@ -279,9 +299,20 @@ public class CachingIpfsClientImpl implements IpfsClient {
                         new NamedStreamable.ByteArrayWrapper(bytes);
                 MerkleNode addResult = localNode.add(file).get(0);
 
-                if (!addResult.hash.toBase58().equals(ipfsPath)) {
+                // CID 형식에 맞게 비교 로직 수정
+                String resultHash;
+                if (ipfsPath.startsWith("bafk")) {
+                    // Base32 인코딩된 CIDv1의 경우
+                    io.ipfs.cid.Cid cid = io.ipfs.cid.Cid.decode(ipfsPath);
+                    resultHash = cid.toString();
+                } else {
+                    // 기존 Base58 인코딩 방식 사용
+                    resultHash = addResult.hash.toBase58();
+                }
+
+                if (!resultHash.equals(ipfsPath)) {
                     log.warn("캐시 저장 중 해시 불일치: expected={}, actual={}",
-                            ipfsPath, addResult.hash.toBase58());
+                            ipfsPath, resultHash);
                     return;
                 }
 
