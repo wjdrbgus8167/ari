@@ -190,8 +190,6 @@ public class CachingIpfsClientImpl implements IpfsClient {
     public String get(String ipfsPath) {
         log.info("IPFS에서 데이터 조회 시작: {}", ipfsPath);
 
-        validateIpfsPath(ipfsPath);
-
         // 로컬 캐시 확인
         if (actuallyUseCache && localNode != null) {
             try {
@@ -207,15 +205,6 @@ public class CachingIpfsClientImpl implements IpfsClient {
 
         // 게이트웨이에서 조회
         return retryTemplate(() -> getFromGateway(ipfsPath));
-    }
-
-    private void validateIpfsPath(String ipfsPath) {
-        if (StringUtils.isEmpty(ipfsPath)) {
-            throw new IllegalArgumentException("IPFS 경로가 비어있습니다");
-        }
-        if (!ipfsPath.startsWith("Qm") && !ipfsPath.startsWith("baf")) {
-            throw new IllegalArgumentException("유효하지 않은 IPFS 경로 형식입니다: " + ipfsPath);
-        }
     }
 
     private String getFromLocalCache(String ipfsPath) {
