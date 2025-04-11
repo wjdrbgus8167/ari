@@ -2,7 +2,7 @@ name: ari
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -35,10 +35,36 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  audioplayers: ^5.2.1
+  just_audio: ^0.9.37
+  flutter_launcher_icons: ^0.13.1
+  dio: ^5.1.1
+  dartz: ^0.10.1
+  shared_preferences: ^2.5.2
+  flutter_secure_storage: ^9.2.4
+  url_launcher: ^6.3.1
+  intl: ^0.20.2
+  reown_appkit: ^1.4.1
+  http: ^1.3.0
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  image_picker: ^1.1.2
+  file_picker: ^9.2.3
+  path: ^1.8.3
+  fl_chart: ^0.70.2
+  audio_session: ^0.1.6+1
+  audio_service: ^0.18.10
+  just_audio_background: ^0.0.1-beta.9
+  google_sign_in: ^6.3.0
 
+  flutter_rating_bar: ^4.0.0
+
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  build_runner: ^2.3.3
+  hive_generator: ^1.1.3
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -55,10 +81,15 @@ flutter:
   assets:
     - assets/images/
     - assets/fonts/
+    - assets/music/
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+flutter_launcher_icons:
+  android: true
+  image_path: "assets/images/logo.png"
 
   # To add assets to your application, add an assets section, like this:
   # assets:

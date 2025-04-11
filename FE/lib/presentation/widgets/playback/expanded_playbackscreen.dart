@@ -1,75 +1,191 @@
+import 'dart:ui';
+import 'package:ari/presentation/viewmodels/playback/playback_state.dart';
+import 'package:ari/presentation/widgets/playback_comment/comment_overlay.dart';
+import 'package:ari/providers/playback/playback_provider.dart';
 import 'package:flutter/material.dart';
-import '../../../providers/global_providers.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ari/providers/playback/playback_state_provider.dart';
 import 'playback_info.dart';
 import 'playback_controls.dart';
-import '../lyrics/lyrics_view.dart';
+import 'package:ari/presentation/widgets/lyrics/lyrics_view.dart';
+import 'package:ari/providers/playback/playback_progress_provider.dart';
+import 'package:ari/presentation/widgets/common/like_btn.dart';
+import 'package:ari/data/datasources/like_remote_datasource.dart';
+import 'package:ari/providers/global_providers.dart' as gb;
 
-class ExpandedPlaybackScreen extends StatelessWidget {
-  final PlaybackState playbackState;
-  final VoidCallback onToggle;
+class ExpandedPlaybackScreen extends ConsumerStatefulWidget {
+  const ExpandedPlaybackScreen({super.key});
 
-  const ExpandedPlaybackScreen({
-    Key? key,
-    required this.playbackState,
-    required this.onToggle,
-  }) : super(key: key);
+  @override
+  _ExpandedPlaybackScreenState createState() => _ExpandedPlaybackScreenState();
+}
+
+class _ExpandedPlaybackScreenState
+    extends ConsumerState<ExpandedPlaybackScreen> {
+  bool _showCommentOverlay = false;
+  String? _fixedTimestamp; // 댓글창이 열릴 때 캡처한 고정 타임스탬프
+
+  String _formatDuration(Duration duration) {
+    final minutes = duration.inMinutes;
+    final seconds = duration.inSeconds % 60;
+    return "$minutes:${seconds.toString().padLeft(2, '0')}";
+  }
 
   @override
   Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      initialChildSize: 1.0,
-      minChildSize: 1.0,
-      maxChildSize: 1.0,
-      builder: (context, scrollController) {
-        return Stack(
-          children: [
-            // 🔹 배경 이미지 (앨범 커버)
-            Positioned.fill(
-              child: Image.asset(
-                'assets/images/default_album_cover.png',
-                fit: BoxFit.cover,
-              ),
-            ),
+    final playbackState = ref.watch(playbackProvider);
+    final playbackService = ref.read(playbackServiceProvider);
+    final coverImage = ref.watch(coverImageProvider);
 
-            // 🔹 좋아요 버튼 (오른쪽 상단)
-            Positioned(
-              top: 40,
-              right: 16,
-              child: IconButton(
-                icon: const Icon(
-                  Icons.favorite_border,
-                  color: Colors.white,
-                  size: 28,
-                ),
-                onPressed: () {},
-              ),
-            ),
+    final positionAsyncValue = ref.watch(playbackPositionProvider);
+    final Duration currentPosition = positionAsyncValue.when(
+      data: (duration) => duration,
+      loading: () => Duration.zero,
+      error: (_, __) => Duration.zero,
+    );
 
-            // 🔹 노래 정보 (제목 & 아티스트)
-            const Positioned(top: 40, left: 16, child: PlaybackInfo()),
-
-            // 🔹 재생 인터페이스
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 40,
-              child: PlaybackControls(onToggle: onToggle),
-            ),
-
-            // 🔹 가사 보기 버튼
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: LyricsView(
-                albumCoverUrl: 'assets/images/default_album_cover.png',
-                trackTitle: playbackState.trackTitle,
-                onToggle: onToggle,
-              ),
-            ),
-          ],
-        );
+    return GestureDetector(
+      onTap: () {
+        if (!_showCommentOverlay) {
+          _fixedTimestamp = _formatDuration(currentPosition);
+          setState(() {
+            _showCommentOverlay = true;
+          });
+        }
       },
+      child: Stack(
+        children: [
+          DraggableScrollableSheet(
+            initialChildSize: 1.0,
+            minChildSize: 1.0,
+            maxChildSize: 1.0,
+            builder: (context, scrollController) {
+              return Stack(
+                children: [
+                  Positioned.fill(
+                    child: Image(image: coverImage, fit: BoxFit.cover),
+                  ),
+                  // 우측 상단 좋아요 버튼
+                  Positioned(
+                    top: 40,
+                    right: 16,
+                    child: LikeButton(
+                      fetchLikeStatus: () {
+                        final likeDatasource = LikeRemoteDatasource(
+                          dio: ref.read(gb.dioProvider),
+                        );
+                        return likeDatasource.fetchLikeStatus(
+                          playbackState.currentTrackId ?? 0,
+                        );
+                      },
+                      toggleLike: () {
+                        final likeDatasource = LikeRemoteDatasource(
+                          dio: ref.read(gb.dioProvider),
+                        );
+                        return likeDatasource.toggleLikeStatus(
+                          albumId: playbackState.albumId ?? 0,
+                          trackId: playbackState.currentTrackId ?? 0,
+                        );
+                      },
+                    ),
+                  ),
+
+                  // 좌측 상단 PlaybackInfo
+                  Positioned(
+                    top: 40,
+                    left: 16,
+                    child: PlaybackInfo(
+                      trackTitle: playbackState.trackTitle,
+                      artist: playbackState.artist,
+                    ),
+                  ),
+                  // 하단 재생 컨트롤 영역
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 60,
+                    child: PlaybackControls(
+                      onToggle: () async {
+                        if (playbackState.isPlaying) {
+                          await playbackService.audioPlayer.pause();
+                          ref
+                              .read(playbackProvider.notifier)
+                              .updatePlaybackState(false);
+                        } else {
+                          final albumId = playbackState.albumId;
+                          final trackId = playbackState.currentTrackId;
+
+                          if (albumId != null && trackId != null) {
+                            await playbackService.playTrack(
+                              albumId: albumId,
+                              trackId: trackId,
+                              ref: ref,
+                              context: context,
+                            );
+                            ref
+                                .read(playbackProvider.notifier)
+                                .updatePlaybackState(true);
+                          } else {
+                            // 재생할 트랙 정보가 없을 때의 fallback 처리
+                            debugPrint("❗앨범 ID 또는 트랙 ID가 없습니다.");
+                          }
+                        }
+                      },
+                    ),
+                  ),
+                  // 하단 가사 보기 영역
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: SizedBox(
+                      height: 80, // 여기서 높이를 늘림 (예: 250)
+                      child: LyricsView(
+                        albumCoverUrl:
+                            playbackState.coverImageUrl.isNotEmpty
+                                ? playbackState.coverImageUrl
+                                : 'assets/images/default_album_cover.png',
+                        trackTitle: playbackState.trackTitle,
+                        lyrics: playbackState.lyrics,
+                        onToggle: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+          // 댓글 오버레이
+          if (_showCommentOverlay)
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: () {},
+                child: Container(
+                  color: Colors.black.withOpacity(0.4),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: CommentOverlay(
+                      trackTitle: playbackState.trackTitle,
+                      artist: playbackState.artist,
+                      coverImageUrl: playbackState.coverImageUrl,
+                      timestamp:
+                          _fixedTimestamp ?? _formatDuration(currentPosition),
+                      trackId: playbackState.currentTrackId ?? 0,
+                      albumId: playbackState.albumId ?? 0,
+                      onClose: () {
+                        setState(() {
+                          _showCommentOverlay = false;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
