@@ -1,0 +1,79 @@
+spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100000MB  # 개별 파일당 최대 크기
+      max-request-size: 100000MB  # 한 번의 요청에서 전체 업로드 가능한 크기
+  # MySQL 설정
+  datasource:
+    url: ${MYSQL_URL}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+  # MongoDB & Redis 설정
+  data:
+    mongodb:
+      uri: ${MONGODB_URI}
+      authentication-database: admin
+    redis:
+      host: ${REDIS_HOST}
+      port: 6379
+      password: ${REDIS_PASSWORD}
+  
+  # Kafka 설정
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: streaming-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.value.default.type: "com.ccc.ari.global.event.StreamingEvent"
+
+  # S3 설정 추가
+  cloud:
+    aws:
+      credentials:
+        access-key: ${AWS_ACCESS_KEY}
+        secret-key: ${AWS_SECRET_KEY}
+      region:
+        static: ap-northeast-2
+      s3:
+        bucket: ${AWS_S3_BUCKET_NAME}
+
+  #OAuth 설정 추가
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+            scope: profile, email
+            provider: google
+        provider:
+          google:
+            user-info-uri: https://www.googleapis.com/oauth2/v1/userinfo
+
+#JWT 설정
+jwt:
+  secret_key: ${JWT_SECRET_KEY}
+  access_expiration: 604800000
+  refresh_expiration: 604800000
+# 서버 포트 설정
+server:
+  port: 8080
