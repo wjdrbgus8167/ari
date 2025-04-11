@@ -4,6 +4,7 @@ import 'package:ari/domain/repositories/music_drawer/likey_repository.dart';
 import 'package:ari/domain/usecases/music_drawer/likey_usecases.dart';
 import 'package:ari/presentation/viewmodels/music_drawer/likey_album_viewmodel.dart';
 import 'package:ari/presentation/viewmodels/music_drawer/likey_track_viewmodel.dart';
+import 'package:ari/providers/album/album_detail_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ari/data/datasources/music_drawer/subscribed_artists_remote_datasource.dart';
 import 'package:ari/data/repositories/music_drawer/subscribed_artists_repository_impl.dart';
@@ -81,7 +82,8 @@ final likeyAlbumsViewModelProvider = StateNotifierProvider<
   LikeyAlbumsState
 >((ref) {
   final getAlbumsUseCase = ref.watch(getLikeyAlbumsUseCaseProvider);
-  return LikeyAlbumViewmodel(getAlbumsUseCase);
+  final getAlbumDetail = ref.watch(getAlbumDetailProvider);
+  return LikeyAlbumViewmodel(getAlbumsUseCase, getAlbumDetail);
 });
 
 final likeyTracksViewModelProvider = StateNotifierProvider<

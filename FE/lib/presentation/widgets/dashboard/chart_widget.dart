@@ -264,6 +264,9 @@ class SimpleChartWidget extends StatelessWidget {
     if (maxValue <= 0) return 10;
     
     // 적절한 스케일로 반올림
+    if (maxValue <= 0.5) return 0.5;
+    if (maxValue <= 1) return 1;
+    if (maxValue <= 5) return 5;
     if (maxValue <= 10) return 10;
     if (maxValue <= 50) return ((maxValue ~/ 10) + 1) * 10.0;
     if (maxValue <= 100) return ((maxValue ~/ 20) + 1) * 20.0;

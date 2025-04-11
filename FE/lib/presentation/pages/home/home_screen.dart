@@ -1,3 +1,4 @@
+import 'package:ari/presentation/routes/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -29,7 +30,7 @@ class HomeScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SafeArea(child: HeaderWidget(type: HeaderType.main)),
+            SafeArea(child: HeaderWidget(type: HeaderType.main, onMyPagePressed: () => Navigator.of(context).pushNamed(AppRoutes.myPage))),
             const SizedBox(height: 8),
             const LoginPrompt(),
             const SizedBox(height: 16),

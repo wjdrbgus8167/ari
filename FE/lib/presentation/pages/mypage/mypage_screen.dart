@@ -139,7 +139,27 @@ class _MyPageScreenState extends ConsumerState<MyPageScreen> {
                     MypageMenuItem(
                       title: '정산 내역',
                       routeName: AppRoutes.settlement,
-                      onTap: () => viewModel.onMenuItemClicked(context, AppRoutes.settlement),
+                      onTap: () async {
+                        if (!(await viewModel.hasWallet())) {
+                          if (!mounted) return;
+                          final shouldRegisterArtist = await context.showConfirmDialog(
+                            title: "아티스트 등록",
+                            content: "정산 지갑 등록 후 이용 가능합니다.",
+                            confirmText: "등록하기",
+                            cancelText: "취소",
+                          );
+                          // 사용자가 확인(true)을 선택한 경우에만 로그아웃 실행
+                          if (shouldRegisterArtist == true) {
+                            if (!mounted) return;
+                            viewModel.onMenuItemClicked(context, AppRoutes.artistDashboard);
+                            return;
+                          }
+                        } else {
+                          if (!mounted) return;
+                          viewModel.onMenuItemClicked(context, AppRoutes.settlement);
+                          return;
+                        }
+                      },
                     ),
                     MypageMenuItem(
                       title: '로그아웃',
