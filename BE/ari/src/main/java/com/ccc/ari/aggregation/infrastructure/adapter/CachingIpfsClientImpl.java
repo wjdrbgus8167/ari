@@ -213,7 +213,7 @@ public class CachingIpfsClientImpl implements IpfsClient {
         if (StringUtils.isEmpty(ipfsPath)) {
             throw new IllegalArgumentException("IPFS 경로가 비어있습니다");
         }
-        if (!ipfsPath.startsWith("Qm") && !ipfsPath.startsWith("bafy")) {
+        if (!ipfsPath.startsWith("Qm") && !ipfsPath.startsWith("baf")) {
             throw new IllegalArgumentException("유효하지 않은 IPFS 경로 형식입니다: " + ipfsPath);
         }
     }
