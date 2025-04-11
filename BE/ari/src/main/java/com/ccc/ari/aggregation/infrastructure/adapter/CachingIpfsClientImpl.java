@@ -9,8 +9,10 @@ import io.ipfs.api.IPFS;
 import io.ipfs.api.MerkleNode;
 import io.ipfs.api.NamedStreamable;
 import io.ipfs.multihash.Multihash;
+import io.ipfs.cid.Cid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -209,26 +211,8 @@ public class CachingIpfsClientImpl implements IpfsClient {
 
     private String getFromLocalCache(String ipfsPath) {
         try {
-            // CID 형식 확인 및 적절한 디코딩 방법 선택
-            Multihash fileMultihash;
-            if (ipfsPath.startsWith("Qm")) {
-                // CIDv0 (Base58 인코딩)
-                fileMultihash = Multihash.fromBase58(ipfsPath);
-            } else if (ipfsPath.startsWith("bafk")) {
-                // CIDv1 (Base32 인코딩)
-                // Cid 클래스를 통해 디코딩하고 Multihash로 변환
-                io.ipfs.cid.Cid cid = io.ipfs.cid.Cid.decode(ipfsPath);
-                fileMultihash = Multihash.deserialize(cid.toBytes());
-            } else {
-                // 다른 형식의 CID는 일반적으로 디코딩 시도
-                try {
-                    fileMultihash = Multihash.fromBase58(ipfsPath);
-                } catch (Exception e) {
-                    // Base58 디코딩 실패 시 Cid 클래스로 시도
-                    io.ipfs.cid.Cid cid = io.ipfs.cid.Cid.decode(ipfsPath);
-                    fileMultihash = Multihash.deserialize(cid.toBytes());
-                }
-            }
+            // CID 형식에 따른 Multihash 변환
+            Multihash fileMultihash = cidToMultihash(ipfsPath);
 
             byte[] data = localNode.cat(fileMultihash);
             if (data != null && data.length > 0) {
@@ -239,6 +223,27 @@ public class CachingIpfsClientImpl implements IpfsClient {
             log.warn("로컬 캐시 조회 중 오류 발생: {}", ipfsPath, e);
         }
         return null;
+    }
+
+    /**
+     * CID 문자열을 Multihash 객체로 변환하는 통합 메서드
+     * CIDv0(Qm으로 시작)와 CIDv1(bafk 등으로 시작) 모두 처리
+     */
+    private Multihash cidToMultihash(String cidStr) {
+        try {
+            if (cidStr.length() == 46 && cidStr.startsWith("Qm")) {
+                // CIDv0 (Base58 인코딩) - 직접 Multihash로 변환
+                return Multihash.fromBase58(cidStr);
+            } else {
+                // CIDv1 또는 기타 형식 - Cid 클래스를 사용하여 처리
+                Cid cid = Cid.decode(cidStr);
+                // Cid 객체에서 bareMultihash를 가져옴 (toMultihash 메서드는 없음)
+                return cid.bareMultihash();
+            }
+        } catch (Exception e) {
+            log.error("CID를 Multihash로 변환 중 오류 발생: {}", cidStr, e);
+            throw new RuntimeException("유효하지 않은 CID 형식: " + cidStr, e);
+        }
     }
 
     private String getFromGateway(String ipfsPath) {
@@ -299,20 +304,12 @@ public class CachingIpfsClientImpl implements IpfsClient {
                         new NamedStreamable.ByteArrayWrapper(bytes);
                 MerkleNode addResult = localNode.add(file).get(0);
 
-                // CID 형식에 맞게 비교 로직 수정
-                String resultHash;
-                if (ipfsPath.startsWith("bafk")) {
-                    // Base32 인코딩된 CIDv1의 경우
-                    io.ipfs.cid.Cid cid = io.ipfs.cid.Cid.decode(ipfsPath);
-                    resultHash = cid.toString();
-                } else {
-                    // 기존 Base58 인코딩 방식 사용
-                    resultHash = addResult.hash.toBase58();
-                }
+                // 저장된 CID와 원본 CID 비교를 위한 변환
+                boolean hashMatches = compareCids(ipfsPath, addResult.hash);
 
-                if (!resultHash.equals(ipfsPath)) {
+                if (!hashMatches) {
                     log.warn("캐시 저장 중 해시 불일치: expected={}, actual={}",
-                            ipfsPath, resultHash);
+                            ipfsPath, addResult.hash.toBase58());
                     return;
                 }
 
@@ -323,6 +320,33 @@ public class CachingIpfsClientImpl implements IpfsClient {
                 log.error("로컬 캐시 저장 실패: {}", ipfsPath, e);
             }
         });
+    }
+
+    /**
+     * CID 문자열과 Multihash를 비교하는 메서드
+     * 서로 다른 형식의 CID(v0, v1)도 내용이 같은지 비교
+     */
+    private boolean compareCids(String cidStr, Multihash hash) {
+        try {
+            if (cidStr.length() == 46 && cidStr.startsWith("Qm")) {
+                // CIDv0인 경우 단순 비교
+                return cidStr.equals(hash.toBase58());
+            } else {
+                // CIDv1인 경우 Cid 객체로 변환 후 비교
+                Cid originalCid = Cid.decode(cidStr);
+
+                // Multihash의 해시 값만 추출하여 비교
+                byte[] originalHash = originalCid.getHash();
+                byte[] resultHash = hash.getHash();
+
+                // 해시 내용이 같고 타입이 같으면 동일한 콘텐츠
+                return Arrays.equals(originalHash, resultHash) &&
+                        originalCid.getType() == hash.getType();
+            }
+        } catch (Exception e) {
+            log.error("CID 비교 중 오류 발생: {} vs {}", cidStr, hash.toBase58(), e);
+            return false;
+        }
     }
 
     // 커스텀 예외 클래스들
