@@ -123,13 +123,6 @@ Ari는 블록체인의 **투명성, 불변성, 탈중앙화** 특성을 활용�
       <td width="200"><a href="https://github.com/songowen">팀원 : 송창현<br/>ISTP</a></td>
       <td width="200"><a href="https://github.com/jinwooseok">팀원 : 진우석<br/>ENTJ</a></td>
     </tr>
-    <tr align="center" height="200">
-      <td>온체인 정산 설계 및 구현<br>Redis, IPFS, 스마트컨트랙트<br>Chainlink 오토메이션</td>
-      <td>시각화 / 디자인 구조 설계<br>정산 시각 자료 구성</td>
-      <td>블록체인 인프라 구성<br>IPFS 데이터 구조 및 처리<br>CID, Merkle Tree 저장</td>
-      <td>프론트엔드 메인페이지, 트랙 재생 관련 파트<br>인프라 담당</td>
-      <td>프론트엔드 전체 구조 설계<br>IPFS 스트리밍 내역 처리<br>React 기반 구현</td>
-      <td>프론트엔드 문서 작성<br>페이지 구성 정리 및 README</td>
-    </tr>
+  
   </tbody>
 </table>
