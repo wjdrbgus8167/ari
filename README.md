@@ -61,7 +61,7 @@ Ari는 블록체인의 **투명성, 불변성, 탈중앙화** 특성을 활용�
 
 ### 📦 아키텍처 요약
 
-![BE아키텍처 drawio](https://github.com/user-attachments/assets/55ddf8f3-e5d6-4951-9b94-b41a7569e297)
+ <img src="./readme/architect.png" width="800" alt="Architecture Image"/>
 
 ---
 
